@@ -51,7 +51,7 @@ Enter the CLI of your cluster :
 cockroach sql --host=localhost:26257 --insecure
 ```
 Be careful when creating the table, you have to use these commands :
-```
+```sql
 CREATE DATABASE rbac;
 use rbac;
 CREATE TABLE public.policy (
@@ -67,7 +67,7 @@ CREATE TABLE public.policy (
 );
 ```
 Then, you can insert the lines of the ```policy.csv``` one by one :
-```
+```sql
 INSERT INTO policy (p_type, v0, v1, v2, v3) VALUES ('p', 'admin', 'domain1', 'type1', 'admin_action');
 ...
 ```
