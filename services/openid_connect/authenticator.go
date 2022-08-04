@@ -2,25 +2,20 @@ package openid_connect
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 
+	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/google/uuid"
 )
 
-//Logger is a middleware handler that does request logging
-type Authenticator struct {
-	handler http.Handler
-}
-
 const prefixAuthMiddleware = "[AUTH MW]"
-
-// This is the list which is used to store user sessions
-var AuthenticatedUsers []*User
 
 // This functions checks if the session_code is present in the AuthenticatedUsers list and if the corresponding id_token is valid
 func Authorized(codeToVerify string, providerName string) bool {
-	for _, u := range AuthenticatedUsers {
+	for _, u := range repository.AuthenticatedUsers {
 		if u.Code == codeToVerify {
 			var p Provider = CreateProvider(providerName)
 			authenticated := p.Authenticated(u.Tokens.Id_token)
@@ -33,33 +28,33 @@ func Authorized(codeToVerify string, providerName string) bool {
 }
 
 // Creates a new session for a user. This function returns the session_code for the user.
-func NewSessionCode(email string, tokens Tokens) string {
+func NewSessionCode(email string, tokens models.Tokens) string {
 	sessionCode := uuid.New().String()
-	u := &User{
+	u := &models.User{
 		Code:   sessionCode,
 		Email:  email,
 		Tokens: tokens,
 	}
-	AuthenticatedUsers = append(AuthenticatedUsers, u)
-	fmt.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(AuthenticatedUsers)) + "\n")
+	repository.AuthenticatedUsers = append(repository.AuthenticatedUsers, u)
+	log.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(repository.AuthenticatedUsers)) + "\n")
 	return sessionCode
 }
 
 // Removes the user session based on his session_code
 func RemoveSessionCode(sessionCode string) {
-	var temp []*User
-	for _, u := range AuthenticatedUsers {
+	var temp []*models.User
+	for _, u := range repository.AuthenticatedUsers {
 		if u.Code != sessionCode {
 			temp = append(temp, u)
 		}
 	}
-	AuthenticatedUsers = temp
-	fmt.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(AuthenticatedUsers)) + "\n")
+	repository.AuthenticatedUsers = temp
+	log.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(repository.AuthenticatedUsers)) + "\n")
 }
 
 // Print the Auth Middleware messages
 func logInAuthMiddleware(msg string) {
-	fmt.Println(prefixAuthMiddleware + " " + msg + "\n")
+	log.Println(prefixAuthMiddleware + " " + msg + "\n")
 }
 
 // This middleware checks if the session_code given as a Authorization Bearer header is authorized

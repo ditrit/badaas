@@ -3,11 +3,12 @@ package openid_connect
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log"
 	"strconv"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/ditrit/badaas/persistence/models"
 	"golang.org/x/oauth2"
 )
 
@@ -23,40 +24,40 @@ type GoogleProvider struct {
 func (p GoogleProvider) CreateAuthURL(state string, nonce string) string {
 	// access_type=offline in order to get the refresh_token
 	URL := p.Config.AuthCodeURL(state, oidc.Nonce(nonce)) + "&access_type=offline"
-	fmt.Println("redirectURL: " + URL + "\n")
+	log.Println("redirectURL: " + URL + "\n")
 	return URL
 }
 
 // This function exchanges the code to get the OIDC tokens from the provider
-func (p GoogleProvider) GetTokens(code string) (Tokens, string, string, string) {
+func (p GoogleProvider) GetTokens(code string) (models.Tokens, string, string, string) {
 
 	ctx := context.Background()
 	oauth2Token, err := p.Config.Exchange(ctx, code)
 
-	fmt.Printf("oauth2Token: %+v\n\n", oauth2Token)
+	log.Printf("oauth2Token: %+v\n\n", oauth2Token)
 
 	if err != nil {
-		return Tokens{}, "", "", "Failed to exchange tokens"
+		return models.Tokens{}, "", "", "Failed to exchange tokens"
 	}
 
 	accessToken, ok := oauth2Token.Extra("access_token").(string)
-	fmt.Println("accessToken: " + accessToken + "\n")
+	log.Println("accessToken: " + accessToken + "\n")
 	if !ok {
-		return Tokens{}, "", "", "Failed to extract the access_token"
+		return models.Tokens{}, "", "", "Failed to extract the access_token"
 	}
 	rawIDToken, ok := oauth2Token.Extra("id_token").(string)
-	fmt.Println("rawIDToken: " + rawIDToken + "\n")
+	log.Println("rawIDToken: " + rawIDToken + "\n")
 	if !ok {
-		return Tokens{}, "", "", "Failed to extract the id_token"
+		return models.Tokens{}, "", "", "Failed to extract the id_token"
 	}
-	refreshToken, ok := oauth2Token.Extra("refresh_token").(string)
-	fmt.Println("refreshToken: " + refreshToken)
-	fmt.Println("len(refreshToken): " + strconv.Itoa(len(refreshToken)) + "\n")
+	refreshToken, _ := oauth2Token.Extra("refresh_token").(string)
+	log.Println("refreshToken: " + refreshToken)
+	log.Println("len(refreshToken): " + strconv.Itoa(len(refreshToken)) + "\n")
 
 	idToken, err := p.Verifier.Verify(ctx, rawIDToken)
 
 	if err != nil {
-		return Tokens{}, "", "", "Failed to verify id_token"
+		return models.Tokens{}, "", "", "Failed to verify id_token"
 	}
 	var IDTokenClaims *json.RawMessage = new(json.RawMessage)
 	idToken.Claims(&IDTokenClaims)
@@ -66,14 +67,14 @@ func (p GoogleProvider) GetTokens(code string) (Tokens, string, string, string) 
 	email := IDTokenBody["email"]
 	nonce := IDTokenBody["nonce"]
 
-	tokens := Tokens{rawIDToken, refreshToken, accessToken}
+	tokens := models.Tokens{rawIDToken, refreshToken, accessToken}
 
 	return tokens, email, nonce, ""
 
 }
 
 // This function uses the refresh_token to get new OIDC tokens
-func (p GoogleProvider) RefreshTokens(refreshToken string) (Tokens, string) {
+func (p GoogleProvider) RefreshTokens(refreshToken string) (models.Tokens, string) {
 
 	ctx := context.Background()
 	token := new(oauth2.Token)
@@ -84,23 +85,23 @@ func (p GoogleProvider) RefreshTokens(refreshToken string) (Tokens, string) {
 
 	newToken, err := ts.Token()
 	if err != nil {
-		return Tokens{}, "Impossible to refresh the token"
+		return models.Tokens{}, "Impossible to refresh the token"
 	}
 
-	fmt.Printf("oauth2Token: %+v\n\n", newToken)
+	log.Printf("oauth2Token: %+v\n\n", newToken)
 
 	rawIDToken, ok := newToken.Extra("id_token").(string)
-	fmt.Println("rawIDToken: " + rawIDToken + "\n")
+	log.Println("rawIDToken: " + rawIDToken + "\n")
 	if !ok {
-		return Tokens{}, "No id_token field in oauth2 token"
+		return models.Tokens{}, "No id_token field in oauth2 token"
 	}
 	accessToken, ok := newToken.Extra("access_token").(string)
-	fmt.Println("accessToken: " + accessToken + "\n")
+	log.Println("accessToken: " + accessToken + "\n")
 	if !ok {
-		return Tokens{}, "No access_token field in oauth2 token"
+		return models.Tokens{}, "No access_token field in oauth2 token"
 	}
 
-	tokens := Tokens{rawIDToken, refreshToken, accessToken}
+	tokens := models.Tokens{rawIDToken, refreshToken, accessToken}
 
 	return tokens, ""
 }
@@ -131,7 +132,7 @@ func (p GoogleProvider) RevokeToken(refreshToken string) string {
 		return "Failed to get the revocation_endpoint"
 	}
 
-	fmt.Println("revocation_URL: " + revocation_URL + "\n")
+	log.Println("revocation_URL: " + revocation_URL + "\n")
 
 	err = DoRevokeToken(ctx, revocation_URL, refreshToken, "refresh_token")
 	if err != nil {

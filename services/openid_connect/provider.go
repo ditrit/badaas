@@ -6,12 +6,12 @@ import (
 	"os"
 
 	"github.com/coreos/go-oidc/v3/oidc"
+	"github.com/ditrit/badaas/persistence/models"
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
-/* Returns the oauth2.Config, *oidc.IDTokenVerifier and *oidc.Provider for each of the OIDC provider considered, here : Google and Gitlab
-The configuration (ClientID, ClientSecret and the URL of the issuer) for each provider is located in the conf.env file */
+// Returns the oauth2.Config, *oidc.IDTokenVerifier and *oidc.Provider for each of the OIDC provider considered, here : Google and Gitlab. The configuration (ClientID, ClientSecret and the URL of the issuer) for each provider is located in the conf.env file
 func GetProviders() (oauth2.Config, *oidc.IDTokenVerifier, *oidc.Provider, oauth2.Config, *oidc.IDTokenVerifier, *oidc.Provider) {
 	ctx := context.Background()
 
@@ -73,8 +73,8 @@ var googleConfig, googleVerifier, googleProvider, gitlabConfig, gitlabVerifier, 
 // This interface is a contract for the struct GoogleProvider and GitlabProvider
 type Provider interface {
 	CreateAuthURL(state string, nonce string) string
-	GetTokens(code string) (Tokens, string, string, string)
-	RefreshTokens(refreshToken string) (Tokens, string)
+	GetTokens(code string) (models.Tokens, string, string, string)
+	RefreshTokens(refreshToken string) (models.Tokens, string)
 	Authenticated(rawIDToken string) AuthenticatedJson
 	RevokeToken(refreshToken string) string
 }

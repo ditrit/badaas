@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/ditrit/badaas/controllers"
-	"github.com/ditrit/badaas/controllers/openid_connect"
+	"github.com/ditrit/badaas/services/openid_connect"
 	"github.com/gorilla/mux"
 )
 

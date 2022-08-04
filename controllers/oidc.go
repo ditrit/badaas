@@ -3,10 +3,14 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 
-	"github.com/ditrit/badaas/controllers/openid_connect"
+	"github.com/ditrit/badaas/persistence/repository"
+	"github.com/ditrit/badaas/services/openid_connect"
 )
+
+// This controller handles the calls related to the OpenIDConnect flow
 
 // This function redirects the browser of the user to the authentication URL of the requested provider
 func LoginScreen(w http.ResponseWriter, request *http.Request) {
@@ -18,7 +22,7 @@ func LoginScreen(w http.ResponseWriter, request *http.Request) {
 	}
 	providerName := providers[0]
 
-	fmt.Println("provider: " + providerName + "\n")
+	log.Println("provider: " + providerName + "\n")
 
 	states, ok := request.URL.Query()["state"]
 	if !ok || len(states[0]) < 1 {
@@ -41,7 +45,7 @@ func LoginScreen(w http.ResponseWriter, request *http.Request) {
 	http.Redirect(w, request, URL, http.StatusFound)
 }
 
-/* This function exchanges the OIDC code to get the OIDC tokens given by the provider, then a new authenticated user is created in the backend storage. The session_code corresponding to the new user is sent back to the frontend */
+// This function exchanges the OIDC code to get the OIDC tokens given by the provider, then a new authenticated user is created in the backend storage. The session_code corresponding to the new user is sent back to the frontend
 func GetSessionCode(w http.ResponseWriter, request *http.Request) {
 
 	providers, ok := request.URL.Query()["provider"]
@@ -51,7 +55,7 @@ func GetSessionCode(w http.ResponseWriter, request *http.Request) {
 	}
 	providerName := providers[0]
 
-	fmt.Println("provider: " + providerName + "\n")
+	log.Println("provider: " + providerName + "\n")
 
 	var code openid_connect.Code
 	err := json.NewDecoder(request.Body).Decode(&code)
@@ -60,7 +64,7 @@ func GetSessionCode(w http.ResponseWriter, request *http.Request) {
 		return
 	}
 
-	fmt.Println("code: " + code.Value + "\n")
+	log.Println("code: " + code.Value + "\n")
 
 	var p openid_connect.Provider = openid_connect.CreateProvider(providerName)
 
@@ -79,7 +83,7 @@ func GetSessionCode(w http.ResponseWriter, request *http.Request) {
 	}
 }
 
-/* This function uses the refresh_token to call the RefreshTokens method of the Provider struct. The session of the user is refreshed and the new session_code is sent to the frontend */
+// This function uses the refresh_token to call the RefreshTokens method of the Provider struct. The session of the user is refreshed and the new session_code is sent to the frontend
 func RefreshTokens(w http.ResponseWriter, request *http.Request) {
 
 	providers, ok := request.URL.Query()["provider"]
@@ -89,13 +93,13 @@ func RefreshTokens(w http.ResponseWriter, request *http.Request) {
 	}
 	providerName := providers[0]
 
-	fmt.Println("provider: " + providerName + "\n")
+	log.Println("provider: " + providerName + "\n")
 
 	sessionCode := request.Header.Get("Authorization")[7:]
 	refreshToken := ""
 	email := ""
 
-	for _, u := range openid_connect.AuthenticatedUsers {
+	for _, u := range repository.AuthenticatedUsers {
 		if u.Code == sessionCode {
 			refreshToken = u.Tokens.Refresh_token
 			email = u.Email
@@ -103,7 +107,7 @@ func RefreshTokens(w http.ResponseWriter, request *http.Request) {
 		}
 	}
 
-	fmt.Println("refreshToken: " + refreshToken + "\n")
+	log.Println("refreshToken: " + refreshToken + "\n")
 
 	var p openid_connect.Provider = openid_connect.CreateProvider(providerName)
 
@@ -123,7 +127,7 @@ func RefreshTokens(w http.ResponseWriter, request *http.Request) {
 	}
 }
 
-/* This function only sends a json {"status":"authenticated"} as it is only reachable if the session of the user is valid. The checking of the session_code is made in the MiddlewareAuthenticator */
+// This function only sends a json {"status":"authenticated"} as it is only reachable if the session of the user is valid. The checking of the session_code is made in the MiddlewareAuthenticator
 func Authenticated(w http.ResponseWriter, request *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -143,13 +147,13 @@ func Logout(w http.ResponseWriter, request *http.Request) {
 	}
 	providerName := providers[0]
 
-	fmt.Println("provider: " + providerName + "\n")
+	log.Println("provider: " + providerName + "\n")
 
 	sessionCode := request.Header.Get("Authorization")[7:]
 
 	var p openid_connect.Provider = openid_connect.CreateProvider(providerName)
 
-	for _, u := range openid_connect.AuthenticatedUsers {
+	for _, u := range repository.AuthenticatedUsers {
 		if u.Code == sessionCode {
 			error := p.RevokeToken(u.Tokens.Refresh_token)
 			if error != "" {
