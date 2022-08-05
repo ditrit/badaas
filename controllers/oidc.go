@@ -99,7 +99,7 @@ func RefreshTokens(w http.ResponseWriter, request *http.Request) {
 	refreshToken := ""
 	email := ""
 
-	for _, u := range repository.AuthenticatedUsers {
+	for _, u := range repository.GetUsers() {
 		if u.Code == sessionCode {
 			refreshToken = u.Tokens.Refresh_token
 			email = u.Email
@@ -153,7 +153,7 @@ func Logout(w http.ResponseWriter, request *http.Request) {
 
 	var p openid_connect.Provider = openid_connect.CreateProvider(providerName)
 
-	for _, u := range repository.AuthenticatedUsers {
+	for _, u := range repository.GetUsers() {
 		if u.Code == sessionCode {
 			error := p.RevokeToken(u.Tokens.Refresh_token)
 			if error != "" {

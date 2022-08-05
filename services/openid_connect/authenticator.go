@@ -13,9 +13,9 @@ import (
 
 const prefixAuthMiddleware = "[AUTH MW]"
 
-// This functions checks if the session_code is present in the AuthenticatedUsers list and if the corresponding id_token is valid
+// This functions checks if the session_code is present in the list of users and if the corresponding id_token is valid
 func Authorized(codeToVerify string, providerName string) bool {
-	for _, u := range repository.AuthenticatedUsers {
+	for _, u := range repository.GetUsers() {
 		if u.Code == codeToVerify {
 			var p Provider = CreateProvider(providerName)
 			authenticated := p.Authenticated(u.Tokens.Id_token)
@@ -35,21 +35,21 @@ func NewSessionCode(email string, tokens models.Tokens) string {
 		Email:  email,
 		Tokens: tokens,
 	}
-	repository.AuthenticatedUsers = append(repository.AuthenticatedUsers, u)
-	log.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(repository.AuthenticatedUsers)) + "\n")
+	repository.AddUser(u)
+	log.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(repository.GetUsers())) + "\n")
 	return sessionCode
 }
 
 // Removes the user session based on his session_code
 func RemoveSessionCode(sessionCode string) {
 	var temp []*models.User
-	for _, u := range repository.AuthenticatedUsers {
+	for _, u := range repository.GetUsers() {
 		if u.Code != sessionCode {
 			temp = append(temp, u)
 		}
 	}
-	repository.AuthenticatedUsers = temp
-	log.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(repository.AuthenticatedUsers)) + "\n")
+	repository.ReplaceAllUsers(temp)
+	log.Println("Len(AuthenticatedUsers) : " + strconv.Itoa(len(repository.GetUsers())) + "\n")
 }
 
 // Print the Auth Middleware messages
