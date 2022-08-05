@@ -28,8 +28,10 @@ This is the default directory structure we use for the project:
 badaas
 ├ controllers          ⇨ Contains all the web controllers.
 ├ features             ⇨ Contains all the e2e tests.
+├ persistence          ⇨ Contains the storage management.
 ├ resources            ⇨ Contains all the applications resources, like constants or other.
 ├ router               ⇨ Contains the route definitions for application.
+└ services             ⇨ Contains the functions called by controllers.
 ```
 
 ### E2E testing
