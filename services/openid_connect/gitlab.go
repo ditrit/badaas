@@ -6,11 +6,13 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
@@ -148,4 +150,37 @@ func (p GitlabProvider) RevokeToken(refreshToken string) string {
 	}
 
 	return ""
+}
+
+func createGitlabProvider() Provider {
+	ctx := context.Background()
+
+	envErr := godotenv.Load()
+	if envErr != nil {
+		log.Printf("Could not load conf.env variables")
+		os.Exit(1)
+	}
+
+	// Gitlab configuration
+	gitlabClientID := os.Getenv("GITLAB_CLIENT_ID")
+	gitlabClientSecret := os.Getenv("GITLAB_CLIENT_SECRET")
+	gitlabIssuer := os.Getenv("GITLAB_ISSUER")
+
+	gitlabProvider, err := oidc.NewProvider(ctx, gitlabIssuer)
+	if err != nil {
+		log.Fatal(err)
+	}
+	gitlabOidcConfig := &oidc.Config{
+		ClientID: gitlabClientID,
+	}
+	gitlabVerifier := gitlabProvider.Verifier(gitlabOidcConfig)
+
+	gitlabConfig := oauth2.Config{
+		ClientID:     gitlabClientID,
+		ClientSecret: gitlabClientSecret,
+		Endpoint:     gitlabProvider.Endpoint(),
+		RedirectURL:  "http://localhost:8080/callback",
+		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+	}
+	return GitlabProvider{"gitlab", gitlabConfig, gitlabVerifier, gitlabProvider}
 }

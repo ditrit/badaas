@@ -4,11 +4,13 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"os"
 	"strconv"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
@@ -139,4 +141,38 @@ func (p GoogleProvider) RevokeToken(refreshToken string) string {
 		return "Failed to revoke token"
 	}
 	return ""
+}
+
+// Create a GoogleProvider
+func createGoogleProvider() Provider {
+	ctx := context.Background()
+
+	envErr := godotenv.Load()
+	if envErr != nil {
+		log.Printf("Could not load conf.env variables")
+		os.Exit(1)
+	}
+
+	// Google configuration
+	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
+	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
+	googleIssuer := os.Getenv("GOOGLE_ISSUER")
+
+	googleProvider, err := oidc.NewProvider(ctx, googleIssuer)
+	if err != nil {
+		log.Fatal(err)
+	}
+	googleOidcConfig := &oidc.Config{
+		ClientID: googleClientID,
+	}
+	googleVerifier := googleProvider.Verifier(googleOidcConfig)
+
+	googleConfig := oauth2.Config{
+		ClientID:     googleClientID,
+		ClientSecret: googleClientSecret,
+		Endpoint:     googleProvider.Endpoint(),
+		RedirectURL:  "http://localhost:8080/callback",
+		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
+	}
+	return GoogleProvider{"google", googleConfig, googleVerifier, googleProvider}
 }
