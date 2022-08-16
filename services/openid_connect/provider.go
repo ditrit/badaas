@@ -4,10 +4,10 @@ import (
 	"github.com/ditrit/badaas/persistence/models"
 )
 
-var providerMap = make(map[string]Provider)
+var providerMap = make(map[string]OIDCProvider)
 
 // This interface is a contract for the struct GoogleProvider and GitlabProvider
-type Provider interface {
+type OIDCProvider interface {
 	CreateAuthURL(state string, nonce string) string
 	GetTokens(code string) (models.Tokens, string, string, string)
 	RefreshTokens(refreshToken string) (models.Tokens, string)
@@ -16,7 +16,7 @@ type Provider interface {
 }
 
 // This function takes the name of the provider as a parameter and returns the corresponding provider struct
-func GetProvider(name string) Provider {
+func GetProvider(name string) OIDCProvider {
 	provider, ok := providerMap[name]
 	if ok {
 		// Provider already created
@@ -26,7 +26,7 @@ func GetProvider(name string) Provider {
 
 }
 
-func CreateProvider(name string) Provider {
+func CreateProvider(name string) OIDCProvider {
 	switch name {
 	case "google":
 		providerMap["google"] = createGoogleProvider()

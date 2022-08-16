@@ -17,7 +17,7 @@ const prefixAuthMiddleware = "[AUTH MW]"
 func Authorized(codeToVerify string, providerName string) bool {
 	for _, u := range repository.GetUsers() {
 		if u.Code == codeToVerify {
-			var p Provider = CreateProvider(providerName)
+			var p OIDCProvider = CreateProvider(providerName)
 			authenticated := p.Authenticated(u.Tokens.Id_token)
 			if authenticated.Value == "true" {
 				return true

@@ -38,7 +38,7 @@ func LoginScreen(w http.ResponseWriter, request *http.Request) {
 	}
 	nonce := nonces[0]
 
-	var p openid_connect.Provider = openid_connect.GetProvider(providerName)
+	var p openid_connect.OIDCProvider = openid_connect.GetProvider(providerName)
 
 	URL := p.CreateAuthURL(state, nonce)
 
@@ -66,7 +66,7 @@ func GetSessionCode(w http.ResponseWriter, request *http.Request) {
 
 	log.Println("code: " + code.Value + "\n")
 
-	var p openid_connect.Provider = openid_connect.GetProvider(providerName)
+	var p openid_connect.OIDCProvider = openid_connect.GetProvider(providerName)
 
 	tokens, email, nonce, error := p.GetTokens(code.Value)
 
@@ -109,7 +109,7 @@ func RefreshTokens(w http.ResponseWriter, request *http.Request) {
 
 	log.Println("refreshToken: " + refreshToken + "\n")
 
-	var p openid_connect.Provider = openid_connect.GetProvider(providerName)
+	var p openid_connect.OIDCProvider = openid_connect.GetProvider(providerName)
 
 	tokens, error := p.RefreshTokens(refreshToken)
 
@@ -151,7 +151,7 @@ func Logout(w http.ResponseWriter, request *http.Request) {
 
 	sessionCode := request.Header.Get("Authorization")[7:]
 
-	var p openid_connect.Provider = openid_connect.GetProvider(providerName)
+	var p openid_connect.OIDCProvider = openid_connect.GetProvider(providerName)
 
 	for _, u := range repository.GetUsers() {
 		if u.Code == sessionCode {

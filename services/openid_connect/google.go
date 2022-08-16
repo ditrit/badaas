@@ -144,7 +144,7 @@ func (p GoogleProvider) RevokeToken(refreshToken string) string {
 }
 
 // Create a GoogleProvider
-func createGoogleProvider() Provider {
+func createGoogleProvider() OIDCProvider {
 	ctx := context.Background()
 
 	envErr := godotenv.Load()

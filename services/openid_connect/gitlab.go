@@ -152,7 +152,7 @@ func (p GitlabProvider) RevokeToken(refreshToken string) string {
 	return ""
 }
 
-func createGitlabProvider() Provider {
+func createGitlabProvider() OIDCProvider {
 	ctx := context.Background()
 
 	envErr := godotenv.Load()
