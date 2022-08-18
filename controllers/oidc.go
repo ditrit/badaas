@@ -8,7 +8,43 @@ import (
 
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/openid_connect"
+	"github.com/google/uuid"
 )
+
+var nonces []uuid.UUID
+
+func newNonce() uuid.UUID {
+	res := uuid.New()
+	nonces = append(nonces, res)
+	return res
+}
+
+func removeNonce(val uuid.UUID) {
+	newSlice := make([]uuid.UUID, 0, len(nonces))
+	for _, v := range nonces {
+		if v != val {
+			newSlice = append(newSlice, v)
+		}
+	}
+	nonces = newSlice
+}
+
+func checkNonce(val uuid.UUID) bool {
+	if contains(val, nonces) {
+		removeNonce(val)
+		return true
+	}
+	return false
+}
+
+func contains[T comparable](elem T, list []T) bool {
+	for _, v := range list {
+		if v == elem {
+			return true
+		}
+	}
+	return false
+}
 
 // This controller handles the calls related to the OpenIDConnect flow
 
@@ -68,11 +104,14 @@ func GetSessionCode(w http.ResponseWriter, request *http.Request) {
 
 	var p openid_connect.OIDCProvider = openid_connect.GetProvider(providerName)
 
-	tokens, email, nonce, error := p.GetTokens(code.Value)
-
+	tokens, email, nonce, errorStr := p.GetTokens(code.Value)
+	r := checkNonce(uuid.MustParse(nonce))
+	if !r {
+		http.Error(w, "nonce is not valid", http.StatusInternalServerError)
+	}
 	sessionCode := openid_connect.NewSessionCode(email, tokens)
-	if error != "" {
-		http.Error(w, error, http.StatusInternalServerError)
+	if errorStr != "" {
+		http.Error(w, errorStr, http.StatusInternalServerError)
 		return
 	} else {
 		w.Header().Set("Content-Type", "application/json; charset=UTF-8")
@@ -155,9 +194,9 @@ func Logout(w http.ResponseWriter, request *http.Request) {
 
 	for _, u := range repository.GetUsers() {
 		if u.Code == sessionCode {
-			error := p.RevokeToken(u.Tokens.Refresh_token)
-			if error != "" {
-				http.Error(w, error, http.StatusInternalServerError)
+			err := p.RevokeToken(u.Tokens.Refresh_token)
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return
 			}
 			openid_connect.RemoveSessionCode(sessionCode)
@@ -166,5 +205,4 @@ func Logout(w http.ResponseWriter, request *http.Request) {
 	}
 
 	w.Write([]byte("Revocation successful"))
-
 }
