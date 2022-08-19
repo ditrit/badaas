@@ -12,7 +12,7 @@ type OIDCProvider interface {
 	GetTokens(code string) (models.Tokens, string, string, string)
 	RefreshTokens(refreshToken string) (models.Tokens, string)
 	Authenticated(rawIDToken string) AuthenticatedJson
-	RevokeToken(refreshToken string) string
+	RevokeToken(refreshToken string) error
 }
 
 // This function takes the name of the provider as a parameter and returns the corresponding provider struct

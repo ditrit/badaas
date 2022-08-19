@@ -3,24 +3,24 @@ package openid_connect
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 
-	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/pkg/errors"
+
+	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
 )
 
-/* This function fetches the provider well-known/openid-configuration endpoint
-to get the revocation_endpoint URL */
+// This function fetches the provider well-known/openid-configuration endpoint to get the revocation_endpoint URL
 func RevocationEndpoint(p *oidc.Provider) (string, error) {
 	claims := struct {
 		RevocationEndpoint string `json:"revocation_endpoint"`
 	}{}
 	if err := p.Claims(&claims); err != nil {
-		return "", errors.Wrap(err, "Error unmarshalling provider doc into struct")
+		return "", fmt.Errorf("error unmarshalling provider doc into struct (%w)", err)
 	}
 	if claims.RevocationEndpoint == "" {
 		return "", errors.New("Provider doesn't have a revocation_endpoint")
@@ -28,8 +28,9 @@ func RevocationEndpoint(p *oidc.Provider) (string, error) {
 	return claims.RevocationEndpoint, nil
 }
 
-func DoRevokeToken(ctx context.Context, revocationEndpoint string, token, tokenType string) error {
-	// Verify revocation_endpoint has https url
+// Revoke the token
+func DoRevokeToken(ctx context.Context, revocationEndpoint, token, tokenType string) error {
+	// Verify revocation_endpoint use https
 	if !strings.HasPrefix(revocationEndpoint, "https") {
 		return errors.New(fmt.Sprintf("Revocation endpoint (%v) MUST use https", revocationEndpoint))
 	}
@@ -47,14 +48,14 @@ func DoRevokeToken(ctx context.Context, revocationEndpoint string, token, tokenT
 
 	resp, err := doRequest(ctx, req)
 	if err != nil {
-		return errors.Wrap(err, "Error contacting revocation endpoint")
+		return fmt.Errorf("Error contacting revocation endpoint (%w)", err)
 	}
 	if code := resp.StatusCode; code != 200 {
 		// Read body to include in error for debugging purposes.
 		// According to RFC6749 (https://tools.ietf.org/html/rfc6749#section-5.2)
 		// the body should be in JSON, if we want to parse it in the future.
 		defer resp.Body.Close()
-		body, err := ioutil.ReadAll(resp.Body)
+		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			return errors.New(fmt.Sprintf("Revocation endpoint returned code %v, failed to read body: %v", code, err))
 		}
@@ -63,6 +64,7 @@ func DoRevokeToken(ctx context.Context, revocationEndpoint string, token, tokenT
 	return nil
 }
 
+// Execute Request with oauth2 HttpClient
 func doRequest(ctx context.Context, req *http.Request) (*http.Response, error) {
 	client := http.DefaultClient
 	if c, ok := ctx.Value(oauth2.HTTPClient).(*http.Client); ok {

@@ -3,27 +3,47 @@ package openid_connect
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 )
 
-// This struct implements the functions listed in the Provider interface
-type GoogleProvider struct {
+type GenericOIDCProvider struct {
 	Name     string
 	Config   oauth2.Config
 	Verifier *oidc.IDTokenVerifier
 	Provider *oidc.Provider
 }
 
+func NewOIDCProvider(name, clientId, clientSecret, issuer string, scopes []string, callbackURI string) (OIDCProvider, error) {
+	ctx := context.Background()
+
+	Provider, err := oidc.NewProvider(ctx, issuer)
+	if err != nil {
+		log.Fatal(err)
+	}
+	OidcConfig := &oidc.Config{
+		ClientID: clientId,
+	}
+	Verifier := Provider.Verifier(OidcConfig)
+
+	Config := oauth2.Config{
+		ClientID:     clientId,
+		ClientSecret: clientSecret,
+		Endpoint:     Provider.Endpoint(),
+		RedirectURL:  callbackURI,
+		Scopes:       append(scopes, oidc.ScopeOpenID),
+	}
+	return GenericOIDCProvider{name, Config, Verifier, Provider}, nil
+}
+
 // This function creates the authentication URL to the requested provider
-func (p GoogleProvider) CreateAuthURL(state string, nonce string) string {
+func (p GenericOIDCProvider) CreateAuthURL(state string, nonce string) string {
 	// access_type=offline in order to get the refresh_token
 	URL := p.Config.AuthCodeURL(state, oidc.Nonce(nonce)) + "&access_type=offline"
 	log.Println("redirectURL: " + URL + "\n")
@@ -31,7 +51,7 @@ func (p GoogleProvider) CreateAuthURL(state string, nonce string) string {
 }
 
 // This function exchanges the code to get the OIDC tokens from the provider
-func (p GoogleProvider) GetTokens(code string) (models.Tokens, string, string, string) {
+func (p GenericOIDCProvider) GetTokens(code string) (models.Tokens, string, string, string) {
 
 	ctx := context.Background()
 	oauth2Token, err := p.Config.Exchange(ctx, code)
@@ -43,7 +63,7 @@ func (p GoogleProvider) GetTokens(code string) (models.Tokens, string, string, s
 	}
 
 	accessToken, ok := oauth2Token.Extra("access_token").(string)
-	log.Println("accessToken: " + accessToken + "\n")
+	log.Printf("accessToken: %s\n", accessToken)
 	if !ok {
 		return models.Tokens{}, "", "", "Failed to extract the access_token"
 	}
@@ -72,11 +92,10 @@ func (p GoogleProvider) GetTokens(code string) (models.Tokens, string, string, s
 	tokens := models.Tokens{rawIDToken, refreshToken, accessToken}
 
 	return tokens, email, nonce, ""
-
 }
 
 // This function uses the refresh_token to get new OIDC tokens
-func (p GoogleProvider) RefreshTokens(refreshToken string) (models.Tokens, string) {
+func (p GenericOIDCProvider) RefreshTokens(refreshToken string) (models.Tokens, string) {
 
 	ctx := context.Background()
 	token := new(oauth2.Token)
@@ -109,70 +128,30 @@ func (p GoogleProvider) RefreshTokens(refreshToken string) (models.Tokens, strin
 }
 
 // This function checks validity of the id_token
-func (p GoogleProvider) Authenticated(rawIDToken string) AuthenticatedJson {
+func (p GenericOIDCProvider) Authenticated(rawIDToken string) AuthenticatedJson {
 	ctx := context.Background()
 	_, err := p.Verifier.Verify(ctx, rawIDToken)
 
-	authenticated := *new(string)
-
 	if err != nil {
-		authenticated = "false"
-	} else {
-		authenticated = "true"
+		return AuthenticatedJson{Value: "false"}
 	}
+	return AuthenticatedJson{Value: "true"}
 
-	authenticated_json := AuthenticatedJson{authenticated}
-
-	return authenticated_json
 }
 
 // This function revokes the refresh_token using the revoke endpoint of the provider
-func (p GoogleProvider) RevokeToken(refreshToken string) string {
+func (p GenericOIDCProvider) RevokeToken(refreshToken string) error {
 	ctx := context.Background()
 	revocation_URL, err := RevocationEndpoint(p.Provider)
 	if err != nil {
-		return "Failed to get the revocation_endpoint"
+		return fmt.Errorf("failed to get the revocation_endpoint")
 	}
 
 	log.Println("revocation_URL: " + revocation_URL + "\n")
 
 	err = DoRevokeToken(ctx, revocation_URL, refreshToken, "refresh_token")
 	if err != nil {
-		return "Failed to revoke token"
+		return fmt.Errorf("Failed to revoke token")
 	}
-	return ""
-}
-
-// Create a GoogleProvider
-func createGoogleProvider() OIDCProvider {
-	ctx := context.Background()
-
-	envErr := godotenv.Load()
-	if envErr != nil {
-		log.Printf("Could not load conf.env variables")
-		os.Exit(1)
-	}
-
-	// Google configuration
-	googleClientID := os.Getenv("GOOGLE_CLIENT_ID")
-	googleClientSecret := os.Getenv("GOOGLE_CLIENT_SECRET")
-	googleIssuer := os.Getenv("GOOGLE_ISSUER")
-
-	googleProvider, err := oidc.NewProvider(ctx, googleIssuer)
-	if err != nil {
-		log.Fatal(err)
-	}
-	googleOidcConfig := &oidc.Config{
-		ClientID: googleClientID,
-	}
-	googleVerifier := googleProvider.Verifier(googleOidcConfig)
-
-	googleConfig := oauth2.Config{
-		ClientID:     googleClientID,
-		ClientSecret: googleClientSecret,
-		Endpoint:     googleProvider.Endpoint(),
-		RedirectURL:  "http://localhost:8080/callback",
-		Scopes:       []string{oidc.ScopeOpenID, "profile", "email"},
-	}
-	return GoogleProvider{"google", googleConfig, googleVerifier, googleProvider}
+	return nil
 }
