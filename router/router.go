@@ -8,6 +8,7 @@ import (
 // Default router of badaas, initialize all routes.
 func SetupRouter() *mux.Router {
 	router := mux.NewRouter()
+	router.Use(MiddlewareLogger)
 
 	router.HandleFunc("/info", controllers.Info).Methods("GET")
 
