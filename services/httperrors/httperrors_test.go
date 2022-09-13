@@ -44,3 +44,24 @@ func TestWrite(t *testing.T) {
 		t.Error("the body should contains the jsonified HTTPError")
 	}
 }
+
+func TestNewErrorNotFound(t *testing.T) {
+	error := httperrors.NewErrorNotFound("file", "main.css is not accessible")
+	if error == nil {
+		t.Errorf("the HTTPError returned by NewErrorNotFound should not be nil")
+	}
+}
+
+func TestNewInternalServerError(t *testing.T) {
+	error := httperrors.NewInternalServerError("casbin error", "the ressource is not accessible", nil)
+	if error == nil {
+		t.Errorf("the HTTPError returned by NewInternalServerError should not be nil")
+	}
+}
+
+func TestNewUnauthorizedError(t *testing.T) {
+	error := httperrors.NewInternalServerError("json unmarshalling", "nil value whatever", nil)
+	if error == nil {
+		t.Errorf("the HTTPError returned by NewUnauthorizedError should not be nil")
+	}
+}
