@@ -4,7 +4,7 @@ Backend and Distribution as a Service
 
 ## Build
 
-To build the project: 
+To build the project:
 
 - [Install go](https://go.dev/dl/#go1.18.4) v1.18
 - Install project dependencies
@@ -33,6 +33,7 @@ badaas
 ├ resources            ⇨ Contains all the applications resources, like constants or other.
 ├ router               ⇨ Contains the route definitions for application.
 ├ scripts              ⇨ Contains shell scripts, the Docker files and docker-compose files for e2e test.
+├ logger               ⇨ The logger implementation.
 ```
 
 ### E2E testing
@@ -80,5 +81,5 @@ Release tag are only done on the `main` branch.
     * `prerelease`, used for preparing the branch for the release
     * `release`, used for releasing project
     * `hotfix`, used for applying a hotfix on main
-    * `poc`, used for proof of concept 
+    * `poc`, used for proof of concept
 * `BRANCH_NAME` is managed by this regex: `[a-z0-9._-]` (`_` is used as space character).
