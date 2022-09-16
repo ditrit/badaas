@@ -3,7 +3,7 @@ package httperrors_test
 import (
 	"bytes"
 	"encoding/json"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -12,14 +12,14 @@ import (
 )
 
 func TestNewHTTPError(t *testing.T) {
-	error := httperrors.NewHTTPError(http.StatusBadRequest, "Error while parsing json", "The request body was malformed", nil)
+	error := httperrors.NewHTTPError(http.StatusBadRequest, "Error while parsing json", "The request body was malformed", nil, true)
 	if error == nil {
 		t.Errorf("the HTTPError returned by the contructor should not be nil")
 	}
 }
 
 func TestTojson(t *testing.T) {
-	error := httperrors.NewHTTPError(http.StatusBadRequest, "Error while parsing json", "The request body was malformed", nil)
+	error := httperrors.NewHTTPError(http.StatusBadRequest, "Error while parsing json", "The request body was malformed", nil, true)
 	if error.ToJSON() == "" {
 		t.Errorf("the json string returned by the ToJSON method should not return an empty string")
 	}
@@ -30,9 +30,9 @@ func TestTojson(t *testing.T) {
 
 func TestWrite(t *testing.T) {
 	res := httptest.NewRecorder()
-	error := httperrors.NewHTTPError(http.StatusBadRequest, "Error while parsing json", "The request body was malformed", nil)
+	error := httperrors.NewHTTPError(http.StatusBadRequest, "Error while parsing json", "The request body was malformed", nil, true)
 	error.Write(res)
-	bodyBytes, err := ioutil.ReadAll(res.Body)
+	bodyBytes, err := io.ReadAll(res.Body)
 	if err != nil {
 		t.Errorf("the body of the response have to be readable without errors, got =%s", err.Error())
 	}
