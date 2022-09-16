@@ -1,46 +1,62 @@
 package commands
 
 import (
-	"fmt"
-	"net/http"
+	"errors"
+	"log"
 
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/db"
+	"github.com/ditrit/badaas/logger"
+	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/persistence/registry"
+	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
+	"go.uber.org/zap"
 )
+
+// Create a super admin user and exit with code 1 on error
+func createSuperAdminUser() {
+	logg := zap.L().Sugar()
+	superadmin, err := models.NewUser("superadmin", "superadmin@badaas.test", "1234")
+	if err != nil {
+		logg.Fatalf("failed to create superadmin %w", err)
+	}
+	registry.GetRegistry().UserRepo.Create(superadmin)
+	if err != nil {
+		if errors.Is(err, repository.ErrUserAlreadyExists) {
+			logg.Debugf("The superadmin user already exists in database")
+		} else {
+			logg.Fatalf("failed to save the super admin %w", err)
+		}
+	}
+
+}
 
 // Run the http server for badaas
 func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
-	err := db.InitializeDBFromConf()
+	err := logger.InitLogger(logger.DevelopmentLogger)
 	if err != nil {
-		return fmt.Errorf("failed to initialize the connection to the database, (%w)", err)
-	}
-	err = db.AutoMigrate()
-	if err != nil {
-		return fmt.Errorf("failed to migrate the database, (%w)", err)
+		log.Fatalf("An error happened while initializing logger (ERROR=%s)", err.Error())
 	}
 
-	// configuration holder for the http server
-	// get the config value with the correct types by using the method on this struct
-	httpServerConfig := configuration.NewHTTPServerConfiguration()
+	zap.L().Info("The logger is initialiazed")
 
+	registryInstance, err := registry.FactoryRegistry(registry.GormDatastore)
+	if err != nil {
+		zap.L().Sugar().Fatalf("An error happened while initializing datastorage layer (ERROR=%s)", err.Error())
+	}
+	registry.ReplaceGlobals(registryInstance)
+	zap.L().Info("The datastorage layer is initialized")
+
+	createSuperAdminUser()
+
+	// create router
 	router := router.SetupRouter()
 
-	address := fmt.Sprintf("%s:%d",
-		httpServerConfig.GetHost(),
-		httpServerConfig.GetPort(),
-	)
-	srv := &http.Server{
-		Handler: router,
-		Addr:    address,
+	// create server
+	srv := createServerFromConfiguration(router)
 
-		WriteTimeout: httpServerConfig.GetMaxTimout(),
-		ReadTimeout:  httpServerConfig.GetMaxTimout(),
-	}
-
-	fmt.Printf("Ready to serve at %s\n", address)
+	zap.L().Sugar().Infof("Ready to serve at %s\n", srv.Addr)
 	return srv.ListenAndServe()
 }
 
