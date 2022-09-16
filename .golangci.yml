@@ -60,7 +60,7 @@ linters:
   - deadcode
   - exportloopref
   - gocritic
-  - revive
+  # - revive
   - gosimple
   - govet
   - ineffassign
