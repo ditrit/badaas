@@ -1,12 +1,13 @@
 package main
 
 import (
-	"github.com/cucumber/godog"
-	"github.com/cucumber/godog/colors"
-	"github.com/spf13/pflag"
 	"net/http"
 	"os"
 	"testing"
+
+	"github.com/cucumber/godog"
+	"github.com/cucumber/godog/colors"
+	"github.com/spf13/pflag"
 )
 
 type TestContext struct {
@@ -41,4 +42,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I request "(.+)"$`, t.requestGET)
 	ctx.Step(`^I expect status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^I expect response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
+
+	ctx.Step(`^I sign-in as "([^"]*)" with password "([^"]*)"$`, t.iSigninAsWithPassword)
 }
