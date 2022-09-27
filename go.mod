@@ -10,6 +10,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.13.0
 	github.com/magiconair/properties v1.8.6
+	github.com/noirbizarre/gonja v0.0.0-20200629003239-4d051fd0be61
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.13.0
 	github.com/stretchr/testify v1.8.0
@@ -42,7 +43,6 @@ require (
 	github.com/jinzhu/now v1.1.4 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
-	github.com/noirbizarre/gonja v0.0.0-20200629003239-4d051fd0be61 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
