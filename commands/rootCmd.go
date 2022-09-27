@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/ditrit/badaas/logger"
+	"github.com/ditrit/badaas/persistence/registry"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/verdeter"
 	"go.uber.org/zap"
@@ -20,6 +21,13 @@ func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
 
 	// create router
 	router := router.SetupRouter()
+
+	registryInstance, err := registry.FactoryRegistry(registry.GormDataStore)
+	if err != nil {
+		zap.L().Sugar().Fatalf("An error happened while initializing datastorage layer (ERROR=%s)", err.Error())
+	}
+	registry.ReplaceGlobals(registryInstance)
+	zap.L().Info("The datastorage layer is initialized")
 
 	// create server
 	srv := createServerFromConfiguration(router)
