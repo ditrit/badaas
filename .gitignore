@@ -31,3 +31,5 @@ badaas
 
 # temporary directories
 _temp
+
+vendor/
