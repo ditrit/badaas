@@ -125,3 +125,8 @@ func NewUnauthorizedError(errorName string, msg string) HTTPError {
 		true,
 	)
 }
+
+// A contructor for an HTTPError "Bad Request"
+func NewBadRequestError(err string, msg string) HTTPError {
+	return NewHTTPError(http.StatusBadRequest, err, msg, nil, false)
+}

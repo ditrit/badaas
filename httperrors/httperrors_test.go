@@ -117,3 +117,15 @@ func TestNewUnauthorizedError(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, http.StatusText(http.StatusUnauthorized), dto.Status)
 }
+
+func TestNewBadRequestError(t *testing.T) {
+	error := httperrors.NewBadRequestError("id must be an unsigned integer", "please use a valid id")
+	assert.NotNil(t, error)
+	assert.False(t, error.Log())
+	dto := new(dto.DTOHTTPError)
+	err := json.Unmarshal([]byte(error.ToJSON()), &dto)
+	assert.NoError(t, err)
+	assert.Equal(t, http.StatusText(http.StatusBadRequest), dto.Status)
+	assert.Equal(t, "id must be an unsigned integer", dto.Error)
+	assert.Equal(t, "please use a valid id", dto.Message)
+}

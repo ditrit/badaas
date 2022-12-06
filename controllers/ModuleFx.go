@@ -7,4 +7,5 @@ var ControllerModule = fx.Module(
 	"controllers",
 	fx.Provide(NewInfoController),
 	fx.Provide(NewBasicAuthentificationController),
+	fx.Provide(NewEAVController),
 )
