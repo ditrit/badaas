@@ -19,7 +19,7 @@ func TestCreateSuperUser(t *testing.T) {
 	initializationConfig.On("GetAdminPassword").Return("adminpassword")
 	userService := mockUserServices.NewUserService(t)
 	userService.
-		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword").
+		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword", "").
 		Return(nil, nil)
 	err := createSuperUser(
 		initializationConfig,
@@ -36,14 +36,14 @@ func TestCreateSuperUser_UserExists(t *testing.T) {
 	initializationConfig.On("GetAdminPassword").Return("adminpassword")
 	userService := mockUserServices.NewUserService(t)
 	userService.
-		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword").
+		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword", "").
 		Return(nil, errors.New("user already exist in database"))
 	err := createSuperUser(
 		initializationConfig,
 		logger,
 		userService,
 	)
-	assert.NoError(t, err)
+	assert.Error(t, err)
 
 	require.Equal(t, 1, logs.Len())
 }
@@ -55,7 +55,7 @@ func TestCreateSuperUser_UserServiceError(t *testing.T) {
 	initializationConfig.On("GetAdminPassword").Return("adminpassword")
 	userService := mockUserServices.NewUserService(t)
 	userService.
-		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword").
+		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword", "").
 		Return(nil, errors.New("email not valid"))
 	err := createSuperUser(
 		initializationConfig,
