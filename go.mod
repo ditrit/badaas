@@ -17,11 +17,21 @@ require (
 	go.uber.org/fx v1.18.2
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.1.0
+	golang.org/x/oauth2 v0.0.0-20220822191816-0ebed06d0094
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.24.1
 )
 
 require (
+	github.com/golang/protobuf v1.5.2 // indirect
+	golang.org/x/net v0.1.0 // indirect
+	google.golang.org/appengine v1.6.7 // indirect
+	google.golang.org/protobuf v1.28.0 // indirect
+	gopkg.in/square/go-jose.v2 v2.6.0 // indirect
+)
+
+require (
+	github.com/coreos/go-oidc/v3 v3.4.0
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
