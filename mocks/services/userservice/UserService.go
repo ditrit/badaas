@@ -41,13 +41,13 @@ func (_m *UserService) GetUser(_a0 dto.UserLoginDTO) (*models.User, httperrors.H
 	return r0, r1
 }
 
-// NewUser provides a mock function with given fields: username, email, password
-func (_m *UserService) NewUser(username string, email string, password string) (*models.User, error) {
-	ret := _m.Called(username, email, password)
+// NewUser provides a mock function with given fields: username, email, password, oidcIdentifier
+func (_m *UserService) NewUser(username string, email string, password string, oidcIdentifier string) (*models.User, error) {
+	ret := _m.Called(username, email, password, oidcIdentifier)
 
 	var r0 *models.User
-	if rf, ok := ret.Get(0).(func(string, string, string) *models.User); ok {
-		r0 = rf(username, email, password)
+	if rf, ok := ret.Get(0).(func(string, string, string, string) *models.User); ok {
+		r0 = rf(username, email, password, oidcIdentifier)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.User)
@@ -55,8 +55,8 @@ func (_m *UserService) NewUser(username string, email string, password string) (
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(username, email, password)
+	if rf, ok := ret.Get(1).(func(string, string, string, string) error); ok {
+		r1 = rf(username, email, password, oidcIdentifier)
 	} else {
 		r1 = ret.Error(1)
 	}

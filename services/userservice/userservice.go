@@ -16,7 +16,7 @@ import (
 
 // UserService provide functions related to Users
 type UserService interface {
-	NewUser(username, email, password string) (*models.User, error)
+	NewUser(username, email, password, oidcIdentifier string) (*models.User, error)
 	GetUser(dto.UserLoginDTO) (*models.User, httperrors.HTTPError)
 }
 
@@ -41,15 +41,19 @@ func NewUserService(
 }
 
 // Create a new user
-func (userService *userServiceImpl) NewUser(username, email, password string) (*models.User, error) {
+func (userService *userServiceImpl) NewUser(username, email, password, oidcIdentifier string) (*models.User, error) {
 	sanitizedEmail, err := validator.ValidEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("the provided email is not valid")
 	}
+	if oidcIdentifier == "" {
+		oidcIdentifier = sanitizedEmail
+	}
 	u := &models.User{
-		Username: username,
-		Email:    sanitizedEmail,
-		Password: basicauth.SaltAndHashPassword(password),
+		Username:       username,
+		Email:          sanitizedEmail,
+		Password:       basicauth.SaltAndHashPassword(password),
+		OidcIdentifier: oidcIdentifier,
 	}
 	httpError := userService.userRepository.Create(u)
 	if httpError != nil {

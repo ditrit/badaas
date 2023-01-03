@@ -3,8 +3,9 @@ package models
 // Represents a user
 type User struct {
 	BaseModel
-	Username string `gorm:"not null"`
-	Email    string `gorm:"unique;not null"`
+	Username       string `gorm:"unique;not null"`
+	Email          string `gorm:"unique;not null"`
+	OidcIdentifier string `gorm:"unique"`
 
 	// password hash
 	Password []byte `gorm:"not null"`
