@@ -25,12 +25,13 @@ func TestNewUserService(t *testing.T) {
 	userRespositoryMock := repositorymocks.NewCRUDRepository[models.User, uint](t)
 	userRespositoryMock.On("Create", mock.Anything).Return(nil)
 	userService := userservice.NewUserService(observedLogger, userRespositoryMock)
-	user, err := userService.NewUser("bob", "bob@email.com", "1234")
+	user, err := userService.NewUser("bob", "bob@email.com", "1234", "bobOIDCIdentifier")
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
 	assert.Equal(t, "bob", user.Username)
 	assert.Equal(t, "bob@email.com", user.Email)
 	assert.NotEqual(t, "1234", user.Password)
+	assert.Equal(t, "bobOIDCIdentifier", user.OidcIdentifier)
 
 	// Checking logs
 	require.Equal(t, 1, observedLogs.Len())
@@ -55,7 +56,7 @@ func TestNewUserServiceDatabaseError(t *testing.T) {
 		httperrors.NewInternalServerError("database error", "test error", nil),
 	)
 	userService := userservice.NewUserService(observedLogger, userRespositoryMock)
-	user, err := userService.NewUser("bob", "bob@email.com", "1234")
+	user, err := userService.NewUser("bob", "bob@email.com", "1234", "")
 	assert.Error(t, err)
 	assert.Nil(t, user)
 
@@ -71,7 +72,7 @@ func TestNewUserServiceEmailNotValid(t *testing.T) {
 	userRespositoryMock := repositorymocks.NewCRUDRepository[models.User, uint](t)
 
 	userService := userservice.NewUserService(observedLogger, userRespositoryMock)
-	user, err := userService.NewUser("bob", "bob@", "1234")
+	user, err := userService.NewUser("bob", "bob@", "1234", "")
 	assert.Error(t, err)
 	assert.Nil(t, user)
 
@@ -91,7 +92,7 @@ func TestGetUser(t *testing.T) {
 	).Return(
 		nil,
 	)
-	user, err := userService.NewUser("bob", "bob@email.com", "1234")
+	user, err := userService.NewUser("bob", "bob@email.com", "1234", "")
 
 	require.NoError(t, err)
 	userRespositoryMock.On(
@@ -147,7 +148,7 @@ func TestGetUserNotCorrect(t *testing.T) {
 		nil,
 	)
 	userService := userservice.NewUserService(observedLogger, userRespositoryMock)
-	user, err := userService.NewUser("bob", "bob@email.com", "1234")
+	user, err := userService.NewUser("bob", "bob@email.com", "1234", "")
 
 	require.NoError(t, err)
 	userRespositoryMock.On(
@@ -175,7 +176,7 @@ func TestGetUserEmpty(t *testing.T) {
 		nil,
 	)
 	userService := userservice.NewUserService(observedLogger, userRespositoryMock)
-	_, err := userService.NewUser("bob", "bob@email.com", "1234")
+	_, err := userService.NewUser("bob", "bob@email.com", "1234", "")
 
 	require.NoError(t, err)
 	userRespositoryMock.On(
