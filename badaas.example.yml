@@ -80,3 +80,30 @@ default:
     # The admin password for the first run. Won't change is the admin user already exists.
     password: admin
     
+auth:
+  type: oidc # please note that the key auth.type is set to "oidc"
+  oidc:
+    # The Oauth2.0 Client ID
+    # (mandatory)
+    clientID: oidcCLIENT
+
+    # The Oauth2 Client Secret
+    # (mandatory)
+    clientSecret: abcd
+
+    # The issuer URL
+    # (mandatory)
+    issuer: "http://accounts.super-company.com"
+
+    # The redirect url. Use after the OIDC provider has authenticated the user. 
+    # Probably should be set to redirect to the SPA. 
+    # (mandatory)
+    redirectURL: "http://super-spa.com/auth/oidc/callback"
+
+    # The UNIQUE id claim used to identify OIDC users. 
+    # Default to "sub", should not be changed unless you know what you are doing.
+    claimIdentifier: email
+
+    # The scopes needed to get the claims. 
+    # Defaults to "", should not be changed unless you know what you are doing.
+    scopes: "profile,email"
