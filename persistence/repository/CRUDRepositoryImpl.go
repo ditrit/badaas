@@ -2,7 +2,6 @@ package repository
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/configuration"
@@ -71,11 +70,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) Create(entity *T) httperrors.HTTPEr
 	err := repository.gormDatabase.Create(entity).Error
 	if err != nil {
 		if gormdatabase.IsDuplicateKeyError(err) {
-			return httperrors.NewHTTPError(
-				http.StatusConflict,
-				fmt.Sprintf("%T already exist in database", entity),
-				"",
-				nil, false)
+			return ErrDuplicateKey
 		}
 		return DatabaseError(
 			fmt.Sprintf("could not create  %v in %s", entity, (*entity).TableName()),
@@ -102,6 +97,9 @@ func (repository *CRUDRepositoryImpl[T, ID]) Delete(entity *T) httperrors.HTTPEr
 func (repository *CRUDRepositoryImpl[T, ID]) Save(entity *T) httperrors.HTTPError {
 	err := repository.gormDatabase.Save(entity).Error
 	if err != nil {
+		if gormdatabase.IsDuplicateKeyError(err) {
+			return ErrDuplicateKey
+		}
 		return DatabaseError(
 			fmt.Sprintf("could not save user %v in %s", entity, (*entity).TableName()),
 			err,
