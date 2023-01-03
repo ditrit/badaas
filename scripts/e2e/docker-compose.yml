@@ -23,3 +23,16 @@ services:
       # - BADAAS_MAX_TIMOUT= 15 # in seconds
     depends_on:
       - db
+    volumes:
+      - ./api/badaas.yml:/badaas.yml
+
+  oidc-provider:
+    build: oidc-provider/.
+    ports:
+      - "3000:3000" 
+    environment:
+      - HOST=e2e-oidc-provider-1
+      - REDIRECT_URI=http://e2e-api-1:8000/auth/oidc/callback
+      # - PORT=3000
+      # - CLIENT_ID= ...
+      # - CLIENT_SECRET = ...
