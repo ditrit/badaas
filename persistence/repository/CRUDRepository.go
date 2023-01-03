@@ -1,10 +1,22 @@
 package repository
 
 import (
+	"net/http"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/pagination"
+)
+
+var (
+	// ErrDuplicateKey is returned a conflict happen. (Most of the time because a field is unique.)
+	ErrDuplicateKey = httperrors.NewHTTPError(
+		http.StatusConflict,
+		"conflict",
+		"conflict on write",
+		nil, false,
+	)
 )
 
 // Generic CRUD Repository
