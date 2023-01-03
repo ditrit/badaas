@@ -1,14 +1,12 @@
 #!/bin/sh
+
 echo "******************************* Listing Env Variables..."
+
 printenv
+
 echo "******************************* starting single cockroach node..."
 
 ./cockroach start-single-node --insecure --log-config-file=logs.yaml --background
-
-
-echo "******************************* Creating user"
-# cockroach user set ${COCKROACH_USER} --password 1234 --echo-sql
-# cockroach user ls
 
 echo "******************************* Init database"
 echo "*******************************  |=> Creating init.sql"
@@ -23,6 +21,7 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO ${COCKROACH_USER};
 EOF
 
 cat init.sql
+
 echo "*******************************  |=> Applying init.sql"
 
 ./cockroach sql --insecure --file init.sql
