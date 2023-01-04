@@ -8,6 +8,7 @@ LICENSE
 Makefile
 NOTICE
 README.md
+configuration.md
 arm/
 powerpc/
 mips/
@@ -19,3 +20,4 @@ node2
 node3
 .gitignore
 changelog.md
+scripts/
