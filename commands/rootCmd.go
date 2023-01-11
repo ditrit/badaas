@@ -10,6 +10,7 @@ import (
 	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/router"
+	"github.com/ditrit/badaas/services/eavservice"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/ditrit/verdeter"
@@ -31,6 +32,7 @@ func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
 
 		fx.Provide(userservice.NewUserService),
 		fx.Provide(sessionservice.NewSessionService),
+		fx.Provide(eavservice.NewEAVService),
 		// logger for fx
 		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: logger}
@@ -143,45 +145,116 @@ func PopulateDatabase(db *gorm.DB) error {
 }
 
 func PopulateDatabase2(db *gorm.DB) error {
+	// GETTING THE SUSER ADMIN FOR REFERENCE
+	USERID := "wowasupercooluserID"
+
+	// CREATION OF THE PROFILE TYPE AND ASSOCIATED ATTRIBUTES
+	ProfileType := &models.EntityType{
+		Name: "profile",
+	}
+	displayNameAttr := &models.Attribut{
+		EntityTypeId: ProfileType.ID,
+		Name:         "displayName",
+		ValueType:    "string",
+		Required:     true,
+	}
+	urlPicAttr := &models.Attribut{
+		EntityTypeId:  ProfileType.ID,
+		Name:          "urlPic",
+		ValueType:     "string",
+		Required:      false,
+		Default:       true,
+		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73",
+	}
+	userIdAttr := &models.Attribut{
+		EntityTypeId: ProfileType.ID,
+		Name:         "userId",
+		ValueType:    "string",
+		Required:     true,
+	}
+	ProfileType.Attributs = append(ProfileType.Attributs,
+		displayNameAttr,
+		urlPicAttr,
+		userIdAttr,
+	)
+
+	// INSTANCIATION OF A Profile
+	adminProfile := &models.Entity{
+		EntityTypeId: ProfileType.ID,
+		EntityType:   ProfileType,
+	}
+	displayNameVal := &models.Value{Attribut: urlPicAttr, StringVal: "The Super Admin"}
+	userPicVal := &models.Value{Attribut: urlPicAttr, IsNull: true}
+	userIdVal := &models.Value{Attribut: userIdAttr, StringVal: USERID}
+	adminProfile.Fields = append(adminProfile.Fields,
+		displayNameVal,
+		userPicVal,
+		userIdVal,
+	)
+
+	// CREATION OF THE POST TYPE AND ASSOCIATED ATTRIBUTES
 	PostType := &models.EntityType{
 		Name: "post",
 	}
-	titleAttr := &models.Attribut{Name: "title", ValueType: "string", Required: true}
-	bodyAttr := &models.Attribut{Name: "body", ValueType: "string", Default: false, DefaultString: "empty"}
-	ownerAttr := &models.Attribut{Name: "ownerID", ValueType: "string", Required: true}
+	titleAttr := &models.Attribut{
+		EntityTypeId: PostType.ID,
+		Name:         "title",
+		ValueType:    "string",
+		Required:     true,
+	}
+	bodyAttr := &models.Attribut{
+		Name:          "body",
+		ValueType:     "string",
+		Default:       false,
+		DefaultString: "empty",
+	}
+	ownerAttr := &models.Attribut{
+		Name:      "ownerID",
+		ValueType: "string",
+		Required:  true,
+	}
 
 	PostType.Attributs = append(
 		PostType.Attributs, titleAttr, bodyAttr, ownerAttr,
 	)
-
-	whycatslikemices := &models.Entity{EntityTypeId: PostType.ID, EntityType: PostType}
-	titleVal := &models.Value{Attribut: titleAttr, StringVal: "Why cats like mices ? "}
+	// INSTANCIATION OF A POST
+	whycatslikemices := &models.Entity{
+		EntityTypeId: PostType.ID,
+		EntityType:   PostType,
+	}
+	titleVal := &models.Value{
+		Attribut:  titleAttr,
+		StringVal: "Why cats like mices ?",
+	}
 	bodyVal, err := models.NewStringValue(bodyAttr,
 		`Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi. In erat mi, pharetra ut lacinia at, facilisis vitae nunc. Fusce rhoncus id justo vitae gravida. In nisi mi, rutrum et arcu ac, gravida venenatis arcu. Nulla leo metus, molestie eu sagittis non, ultricies eu ex. Fusce a lorem eu urna porttitor molestie. Aliquam nec sapien quam. Suspendisse aliquet elementum arcu vitae interdum. Maecenas nec turpis et nulla volutpat accumsan. Pellentesque non ullamcorper leo, eu fringilla odio.
 	
 	Cras eu felis mauris. Pellentesque varius imperdiet suscipit. Nam tellus odio, faucibus at mattis quis, cursus at tortor. Curabitur vitae mi eu lorem feugiat pretium sed sit amet purus. Proin efficitur, magna eu malesuada fermentum, tortor tortor maximus neque, vel mattis tortor orci a ligula. Nunc nec justo ipsum. Sed fermentum, nisl eget efficitur accumsan, augue nisl sollicitudin massa, vel suscipit enim turpis nec nisi.
 	
 	Nam dictum risus sed leo malesuada varius. Pellentesque gravida interdum risus id vulputate. Mauris feugiat vulputate leo ut euismod. Fusce auctor at lacus eget sollicitudin. Suspendisse potenti. Aliquam dui felis, mollis quis porta a, sodales in ligula. In ac elit ornare, facilisis ex eget, tincidunt orci. Nullam eu mattis turpis, non finibus dolor.
-	
-	Ut aliquet laoreet risus, in ultrices purus placerat ut. Aenean eget massa et augue tristique vestibulum eu nec urna. Curabitur id scelerisque felis, ac rutrum massa. In ullamcorper ex ac turpis mattis porttitor. Nunc vitae congue ex, quis porttitor massa. Fusce ut bibendum sem. Phasellus massa dui, venenatis non erat vel, auctor fermentum dolor. Cras aliquet venenatis mauris, eu consectetur massa sodales et. Phasellus lacinia massa vel arcu suscipit congue. Vestibulum mollis tellus nisi. Phasellus at dui eget dolor sagittis vulputate. Nulla vitae est commodo, aliquam urna non, pretium neque.
-	
-	Maecenas sodales augue ac neque efficitur pharetra. Maecenas commodo quam magna, vel pulvinar metus condimentum eget. Phasellus malesuada ante quam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque eu justo vel nisl fringilla scelerisque eget ut ex. Duis malesuada, risus sit amet auctor euismod, felis nisl ultrices nulla, eu porttitor arcu elit fermentum velit. Praesent ut sagittis leo. Suspendisse non condimentum nunc, eget rhoncus velit. Praesent tincidunt, arcu mattis faucibus finibus, ligula lectus sodales sapien, sed porta diam nisi vitae ex. Nullam tristique justo at laoreet varius. Ut suscipit, lacus ac ultrices ornare, nisi massa varius felis, quis condimentum dolor tellus at ante. 	
 	`)
-	if err != nil {
-		return nil
-	}
-
-	var admin models.User
-	err = db.First(&admin, "username = ?", "admin").Error
 	if err != nil {
 		return err
 	}
-	ownerVal := &models.Value{Attribut: ownerAttr, StringVal: admin.ID.String()}
+	ownerVal := &models.Value{
+		Attribut:  ownerAttr,
+		StringVal: USERID,
+	}
 
 	whycatslikemices.Fields = append(whycatslikemices.Fields,
-		titleVal, bodyVal, ownerVal)
+		titleVal, bodyVal, ownerVal,
+	)
 
-	db.Create(whycatslikemices)
+	err = db.Create(whycatslikemices).Error
+	if err != nil {
+		return err
+	}
+
+	err = db.Create(adminProfile).Error
+	if err != nil {
+		return err
+	}
+
 	fmt.Println("Finished populating the database")
 
 	return nil

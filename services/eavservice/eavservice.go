@@ -61,7 +61,6 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 	var keep bool
 	for _, et := range ets {
 		keep = true
-
 		for _, value := range et.Fields {
 			for k, v := range params {
 				if k == value.Attribut.Name {
