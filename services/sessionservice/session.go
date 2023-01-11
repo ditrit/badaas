@@ -60,7 +60,7 @@ func NewSessionService(
 }
 
 // Create a new session
-func newSession(userID uint, sessionDuration time.Duration) *models.Session {
+func newSession(userID uuid.UUID, sessionDuration time.Duration) *models.Session {
 	return &models.Session{
 		UUID:      uuid.New(),
 		UserID:    userID,
@@ -207,7 +207,7 @@ func (sessionService *sessionServiceImpl) RollSession(sessionUUID uuid.UUID) htt
 			return herr
 		}
 		sessionService.logger.Warn("Rolled session",
-			zap.Uint("userID", session.UserID),
+			zap.String("userID", session.UserID.String()),
 			zap.String("sessionID", session.UUID.String()))
 	}
 	return nil

@@ -9,7 +9,7 @@ import (
 
 // The session claims passed in the request context
 type SessionClaims struct {
-	UserID      uint
+	UserID      uuid.UUID
 	SessionUUID uuid.UUID
 }
 
