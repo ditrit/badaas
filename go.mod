@@ -21,6 +21,8 @@ require (
 	gorm.io/gorm v1.24.1
 )
 
+require github.com/felixge/httpsnoop v1.0.1 // indirect
+
 require (
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
@@ -28,6 +30,7 @@ require (
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/goph/emperror v0.17.2 // indirect
+	github.com/gorilla/handlers v1.5.1
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-memdb v1.3.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect

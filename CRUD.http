@@ -1,0 +1,121 @@
+@hostname = localhost
+@port = 8002
+@host = {{hostname}}:{{port}}
+
+@URI = http://{{hostname}}:{{port}}/v1
+
+@birdid = a6515f18-aa94-46d9-8709-29de2a36ea79
+
+
+# GET all birds
+GET {{URI}}/objects/bird/ HTTP/1.1
+content-type: application/json
+
+###
+
+# GET all birds that are blue
+GET {{URI}}/objects/bird/?color=red  HTTP/1.1
+content-type: application/json
+
+###
+
+# GET a bird
+GET {{URI}}/objects/bird/{{birdid}} HTTP/1.1
+content-type: application/json
+
+###
+
+# => SHOULD FAIl
+# DELETE all bird 
+DELETE {{URI}}/objects/bird/ HTTP/1.1
+content-type: application/json
+
+###
+
+# DELETE a bird
+DELETE {{URI}}/objects/bird/{{birdid}} HTTP/1.1
+content-type: application/json
+
+###
+
+# CREATE a bird
+POST {{URI}}/objects/bird HTTP/1.1
+content-type: application/json
+
+{
+"attrs": {
+    "color": "red",
+    "specie": "aigle",
+    "height": 106,
+    "owner": 1
+}
+}
+
+###
+
+# CREATE => with null field
+POST {{URI}}/objects/bird HTTP/1.1
+content-type: application/json
+
+{
+"attrs": {
+    "color": "orange",
+    "specie": "bird with null field (field absent of the request)"
+}
+}
+
+###
+
+# CREATE => with field of null value
+POST {{URI}}/objects/bird HTTP/1.1
+content-type: application/json
+
+{
+"attrs": {
+    "color": "orange",
+    "specie": "bird with null field",
+    "height": 50,
+    "weight": null
+}
+}
+
+###
+
+# SHOULD FAIl
+# CREATE => missing an non nullable field
+POST {{URI}}/objects/bird HTTP/1.1
+content-type: application/json
+
+{
+    "attrs": {
+        "specie": "Should not endup in database"
+    }
+}
+
+###
+
+# SHOULD FAIl
+# CREATE => sending a null value non a non nullable field
+POST {{URI}}/objects/bird HTTP/1.1
+content-type: application/json
+
+{
+    "attrs": {
+        "color": null,
+        "specie": "Should not endup in database"
+    }
+}
+
+###
+
+# UPDATE a bird
+PUT {{URI}}/objects/bird/{{birdid}} HTTP/1.1
+content-type: application/json
+
+{
+    "attrs": {
+        "color": "red",
+        "specie": "rouge gorge",
+        "height": null
+    }
+}
