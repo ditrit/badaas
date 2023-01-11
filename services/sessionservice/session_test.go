@@ -47,14 +47,14 @@ func TestLogInUser(t *testing.T) {
 func setupTest(
 	t *testing.T,
 ) (
-	*repositorymocks.CRUDRepository[models.Session, uint],
+	*repositorymocks.CRUDRepository[models.Session, uuid.UUID],
 	*sessionServiceImpl,
 	*observer.ObservedLogs,
 	*configurationmocks.SessionConfiguration,
 ) {
 	core, logs := observer.New(zap.DebugLevel)
 	logger := zap.New(core)
-	sessionRepositoryMock := repositorymocks.NewCRUDRepository[models.Session, uint](t)
+	sessionRepositoryMock := repositorymocks.NewCRUDRepository[models.Session, uuid.UUID](t)
 	sessionConfiguration := configurationmocks.NewSessionConfiguration(t)
 	service := &sessionServiceImpl{
 		sessionRepository:    sessionRepositoryMock,
@@ -88,7 +88,7 @@ func TestIsValid(t *testing.T) {
 	uuidSample := uuid.New()
 	session := &models.Session{
 		BaseModel: models.BaseModel{
-			ID: uuid.Nil,
+			ID: uuidSample,
 		},
 		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
