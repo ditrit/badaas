@@ -20,9 +20,9 @@ import (
 )
 
 func TestNewSession(t *testing.T) {
-	sessionInstance := newSession(256, time.Second)
+	sessionInstance := newSession(uuid.Nil, time.Second)
 	assert.NotNil(t, sessionInstance)
-	assert.Equal(t, uint(256), sessionInstance.UserID)
+	assert.Equal(t, uuid.Nil, sessionInstance.UserID)
 }
 
 func TestLogInUser(t *testing.T) {
@@ -87,19 +87,20 @@ func TestIsValid(t *testing.T) {
 	sessionRepositoryMock.On("Create", mock.Anything).Return(nil)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	err := service.add(session)
 	require.NoError(t, err)
 	assert.Len(t, service.cache, 1)
-	assert.Equal(t, uint(5555), service.cache[uuidSample].UserID)
+	assert.Equal(t, uuid.Nil, service.cache[uuidSample].UserID)
 	isValid, claims := service.IsValid(uuidSample)
 	require.True(t, isValid)
 	assert.Equal(t, *claims, SessionClaims{
-		UserID:      uint(5555),
+		UserID:      uuid.Nil,
 		SessionUUID: uuidSample,
 	})
 }
@@ -121,9 +122,10 @@ func TestLogOutUser(t *testing.T) {
 	response := httptest.NewRecorder()
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
@@ -138,9 +140,10 @@ func TestLogOutUserDbError(t *testing.T) {
 	response := httptest.NewRecorder()
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
@@ -157,9 +160,10 @@ func TestLogOutUser_SessionNotFound(t *testing.T) {
 	response := httptest.NewRecorder()
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
@@ -179,9 +183,10 @@ func TestRollSession(t *testing.T) {
 	uuidSample := uuid.New()
 	originalExpirationTime := time.Now().Add(sessionDuration / 5)
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: originalExpirationTime,
 	}
 	service.cache[uuidSample] = session
@@ -198,12 +203,13 @@ func TestRollSession_Expired(t *testing.T) {
 	uuidSample := uuid.New()
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: originalExpirationTime,
 	}
-	service.cache[uuidSample] = session
+	service.cache[uuid.Nil] = session
 	err := service.RollSession(uuidSample)
 	require.Error(t, err)
 }
@@ -217,9 +223,10 @@ func TestRollSession_falseUUID(t *testing.T) {
 	uuidSample := uuid.New()
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: originalExpirationTime,
 	}
 	service.cache[uuidSample] = session
@@ -240,24 +247,25 @@ func TestRollSession_sessionNotFound(t *testing.T) {
 	sessionConfigurationMock.On("GetRollDuration").Return(sessionDuration)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(50 * time.Second),
 	}
 	service.cache[uuidSample] = session
 
-	err := service.RollSession(session.UUID)
+	err := service.RollSession(session.ID)
 	require.Error(t, err)
 }
 
 func Test_pullFromDB(t *testing.T) {
 	sessionRepositoryMock, service, logs, _ := setupTest(t)
-	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	sessionRepositoryMock.On("GetAll", nil).Return([]*models.Session{session}, nil)
@@ -282,9 +290,10 @@ func Test_removeExpired(t *testing.T) {
 	sessionRepositoryMock, service, logs, _ := setupTest(t)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
@@ -306,9 +315,10 @@ func Test_removeExpired_RepositoryError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
@@ -323,9 +333,10 @@ func Test_get(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{},
-		UUID:      uuidSample,
-		UserID:    5555,
+		BaseModel: models.BaseModel{
+			ID: uuid.Nil,
+		},
+		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
