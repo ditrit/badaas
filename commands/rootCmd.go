@@ -9,6 +9,7 @@ import (
 	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/resources"
 	"github.com/ditrit/badaas/router"
+	"github.com/ditrit/badaas/services/auth/protocols/oidcservice"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/ditrit/verdeter"
@@ -30,6 +31,7 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 
 		fx.Provide(userservice.NewUserService),
 		fx.Provide(sessionservice.NewSessionService),
+		fx.Provide(oidcservice.NewOIDCService),
 		// logger for fx
 		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: logger}
@@ -40,6 +42,7 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		// Finally: we invoke the newly created server
 		fx.Invoke(func(*http.Server) { /* we need this function to be empty*/ }),
 		fx.Invoke(createSuperUser),
+		fx.Invoke(createOIDCUser),
 	).Run()
 }
 
@@ -67,4 +70,6 @@ func init() {
 	initDatabaseCommands(rootCfg)
 	initInitialisationCommands(rootCfg)
 	initSessionCommands(rootCfg)
+	initAuthenticationCommands(rootCfg)
+	initOIDCCommands(rootCfg)
 }

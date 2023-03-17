@@ -17,6 +17,8 @@ The config file can be formated in any syntax that [github.com/spf13/viper](http
   - [HTTP Server](#http-server)
   - [Default values](#default-values)
   - [Session management](#session-management)
+  - [Authentication](#authentication)
+    - [OIDC](#oidc)
 
 ## Database
 
@@ -124,7 +126,6 @@ Session are extended if the user made a request to badaas in the "roll duration"
 
 Please see the diagram below to see what is the roll duration relative to the session duration.
 
-
 ```txt
      |   session duration                        |
      |<----------------------------------------->|
@@ -147,4 +148,54 @@ session:
   # The duration in which the user can renew it's session by making a request.
   # Default (3600) equal to 1 hour
   rollDuration: 3600
+```
+
+## Authentication
+
+```yml
+auth:
+  type: plain
+```
+
+Enable by configuration type of authentification you want to use:
+
+- `plain`: Only email/password auth
+- `oidc`: OIDC auth
+
+### OIDC
+
+To enable OIDC based authentication, you have to provide some common values such as your Oauth2 ClientID, Client Secret and the issuer url.
+
+The redirect url should probably be set to a url on your front-end app, then the front-end will return the authentication code to Badaas.
+
+Usualy, users are uniquely identified by the "sub" claim on the ID Token or on the claims for the OIDC UserInfo endpoint. Badaas can use another claim if you need to identify users based on that other claim. Note that it should be changed if you EXPLICITLY need to change the identifying claim. That claim may be protected by a scope, you can make badaas ask for that scope by using `auth.oidc.scopes` (use comma separated values).
+
+```yml
+auth:
+  type: oidc # please note that the key auth.type is set to "oidc"
+  oidc:
+    # The Oauth2.0 Client ID
+    # (mandatory)
+    clientID: oidcCLIENT
+
+    # The Oauth2 Client Secret
+    # (mandatory)
+    clientSecret: abcd
+
+    # The issuer URL
+    # (mandatory)
+    issuer: "http://accounts.super-company.com"
+
+    # The redirect url. Use after the OIDC provider has authenticated the user. 
+    # Probably should be set to redirect to the SPA. 
+    # (mandatory)
+    redirectURL: "http://super-spa.com/auth/oidc/callback"
+
+    # The UNIQUE id claim used to identify OIDC users. 
+    # Default to "sub", should not be changed unless you know what you are doing.
+    claimIdentifier: email
+
+    # The scopes needed to get the claims. 
+    # Defaults to "", should not be changed unless you know what you are doing.
+    scopes: "profile,email"
 ```

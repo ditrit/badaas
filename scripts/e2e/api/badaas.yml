@@ -22,3 +22,13 @@ logger:
   mode: dev
   request:
     template: "Receive {{method}} request on {{url}}"
+
+auth:
+  type: oidc
+  oidc:
+    clientID: oidcCLIENT
+    clientSecret: abcd
+    issuer: "http://e2e-oidc-provider-1:3000"
+    claimIdentifier: email
+    redirectURL: "http://e2e-api-1:8000/auth/oidc/callback"
+    scopes: "profile,email"
