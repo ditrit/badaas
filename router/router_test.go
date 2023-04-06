@@ -19,6 +19,6 @@ func TestSetupRouter(t *testing.T) {
 	informationController := controllersMocks.NewInformationController(t)
 	eavController := controllersMocks.NewEAVController(t)
 	jsonController.On("Wrap", mock.Anything).Return(func(response http.ResponseWriter, request *http.Request) {})
-	router := SetupRouter(jsonController, middlewareLogger, authenticationMiddleware, basicController, informationController)
+	router := SetupRouter(jsonController, middlewareLogger, authenticationMiddleware, basicController, informationController, eavController)
 	assert.NotNil(t, router)
 }
