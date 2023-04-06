@@ -66,11 +66,7 @@ func (e *Entity) EncodeToJson() []byte {
 	var pairs []string
 	pairs = append(pairs,
 		fmt.Sprintf("%q: %d", "id", e.ID),
-	)
-	pairs = append(pairs,
 		fmt.Sprintf("%q: %q", "type", e.EntityType.Name),
-	)
-	pairs = append(pairs,
 		fmt.Sprintf("%q: %s", "attrs", e.encodeAttributesold()),
 	)
 	return []byte(utils.BuildJsonFromStrings(pairs))

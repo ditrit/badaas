@@ -50,7 +50,13 @@ func SetupRouter(
 
 	cors := handlers.CORS(
 		handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"}),
-		handlers.AllowedHeaders([]string{"Accept", "Content-Type", "Content-Length", "Accept-Encoding", "X-CSRF-Token", "Authorization", "Access-Control-Request-Headers", "Access-Control-Request-Method", "Connection", "Host", "Origin", "User-Agent", "Referer", "Cache-Control", "X-header"}),
+		handlers.AllowedHeaders([]string{
+			"Accept", "Content-Type", "Content-Length",
+			"Accept-Encoding", "X-CSRF-Token", "Authorization",
+			"Access-Control-Request-Headers", "Access-Control-Request-Method",
+			"Connection", "Host", "Origin", "User-Agent", "Referer",
+			"Cache-Control", "X-header",
+		}),
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowCredentials(),
 		handlers.MaxAge(0),

@@ -166,7 +166,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 		ValueType:     "string",
 		Required:      false,
 		Default:       true,
-		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73",
+		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73", //nolint:lll
 	}
 	userIdAttr := &models.Attribut{
 		EntityTypeId: ProfileType.ID,
@@ -234,7 +234,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 	Cras eu felis mauris. Pellentesque varius imperdiet suscipit. Nam tellus odio, faucibus at mattis quis, cursus at tortor. Curabitur vitae mi eu lorem feugiat pretium sed sit amet purus. Proin efficitur, magna eu malesuada fermentum, tortor tortor maximus neque, vel mattis tortor orci a ligula. Nunc nec justo ipsum. Sed fermentum, nisl eget efficitur accumsan, augue nisl sollicitudin massa, vel suscipit enim turpis nec nisi.
 	
 	Nam dictum risus sed leo malesuada varius. Pellentesque gravida interdum risus id vulputate. Mauris feugiat vulputate leo ut euismod. Fusce auctor at lacus eget sollicitudin. Suspendisse potenti. Aliquam dui felis, mollis quis porta a, sodales in ligula. In ac elit ornare, facilisis ex eget, tincidunt orci. Nullam eu mattis turpis, non finibus dolor.
-	`)
+	`) //nolint:lll
 	if err != nil {
 		return err
 	}

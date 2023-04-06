@@ -103,7 +103,10 @@ func NewRelationValue(attr *Attribut, et *Entity) (*Value, error) {
 		return nil, fmt.Errorf("can't create a new relation with a nill entity pointer")
 	}
 	if et.EntityType.ID != attr.TargetEntityTypeId {
-		return nil, fmt.Errorf("can't create a relation with an entity of wrong EntityType. (got the entityid=%d, expected=%d)", et.EntityType.ID, attr.TargetEntityTypeId)
+		return nil, fmt.Errorf(
+			"can't create a relation with an entity of wrong EntityType. (got the entityid=%d, expected=%d)",
+			et.EntityType.ID, attr.TargetEntityTypeId,
+		)
 	}
 	val.IsNull = false
 	val.RelationVal = et.ID
