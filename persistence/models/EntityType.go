@@ -6,5 +6,5 @@ type EntityType struct {
 	Name string `gorm:"unique;not null"`
 
 	// GORM relations
-	Attributs []*Attribut
+	Attributes []*Attribute
 }

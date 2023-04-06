@@ -6,7 +6,7 @@ var ListOfTables = []any{
 	Entity{},
 	EntityType{},
 	Value{},
-	Attribut{},
+	Attribute{},
 }
 
 // The interface "type" need to implement to be considered models

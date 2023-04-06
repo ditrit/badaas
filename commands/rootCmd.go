@@ -80,9 +80,9 @@ func PopulateDatabase(db *gorm.DB) error {
 	HumanType := &models.EntityType{
 		Name: "human",
 	}
-	nameAttr := &models.Attribut{Name: "name", ValueType: "string", Required: true}
-	HumanType.Attributs = append(
-		HumanType.Attributs, nameAttr,
+	nameAttr := &models.Attribute{Name: "name", ValueType: "string", Required: true}
+	HumanType.Attributes = append(
+		HumanType.Attributes, nameAttr,
 	)
 	bobName, err := models.NewStringValue(nameAttr, "bob")
 	if err != nil {
@@ -102,17 +102,17 @@ func PopulateDatabase(db *gorm.DB) error {
 	db.Create(jean)
 
 	// Defining a bird
-	colorAttr := &models.Attribut{Name: "color", ValueType: "string", Required: true}
-	specieAttr := &models.Attribut{Name: "specie", ValueType: "string", Required: true}
-	heightAttr := &models.Attribut{Name: "height", ValueType: "int", Default: true, DefaultInt: 12, Required: false}
-	weightAttr := &models.Attribut{Name: "weight", ValueType: "float", Default: true, DefaultFloat: 12.500, Required: false}
-	ownerAttr := &models.Attribut{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeId: HumanType.ID}
+	colorAttr := &models.Attribute{Name: "color", ValueType: "string", Required: true}
+	specieAttr := &models.Attribute{Name: "specie", ValueType: "string", Required: true}
+	heightAttr := &models.Attribute{Name: "height", ValueType: "int", Default: true, DefaultInt: 12, Required: false}
+	weightAttr := &models.Attribute{Name: "weight", ValueType: "float", Default: true, DefaultFloat: 12.500, Required: false}
+	ownerAttr := &models.Attribute{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeId: HumanType.ID}
 
 	BirdType := &models.EntityType{
 		Name: "bird",
 	}
-	BirdType.Attributs = append(
-		BirdType.Attributs, colorAttr, specieAttr, heightAttr, weightAttr, ownerAttr,
+	BirdType.Attributes = append(
+		BirdType.Attributes, colorAttr, specieAttr, heightAttr, weightAttr, ownerAttr,
 	)
 
 	val1, err := models.NewStringValue(colorAttr, "blue")
@@ -154,13 +154,13 @@ func PopulateDatabase2(db *gorm.DB) error {
 	ProfileType := &models.EntityType{
 		Name: "profile",
 	}
-	displayNameAttr := &models.Attribut{
+	displayNameAttr := &models.Attribute{
 		EntityTypeId: ProfileType.ID,
 		Name:         "displayName",
 		ValueType:    "string",
 		Required:     true,
 	}
-	urlPicAttr := &models.Attribut{
+	urlPicAttr := &models.Attribute{
 		EntityTypeId:  ProfileType.ID,
 		Name:          "urlPic",
 		ValueType:     "string",
@@ -168,13 +168,13 @@ func PopulateDatabase2(db *gorm.DB) error {
 		Default:       true,
 		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73", //nolint:lll
 	}
-	userIdAttr := &models.Attribut{
+	userIdAttr := &models.Attribute{
 		EntityTypeId: ProfileType.ID,
 		Name:         "userId",
 		ValueType:    "string",
 		Required:     true,
 	}
-	ProfileType.Attributs = append(ProfileType.Attributs,
+	ProfileType.Attributes = append(ProfileType.Attributes,
 		displayNameAttr,
 		urlPicAttr,
 		userIdAttr,
@@ -185,9 +185,9 @@ func PopulateDatabase2(db *gorm.DB) error {
 		EntityTypeId: ProfileType.ID,
 		EntityType:   ProfileType,
 	}
-	displayNameVal := &models.Value{Attribut: urlPicAttr, StringVal: "The Super Admin"}
-	userPicVal := &models.Value{Attribut: urlPicAttr, IsNull: true}
-	userIdVal := &models.Value{Attribut: userIdAttr, StringVal: USERID}
+	displayNameVal := &models.Value{Attribute: urlPicAttr, StringVal: "The Super Admin"}
+	userPicVal := &models.Value{Attribute: urlPicAttr, IsNull: true}
+	userIdVal := &models.Value{Attribute: userIdAttr, StringVal: USERID}
 	adminProfile.Fields = append(adminProfile.Fields,
 		displayNameVal,
 		userPicVal,
@@ -198,26 +198,26 @@ func PopulateDatabase2(db *gorm.DB) error {
 	PostType := &models.EntityType{
 		Name: "post",
 	}
-	titleAttr := &models.Attribut{
+	titleAttr := &models.Attribute{
 		EntityTypeId: PostType.ID,
 		Name:         "title",
 		ValueType:    "string",
 		Required:     true,
 	}
-	bodyAttr := &models.Attribut{
+	bodyAttr := &models.Attribute{
 		Name:          "body",
 		ValueType:     "string",
 		Default:       false,
 		DefaultString: "empty",
 	}
-	ownerAttr := &models.Attribut{
+	ownerAttr := &models.Attribute{
 		Name:      "ownerID",
 		ValueType: "string",
 		Required:  true,
 	}
 
-	PostType.Attributs = append(
-		PostType.Attributs, titleAttr, bodyAttr, ownerAttr,
+	PostType.Attributes = append(
+		PostType.Attributes, titleAttr, bodyAttr, ownerAttr,
 	)
 	// INSTANCIATION OF A POST
 	whycatslikemices := &models.Entity{
@@ -225,7 +225,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 		EntityType:   PostType,
 	}
 	titleVal := &models.Value{
-		Attribut:  titleAttr,
+		Attribute: titleAttr,
 		StringVal: "Why cats like mices ?",
 	}
 	bodyVal, err := models.NewStringValue(bodyAttr,
@@ -239,7 +239,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 		return err
 	}
 	ownerVal := &models.Value{
-		Attribut:  ownerAttr,
+		Attribute: ownerAttr,
 		StringVal: USERID,
 	}
 

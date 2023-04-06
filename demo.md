@@ -30,7 +30,7 @@ database:
 ```
 
 Then we need to declare our models for the objects.
-As an exemple we will use some UML to modelize the objects for this demo.
+As an example we will use some UML to model the objects for this demo.
 
 ```mermaid
 classDiagram
@@ -49,7 +49,7 @@ classDiagram
 The users are stored on a classic sql table outside of the object storage engine.
 So we will store their IDs as a value. We will use the profile object to store infos about the users.
 
-For now we need to setup the schema manually using a invoke function that will run at the initializationof the programm.
+For now we need to setup the schema manually using a invoke function that will run at the initialization of the programme.
 Make sure that the database you are gonna use is empty.
 
 ```go
@@ -65,13 +65,13 @@ func PopulateDatabase2(db *gorm.DB) error {
  ProfileType := &models.EntityType{
   Name: "profile",
  }
- displayNameAttr := &models.Attribut{
+ displayNameAttr := &models.Attribute{
   EntityTypeId: ProfileType.ID,
   Name:         "displayName",
   ValueType:    "string",
   Required:     true,
  }
- urlPicAttr := &models.Attribut{
+ urlPicAttr := &models.Attribute{
   EntityTypeId:  ProfileType.ID,
   Name:          "urlPic",
   ValueType:     "string",
@@ -79,26 +79,26 @@ func PopulateDatabase2(db *gorm.DB) error {
   Default:       true,
   DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73",
  }
- userIdAttr := &models.Attribut{
+ userIdAttr := &models.Attribute{
   EntityTypeId: ProfileType.ID,
   Name:         "userId",
   ValueType:    "string",
   Required:     true,
  }
- ProfileType.Attributs = append(ProfileType.Attributs,
+ ProfileType.Attributes = append(ProfileType.Attributes,
   displayNameAttr,
   urlPicAttr,
   userIdAttr,
  )
 
- // INSTANCIATION OF A Profile
+ // INSTANTIATION OF A Profile
  adminProfile := &models.Entity{
   EntityTypeId: ProfileType.ID,
   EntityType:   ProfileType,
  }
- displayNameVal := &models.Value{Attribut: urlPicAttr, StringVal: "The Super Admin"}
- userPicVal := &models.Value{Attribut: urlPicAttr, IsNull: true}
- userIdVal := &models.Value{Attribut: userIdAttr, StringVal: admin.ID.String()}
+ displayNameVal := &models.Value{Attribute: urlPicAttr, StringVal: "The Super Admin"}
+ userPicVal := &models.Value{Attribute: urlPicAttr, IsNull: true}
+ userIdVal := &models.Value{Attribute: userIdAttr, StringVal: admin.ID.String()}
  adminProfile.Fields = append(adminProfile.Fields,
   displayNameVal,
   userPicVal,
@@ -109,35 +109,35 @@ func PopulateDatabase2(db *gorm.DB) error {
  PostType := &models.EntityType{
   Name: "post",
  }
- titleAttr := &models.Attribut{
+ titleAttr := &models.Attribute{
   EntityTypeId: PostType.ID,
   Name:         "title",
   ValueType:    "string",
   Required:     true,
  }
- bodyAttr := &models.Attribut{
+ bodyAttr := &models.Attribute{
   Name:          "body",
   ValueType:     "string",
   Default:       false,
   DefaultString: "empty",
  }
- ownerAttr := &models.Attribut{
+ ownerAttr := &models.Attribute{
   Name:      "ownerID",
   ValueType: "string",
   Required:  true,
  }
 
- PostType.Attributs = append(
-  PostType.Attributs, titleAttr, bodyAttr, ownerAttr,
+ PostType.Attributes = append(
+  PostType.Attributes, titleAttr, bodyAttr, ownerAttr,
  )
- // INSTANCIATION OF A POST
- whycatslikemices := &models.Entity{
+ // INSTANTIATION OF A POST
+ whycatslikemice := &models.Entity{
   EntityTypeId: PostType.ID,
   EntityType:   PostType,
  }
  titleVal := &models.Value{
-  Attribut:  titleAttr,
-  StringVal: "Why cats like mices ?",
+  Attribute:  titleAttr,
+  StringVal: "Why cats like mice ?",
  }
  bodyVal, err := models.NewStringValue(bodyAttr,
   `Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi. In erat mi, pharetra ut lacinia at, facilisis vitae nunc. Fusce rhoncus id justo vitae gravida. In nisi mi, rutrum et arcu ac, gravida venenatis arcu. Nulla leo metus, molestie eu sagittis non, ultricies eu ex. Fusce a lorem eu urna porttitor molestie. Aliquam nec sapien quam. Suspendisse aliquet elementum arcu vitae interdum. Maecenas nec turpis et nulla volutpat accumsan. Pellentesque non ullamcorper leo, eu fringilla odio.
@@ -150,15 +150,15 @@ func PopulateDatabase2(db *gorm.DB) error {
   return err
  }
  ownerVal := &models.Value{
-  Attribut:  ownerAttr,
+  Attribute:  ownerAttr,
   StringVal: admin.ID.String(),
  }
 
- whycatslikemices.Fields = append(whycatslikemices.Fields,
+ whycatslikemice.Fields = append(whycatslikemice.Fields,
   titleVal, bodyVal, ownerVal,
  )
 
- err = db.Create(whycatslikemices).Error
+ err = db.Create(whycatslikemice).Error
  if err != nil {
   return err
  }
@@ -185,7 +185,6 @@ I will the httpie utils in the examples below, but it works with curl or any sim
 
 Let's first start by get all the profiles: `http  localhost:8000/v1/objects/profile/`
 
-
 ```json
 HTTP/1.1 200 OK
 Content-Length: 226
@@ -208,7 +207,6 @@ Date: Thu, 05 Jan 2023 11:53:35 GMT
 
 Let's  all the posts posted by this user: `http localhost:8000/v1/objects/post/?ownerID=wowasupercooluserID`
 
-
 ```json
 HTTP/1.1 200 OK
 Content-Length: 1626
@@ -220,7 +218,7 @@ Date: Fri, 06 Jan 2023 08:20:33 GMT
         "attrs": {
             "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi. In erat mi, pharetra ut lacinia at, facilisis vitae nunc. Fusce rhoncus id justo vitae gravida. In nisi mi, rutrum et arcu ac, gravida venenatis arcu. Nulla leo metus, molestie eu sagittis non, ultricies eu ex. Fusce a lorem eu urna porttitor molestie. Aliquam nec sapien quam. Suspendisse aliquet elementum arcu vitae interdum. Maecenas nec turpis et nulla volutpat accumsan. Pellentesque non ullamcorper leo, eu fringilla odio.\n\t\n\tCras eu felis mauris. Pellentesque varius imperdiet suscipit. Nam tellus odio, faucibus at mattis quis, cursus at tortor. Curabitur vitae mi eu lorem feugiat pretium sed sit amet purus. Proin efficitur, magna eu malesuada fermentum, tortor tortor maximus neque, vel mattis tortor orci a ligula. Nunc nec justo ipsum. Sed fermentum, nisl eget efficitur accumsan, augue nisl sollicitudin massa, vel suscipit enim turpis nec nisi.\n\t\n\tNam dictum risus sed leo malesuada varius. Pellentesque gravida interdum risus id vulputate. Mauris feugiat vulputate leo ut euismod. Fusce auctor at lacus eget sollicitudin. Suspendisse potenti. Aliquam dui felis, mollis quis porta a, sodales in ligula. In ac elit ornare, facilisis ex eget, tincidunt orci. Nullam eu mattis turpis, non finibus dolor.\n\t",
             "ownerID": "wowasupercooluserID",
-            "title": "Why cats like mices ?"
+            "title": "Why cats like mice ?"
         },
         "createdAt": "2023-01-06T09:18:53.313565+01:00",
         "id": "68facfa6-fe77-479b-a64e-f26344393a31",
@@ -229,4 +227,3 @@ Date: Fri, 06 Jan 2023 08:20:33 GMT
     }
 ]
 ```
-

@@ -37,14 +37,14 @@ func (e *Entity) encodeAttributes() map[string]any {
 		if field.IsNull {
 			continue
 		}
-		pairs[field.Attribut.Name] = field.Value()
+		pairs[field.Attribute.Name] = field.Value()
 	}
 	return pairs
 }
 
 func (e *Entity) GetValue(attrName string) (interface{}, error) {
 	var attrId uuid.UUID
-	for _, a := range e.EntityType.Attributs {
+	for _, a := range e.EntityType.Attributes {
 		if a.Name == attrName {
 			attrId = a.ID
 			break
@@ -54,7 +54,7 @@ func (e *Entity) GetValue(attrName string) (interface{}, error) {
 		return nil, fmt.Errorf("attr not found: got=%s", attrName)
 	}
 	for _, v := range e.Fields {
-		if v.AttributId == attrId {
+		if v.AttributeId == attrId {
 			return v.Value(), nil
 		}
 	}

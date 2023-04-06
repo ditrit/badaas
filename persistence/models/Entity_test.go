@@ -12,8 +12,8 @@ func TestMarshall(t *testing.T) {
 	ett := &EntityType{
 		BaseModel: BaseModel{ID: id},
 		Name:      "bird",
-		Attributs: []*Attribut{
-			&Attribut{
+		Attributes: []*Attribute{
+			&Attribute{
 				BaseModel: BaseModel{
 					ID: id,
 				},
@@ -33,11 +33,11 @@ func TestMarshall(t *testing.T) {
 				ID: id,
 			},
 
-			IsNull:     false,
-			StringVal:  "blue",
-			EntityId:   id,
-			AttributId: id,
-			Attribut:   ett.Attributs[0],
+			IsNull:      false,
+			StringVal:   "blue",
+			EntityId:    id,
+			AttributeId: id,
+			Attribute:   ett.Attributes[0],
 		}},
 		EntityTypeId: id,
 		EntityType:   ett,

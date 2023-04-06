@@ -19,7 +19,7 @@ const (
 type ValueTypeT string
 
 // Describe the attribut of a en EntityType
-type Attribut struct {
+type Attribute struct {
 	BaseModel
 	Name     string
 	Unique   bool
@@ -45,7 +45,7 @@ type Attribut struct {
 var ErrNoDefaultValueSet = errors.New("no default value found")
 
 // Get a new value with the default value associated with the attribut
-func (a *Attribut) GetNewDefaultValue() (*Value, error) {
+func (a *Attribute) GetNewDefaultValue() (*Value, error) {
 	if !a.Default {
 		return nil, ErrNoDefaultValueSet
 	}

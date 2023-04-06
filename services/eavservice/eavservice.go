@@ -45,7 +45,7 @@ func NewEAVService(
 // Get EntityType by name (string)
 func (eavService *eavServiceImpl) GetEntityTypeByName(name string) (*models.EntityType, error) {
 	var ett models.EntityType
-	err := eavService.db.Preload("Attributs").First(&ett, "name = ?", name).Error
+	err := eavService.db.Preload("Attributes").First(&ett, "name = ?", name).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, fmt.Errorf(" EntityType named %q not found", name)
@@ -56,15 +56,15 @@ func (eavService *eavServiceImpl) GetEntityTypeByName(name string) (*models.Enti
 
 func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity {
 	var ets []*models.Entity
-	eavService.db.Where("entity_type_id = ?", ett.ID).Preload("Fields").Preload("Fields.Attribut").Preload("EntityType.Attributs").Preload("EntityType").Find(&ets)
+	eavService.db.Where("entity_type_id = ?", ett.ID).Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").Find(&ets)
 	resultSet := make([]*models.Entity, 0, len(ets))
 	var keep bool
 	for _, et := range ets {
 		keep = true
 		for _, value := range et.Fields {
 			for k, v := range params {
-				if k == value.Attribut.Name {
-					switch value.Attribut.ValueType {
+				if k == value.Attribute.Name {
+					switch value.Attribute.ValueType {
 					case models.StringValueType:
 						if v != value.StringVal {
 							keep = false
@@ -124,7 +124,7 @@ func (eavService *eavServiceImpl) DeleteEntity(et *models.Entity) error {
 }
 func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error) {
 	var et models.Entity
-	err := eavService.db.Preload("Fields").Preload("Fields.Attribut").Preload("EntityType.Attributs").Preload("EntityType").First(&et, id).Error
+	err := eavService.db.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").First(&et, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -137,7 +137,7 @@ func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID
 // Create a brand new entity
 func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map[string]interface{}) (*models.Entity, error) {
 	var et models.Entity
-	for _, a := range ett.Attributs {
+	for _, a := range ett.Attributes {
 		present := false
 		var value models.Value
 		for k, v := range attrs {
@@ -177,7 +177,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 
 				case nil:
 					if a.Required {
-						return nil, fmt.Errorf("can't have a null field with a required attribut")
+						return nil, fmt.Errorf("can't have a null field with a required attribute")
 					}
 					value = models.Value{IsNull: true}
 
@@ -201,7 +201,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 				value = models.Value{IsNull: true}
 			}
 		}
-		value.Attribut = a
+		value.Attribute = a
 		et.Fields = append(et.Fields, &value)
 	}
 	et.EntityType = ett
@@ -209,9 +209,9 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 }
 
 func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {
-	for _, a := range et.EntityType.Attributs {
+	for _, a := range et.EntityType.Attributes {
 		for _, value := range et.Fields {
-			if a.ID == value.AttributId {
+			if a.ID == value.AttributeId {
 				for k, v := range attrs {
 					if k == a.Name {
 						switch t := v.(type) {
@@ -263,7 +263,7 @@ func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[stri
 						}
 					}
 				}
-				value.Attribut = a
+				value.Attribute = a
 				eavService.db.Save(value)
 			}
 		}
