@@ -15,10 +15,10 @@ const (
 	FloatValueType    ValueTypeT = "float"
 )
 
-// Describe the type of an attribut
+// Describe the type of an attribute
 type ValueTypeT string
 
-// Describe the attribut of a en EntityType
+// Describe the attribute of a en EntityType
 type Attribute struct {
 	BaseModel
 	Name     string
@@ -44,7 +44,7 @@ type Attribute struct {
 
 var ErrNoDefaultValueSet = errors.New("no default value found")
 
-// Get a new value with the default value associated with the attribut
+// Get a new value with the default value associated with the attribute
 func (a *Attribute) GetNewDefaultValue() (*Value, error) {
 	if !a.Default {
 		return nil, ErrNoDefaultValueSet

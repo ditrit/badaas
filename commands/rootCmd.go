@@ -147,7 +147,7 @@ func PopulateDatabase(db *gorm.DB) error {
 }
 
 func PopulateDatabase2(db *gorm.DB) error {
-	// GETTING THE SUSER ADMIN FOR REFERENCE
+	// GETTING THE USER ADMIN FOR REFERENCE
 	USERID := "wowasupercooluserID"
 
 	// CREATION OF THE PROFILE TYPE AND ASSOCIATED ATTRIBUTES
