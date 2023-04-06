@@ -9,11 +9,13 @@ import (
 	"github.com/ditrit/badaas/logger"
 	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/resources"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/services/eavservice"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/ditrit/verdeter"
+	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
@@ -21,7 +23,7 @@ import (
 )
 
 // Run the http server for badaas
-func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
+func runHTTPServer(cmd *cobra.Command, args []string) {
 	fx.New(
 		// Modules
 		configuration.ConfigurationModule,
@@ -45,16 +47,16 @@ func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
 		fx.Invoke(createSuperUser),
 		fx.Invoke(PopulateDatabase2),
 	).Run()
-	return nil
 }
 
 // The command badaas
-var rootCfg = verdeter.NewVerdeterCommand(
-	"badaas",
-	"Backend and Distribution as a Service",
-	`Badaas stands for Backend and Distribution as a Service.`,
-	runHTTPServer,
-)
+var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
+	Use:     "badaas",
+	Short:   "Backend and Distribution as a Service",
+	Long:    "Badaas stands for Backend and Distribution as a Service.",
+	Version: resources.Version,
+	Run:     runHTTPServer,
+})
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
