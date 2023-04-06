@@ -20,17 +20,17 @@ type Entity struct {
 
 // Encode the entity to json
 // use the [encoding/json.Marshaler] interface
-func (entity *Entity) MarshalJSON() ([]byte, error) {
+func (e *Entity) MarshalJSON() ([]byte, error) {
 	dto := make(map[string]any)
-	dto["id"] = entity.ID
-	dto["type"] = entity.EntityType.Name
-	dto["createdAt"] = entity.CreatedAt
-	dto["updatedAt"] = entity.UpdatedAt
-	dto["attrs"] = entity.encodeAttributes()
+	dto["id"] = e.ID
+	dto["type"] = e.EntityType.Name
+	dto["createdAt"] = e.CreatedAt
+	dto["updatedAt"] = e.UpdatedAt
+	dto["attrs"] = e.encodeAttributes()
 	return json.Marshal(dto)
 }
 
-// return the attribut in a json encoded string
+// return the attribute in a json encoded string
 func (e *Entity) encodeAttributes() map[string]any {
 	pairs := make(map[string]any, len(e.Fields))
 	for _, field := range e.Fields {
@@ -72,7 +72,7 @@ func (e *Entity) EncodeToJson() []byte {
 	return []byte(utils.BuildJsonFromStrings(pairs))
 }
 
-// return the attribut in a json encoded string
+// return the attribute in a json encoded string
 func (e *Entity) encodeAttributesold() string {
 	var pairs []string
 	for _, f := range e.Fields {

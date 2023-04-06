@@ -194,9 +194,9 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 				v, err := a.GetNewDefaultValue()
 				if err != nil {
 					return nil, err
-				} else {
-					value = *v
 				}
+
+				value = *v
 			} else {
 				value = models.Value{IsNull: true}
 			}

@@ -28,7 +28,7 @@ var (
 
 // The EAV controller
 type EAVController interface {
-	// Return the badaas server informations
+	// Return the badaas server information
 	GetAll(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
@@ -73,17 +73,17 @@ func (controller *eavControllerImpl) GetAll(w http.ResponseWriter, r *http.Reque
 
 	}
 	queryparams := r.URL.Query()
-	var qp map[string]string = make(map[string]string)
+	var qp = make(map[string]string)
 	for k, v := range queryparams {
 		qp[k] = v[0]
 	}
 	fmt.Println(qp)
-	var collection []*models.Entity = controller.eavService.GetEntitiesWithParams(ett, qp)
+	var collection = controller.eavService.GetEntitiesWithParams(ett, qp)
 
 	return collection, nil
 }
 
-// The handler reponsible for the retreival of une entity
+// The handler responsible for the retrieval of une entity
 func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 
 	entityTypeName := getEntityTypeNameFromRequest(r)
@@ -137,7 +137,7 @@ func getEntityTypeNameFromRequest(r *http.Request) string {
 	return entityType
 }
 
-// The handler reponsible for the deletion of entities and their associated value
+// The handler responsible for the deletion of entities and their associated value
 func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName := getEntityTypeNameFromRequest(r)
 	ett, err := controller.eavService.GetEntityTypeByName(entityTypeName)
@@ -170,7 +170,7 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 	return nil, nil
 }
 
-// The handler reponsible for the creation of entities
+// The handler responsible for the creation of entities
 func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName := getEntityTypeNameFromRequest(r)
 	ett, err := controller.eavService.GetEntityTypeByName(entityTypeName)
@@ -204,7 +204,7 @@ type createReq struct {
 	Attrs map[string]interface{}
 }
 
-// The handler reponsible for the updates of entities
+// The handler responsible for the updates of entities
 func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName := getEntityTypeNameFromRequest(r)
 	ett, err := controller.eavService.GetEntityTypeByName(entityTypeName)
@@ -241,7 +241,7 @@ func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http
 	return entity, nil
 }
 
-// return json formated string to be consumed by frontend or client
+// return json formatted string to be consumed by frontend or client
 func GetErrMsg(msg string) string {
 	return fmt.Sprintf(
 		`{"error": %q}`,
