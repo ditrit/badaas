@@ -11,15 +11,15 @@ services:
       - COCKROACH_USER=root
       - COCKROACH_DB=badaas_db
 
-  # api:
-  #   build:
-  #     context: ./../..
-  #     dockerfile: ./scripts/e2e/api/Dockerfile
-  #   ports:
-  #     - "8000:8000"
-  #   restart: always
-  #   # environment:
-  #     # - BADAAS_PORT=8000
-  #     # - BADAAS_MAX_TIMOUT= 15 # in seconds
-  #   depends_on:
-  #     - db
+  api:
+    build:
+      context: ./../..
+      dockerfile: ./scripts/e2e/api/Dockerfile
+    ports:
+      - "8000:8000"
+    restart: always
+    # environment:
+      # - BADAAS_PORT=8000
+      # - BADAAS_MAX_TIMOUT= 15 # in seconds
+    depends_on:
+      - db
