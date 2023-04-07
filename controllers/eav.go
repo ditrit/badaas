@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services/eavservice"
@@ -26,9 +25,7 @@ var (
 	}
 )
 
-// The EAV controller
 type EAVController interface {
-	// Return the badaas server information
 	GetAll(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
@@ -42,24 +39,18 @@ var _ EAVController = (*eavControllerImpl)(nil)
 // The InformationController constructor
 func NewEAVController(
 	logger *zap.Logger,
-	paginationConfiguration configuration.PaginationConfiguration,
-	db *gorm.DB,
 	eavService eavservice.EAVService,
 ) EAVController {
 	return &eavControllerImpl{
-		logger:                  logger,
-		paginationConfiguration: paginationConfiguration,
-		db:                      db,
-		eavService:              eavService,
+		logger:     logger,
+		eavService: eavService,
 	}
 }
 
 // The concrete implementation of the InformationController
 type eavControllerImpl struct {
-	logger                  *zap.Logger
-	paginationConfiguration configuration.PaginationConfiguration
-	db                      *gorm.DB
-	eavService              eavservice.EAVService
+	logger     *zap.Logger
+	eavService eavservice.EAVService
 }
 
 func (controller *eavControllerImpl) GetAll(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
