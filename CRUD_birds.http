@@ -8,32 +8,32 @@
 
 
 # GET all birds
-GET {{URI}}/objects/post/ HTTP/1.1
+GET {{URI}}/objects/bird/ HTTP/1.1
 content-type: application/json
 
 ###
 
 # GET all birds that are blue
-GET {{URI}}/objects/post/?ownerID=23764cb8-80f2-4a03-8060-2f3f4c95b978  HTTP/1.1
+GET {{URI}}/objects/bird/?color=blue  HTTP/1.1
 content-type: application/json
 
 ###
 
 # GET a bird
-GET {{URI}}/objects/post/{{birdid}} HTTP/1.1
+GET {{URI}}/objects/bird/{{birdid}} HTTP/1.1
 content-type: application/json
 
 ###
 
-# => SHOULD FAIl
-# DELETE all bird 
-DELETE {{URI}}/objects/post/ HTTP/1.1
+# => SHOULD FAIL
+# DELETE all birds
+DELETE {{URI}}/objects/bird/ HTTP/1.1
 content-type: application/json
 
 ###
 
 # DELETE a bird
-DELETE {{URI}}/objects/post/{{birdid}} HTTP/1.1
+DELETE {{URI}}/objects/bird/{{birdid}} HTTP/1.1
 content-type: application/json
 
 ###
@@ -88,7 +88,7 @@ content-type: application/json
 
 {
     "attrs": {
-        "specie": "Should not endup in database"
+        "specie": "Should not end up in database"
     }
 }
 
@@ -102,14 +102,14 @@ content-type: application/json
 {
     "attrs": {
         "color": null,
-        "specie": "Should not endup in database"
+        "specie": "Should not end up in database"
     }
 }
 
 ###
 
 # UPDATE a bird
-PUT {{URI}}/objects/post/{{birdid}} HTTP/1.1
+PUT {{URI}}/objects/bird/{{birdid}} HTTP/1.1
 content-type: application/json
 
 {
