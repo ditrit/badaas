@@ -66,13 +66,13 @@ func PopulateDatabase2(db *gorm.DB) error {
   Name: "profile",
  }
  displayNameAttr := &models.Attribute{
-  EntityTypeId: ProfileType.ID,
+  EntityTypeID: ProfileType.ID,
   Name:         "displayName",
   ValueType:    "string",
   Required:     true,
  }
  urlPicAttr := &models.Attribute{
-  EntityTypeId:  ProfileType.ID,
+  EntityTypeID:  ProfileType.ID,
   Name:          "urlPic",
   ValueType:     "string",
   Required:      false,
@@ -80,7 +80,7 @@ func PopulateDatabase2(db *gorm.DB) error {
   DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73",
  }
  userIdAttr := &models.Attribute{
-  EntityTypeId: ProfileType.ID,
+  EntityTypeID: ProfileType.ID,
   Name:         "userId",
   ValueType:    "string",
   Required:     true,
@@ -93,7 +93,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 
  // INSTANTIATION OF A Profile
  adminProfile := &models.Entity{
-  EntityTypeId: ProfileType.ID,
+  EntityTypeID: ProfileType.ID,
   EntityType:   ProfileType,
  }
  displayNameVal := &models.Value{Attribute: urlPicAttr, StringVal: "The Super Admin"}
@@ -110,7 +110,7 @@ func PopulateDatabase2(db *gorm.DB) error {
   Name: "post",
  }
  titleAttr := &models.Attribute{
-  EntityTypeId: PostType.ID,
+  EntityTypeID: PostType.ID,
   Name:         "title",
   ValueType:    "string",
   Required:     true,
@@ -131,8 +131,8 @@ func PopulateDatabase2(db *gorm.DB) error {
   PostType.Attributes, titleAttr, bodyAttr, ownerAttr,
  )
  // INSTANTIATION OF A POST
- whycatslikemice := &models.Entity{
-  EntityTypeId: PostType.ID,
+ whyCatsLikeMice := &models.Entity{
+  EntityTypeID: PostType.ID,
   EntityType:   PostType,
  }
  titleVal := &models.Value{
@@ -154,11 +154,11 @@ func PopulateDatabase2(db *gorm.DB) error {
   StringVal: admin.ID.String(),
  }
 
- whycatslikemice.Fields = append(whycatslikemice.Fields,
+ whyCatsLikeMice.Fields = append(whyCatsLikeMice.Fields,
   titleVal, bodyVal, ownerVal,
  )
 
- err = db.Create(whycatslikemice).Error
+ err = db.Create(whyCatsLikeMice).Error
  if err != nil {
   return err
  }

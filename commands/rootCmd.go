@@ -77,18 +77,18 @@ func init() {
 
 func PopulateDatabase(db *gorm.DB) error {
 	//defining
-	HumanType := &models.EntityType{
+	humanType := &models.EntityType{
 		Name: "human",
 	}
 	nameAttr := &models.Attribute{Name: "name", ValueType: "string", Required: true}
-	HumanType.Attributes = append(
-		HumanType.Attributes, nameAttr,
+	humanType.Attributes = append(
+		humanType.Attributes, nameAttr,
 	)
 	bobName, err := models.NewStringValue(nameAttr, "bob")
 	if err != nil {
 		panic(err)
 	}
-	bob := &models.Entity{EntityType: HumanType}
+	bob := &models.Entity{EntityType: humanType}
 	bob.Fields = append(bob.Fields, bobName)
 	db.Create(bob)
 
@@ -96,7 +96,7 @@ func PopulateDatabase(db *gorm.DB) error {
 	if err != nil {
 		panic(err)
 	}
-	jean := &models.Entity{EntityType: HumanType}
+	jean := &models.Entity{EntityType: humanType}
 	jean.Fields = append(jean.Fields, jeanName)
 
 	db.Create(jean)
@@ -106,7 +106,7 @@ func PopulateDatabase(db *gorm.DB) error {
 	specieAttr := &models.Attribute{Name: "specie", ValueType: "string", Required: true}
 	heightAttr := &models.Attribute{Name: "height", ValueType: "int", Default: true, DefaultInt: 12, Required: false}
 	weightAttr := &models.Attribute{Name: "weight", ValueType: "float", Default: true, DefaultFloat: 12.500, Required: false}
-	ownerAttr := &models.Attribute{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeID: HumanType.ID}
+	ownerAttr := &models.Attribute{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeID: humanType.ID}
 
 	BirdType := &models.EntityType{
 		Name: "bird",
@@ -119,7 +119,7 @@ func PopulateDatabase(db *gorm.DB) error {
 	if err != nil {
 		panic(err)
 	}
-	val2, err := models.NewStringValue(specieAttr, "mésange")
+	val2, err := models.NewStringValue(specieAttr, "chickadee")
 	if err != nil {
 		panic(err)
 	}
@@ -137,10 +137,10 @@ func PopulateDatabase(db *gorm.DB) error {
 		panic(err)
 	}
 
-	mesange := &models.Entity{EntityType: BirdType}
-	mesange.Fields = append(mesange.Fields, val1, val2, val3, val4, val5)
+	chickadee := &models.Entity{EntityType: BirdType}
+	chickadee.Fields = append(chickadee.Fields, val1, val2, val3, val4, val5)
 
-	db.Create(mesange)
+	db.Create(chickadee)
 	fmt.Println("Finished populating the database")
 
 	return nil
@@ -148,20 +148,20 @@ func PopulateDatabase(db *gorm.DB) error {
 
 func PopulateDatabase2(db *gorm.DB) error {
 	// GETTING THE USER ADMIN FOR REFERENCE
-	USERID := "wowasupercooluserID"
+	userID := "wowASuperCoolUserID"
 
 	// CREATION OF THE PROFILE TYPE AND ASSOCIATED ATTRIBUTES
-	ProfileType := &models.EntityType{
+	profileType := &models.EntityType{
 		Name: "profile",
 	}
 	displayNameAttr := &models.Attribute{
-		EntityTypeID: ProfileType.ID,
+		EntityTypeID: profileType.ID,
 		Name:         "displayName",
 		ValueType:    "string",
 		Required:     true,
 	}
 	urlPicAttr := &models.Attribute{
-		EntityTypeID:  ProfileType.ID,
+		EntityTypeID:  profileType.ID,
 		Name:          "urlPic",
 		ValueType:     "string",
 		Required:      false,
@@ -169,12 +169,12 @@ func PopulateDatabase2(db *gorm.DB) error {
 		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73", //nolint:lll
 	}
 	userIDAttr := &models.Attribute{
-		EntityTypeID: ProfileType.ID,
+		EntityTypeID: profileType.ID,
 		Name:         "userId",
 		ValueType:    "string",
 		Required:     true,
 	}
-	ProfileType.Attributes = append(ProfileType.Attributes,
+	profileType.Attributes = append(profileType.Attributes,
 		displayNameAttr,
 		urlPicAttr,
 		userIDAttr,
@@ -182,12 +182,12 @@ func PopulateDatabase2(db *gorm.DB) error {
 
 	// INSTANTIATION OF A Profile
 	adminProfile := &models.Entity{
-		EntityTypeID: ProfileType.ID,
-		EntityType:   ProfileType,
+		EntityTypeID: profileType.ID,
+		EntityType:   profileType,
 	}
 	displayNameVal := &models.Value{Attribute: urlPicAttr, StringVal: "The Super Admin"}
 	userPicVal := &models.Value{Attribute: urlPicAttr, IsNull: true}
-	userIDVal := &models.Value{Attribute: userIDAttr, StringVal: USERID}
+	userIDVal := &models.Value{Attribute: userIDAttr, StringVal: userID}
 	adminProfile.Fields = append(adminProfile.Fields,
 		displayNameVal,
 		userPicVal,
@@ -195,11 +195,11 @@ func PopulateDatabase2(db *gorm.DB) error {
 	)
 
 	// CREATION OF THE POST TYPE AND ASSOCIATED ATTRIBUTES
-	PostType := &models.EntityType{
+	postType := &models.EntityType{
 		Name: "post",
 	}
 	titleAttr := &models.Attribute{
-		EntityTypeID: PostType.ID,
+		EntityTypeID: postType.ID,
 		Name:         "title",
 		ValueType:    "string",
 		Required:     true,
@@ -216,38 +216,38 @@ func PopulateDatabase2(db *gorm.DB) error {
 		Required:  true,
 	}
 
-	PostType.Attributes = append(
-		PostType.Attributes, titleAttr, bodyAttr, ownerAttr,
+	postType.Attributes = append(
+		postType.Attributes, titleAttr, bodyAttr, ownerAttr,
 	)
 	// INSTANTIATION OF A POST
-	whycatslikemices := &models.Entity{
-		EntityTypeID: PostType.ID,
-		EntityType:   PostType,
+	whyCatsLikeMice := &models.Entity{
+		EntityTypeID: postType.ID,
+		EntityType:   postType,
 	}
 	titleVal := &models.Value{
 		Attribute: titleAttr,
-		StringVal: "Why cats like mices ?",
+		StringVal: "Why cats like mice ?",
 	}
 	bodyVal, err := models.NewStringValue(bodyAttr,
-		`Lorem ipsum dolor sit amet, consectetur adipiscing elit. In consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi. In erat mi, pharetra ut lacinia at, facilisis vitae nunc. Fusce rhoncus id justo vitae gravida. In nisi mi, rutrum et arcu ac, gravida venenatis arcu. Nulla leo metus, molestie eu sagittis non, ultricies eu ex. Fusce a lorem eu urna porttitor molestie. Aliquam nec sapien quam. Suspendisse aliquet elementum arcu vitae interdum. Maecenas nec turpis et nulla volutpat accumsan. Pellentesque non ullamcorper leo, eu fringilla odio.
-	
-	Cras eu felis mauris. Pellentesque varius imperdiet suscipit. Nam tellus odio, faucibus at mattis quis, cursus at tortor. Curabitur vitae mi eu lorem feugiat pretium sed sit amet purus. Proin efficitur, magna eu malesuada fermentum, tortor tortor maximus neque, vel mattis tortor orci a ligula. Nunc nec justo ipsum. Sed fermentum, nisl eget efficitur accumsan, augue nisl sollicitudin massa, vel suscipit enim turpis nec nisi.
-	
-	Nam dictum risus sed leo malesuada varius. Pellentesque gravida interdum risus id vulputate. Mauris feugiat vulputate leo ut euismod. Fusce auctor at lacus eget sollicitudin. Suspendisse potenti. Aliquam dui felis, mollis quis porta a, sodales in ligula. In ac elit ornare, facilisis ex eget, tincidunt orci. Nullam eu mattis turpis, non finibus dolor.
-	`) //nolint:lll
+		`Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+
+		In consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi.
+		
+		In erat mi, pharetra ut lacinia at, facilisis vitae nunc.
+	`)
 	if err != nil {
 		return err
 	}
 	ownerVal := &models.Value{
 		Attribute: ownerAttr,
-		StringVal: USERID,
+		StringVal: userID,
 	}
 
-	whycatslikemices.Fields = append(whycatslikemices.Fields,
+	whyCatsLikeMice.Fields = append(whyCatsLikeMice.Fields,
 		titleVal, bodyVal, ownerVal,
 	)
 
-	err = db.Create(whycatslikemices).Error
+	err = db.Create(whyCatsLikeMice).Error
 	if err != nil {
 		return err
 	}

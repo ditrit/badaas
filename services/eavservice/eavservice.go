@@ -56,7 +56,9 @@ func (eavService *eavServiceImpl) GetEntityTypeByName(name string) (*models.Enti
 
 func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity {
 	var ets []*models.Entity
-	eavService.db.Where("entity_type_id = ?", ett.ID).Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").Find(&ets)
+	eavService.db.Where(
+		"entity_type_id = ?", ett.ID,
+	).Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").Find(&ets)
 	resultSet := make([]*models.Entity, 0, len(ets))
 	var keep bool
 	for _, et := range ets {
