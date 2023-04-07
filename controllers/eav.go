@@ -61,11 +61,11 @@ func (controller *eavControllerImpl) GetAll(w http.ResponseWriter, r *http.Reque
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityTypeNotFound
 		}
-
 	}
-	queryparams := r.URL.Query()
+
+	queryParams := r.URL.Query()
 	var qp = make(map[string]string)
-	for k, v := range queryparams {
+	for k, v := range queryParams {
 		qp[k] = v[0]
 	}
 	fmt.Println(qp)
@@ -87,8 +87,8 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 		http.Error(w, GetErrMsg(err.Error()), http.StatusInternalServerError)
 		return nil, httperrors.NewInternalServerError("db error", "db query failed", err)
 	}
-	id, idErr := getEntityIDFromRequest(r)
 
+	id, idErr := getEntityIDFromRequest(r)
 	if idErr != nil {
 		return nil, idErr
 	}
@@ -104,6 +104,7 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 			return nil, ErrDBQueryFailed(err)
 		}
 	}
+
 	return obj, nil
 }
 
@@ -114,10 +115,12 @@ func getEntityIDFromRequest(r *http.Request) (uuid.UUID, httperrors.HTTPError) {
 	if !ok {
 		return uuid.Nil, ErrEntityNotFound
 	}
+
 	uid, err := uuid.Parse(id)
 	if err != nil {
 		return uuid.Nil, ErrIDNotAnUUID
 	}
+
 	return uid, nil
 }
 
@@ -139,11 +142,12 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 		http.Error(w, GetErrMsg(err.Error()), http.StatusInternalServerError)
 		return nil, httperrors.NewInternalServerError("db error", "search for entity type", err)
 	}
-	id, idErr := getEntityIDFromRequest(r)
 
+	id, idErr := getEntityIDFromRequest(r)
 	if idErr != nil {
 		return nil, idErr
 	}
+
 	entity, err := controller.eavService.GetEntity(ett, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -154,10 +158,12 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 			return nil, ErrDBQueryFailed(err)
 		}
 	}
+
 	err = controller.eavService.DeleteEntity(entity)
 	if err != nil {
 		return nil, httperrors.NewInternalServerError("deletion failed", "", err)
 	}
+
 	return nil, nil
 }
 
@@ -171,6 +177,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 		}
 		return nil, ErrDBQueryFailed(err)
 	}
+
 	var cr createReq
 	err = json.NewDecoder(r.Body).Decode(&cr)
 	r.Body.Close()
@@ -183,7 +190,9 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 	if err != nil {
 		return nil, httperrors.NewInternalServerError("creation failed", "", err)
 	}
+
 	w.Header().Add("Location", buildLocationString(et))
+
 	return et, nil
 }
 
@@ -211,6 +220,7 @@ func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http
 	if err != nil {
 		return nil, ErrIDNotAnUUID
 	}
+
 	entity, err := controller.eavService.GetEntity(ett, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -227,8 +237,10 @@ func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http
 	if err != nil {
 		return nil, ErrDBQueryFailed(err)
 	}
+
 	fmt.Println(mr.Attrs)
 	controller.eavService.UpdateEntity(entity, mr.Attrs)
+
 	return entity, nil
 }
 
