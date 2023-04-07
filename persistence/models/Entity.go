@@ -14,7 +14,7 @@ type Entity struct {
 	Fields []*Value
 
 	// GORM relations
-	EntityTypeId uuid.UUID
+	EntityTypeID uuid.UUID
 	EntityType   *EntityType
 }
 
@@ -43,18 +43,18 @@ func (e *Entity) encodeAttributes() map[string]any {
 }
 
 func (e *Entity) GetValue(attrName string) (interface{}, error) {
-	var attrId uuid.UUID
+	var attrID uuid.UUID
 	for _, a := range e.EntityType.Attributes {
 		if a.Name == attrName {
-			attrId = a.ID
+			attrID = a.ID
 			break
 		}
 	}
-	if uuid.Nil == attrId {
+	if uuid.Nil == attrID {
 		return nil, fmt.Errorf("attr not found: got=%s", attrName)
 	}
 	for _, v := range e.Fields {
-		if v.AttributeId == attrId {
+		if v.AttributeID == attrID {
 			return v.Value(), nil
 		}
 	}
@@ -62,14 +62,14 @@ func (e *Entity) GetValue(attrName string) (interface{}, error) {
 }
 
 // Encode the Entity to json
-func (e *Entity) EncodeToJson() []byte {
+func (e *Entity) EncodeToJSON() []byte {
 	var pairs []string
 	pairs = append(pairs,
 		fmt.Sprintf("%q: %d", "id", e.ID),
 		fmt.Sprintf("%q: %q", "type", e.EntityType.Name),
 		fmt.Sprintf("%q: %s", "attrs", e.encodeAttributesold()),
 	)
-	return []byte(utils.BuildJsonFromStrings(pairs))
+	return []byte(utils.BuildJSONFromStrings(pairs))
 }
 
 // return the attribute in a json encoded string
@@ -79,8 +79,8 @@ func (e *Entity) encodeAttributesold() string {
 		if f.IsNull {
 			continue
 		}
-		pair, _ := f.BuildJsonKVPair()
+		pair, _ := f.BuildJSONKVPair()
 		pairs = append(pairs, pair)
 	}
-	return utils.BuildJsonFromStrings(pairs)
+	return utils.BuildJSONFromStrings(pairs)
 }

@@ -36,10 +36,10 @@ type Attribute struct {
 
 	// the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
 	ValueType          ValueTypeT
-	TargetEntityTypeId uuid.UUID // name of the EntityType
+	TargetEntityTypeID uuid.UUID // name of the EntityType
 
 	// GORM relations
-	EntityTypeId uuid.UUID
+	EntityTypeID uuid.UUID
 }
 
 var ErrNoDefaultValueSet = errors.New("no default value found")

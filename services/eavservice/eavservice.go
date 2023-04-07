@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	ErrIdDontMatchEntityType = errors.New("this object doesn't belong to this type")
+	ErrIDDontMatchEntityType = errors.New("this object doesn't belong to this type")
 	ErrCantParseUUID         = errors.New("can't parse uuid")
 )
 
@@ -128,8 +128,8 @@ func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID
 	if err != nil {
 		return nil, err
 	}
-	if ett.ID != et.EntityTypeId {
-		return nil, ErrIdDontMatchEntityType
+	if ett.ID != et.EntityTypeID {
+		return nil, ErrIDDontMatchEntityType
 	}
 	return &et, nil
 }
@@ -211,7 +211,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {
 	for _, a := range et.EntityType.Attributes {
 		for _, value := range et.Fields {
-			if a.ID == value.AttributeId {
+			if a.ID == value.AttributeID {
 				for k, v := range attrs {
 					if k == a.Name {
 						switch t := v.(type) {

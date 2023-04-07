@@ -181,7 +181,7 @@ The default credentials for the user are ̀`admin-no-reply@badaas.com` and `admi
 
 ### Querying the object storage engine
 
-I will the httpie utils in the examples below, but it works with curl or any similar tools.
+I will use the httpie util in the examples below, but it works with curl or any similar tools.
 
 Let's first start by get all the profiles: `http  localhost:8000/v1/objects/profile/`
 

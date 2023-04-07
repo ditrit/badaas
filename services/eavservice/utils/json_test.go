@@ -26,7 +26,7 @@ func TestBuildJsonFromString(t *testing.T) {
 		},
 	}
 	for _, td := range testData {
-		result := utils.BuildJsonFromStrings(td.input)
+		result := utils.BuildJSONFromStrings(td.input)
 		if result != td.output {
 			t.Errorf("Expected %s, got %s", td.output, result)
 		}
@@ -49,7 +49,7 @@ func TestBuildJsonListFromString(t *testing.T) {
 		},
 	}
 	for _, td := range testData {
-		result := utils.BuildJsonListFromStrings(td.input)
+		result := utils.BuildJSONListFromStrings(td.input)
 		if result != td.output {
 			t.Errorf("Expected %s, got %s", td.output, result)
 		}

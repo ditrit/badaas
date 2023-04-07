@@ -19,7 +19,7 @@ import (
 var (
 	ErrEntityNotFound            = httperrors.NewErrorNotFound("entity", "please use a valid entity id")
 	ErrEntityTypeNotFound        = httperrors.NewErrorNotFound("entity type", "please use a type that exists in the schema")
-	ErrIdNotAnUUID               = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
+	ErrIDNotAnUUID               = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
 	ErrEntityTypeDontMatchEntity = httperrors.NewBadRequestError("types don't match", "the entity you are targeting don't match the entity type name provided")
 	ErrDBQueryFailed             = func(err error) httperrors.HTTPError {
 		return httperrors.NewInternalServerError("db error", "database query failed", err)
@@ -106,7 +106,7 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
-		} else if errors.Is(err, eavservice.ErrIdDontMatchEntityType) {
+		} else if errors.Is(err, eavservice.ErrIDDontMatchEntityType) {
 			http.Error(w, GetErrMsg(err.Error()), http.StatusBadRequest)
 			return nil, ErrEntityTypeDontMatchEntity
 		} else {
@@ -125,7 +125,7 @@ func getEntityIDFromRequest(r *http.Request) (uuid.UUID, httperrors.HTTPError) {
 	}
 	uid, err := uuid.Parse(id)
 	if err != nil {
-		return uuid.Nil, ErrIdNotAnUUID
+		return uuid.Nil, ErrIDNotAnUUID
 	}
 	return uid, nil
 }
@@ -157,7 +157,7 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
-		} else if errors.Is(err, eavservice.ErrIdDontMatchEntityType) {
+		} else if errors.Is(err, eavservice.ErrIDDontMatchEntityType) {
 			return nil, ErrEntityTypeDontMatchEntity
 		} else {
 			return nil, ErrDBQueryFailed(err)
@@ -218,13 +218,13 @@ func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http
 
 	id, err := getEntityIDFromRequest(r)
 	if err != nil {
-		return nil, ErrIdNotAnUUID
+		return nil, ErrIDNotAnUUID
 	}
 	entity, err := controller.eavService.GetEntity(ett, id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
-		} else if errors.Is(err, eavservice.ErrIdDontMatchEntityType) {
+		} else if errors.Is(err, eavservice.ErrIDDontMatchEntityType) {
 			return nil, ErrEntityTypeDontMatchEntity
 		} else {
 			return nil, ErrDBQueryFailed(err)

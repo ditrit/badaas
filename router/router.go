@@ -40,7 +40,7 @@ func SetupRouter(
 
 	protected.HandleFunc("/logout", jsonController.Wrap(basicAuthentificationController.Logout)).Methods("GET")
 
-	//CRUD
+	// CRUD
 	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.GetObject)).Methods("GET")
 	// Get whole collection
 	router.HandleFunc("/v1/objects/{type}/", jsonController.Wrap(eavController.GetAll)).Methods("GET")

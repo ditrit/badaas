@@ -106,7 +106,7 @@ func PopulateDatabase(db *gorm.DB) error {
 	specieAttr := &models.Attribute{Name: "specie", ValueType: "string", Required: true}
 	heightAttr := &models.Attribute{Name: "height", ValueType: "int", Default: true, DefaultInt: 12, Required: false}
 	weightAttr := &models.Attribute{Name: "weight", ValueType: "float", Default: true, DefaultFloat: 12.500, Required: false}
-	ownerAttr := &models.Attribute{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeId: HumanType.ID}
+	ownerAttr := &models.Attribute{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeID: HumanType.ID}
 
 	BirdType := &models.EntityType{
 		Name: "bird",
@@ -155,21 +155,21 @@ func PopulateDatabase2(db *gorm.DB) error {
 		Name: "profile",
 	}
 	displayNameAttr := &models.Attribute{
-		EntityTypeId: ProfileType.ID,
+		EntityTypeID: ProfileType.ID,
 		Name:         "displayName",
 		ValueType:    "string",
 		Required:     true,
 	}
 	urlPicAttr := &models.Attribute{
-		EntityTypeId:  ProfileType.ID,
+		EntityTypeID:  ProfileType.ID,
 		Name:          "urlPic",
 		ValueType:     "string",
 		Required:      false,
 		Default:       true,
 		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73", //nolint:lll
 	}
-	userIdAttr := &models.Attribute{
-		EntityTypeId: ProfileType.ID,
+	userIDAttr := &models.Attribute{
+		EntityTypeID: ProfileType.ID,
 		Name:         "userId",
 		ValueType:    "string",
 		Required:     true,
@@ -177,21 +177,21 @@ func PopulateDatabase2(db *gorm.DB) error {
 	ProfileType.Attributes = append(ProfileType.Attributes,
 		displayNameAttr,
 		urlPicAttr,
-		userIdAttr,
+		userIDAttr,
 	)
 
-	// INSTANCIATION OF A Profile
+	// INSTANTIATION OF A Profile
 	adminProfile := &models.Entity{
-		EntityTypeId: ProfileType.ID,
+		EntityTypeID: ProfileType.ID,
 		EntityType:   ProfileType,
 	}
 	displayNameVal := &models.Value{Attribute: urlPicAttr, StringVal: "The Super Admin"}
 	userPicVal := &models.Value{Attribute: urlPicAttr, IsNull: true}
-	userIdVal := &models.Value{Attribute: userIdAttr, StringVal: USERID}
+	userIDVal := &models.Value{Attribute: userIDAttr, StringVal: USERID}
 	adminProfile.Fields = append(adminProfile.Fields,
 		displayNameVal,
 		userPicVal,
-		userIdVal,
+		userIDVal,
 	)
 
 	// CREATION OF THE POST TYPE AND ASSOCIATED ATTRIBUTES
@@ -199,7 +199,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 		Name: "post",
 	}
 	titleAttr := &models.Attribute{
-		EntityTypeId: PostType.ID,
+		EntityTypeID: PostType.ID,
 		Name:         "title",
 		ValueType:    "string",
 		Required:     true,
@@ -219,9 +219,9 @@ func PopulateDatabase2(db *gorm.DB) error {
 	PostType.Attributes = append(
 		PostType.Attributes, titleAttr, bodyAttr, ownerAttr,
 	)
-	// INSTANCIATION OF A POST
+	// INSTANTIATION OF A POST
 	whycatslikemices := &models.Entity{
-		EntityTypeId: PostType.ID,
+		EntityTypeID: PostType.ID,
 		EntityType:   PostType,
 	}
 	titleVal := &models.Value{

@@ -4,7 +4,7 @@ import "strings"
 
 // build a json from a string slices
 // turn []string {`"a",1`, `"b",1`} to `{"a":1,"b":2}`
-func BuildJsonFromStrings(pairs []string) string {
+func BuildJSONFromStrings(pairs []string) string {
 	var b strings.Builder
 	// starting the json string
 	b.WriteString("{")
@@ -16,7 +16,7 @@ func BuildJsonFromStrings(pairs []string) string {
 
 // build a json list from a string slices
 // turn []string {`{"a",1}`, `{"b",1}`} to `["{a":1},{"b":2}]`
-func BuildJsonListFromStrings(pairs []string) string {
+func BuildJSONListFromStrings(pairs []string) string {
 	var b strings.Builder
 	// starting the json list
 	b.WriteString("[")

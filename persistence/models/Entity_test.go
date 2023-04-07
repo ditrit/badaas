@@ -20,7 +20,7 @@ func TestMarshall(t *testing.T) {
 				Name:          "color",
 				DefaultString: "red",
 				ValueType:     StringValueType,
-				EntityTypeId:  id,
+				EntityTypeID:  id,
 			}},
 	}
 
@@ -35,11 +35,11 @@ func TestMarshall(t *testing.T) {
 
 			IsNull:      false,
 			StringVal:   "blue",
-			EntityId:    id,
-			AttributeId: id,
+			EntityID:    id,
+			AttributeID: id,
 			Attribute:   ett.Attributes[0],
 		}},
-		EntityTypeId: id,
+		EntityTypeID: id,
 		EntityType:   ett,
 	}
 

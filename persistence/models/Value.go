@@ -22,8 +22,8 @@ type Value struct {
 	StringifiedValue string
 
 	// GORM relations
-	EntityId    uuid.UUID
-	AttributeId uuid.UUID
+	EntityID    uuid.UUID
+	AttributeID uuid.UUID
 	Attribute   *Attribute
 }
 
@@ -102,10 +102,10 @@ func NewRelationValue(attr *Attribute, et *Entity) (*Value, error) {
 	if et == nil {
 		return nil, fmt.Errorf("can't create a new relation with a nill entity pointer")
 	}
-	if et.EntityType.ID != attr.TargetEntityTypeId {
+	if et.EntityType.ID != attr.TargetEntityTypeID {
 		return nil, fmt.Errorf(
 			"can't create a relation with an entity of wrong EntityType. (got the entityid=%d, expected=%d)",
-			et.EntityType.ID, attr.TargetEntityTypeId,
+			et.EntityType.ID, attr.TargetEntityTypeID,
 		)
 	}
 	val.IsNull = false
@@ -305,12 +305,11 @@ func (v *Value) Value() any {
 	}
 }
 
-// When Value isNull, it is impossible to build a Key/Value pair
-var ErrCantBuildKVPairForNullValue = errors.New("can't build key/value pair from null value")
+var ErrCantBuildKVPairForNullValue = errors.New("can't build key/value pair from null value") // When Value isNull, it is impossible to build a Key/Value pair
 
 // Build a key/value pair to be included in a JSON
 // If the value hold an int=8 with an attribute named "voila" then the string returned will be `"voila":8`
-func (v *Value) BuildJsonKVPair() (string, error) {
+func (v *Value) BuildJSONKVPair() (string, error) {
 	err := v.CheckWhole()
 	if err != nil {
 		panic(err)
