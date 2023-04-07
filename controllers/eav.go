@@ -68,7 +68,7 @@ func (controller *eavControllerImpl) GetAll(w http.ResponseWriter, r *http.Reque
 	for k, v := range queryParams {
 		qp[k] = v[0]
 	}
-	fmt.Println(qp)
+
 	var collection = controller.eavService.GetEntitiesWithParams(ett, qp)
 
 	return collection, nil

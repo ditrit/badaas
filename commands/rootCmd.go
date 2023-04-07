@@ -80,7 +80,7 @@ func PopulateDatabase(db *gorm.DB) error {
 	humanType := &models.EntityType{
 		Name: "human",
 	}
-	nameAttr := &models.Attribute{Name: "name", ValueType: "string", Required: true}
+	nameAttr := &models.Attribute{Name: "name", ValueType: models.StringValueType, Required: true}
 	humanType.Attributes = append(
 		humanType.Attributes, nameAttr,
 	)
@@ -102,11 +102,11 @@ func PopulateDatabase(db *gorm.DB) error {
 	db.Create(jean)
 
 	// Defining a bird
-	colorAttr := &models.Attribute{Name: "color", ValueType: "string", Required: true}
-	specieAttr := &models.Attribute{Name: "specie", ValueType: "string", Required: true}
-	heightAttr := &models.Attribute{Name: "height", ValueType: "int", Default: true, DefaultInt: 12, Required: false}
-	weightAttr := &models.Attribute{Name: "weight", ValueType: "float", Default: true, DefaultFloat: 12.500, Required: false}
-	ownerAttr := &models.Attribute{Name: "owner", ValueType: "relation", Required: false, TargetEntityTypeID: humanType.ID}
+	colorAttr := &models.Attribute{Name: "color", ValueType: models.StringValueType, Required: true}
+	specieAttr := &models.Attribute{Name: "specie", ValueType: models.StringValueType, Required: true}
+	heightAttr := &models.Attribute{Name: "height", ValueType: models.IntValueType, Default: true, DefaultInt: 12, Required: false}
+	weightAttr := &models.Attribute{Name: "weight", ValueType: models.FloatValueType, Default: true, DefaultFloat: 12.500, Required: false}
+	ownerAttr := &models.Attribute{Name: "owner", ValueType: models.RelationValueType, Required: false, TargetEntityTypeID: humanType.ID}
 
 	BirdType := &models.EntityType{
 		Name: "bird",
@@ -157,13 +157,13 @@ func PopulateDatabase2(db *gorm.DB) error {
 	displayNameAttr := &models.Attribute{
 		EntityTypeID: profileType.ID,
 		Name:         "displayName",
-		ValueType:    "string",
+		ValueType:    models.StringValueType,
 		Required:     true,
 	}
 	urlPicAttr := &models.Attribute{
 		EntityTypeID:  profileType.ID,
 		Name:          "urlPic",
-		ValueType:     "string",
+		ValueType:     models.StringValueType,
 		Required:      false,
 		Default:       true,
 		DefaultString: "https://www.startpage.com/av/proxy-image?piurl=https%3A%2F%2Fimg.favpng.com%2F17%2F19%2F1%2Fbusiness-google-account-organization-service-png-favpng-sUuKmS4aDNRzxDKx8kJciXdFp.jpg&sp=1672915826Tc106d9b5cab08d9d380ce6fdc9564b199a49e494a069e1923c21aa202ba3ed73", //nolint:lll
@@ -171,7 +171,7 @@ func PopulateDatabase2(db *gorm.DB) error {
 	userIDAttr := &models.Attribute{
 		EntityTypeID: profileType.ID,
 		Name:         "userId",
-		ValueType:    "string",
+		ValueType:    models.StringValueType,
 		Required:     true,
 	}
 	profileType.Attributes = append(profileType.Attributes,
@@ -201,18 +201,18 @@ func PopulateDatabase2(db *gorm.DB) error {
 	titleAttr := &models.Attribute{
 		EntityTypeID: postType.ID,
 		Name:         "title",
-		ValueType:    "string",
+		ValueType:    models.StringValueType,
 		Required:     true,
 	}
 	bodyAttr := &models.Attribute{
 		Name:          "body",
-		ValueType:     "string",
+		ValueType:     models.StringValueType,
 		Default:       false,
 		DefaultString: "empty",
 	}
 	ownerAttr := &models.Attribute{
 		Name:      "ownerID",
-		ValueType: "string",
+		ValueType: models.StringValueType,
 		Required:  true,
 	}
 
