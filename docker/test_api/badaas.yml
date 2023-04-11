@@ -7,7 +7,7 @@ server:
       max: 10
 
 database:
-  host: e2e-db-1
+  host: badaas-test-db
   port: 26257
   sslmode: disable
   username: root

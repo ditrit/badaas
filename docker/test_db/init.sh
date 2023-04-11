@@ -13,6 +13,7 @@ echo "******************************* Starting single cockroach node..."
 echo "******************************* Init database"
 echo "*******************************  |=> Creating init.sql"
 
+# TODO ERROR: at or near "-": syntax error
 cat > init.sql <<EOF
 -- Create Database
 CREATE DATABASE IF NOT EXISTS ${COCKROACH_DB} ;
