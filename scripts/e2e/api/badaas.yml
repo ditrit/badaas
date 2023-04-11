@@ -11,7 +11,7 @@ database:
   port: 26257
   sslmode: disable
   username: root
-  password: postres
+  password: postgres
   name: badaas_db
   init:
     retry: 10

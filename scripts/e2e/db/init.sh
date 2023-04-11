@@ -1,12 +1,12 @@
 #!/bin/sh
 echo "******************************* Listing Env Variables..."
 printenv
-echo "******************************* starting single cockroach node..."
+echo "******************************* Starting single cockroach node..."
 
 ./cockroach start-single-node --insecure --log-config-file=logs.yaml --background
 
 
-echo "******************************* Creating user"
+# echo "******************************* Creating user"
 # cockroach user set ${COCKROACH_USER} --password 1234 --echo-sql
 # cockroach user ls
 
