@@ -54,6 +54,7 @@ func CreateDatabaseConnectionFromConfiguration(logger *zap.Logger, databaseConfi
 			numberRetry+1, databaseConfiguration.GetRetry(), databaseConfiguration.GetRetryTime().String())
 		time.Sleep(databaseConfiguration.GetRetryTime())
 	}
+
 	return nil, err
 }
 

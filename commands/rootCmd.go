@@ -11,9 +11,7 @@ import (
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/resources"
 	"github.com/ditrit/badaas/router"
-	"github.com/ditrit/badaas/services/eavservice"
-	"github.com/ditrit/badaas/services/sessionservice"
-	"github.com/ditrit/badaas/services/userservice"
+	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
@@ -31,10 +29,8 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		controllers.ControllerModule,
 		logger.LoggerModule,
 		persistence.PersistanceModule,
+		services.ServicesModule,
 
-		fx.Provide(userservice.NewUserService),
-		fx.Provide(sessionservice.NewSessionService),
-		fx.Provide(eavservice.NewEAVService),
 		// logger for fx
 		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: logger}
