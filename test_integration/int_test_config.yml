@@ -1,0 +1,15 @@
+database:
+  host: localhost
+  port: 26257
+  sslmode: disable
+  username: root
+  password: postgres
+  name: badaas_db
+  init:
+    retry: 10
+    retryTime: 5
+
+logger:
+  mode: dev
+  request:
+    template: "Receive {{method}} request on {{url}}"

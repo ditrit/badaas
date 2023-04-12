@@ -57,18 +57,20 @@ var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
+	InitCommands(rootCfg)
+
 	rootCfg.Execute()
 }
 
-func init() {
-	rootCfg.GKey("config_path", verdeter.IsStr, "", "Path to the config file/directory")
-	rootCfg.SetDefault("config_path", ".")
+func InitCommands(config *verdeter.VerdeterCommand) {
+	config.GKey("config_path", verdeter.IsStr, "", "Path to the config file/directory")
+	config.SetDefault("config_path", ".")
 
-	initServerCommands(rootCfg)
-	initLoggerCommands(rootCfg)
-	initDatabaseCommands(rootCfg)
-	initInitialisationCommands(rootCfg)
-	initSessionCommands(rootCfg)
+	initServerCommands(config)
+	initLoggerCommands(config)
+	initDatabaseCommands(config)
+	initInitialisationCommands(config)
+	initSessionCommands(config)
 }
 
 func PopulateDatabase(db *gorm.DB) error {
