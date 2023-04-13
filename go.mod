@@ -22,14 +22,19 @@ require (
 	gorm.io/gorm v1.24.1
 )
 
-require github.com/felixge/httpsnoop v1.0.1 // indirect
+require (
+	github.com/felixge/httpsnoop v1.0.1 // indirect
+	golang.org/x/exp v0.0.0-20220321173239-a90fa8a75705 // indirect
+)
 
 require (
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/elliotchance/pie/v2 v2.5.2
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/google/go-cmp v0.5.9
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/gorilla/handlers v1.5.1
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
@@ -68,4 +73,5 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	gotest.tools v2.2.0+incompatible
 )

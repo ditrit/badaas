@@ -19,8 +19,6 @@ type Value struct {
 	BoolVal     bool
 	RelationVal uuid.UUID
 
-	StringifiedValue string
-
 	// GORM relations
 	EntityID    uuid.UUID
 	AttributeID uuid.UUID
@@ -34,84 +32,75 @@ var (
 
 // Create a new null value
 func NewNullValue(attr *Attribute) (*Value, error) {
-	val := new(Value)
 	if attr.Required {
 		return nil, fmt.Errorf("can't create new null value for a required attribute")
 	}
-	val.IsNull = true
-	val.Attribute = attr
-	return val, nil
+
+	return &Value{IsNull: true, Attribute: attr}, nil
 }
 
 // Create a new int value
 func NewIntValue(attr *Attribute, i int) (*Value, error) {
-	val := new(Value)
 	if attr.ValueType != IntValueType {
 		return nil, fmt.Errorf("can't create a new int value with a %s attribute", attr.ValueType)
 	}
-	val.IsNull = false
-	val.IntVal = i
-	val.Attribute = attr
-	return val, nil
+
+	return &Value{IntVal: i, Attribute: attr}, nil
 }
 
 // Create a new bool value
 func NewBoolValue(attr *Attribute, b bool) (*Value, error) {
-	val := new(Value)
 	if attr.ValueType != BooleanValueType {
 		return nil, fmt.Errorf("can't create a new bool value with a %s attribute", attr.ValueType)
 	}
-	val.IsNull = false
-	val.BoolVal = b
-	val.Attribute = attr
-	return val, nil
+
+	return &Value{BoolVal: b, Attribute: attr}, nil
 }
 
 // Create a new float value
 func NewFloatValue(attr *Attribute, f float64) (*Value, error) {
-	val := new(Value)
 	if attr.ValueType != FloatValueType {
 		return nil, fmt.Errorf("can't create a new float value with a %s attribute", attr.ValueType)
 	}
-	val.IsNull = false
-	val.FloatVal = f
-	val.Attribute = attr
-	return val, nil
+
+	return &Value{FloatVal: f, Attribute: attr}, nil
 }
 
 // Create a new string value
 func NewStringValue(attr *Attribute, s string) (*Value, error) {
-	val := new(Value)
 	if attr.ValueType != StringValueType {
 		return nil, fmt.Errorf("can't create a new string value with a %s attribute", attr.ValueType)
 	}
-	val.IsNull = false
-	val.StringVal = s
-	val.Attribute = attr
-	return val, nil
+
+	return &Value{StringVal: s, Attribute: attr}, nil
 }
 
 // Create a new relation value.
-// If et is nil, then the function return an error
-// If et is of the wrong types
+// If et is nil, then the function returns an error
+// If et is of the wrong types, then the function returns an error
 func NewRelationValue(attr *Attribute, et *Entity) (*Value, error) {
-	val := new(Value)
-	if attr.ValueType != RelationValueType {
-		return nil, fmt.Errorf("can't create a new relation value with a %s attribute", attr.ValueType)
-	}
 	if et == nil {
 		return nil, fmt.Errorf("can't create a new relation with a nill entity pointer")
 	}
-	if et.EntityType.ID != attr.TargetEntityTypeID {
+	if et.EntityType.ID != attr.RelationTargetEntityTypeID {
 		return nil, fmt.Errorf(
 			"can't create a relation with an entity of wrong EntityType. (got the entityid=%d, expected=%d)",
-			et.EntityType.ID, attr.TargetEntityTypeID,
+			et.EntityType.ID, attr.RelationTargetEntityTypeID,
 		)
 	}
-	val.IsNull = false
-	val.RelationVal = et.ID
-	val.Attribute = attr
-	return val, nil
+
+	return NewRelationIDValue(attr, et.ID)
+}
+
+// Create a new relation value.
+// If et is nil, then the function returns an error
+// If et is of the wrong types, then the function returns an error
+func NewRelationIDValue(attr *Attribute, uuidVal uuid.UUID) (*Value, error) {
+	if attr.ValueType != RelationValueType {
+		return nil, fmt.Errorf("can't create a new relation value with a %s attribute", attr.ValueType)
+	}
+
+	return &Value{RelationVal: uuidVal, Attribute: attr}, nil
 }
 
 // Check if the Value is whole. eg, no fields are nil
@@ -119,6 +108,7 @@ func (v *Value) CheckWhole() error {
 	if v.Attribute == nil {
 		return fmt.Errorf("the Attribute pointer is nil in Value at %v", v)
 	}
+
 	return nil
 }
 
@@ -129,7 +119,11 @@ func (v *Value) CheckWhole() error {
 func (v *Value) GetStringVal() (string, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return "", err
+	}
+
+	if v.Attribute.ValueType != StringValueType {
+		return "", ErrAskingForWrongType
 	}
 
 	if v.IsNull {
@@ -138,9 +132,7 @@ func (v *Value) GetStringVal() (string, error) {
 		}
 		return "", ErrValueIsNull
 	}
-	if v.Attribute.ValueType != StringValueType {
-		return "", ErrAskingForWrongType
-	}
+
 	return v.StringVal, nil
 }
 
@@ -151,7 +143,11 @@ func (v *Value) GetStringVal() (string, error) {
 func (v *Value) GetFloatVal() (float64, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return 0.0, err
+	}
+
+	if v.Attribute.ValueType != FloatValueType {
+		return 0.0, ErrAskingForWrongType
 	}
 
 	if v.IsNull {
@@ -160,9 +156,7 @@ func (v *Value) GetFloatVal() (float64, error) {
 		}
 		return 0.0, ErrValueIsNull
 	}
-	if v.Attribute.ValueType != FloatValueType {
-		return 0.0, ErrAskingForWrongType
-	}
+
 	return v.FloatVal, nil
 }
 
@@ -173,7 +167,11 @@ func (v *Value) GetFloatVal() (float64, error) {
 func (v *Value) GetIntVal() (int, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return 0, err
+	}
+
+	if v.Attribute.ValueType != IntValueType {
+		return 0, ErrAskingForWrongType
 	}
 
 	if v.IsNull {
@@ -182,9 +180,7 @@ func (v *Value) GetIntVal() (int, error) {
 		}
 		return 0, ErrValueIsNull
 	}
-	if v.Attribute.ValueType != IntValueType {
-		return 0, ErrAskingForWrongType
-	}
+
 	return v.IntVal, nil
 }
 
@@ -195,7 +191,11 @@ func (v *Value) GetIntVal() (int, error) {
 func (v *Value) GetBoolVal() (bool, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return false, err
+	}
+
+	if v.Attribute.ValueType != BooleanValueType {
+		return false, ErrAskingForWrongType
 	}
 
 	if v.IsNull {
@@ -204,9 +204,7 @@ func (v *Value) GetBoolVal() (bool, error) {
 		}
 		return false, ErrValueIsNull
 	}
-	if v.Attribute.ValueType != BooleanValueType {
-		return false, ErrAskingForWrongType
-	}
+
 	return v.BoolVal, nil
 }
 
@@ -217,8 +215,9 @@ func (v *Value) GetBoolVal() (bool, error) {
 func (v *Value) GetComputedRelationVal(db *gorm.DB) (*Entity, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
+
 	if v.Attribute.ValueType != RelationValueType {
 		return nil, ErrAskingForWrongType
 	}
@@ -241,8 +240,9 @@ func (v *Value) GetComputedRelationVal(db *gorm.DB) (*Entity, error) {
 func (v *Value) GetRelationVal() (uuid.UUID, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return uuid.Nil, err
 	}
+
 	if v.Attribute.ValueType != RelationValueType {
 		return uuid.Nil, ErrAskingForWrongType
 	}
@@ -250,52 +250,26 @@ func (v *Value) GetRelationVal() (uuid.UUID, error) {
 	if v.IsNull {
 		return uuid.Nil, fmt.Errorf("the relation is null")
 	}
+
 	return v.RelationVal, nil
 }
 
 // Return the underlying value as an interface
 func (v *Value) Value() any {
-	err := v.CheckWhole()
-	if err != nil {
-		panic(err)
+	if v.IsNull {
+		return nil
 	}
+
 	switch v.Attribute.ValueType {
 	case StringValueType:
-		if v.IsNull {
-			if v.Attribute.Default {
-				return v.Attribute.DefaultString
-			}
-			return nil
-		}
 		return v.StringVal
 	case IntValueType:
-		if v.IsNull {
-			if v.Attribute.Default {
-				return v.Attribute.DefaultInt
-			}
-			return nil
-		}
 		return v.IntVal
 	case FloatValueType:
-		if v.IsNull {
-			if v.Attribute.Default {
-				return v.Attribute.DefaultFloat
-			}
-			return nil
-		}
 		return v.FloatVal
 	case BooleanValueType:
-		if v.IsNull {
-			if v.Attribute.Default {
-				return v.Attribute.DefaultBool
-			}
-			return nil
-		}
 		return v.BoolVal
 	case RelationValueType:
-		if v.IsNull {
-			return nil
-		}
 		return v.RelationVal
 	default:
 		panic(fmt.Errorf(
@@ -305,6 +279,95 @@ func (v *Value) Value() any {
 	}
 }
 
+func (v *Value) SetNull() {
+	v.IsNull = true
+	v.IntVal = 0
+	v.FloatVal = 0.0
+	v.StringVal = ""
+	v.BoolVal = false
+	v.RelationVal = uuid.Nil
+}
+
+func (v *Value) SetStringVal(stringVal string) error {
+	err := v.CheckWhole()
+	if err != nil {
+		return err
+	}
+
+	if v.Attribute.ValueType != StringValueType {
+		return ErrAskingForWrongType
+	}
+
+	v.IsNull = false
+	v.StringVal = stringVal
+
+	return nil
+}
+
+func (v *Value) SetIntVal(intVal int) error {
+	err := v.CheckWhole()
+	if err != nil {
+		return err
+	}
+
+	if v.Attribute.ValueType != IntValueType {
+		return ErrAskingForWrongType
+	}
+
+	v.IsNull = false
+	v.IntVal = intVal
+
+	return nil
+}
+
+func (v *Value) SetFloatVal(floatVal float64) error {
+	err := v.CheckWhole()
+	if err != nil {
+		return err
+	}
+
+	if v.Attribute.ValueType != FloatValueType {
+		return ErrAskingForWrongType
+	}
+
+	v.IsNull = false
+	v.FloatVal = floatVal
+
+	return nil
+}
+
+func (v *Value) SetBooleanVal(boolVal bool) error {
+	err := v.CheckWhole()
+	if err != nil {
+		return err
+	}
+
+	if v.Attribute.ValueType != BooleanValueType {
+		return ErrAskingForWrongType
+	}
+
+	v.IsNull = false
+	v.BoolVal = boolVal
+
+	return nil
+}
+
+func (v *Value) SetRelationVal(relationVal uuid.UUID) error {
+	err := v.CheckWhole()
+	if err != nil {
+		return err
+	}
+
+	if v.Attribute.ValueType != RelationValueType {
+		return ErrAskingForWrongType
+	}
+
+	v.IsNull = false
+	v.RelationVal = relationVal
+
+	return nil
+}
+
 var ErrCantBuildKVPairForNullValue = errors.New("can't build key/value pair from null value") // When Value isNull, it is impossible to build a Key/Value pair
 
 // Build a key/value pair to be included in a JSON
@@ -312,11 +375,20 @@ var ErrCantBuildKVPairForNullValue = errors.New("can't build key/value pair from
 func (v *Value) BuildJSONKVPair() (string, error) {
 	err := v.CheckWhole()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
+
 	bytes, err := json.Marshal(v.Value())
 	if err != nil {
 		return "", fmt.Errorf("an error happened while trying to marshall the %q attr: (%w)", v.Attribute.Name, err)
 	}
+
 	return fmt.Sprintf("%q:%s", v.Attribute.Name, bytes), nil
+}
+
+func (v Value) Equal(other Value) bool {
+	return v.ID == other.ID &&
+		v.AttributeID == other.AttributeID &&
+		v.EntityID == other.EntityID &&
+		v.Value() == other.Value()
 }

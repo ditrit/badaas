@@ -7,6 +7,9 @@ import (
 	"github.com/google/uuid"
 )
 
+// Describe the type of an attribute
+type ValueTypeT string
+
 const (
 	RelationValueType ValueTypeT = "relation"
 	BooleanValueType  ValueTypeT = "bool"
@@ -14,9 +17,6 @@ const (
 	IntValueType      ValueTypeT = "int"
 	FloatValueType    ValueTypeT = "float"
 )
-
-// Describe the type of an attribute
-type ValueTypeT string
 
 // Describe the attribute of a en EntityType
 type Attribute struct {
@@ -34,8 +34,8 @@ type Attribute struct {
 	DefaultString string
 	DefaultFloat  float64
 
-	ValueType          ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
-	TargetEntityTypeID uuid.UUID  // name of the EntityType
+	ValueType                  ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
+	RelationTargetEntityTypeID uuid.UUID  // id of the EntityType to which a RelationValueType points to
 
 	// GORM relations
 	EntityTypeID uuid.UUID
@@ -48,34 +48,19 @@ func (a *Attribute) GetNewDefaultValue() (*Value, error) {
 	if !a.Default {
 		return nil, ErrNoDefaultValueSet
 	}
+
 	switch a.ValueType {
 	case StringValueType:
-		v, err := NewStringValue(a, a.DefaultString)
-		if err != nil {
-			return nil, err
-		}
-		return v, nil
+		return NewStringValue(a, a.DefaultString)
 	case IntValueType:
-		v, err := NewIntValue(a, a.DefaultInt)
-		if err != nil {
-			return nil, err
-		}
-		return v, nil
+		return NewIntValue(a, a.DefaultInt)
 	case FloatValueType:
-		v, err := NewFloatValue(a, a.DefaultFloat)
-		if err != nil {
-			return nil, err
-		}
-		return v, nil
+		return NewFloatValue(a, a.DefaultFloat)
 	case BooleanValueType:
-		v, err := NewBoolValue(a, a.DefaultBool)
-		if err != nil {
-			return nil, err
-		}
-		return v, nil
+		return NewBoolValue(a, a.DefaultBool)
 	case RelationValueType:
 		return nil, fmt.Errorf("can't provide default value for relations")
 	default:
-		panic("hmmm we are not supposed to be here")
+		return nil, fmt.Errorf("unsupported ValueType")
 	}
 }

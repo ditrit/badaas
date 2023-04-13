@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/services/eavservice/utils"
+	"github.com/ditrit/badaas/utils"
 )
 
 func TestIsAnINT(t *testing.T) {

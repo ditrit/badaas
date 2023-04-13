@@ -104,7 +104,7 @@ func PopulateDatabase(db *gorm.DB) error {
 	specieAttr := &models.Attribute{Name: "specie", ValueType: models.StringValueType, Required: true}
 	heightAttr := &models.Attribute{Name: "height", ValueType: models.IntValueType, Default: true, DefaultInt: 12, Required: false}
 	weightAttr := &models.Attribute{Name: "weight", ValueType: models.FloatValueType, Default: true, DefaultFloat: 12.500, Required: false}
-	ownerAttr := &models.Attribute{Name: "owner", ValueType: models.RelationValueType, Required: false, TargetEntityTypeID: humanType.ID}
+	ownerAttr := &models.Attribute{Name: "owner", ValueType: models.RelationValueType, Required: false, RelationTargetEntityTypeID: humanType.ID}
 
 	BirdType := &models.EntityType{
 		Name: "bird",
@@ -183,9 +183,9 @@ func PopulateDatabase2(db *gorm.DB) error {
 		EntityTypeID: profileType.ID,
 		EntityType:   profileType,
 	}
-	displayNameVal := &models.Value{Attribute: urlPicAttr, StringVal: "The Super Admin"}
-	userPicVal := &models.Value{Attribute: urlPicAttr, IsNull: true}
-	userIDVal := &models.Value{Attribute: userIDAttr, StringVal: userID}
+	displayNameVal, _ := models.NewStringValue(displayNameAttr, "The Super Admin")
+	userPicVal, _ := models.NewNullValue(urlPicAttr)
+	userIDVal, _ := models.NewStringValue(userIDAttr, userID)
 	adminProfile.Fields = append(adminProfile.Fields,
 		displayNameVal,
 		userPicVal,
@@ -222,30 +222,21 @@ func PopulateDatabase2(db *gorm.DB) error {
 		EntityTypeID: postType.ID,
 		EntityType:   postType,
 	}
-	titleVal := &models.Value{
-		Attribute: titleAttr,
-		StringVal: "Why cats like mice ?",
-	}
-	bodyVal, err := models.NewStringValue(bodyAttr,
+	titleVal, _ := models.NewStringValue(titleAttr, "Why cats like mice ?")
+	bodyVal, _ := models.NewStringValue(bodyAttr,
 		`Lorem ipsum dolor sit amet, consectetur adipiscing elit.
 
 		In consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi.
 		
 		In erat mi, pharetra ut lacinia at, facilisis vitae nunc.
 	`)
-	if err != nil {
-		return err
-	}
-	ownerVal := &models.Value{
-		Attribute: ownerAttr,
-		StringVal: userID,
-	}
+	ownerVal, _ := models.NewStringValue(ownerAttr, userID)
 
 	whyCatsLikeMice.Fields = append(whyCatsLikeMice.Fields,
 		titleVal, bodyVal, ownerVal,
 	)
 
-	err = db.Create(whyCatsLikeMice).Error
+	err := db.Create(whyCatsLikeMice).Error
 	if err != nil {
 		return err
 	}

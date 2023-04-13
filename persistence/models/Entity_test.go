@@ -13,7 +13,7 @@ func TestMarshall(t *testing.T) {
 		BaseModel: BaseModel{ID: id},
 		Name:      "bird",
 		Attributes: []*Attribute{
-			&Attribute{
+			{
 				BaseModel: BaseModel{
 					ID: id,
 				},
@@ -28,7 +28,7 @@ func TestMarshall(t *testing.T) {
 		BaseModel: BaseModel{
 			ID: id,
 		},
-		Fields: []*Value{&Value{
+		Fields: []*Value{{
 			BaseModel: BaseModel{
 				ID: id,
 			},
