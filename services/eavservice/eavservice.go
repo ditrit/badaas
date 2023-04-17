@@ -99,7 +99,6 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 		if present {
 			var valToUse string
 
-			// TODO check that v is a valid value for that type to avoid error in db
 			switch attr.ValueType {
 			case models.StringValueType:
 				valToUse = "string_val"
