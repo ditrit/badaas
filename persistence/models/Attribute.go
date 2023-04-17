@@ -21,9 +21,9 @@ const (
 // Describe the attribute of a en EntityType
 type Attribute struct {
 	BaseModel
-	Name     string
-	Unique   bool
-	Required bool
+	Name     string `gorm:"uniqueIndex:unique_name_entity_type"`
+	Unique   bool   // TODO validate this
+	Required bool   // TODO validate this
 
 	Default bool // if there is a default value
 
@@ -35,10 +35,10 @@ type Attribute struct {
 
 	ValueType ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
 	// id of the EntityType to which a RelationValueType points to. Only if ValueType == RelationValueType
-	RelationTargetEntityTypeID uuid.UUID `gorm:"foreignKey:EntityType"`
+	RelationTargetEntityTypeID uuid.UUID `gorm:"type:uuid;foreignKey:EntityType"`
 
 	// GORM relations
-	EntityTypeID uuid.UUID
+	EntityTypeID uuid.UUID `gorm:"uniqueIndex:unique_name_entity_type"`
 }
 
 var ErrNoDefaultValueSet = errors.New("no default value found")
