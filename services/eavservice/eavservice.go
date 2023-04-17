@@ -89,7 +89,6 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 	// TODO tambien hacer una version que no usa gorm para evitar las queries multiples hechas para buscar el resto de objetos.
 
 	// multiple joins version
-	// TODO filter by null
 	// TODO relations join
 
 	query := eavService.db.Select("entities.*")
@@ -98,18 +97,22 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 		v, present := params[attr.Name]
 		if present {
 			var valToUse string
-
-			switch attr.ValueType {
-			case models.StringValueType:
-				valToUse = "string_val"
-			case models.IntValueType:
-				valToUse = "int_val"
-			case models.FloatValueType:
-				valToUse = "float_val"
-			case models.BooleanValueType:
-				valToUse = "bool_val"
-			case models.RelationValueType:
-				valToUse = "relation_val"
+			if v != "null" { // TODO should be changed to be able to use nil
+				switch attr.ValueType {
+				case models.StringValueType:
+					valToUse = "string_val"
+				case models.IntValueType:
+					valToUse = "int_val"
+				case models.FloatValueType:
+					valToUse = "float_val"
+				case models.BooleanValueType:
+					valToUse = "bool_val"
+				case models.RelationValueType:
+					valToUse = "relation_val"
+				}
+			} else {
+				valToUse = "is_null"
+				v = "true"
 			}
 
 			query = query.Joins(
@@ -288,7 +291,6 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 					if err != nil {
 						return nil, err
 					}
-				// TODO is this really necessary?
 				case nil:
 					value, err = models.NewNullValue(a)
 					if err != nil {
@@ -311,7 +313,6 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 					return nil, err
 				}
 			} else {
-				// TODO is this really necessary?
 				value, err = models.NewNullValue(a)
 				if err != nil {
 					return nil, err
@@ -372,7 +373,6 @@ func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[stri
 					if err != nil {
 						return err
 					}
-				// TODO is this really necessary?
 				case nil:
 					if attribute.Required {
 						return fmt.Errorf("can't set a required variable to null")

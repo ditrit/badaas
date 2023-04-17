@@ -341,6 +341,25 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfRelationType() {
 	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
 }
 
+func (ts *EAVServiceIntTestSuite) TestWithParamFilterByNull() {
+	match, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": nil,
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "something",
+	})
+	ts.Nil(err)
+
+	params := map[string]string{
+		"displayName": "null",
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
+}
+
 // ------------------------- CreateEntity --------------------------------
 
 func (ts *EAVServiceIntTestSuite) TestCreateMultipleEntitiesDoesNotGenerateGormBug() {
