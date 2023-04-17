@@ -59,7 +59,6 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
 
-		fx.Provide(NewIntegrationTestSuite),
 		fx.Provide(NewEAVServiceIntTestSuite),
 
 		fx.Invoke(runTestSuites),

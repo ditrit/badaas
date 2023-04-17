@@ -7,27 +7,10 @@ import (
 
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 	is "gotest.tools/assert/cmp"
 )
-
-type IntegrationTestSuite struct {
-	suite.Suite
-	logger *zap.Logger
-	db     *gorm.DB
-}
-
-func NewIntegrationTestSuite(
-	logger *zap.Logger,
-	db *gorm.DB,
-) *IntegrationTestSuite {
-	return &IntegrationTestSuite{
-		logger: logger,
-		db:     db,
-	}
-}
 
 var ListOfTables = []any{
 	models.Session{},
@@ -38,17 +21,17 @@ var ListOfTables = []any{
 	models.EntityType{},
 }
 
-func (ts *IntegrationTestSuite) SetupTest() {
+func SetupDB(db *gorm.DB) {
 	// clean database to ensure independency between tests
 	for _, table := range ListOfTables {
-		err := ts.db.Unscoped().Where("1 = 1").Delete(table).Error
+		err := db.Unscoped().Where("1 = 1").Delete(table).Error
 		if err != nil {
 			log.Fatalln("could not clean database: ", err)
 		}
 	}
 }
 
-func (ts *IntegrationTestSuite) equalList(expected, actual any) {
+func EqualList(ts *suite.Suite, expected, actual any) {
 	v := reflect.ValueOf(expected)
 	v2 := reflect.ValueOf(actual)
 
@@ -67,7 +50,7 @@ func (ts *IntegrationTestSuite) equalList(expected, actual any) {
 	}
 }
 
-func (ts *IntegrationTestSuite) equalEntityList(expected, actual []*models.Entity) {
+func EqualEntityList(ts *suite.Suite, expected, actual []*models.Entity) {
 	ts.Len(actual, len(expected))
 
 	sort.SliceStable(expected, func(i, j int) bool {
@@ -79,13 +62,14 @@ func (ts *IntegrationTestSuite) equalEntityList(expected, actual []*models.Entit
 	})
 
 	for i := range actual {
-		ts.equalEntity(expected[i], actual[i])
+		EqualEntity(ts, expected[i], actual[i])
 	}
 }
 
-func (ts *IntegrationTestSuite) equalEntity(expected, actual *models.Entity) {
+func EqualEntity(ts *suite.Suite, expected, actual *models.Entity) {
 	assert.DeepEqual(ts.T(), expected, actual)
-	ts.equalList(
+	EqualList(
+		ts,
 		expected.Fields,
 		actual.Fields,
 	)

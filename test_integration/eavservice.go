@@ -7,10 +7,15 @@ import (
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/eavservice"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type EAVServiceIntTestSuite struct {
-	IntegrationTestSuite
+	suite.Suite
+	logger           *zap.Logger
+	db               *gorm.DB
 	eavService       eavservice.EAVService
 	entityRepository *repository.EntityRepository
 	profileType      *models.EntityType
@@ -19,19 +24,21 @@ type EAVServiceIntTestSuite struct {
 }
 
 func NewEAVServiceIntTestSuite(
-	ts *IntegrationTestSuite,
+	logger *zap.Logger,
+	db *gorm.DB,
 	eavService eavservice.EAVService,
 	entityRepository *repository.EntityRepository,
 ) *EAVServiceIntTestSuite {
 	return &EAVServiceIntTestSuite{
-		IntegrationTestSuite: *ts,
-		eavService:           eavService,
-		entityRepository:     entityRepository,
+		logger:           logger,
+		db:               db,
+		eavService:       eavService,
+		entityRepository: entityRepository,
 	}
 }
 
 func (ts *EAVServiceIntTestSuite) SetupTest() {
-	ts.IntegrationTestSuite.SetupTest()
+	SetupDB(ts.db)
 
 	// CREATION OF THE PROFILE TYPE AND ASSOCIATED ATTRIBUTES
 	ts.profileType = &models.EntityType{
@@ -69,7 +76,7 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 func (ts *EAVServiceIntTestSuite) TestWithoutParamsReturnsEmptyIfNotEntitiesCreated() {
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, make(map[string]string))
 
-	ts.equalEntityList([]*models.Entity{}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithoutParamsReturnsTheOnlyOneIfOneEntityCreated() {
@@ -77,7 +84,7 @@ func (ts *EAVServiceIntTestSuite) TestWithoutParamsReturnsTheOnlyOneIfOneEntityC
 
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, make(map[string]string))
 
-	ts.equalEntityList([]*models.Entity{profile}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{profile}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithoutParamsReturnsTheListWhenMultipleCreated() {
@@ -87,7 +94,7 @@ func (ts *EAVServiceIntTestSuite) TestWithoutParamsReturnsTheListWhenMultipleCre
 
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, make(map[string]string))
 
-	ts.equalEntityList([]*models.Entity{profile1, profile2, profile3}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{profile1, profile2, profile3}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsEmptyIfNotEntitiesCreated() {
@@ -96,7 +103,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsEmptyIfNotEntitiesCreated
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsEmptyIfNothingMatch() {
@@ -107,7 +114,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsEmptyIfNothingMatch() {
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsOneIfOnlyOneMatch() {
@@ -119,7 +126,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsOneIfOnlyOneMatch() {
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{matchProfile}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{matchProfile}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsMultipleIfMultipleMatch() {
@@ -132,7 +139,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsMultipleIfMultipleMatch()
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{match1, match2}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{match1, match2}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamThatDoesNotExistReturnsAllEntities() {
@@ -145,7 +152,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamThatDoesNotExistReturnsAllEntitie
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{match1, match2, match3}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{match1, match2, match3}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamOfIntType() {
@@ -180,7 +187,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfIntType() {
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{match}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamOfIntTypeThatIsNotAnIntReturnEmpty() {
@@ -215,7 +222,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfIntTypeThatIsNotAnIntReturnEmpt
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamOfFloatType() {
@@ -250,7 +257,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfFloatType() {
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{match}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamOfBoolType() {
@@ -285,7 +292,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfBoolType() {
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{match}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestWithParamOfRelationType() {
@@ -331,7 +338,7 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfRelationType() {
 	}
 	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
 
-	ts.equalEntityList([]*models.Entity{match}, entities)
+	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
 }
 
 // ------------------------- CreateEntity --------------------------------
