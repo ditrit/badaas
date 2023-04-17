@@ -18,7 +18,7 @@ type Value struct {
 	FloatVal    float64
 	IntVal      int
 	BoolVal     bool
-	RelationVal uuid.UUID
+	RelationVal uuid.UUID `gorm:"foreignKey:Entity"`
 
 	// GORM relations
 	EntityID    uuid.UUID
@@ -81,7 +81,7 @@ func NewStringValue(attr *Attribute, s string) (*Value, error) {
 // If et is of the wrong types, then the function returns an error
 func NewRelationValue(attr *Attribute, et *Entity) (*Value, error) {
 	if et == nil {
-		return nil, fmt.Errorf("can't create a new relation with a nill entity pointer")
+		return nil, fmt.Errorf("can't create a new relation with a nil entity pointer")
 	}
 	if et.EntityType.ID != attr.RelationTargetEntityTypeID {
 		return nil, fmt.Errorf(

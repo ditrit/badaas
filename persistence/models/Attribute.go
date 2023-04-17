@@ -25,17 +25,17 @@ type Attribute struct {
 	Unique   bool
 	Required bool
 
-	// there is a default value
-	Default bool
+	Default bool // if there is a default value
 
-	// Default values
+	// Default values, only if Default == true
 	DefaultInt    int
 	DefaultBool   bool
 	DefaultString string
 	DefaultFloat  float64
 
-	ValueType                  ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
-	RelationTargetEntityTypeID uuid.UUID  // id of the EntityType to which a RelationValueType points to
+	ValueType ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
+	// id of the EntityType to which a RelationValueType points to. Only if ValueType == RelationValueType
+	RelationTargetEntityTypeID uuid.UUID `gorm:"foreignKey:EntityType"`
 
 	// GORM relations
 	EntityTypeID uuid.UUID
