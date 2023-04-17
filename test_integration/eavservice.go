@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ditrit/badaas/persistence/models"
@@ -54,21 +55,12 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 		ts.descriptionAttr,
 	)
 
-	log.Println(ts.displayNameAttr.Name)
-	log.Println(ts.displayNameAttr.ID)
-	log.Println(ts.descriptionAttr.Name)
-	log.Println(ts.descriptionAttr.ID)
-
 	err := ts.db.Create(&ts.profileType).Error
 	if err != nil {
 		ts.Fail("Unable to create entity type: ", err)
 	}
 
 	log.Println(ts.profileType.ID)
-	for _, attr := range ts.profileType.Attributes {
-		log.Println(attr.Name)
-		log.Println(attr.ID)
-	}
 	log.Println(ts.displayNameAttr.Name)
 	log.Println(ts.displayNameAttr.ID)
 	log.Println(ts.descriptionAttr.Name)
@@ -149,6 +141,68 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsMultipleIfMultipleMatch()
 // TODO verificar cuando el atributo nisiquiera existe
 // TODO verificar con otros tipos de atributos
 // TODO verificar cuando hay otros entityTypes
+
+// ------------------------- CreateEntity --------------------------------
+
+func (ts *EAVServiceIntTestSuite) TestCreateMultipleEntitiesDoesNotGenerateGormBug() {
+	initialDisplayNameID := ts.displayNameAttr.ID
+	initialDescriptionID := ts.descriptionAttr.ID
+
+	for i := 0; i < 10; i++ {
+		params := map[string]any{
+			"displayName": fmt.Sprintf("displayName%d", i),
+			"description": fmt.Sprintf("description%d", i),
+		}
+		entity, err := ts.eavService.CreateEntity(ts.profileType, params)
+		ts.Nil(err)
+
+		for _, value := range entity.Fields {
+			if value.Attribute.Name == "displayName" {
+				ts.Equal(initialDisplayNameID, value.AttributeID)
+			} else {
+				ts.Equal(initialDescriptionID, value.AttributeID)
+			}
+		}
+	}
+}
+
+// ------------------------- UpdateEntity --------------------------------
+
+func (ts *EAVServiceIntTestSuite) TestUpdateEntityMultipleTimesDoesNotGenerateGormBug() {
+	initialDisplayNameID := ts.displayNameAttr.ID
+	initialDescriptionID := ts.descriptionAttr.ID
+
+	params := map[string]any{
+		"displayName": "displayName",
+		"description": "description",
+	}
+	entity, err := ts.eavService.CreateEntity(ts.profileType, params)
+	ts.Nil(err)
+
+	params2 := map[string]any{
+		"displayName": "other",
+		"description": "other",
+	}
+	_, err = ts.eavService.CreateEntity(ts.profileType, params2)
+	ts.Nil(err)
+
+	for i := 0; i < 10; i++ {
+		params := map[string]any{
+			"displayName": fmt.Sprintf("displayName%d", i),
+			"description": fmt.Sprintf("description%d", i),
+		}
+		err := ts.eavService.UpdateEntity(entity, params)
+		ts.Nil(err)
+
+		for _, value := range entity.Fields {
+			if value.Attribute.Name == "displayName" {
+				ts.Equal(initialDisplayNameID, value.AttributeID)
+			} else {
+				ts.Equal(initialDescriptionID, value.AttributeID)
+			}
+		}
+	}
+}
 
 func (ts *EAVServiceIntTestSuite) createProfile(entityType *models.EntityType, displayName string) *models.Entity {
 	entity := &models.Entity{

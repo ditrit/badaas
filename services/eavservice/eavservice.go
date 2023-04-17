@@ -7,6 +7,7 @@ import (
 	uuid "github.com/google/uuid"
 
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/utils"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -28,17 +29,20 @@ type EAVService interface {
 }
 
 type eavServiceImpl struct {
-	logger *zap.Logger
-	db     *gorm.DB
+	logger           *zap.Logger
+	db               *gorm.DB
+	entityRepository *repository.EntityRepository
 }
 
 func NewEAVService(
 	logger *zap.Logger,
 	db *gorm.DB,
+	entityRepository *repository.EntityRepository,
 ) EAVService {
 	return &eavServiceImpl{
-		logger: logger,
-		db:     db,
+		logger:           logger,
+		db:               db,
+		entityRepository: entityRepository,
 	}
 }
 
@@ -317,7 +321,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 	}
 
 	et.EntityType = ett
-	return &et, eavService.db.Create(&et).Error
+	return &et, eavService.entityRepository.Save(&et)
 }
 
 func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {
