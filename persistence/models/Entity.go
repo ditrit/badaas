@@ -90,5 +90,5 @@ func (Entity) TableName() string {
 
 func (e Entity) Equal(other Entity) bool {
 	return e.ID == other.ID &&
-		e.EntityTypeID == other.EntityTypeID
+		e.EntityType.ID == other.EntityType.ID
 }

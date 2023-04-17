@@ -33,7 +33,6 @@ func NewEAVServiceIntTestSuite(
 func (ts *EAVServiceIntTestSuite) SetupTest() {
 	ts.IntegrationTestSuite.SetupTest()
 
-	// TODO duplicated code
 	// CREATION OF THE PROFILE TYPE AND ASSOCIATED ATTRIBUTES
 	ts.profileType = &models.EntityType{
 		Name: "profile",
@@ -42,7 +41,7 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 		EntityTypeID: ts.profileType.ID,
 		Name:         "displayName",
 		ValueType:    models.StringValueType,
-		Required:     true,
+		Required:     false,
 	}
 	ts.descriptionAttr = &models.Attribute{
 		EntityTypeID: ts.profileType.ID,
@@ -56,9 +55,7 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 	)
 
 	err := ts.db.Create(&ts.profileType).Error
-	if err != nil {
-		ts.Fail("Unable to create entity type: ", err)
-	}
+	ts.Nil(err)
 
 	log.Println(ts.profileType.ID)
 	log.Println(ts.displayNameAttr.Name)
@@ -138,9 +135,173 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsMultipleIfMultipleMatch()
 	ts.equalEntityList([]*models.Entity{match1, match2}, entities)
 }
 
-// TODO verificar cuando el atributo nisiquiera existe
-// TODO verificar con otros tipos de atributos
-// TODO verificar cuando hay otros entityTypes
+func (ts *EAVServiceIntTestSuite) TestWithParamThatDoesNotExistReturnsAllEntities() {
+	match1 := ts.createProfile(ts.profileType, "match")
+	match2 := ts.createProfile(ts.profileType, "match")
+	match3 := ts.createProfile(ts.profileType, "match")
+
+	params := map[string]string{
+		"not_exists": "not_exists",
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	ts.equalEntityList([]*models.Entity{match1, match2, match3}, entities)
+}
+
+func (ts *EAVServiceIntTestSuite) TestWithParamOfIntType() {
+	intAttr := &models.Attribute{
+		EntityTypeID: ts.profileType.ID,
+		Name:         "int",
+		ValueType:    models.IntValueType,
+		Required:     false,
+	}
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		intAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	if err != nil {
+		ts.Fail("Unable to create entity type: ", err)
+	}
+
+	match, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "match",
+		"int":         1,
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "not_match",
+		"int":         2,
+	})
+	ts.Nil(err)
+
+	params := map[string]string{
+		"int": "1",
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	ts.equalEntityList([]*models.Entity{match}, entities)
+}
+
+func (ts *EAVServiceIntTestSuite) TestWithParamOfFloatType() {
+	floatAttr := &models.Attribute{
+		EntityTypeID: ts.profileType.ID,
+		Name:         "float",
+		ValueType:    models.FloatValueType,
+		Required:     false,
+	}
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		floatAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	if err != nil {
+		ts.Fail("Unable to create entity type: ", err)
+	}
+
+	match, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "match",
+		"float":       1.1,
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "not_match",
+		"float":       2.0,
+	})
+	ts.Nil(err)
+
+	params := map[string]string{
+		"float": "1.1",
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	ts.equalEntityList([]*models.Entity{match}, entities)
+}
+
+func (ts *EAVServiceIntTestSuite) TestWithParamOfBoolType() {
+	boolAttr := &models.Attribute{
+		EntityTypeID: ts.profileType.ID,
+		Name:         "bool",
+		ValueType:    models.BooleanValueType,
+		Required:     false,
+	}
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		boolAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	match, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "match",
+		"bool":        true,
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "not_match",
+		"bool":        false,
+	})
+	ts.Nil(err)
+
+	params := map[string]string{
+		"bool": "true",
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	ts.equalEntityList([]*models.Entity{match}, entities)
+}
+
+func (ts *EAVServiceIntTestSuite) TestWithParamOfRelationType() {
+	otherEntityType := &models.EntityType{
+		Name: "other",
+	}
+
+	err := ts.db.Create(otherEntityType).Error
+	ts.Nil(err)
+
+	otherEntity1, err := ts.eavService.CreateEntity(otherEntityType, map[string]any{})
+	ts.Nil(err)
+
+	otherEntity2, err := ts.eavService.CreateEntity(otherEntityType, map[string]any{})
+	ts.Nil(err)
+
+	relationAttr := models.NewRelationAttribute(
+		ts.profileType, "relation",
+		false, false, otherEntityType,
+	)
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		relationAttr,
+	)
+
+	err = ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	match, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "match",
+		"relation":    otherEntity1.ID.String(),
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType, map[string]any{
+		"displayName": "not_match",
+		"relation":    otherEntity2.ID.String(),
+	})
+	ts.Nil(err)
+
+	params := map[string]string{
+		"relation": otherEntity1.ID.String(),
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	ts.equalEntityList([]*models.Entity{match}, entities)
+}
 
 // ------------------------- CreateEntity --------------------------------
 
@@ -225,9 +386,7 @@ func (ts *EAVServiceIntTestSuite) createProfile(entityType *models.EntityType, d
 	log.Println(descriptionVal.AttributeID)
 
 	err := ts.entityRepository.Save(entity)
-	if err != nil {
-		ts.Fail("Unable to create entity: ", err)
-	}
+	ts.Nil(err)
 
 	log.Println("After create")
 	for _, field := range entity.Fields {

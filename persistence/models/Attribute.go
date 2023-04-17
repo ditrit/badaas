@@ -43,6 +43,19 @@ type Attribute struct {
 
 var ErrNoDefaultValueSet = errors.New("no default value found")
 
+func NewRelationAttribute(entityType *EntityType, name string,
+	unique bool, required bool,
+	relationTargetEntityType *EntityType) *Attribute {
+	return &Attribute{
+		EntityTypeID:               entityType.ID,
+		Name:                       name,
+		ValueType:                  RelationValueType,
+		Required:                   required,
+		Unique:                     unique,
+		RelationTargetEntityTypeID: relationTargetEntityType.ID,
+	}
+}
+
 // Get a new value with the default value associated with the attribute
 func (a *Attribute) GetNewDefaultValue() (*Value, error) {
 	if !a.Default {

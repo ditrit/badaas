@@ -90,7 +90,7 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 
 	// multiple joins version
 	// TODO filter by null
-	// TODO relations
+	// TODO relations join
 
 	query := eavService.db.Select("entities.*")
 
@@ -109,6 +109,8 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 				valToUse = "float_val"
 			case models.BooleanValueType:
 				valToUse = "bool_val"
+			case models.RelationValueType:
+				valToUse = "relation_val"
 			}
 
 			query = query.Joins(
@@ -222,6 +224,7 @@ func (eavService *eavServiceImpl) DeleteEntity(et *models.Entity) error {
 	}
 	return eavService.db.Delete(et).Error
 }
+
 func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error) {
 	var et models.Entity
 	err := eavService.db.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").First(&et, id).Error
@@ -321,6 +324,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 	}
 
 	et.EntityType = ett
+	et.EntityTypeID = ett.ID
 	return &et, eavService.entityRepository.Save(&et)
 }
 
