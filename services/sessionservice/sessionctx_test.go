@@ -4,7 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
+
 	"github.com/stretchr/testify/assert"
 )
 

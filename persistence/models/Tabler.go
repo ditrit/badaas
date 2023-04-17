@@ -1,12 +1,12 @@
 package models
 
 var ListOfTables = []any{
-	Session{},
 	User{},
-	Value{},
-	Entity{},
-	Attribute{},
+	Session{},
 	EntityType{},
+	Entity{},
+	Value{},
+	Attribute{},
 }
 
 // The interface "type" need to implement to be considered models

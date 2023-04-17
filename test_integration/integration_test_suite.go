@@ -29,9 +29,18 @@ func NewIntegrationTestSuite(
 	}
 }
 
+var ListOfTables = []any{
+	models.Session{},
+	models.User{},
+	models.Value{},
+	models.Entity{},
+	models.Attribute{},
+	models.EntityType{},
+}
+
 func (ts *IntegrationTestSuite) SetupTest() {
 	// clean database to ensure independency between tests
-	for _, table := range models.ListOfTables {
+	for _, table := range ListOfTables {
 		err := ts.db.Unscoped().Where("1 = 1").Delete(table).Error
 		if err != nil {
 			log.Fatalln("could not clean database: ", err)
@@ -62,11 +71,11 @@ func (ts *IntegrationTestSuite) equalEntityList(expected, actual []*models.Entit
 	ts.Len(actual, len(expected))
 
 	sort.SliceStable(expected, func(i, j int) bool {
-		return expected[i].ID.ID() < expected[j].ID.ID()
+		return expected[i].ID.String() < expected[j].ID.String()
 	})
 
 	sort.SliceStable(actual, func(i, j int) bool {
-		return actual[i].ID.ID() < actual[j].ID.ID()
+		return actual[i].ID.String() < actual[j].ID.String()
 	})
 
 	for i := range actual {

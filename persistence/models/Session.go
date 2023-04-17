@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
 )
 
 // Represent a user session

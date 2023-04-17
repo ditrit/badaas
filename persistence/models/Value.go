@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/google/uuid"
+	uuid "github.com/google/uuid"
+
 	"gorm.io/gorm"
 )
 
@@ -36,7 +37,7 @@ func NewNullValue(attr *Attribute) (*Value, error) {
 		return nil, fmt.Errorf("can't create new null value for a required attribute")
 	}
 
-	return &Value{IsNull: true, Attribute: attr}, nil
+	return &Value{IsNull: true, Attribute: attr, AttributeID: attr.ID}, nil
 }
 
 // Create a new int value
@@ -45,7 +46,7 @@ func NewIntValue(attr *Attribute, i int) (*Value, error) {
 		return nil, fmt.Errorf("can't create a new int value with a %s attribute", attr.ValueType)
 	}
 
-	return &Value{IntVal: i, Attribute: attr}, nil
+	return &Value{IntVal: i, Attribute: attr, AttributeID: attr.ID}, nil
 }
 
 // Create a new bool value
@@ -54,7 +55,7 @@ func NewBoolValue(attr *Attribute, b bool) (*Value, error) {
 		return nil, fmt.Errorf("can't create a new bool value with a %s attribute", attr.ValueType)
 	}
 
-	return &Value{BoolVal: b, Attribute: attr}, nil
+	return &Value{BoolVal: b, Attribute: attr, AttributeID: attr.ID}, nil
 }
 
 // Create a new float value
@@ -63,7 +64,7 @@ func NewFloatValue(attr *Attribute, f float64) (*Value, error) {
 		return nil, fmt.Errorf("can't create a new float value with a %s attribute", attr.ValueType)
 	}
 
-	return &Value{FloatVal: f, Attribute: attr}, nil
+	return &Value{FloatVal: f, Attribute: attr, AttributeID: attr.ID}, nil
 }
 
 // Create a new string value
@@ -72,7 +73,7 @@ func NewStringValue(attr *Attribute, s string) (*Value, error) {
 		return nil, fmt.Errorf("can't create a new string value with a %s attribute", attr.ValueType)
 	}
 
-	return &Value{StringVal: s, Attribute: attr}, nil
+	return &Value{StringVal: s, Attribute: attr, AttributeID: attr.ID}, nil
 }
 
 // Create a new relation value.
@@ -100,7 +101,7 @@ func NewRelationIDValue(attr *Attribute, uuidVal uuid.UUID) (*Value, error) {
 		return nil, fmt.Errorf("can't create a new relation value with a %s attribute", attr.ValueType)
 	}
 
-	return &Value{RelationVal: uuidVal, Attribute: attr}, nil
+	return &Value{RelationVal: uuidVal, Attribute: attr, AttributeID: attr.ID}, nil
 }
 
 // Check if the Value is whole. eg, no fields are nil

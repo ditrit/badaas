@@ -5,13 +5,14 @@ import (
 	"testing"
 	"time"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/httperrors"
 	configurationmocks "github.com/ditrit/badaas/mocks/configuration"
 	repositorymocks "github.com/ditrit/badaas/mocks/persistence/repository"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/pagination"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

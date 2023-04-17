@@ -3,13 +3,14 @@ package userservice_test
 import (
 	"testing"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/ditrit/badaas/httperrors"
 	repositorymocks "github.com/ditrit/badaas/mocks/persistence/repository"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
 	"github.com/ditrit/badaas/persistence/pagination"
 	"github.com/ditrit/badaas/services/userservice"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

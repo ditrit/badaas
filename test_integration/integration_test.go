@@ -62,7 +62,6 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		fx.Provide(NewIntegrationTestSuite),
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		// fx.Invoke(commands.PopulateDatabase),
 		fx.Invoke(runTestSuites),
 	).Run()
 }

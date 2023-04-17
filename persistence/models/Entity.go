@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/ditrit/badaas/utils"
-	"github.com/google/uuid"
 )
 
 // Describe an instance of an EntityType

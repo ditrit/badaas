@@ -4,9 +4,10 @@ import (
 	"errors"
 	"fmt"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/utils"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -86,7 +87,6 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 	// multiple joins version
 	// TODO filter by null
 	// TODO relations
-	// TODO deleted_at
 
 	query := eavService.db.Select("entities.*")
 
@@ -118,7 +118,7 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 						AND values.%s = ?`,
 					valToUse,
 				),
-				attr.Name, valToUse, v,
+				attr.Name, v,
 			)
 		}
 	}
@@ -153,7 +153,6 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 	// 	ett.ID,
 	// ).Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").Find(&entities)
 
-	// // TODO ultra ineficiente, se traen todas las entidades de ese tipo y se hace la query a mano
 	// resultSet := make([]*models.Entity, 0, len(entities))
 	// var keep bool
 	// for _, et := range entities {

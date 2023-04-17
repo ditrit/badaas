@@ -32,7 +32,7 @@ type CRUDRepositoryImpl[T models.Tabler, ID any] struct {
 	paginationConfiguration configuration.PaginationConfiguration
 }
 
-// Contructor of the Generic CRUD Repository
+// Constructor of the Generic CRUD Repository
 func NewCRUDRepository[T models.Tabler, ID any](
 	database *gorm.DB,
 	logger *zap.Logger,

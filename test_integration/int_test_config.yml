@@ -1,8 +1,10 @@
 database:
   host: localhost
-  port: 26257
+  port: 26257 # cockroach
+  # port: 5432 # postgree
   sslmode: disable
-  username: root
+  username: root # cockroach
+  # username: postgres # postgree
   password: postgres
   name: badaas_db
   init:
@@ -11,5 +13,3 @@ database:
 
 logger:
   mode: dev
-  request:
-    template: "Receive {{method}} request on {{url}}"

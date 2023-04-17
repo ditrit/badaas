@@ -3,8 +3,9 @@ package sessionservice
 import (
 	"context"
 
+	uuid "github.com/google/uuid"
+
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/google/uuid"
 )
 
 // The session claims passed in the request context

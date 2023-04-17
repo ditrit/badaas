@@ -4,24 +4,28 @@ import (
 	"log"
 
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/eavservice"
 )
 
 type EAVServiceIntTestSuite struct {
 	IntegrationTestSuite
-	eavService      eavservice.EAVService
-	profileType     *models.EntityType
-	displayNameAttr *models.Attribute
-	descriptionAttr *models.Attribute
+	eavService       eavservice.EAVService
+	entityRepository *repository.EntityRepository
+	profileType      *models.EntityType
+	displayNameAttr  *models.Attribute
+	descriptionAttr  *models.Attribute
 }
 
 func NewEAVServiceIntTestSuite(
 	ts *IntegrationTestSuite,
 	eavService eavservice.EAVService,
+	entityRepository *repository.EntityRepository,
 ) *EAVServiceIntTestSuite {
 	return &EAVServiceIntTestSuite{
 		IntegrationTestSuite: *ts,
 		eavService:           eavService,
+		entityRepository:     entityRepository,
 	}
 }
 
@@ -50,12 +54,24 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 		ts.descriptionAttr,
 	)
 
-	// err := ts.db.Create(ts.profileType).Error
-	// if err != nil {
-	// 	ts.Fail("Unable to create entity type: ", err)
-	// }
-
+	log.Println(ts.displayNameAttr.Name)
 	log.Println(ts.displayNameAttr.ID)
+	log.Println(ts.descriptionAttr.Name)
+	log.Println(ts.descriptionAttr.ID)
+
+	err := ts.db.Create(&ts.profileType).Error
+	if err != nil {
+		ts.Fail("Unable to create entity type: ", err)
+	}
+
+	log.Println(ts.profileType.ID)
+	for _, attr := range ts.profileType.Attributes {
+		log.Println(attr.Name)
+		log.Println(attr.ID)
+	}
+	log.Println(ts.displayNameAttr.Name)
+	log.Println(ts.displayNameAttr.ID)
+	log.Println(ts.descriptionAttr.Name)
 	log.Println(ts.descriptionAttr.ID)
 }
 
@@ -117,6 +133,19 @@ func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsOneIfOnlyOneMatch() {
 	ts.equalEntityList([]*models.Entity{matchProfile}, entities)
 }
 
+func (ts *EAVServiceIntTestSuite) TestWithParamsReturnsMultipleIfMultipleMatch() {
+	match1 := ts.createProfile(ts.profileType, "match")
+	match2 := ts.createProfile(ts.profileType, "match")
+	ts.createProfile(ts.profileType, "something_else")
+
+	params := map[string]string{
+		"displayName": "match",
+	}
+	entities := ts.eavService.GetEntitiesWithParams(ts.profileType, params)
+
+	ts.equalEntityList([]*models.Entity{match1, match2}, entities)
+}
+
 // TODO verificar cuando el atributo nisiquiera existe
 // TODO verificar con otros tipos de atributos
 // TODO verificar cuando hay otros entityTypes
@@ -128,15 +157,28 @@ func (ts *EAVServiceIntTestSuite) createProfile(entityType *models.EntityType, d
 	}
 
 	displayNameVal, _ := models.NewStringValue(ts.displayNameAttr, displayName)
-	// descriptionVal, _ := models.NewNullValue(ts.descriptionAttr)
+	descriptionVal, _ := models.NewStringValue(ts.descriptionAttr, "something in description")
+
 	entity.Fields = append(entity.Fields,
 		displayNameVal,
-		// descriptionVal,
+		descriptionVal,
 	)
 
-	err := ts.db.Create(entity).Error
+	log.Println("Before create")
+	log.Println(displayNameVal.Attribute.Name)
+	log.Println(displayNameVal.AttributeID)
+	log.Println(descriptionVal.Attribute.Name)
+	log.Println(descriptionVal.AttributeID)
+
+	err := ts.entityRepository.Save(entity)
 	if err != nil {
 		ts.Fail("Unable to create entity: ", err)
+	}
+
+	log.Println("After create")
+	for _, field := range entity.Fields {
+		log.Println(field.Attribute.Name)
+		log.Println(field.AttributeID)
 	}
 
 	return entity
