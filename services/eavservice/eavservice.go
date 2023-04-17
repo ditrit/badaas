@@ -59,37 +59,8 @@ func (eavService *eavServiceImpl) GetEntityTypeByName(name string) (*models.Enti
 }
 
 func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity {
-	var entities []*models.Entity
-
-	// TODO check pivot and cross join
-	// TODO distinct
-	// query := eavService.db.Select("entities.id").Joins(
-	// 	"JOIN attributes ON attributes.entity_type_id = ?",
-	// 	ett.ID,
-	// ).Joins(
-	// 	`JOIN values ON
-	// 		values.entity_id = entities.id
-	// 		AND values.attribute_id = attributes.id`,
-	// )
-
-	// eavService.db.Raw(
-	// 	`SELECT entities.*
-	// 	FROM entities
-	// 	JOIN attributes
-	// 		ON attributes.entity_type_id = entities.entity_type_id
-	// 	JOIN values ON
-	// 		values.entity_id = entities.id AND
-	// 		values.attribute_id = attributes.id
-	// 	// TODO pivot table
-	// 	WHERE
-	// 		entities.entity_type_id = ?`,
-	// 	ett.ID,
-	// ).Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").Find(&entities)
-	// TODO hacer version sin gorm para no tener que hacer todas estas queries al pedo.
-	// TODO tambien hacer una version que no usa gorm para evitar las queries multiples hechas para buscar el resto de objetos.
-
-	// multiple joins version
 	// TODO relations join
+	var entities []*models.Entity
 
 	query := eavService.db.Select("entities.*")
 
@@ -139,81 +110,6 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 	query.Find(&entities)
 
 	return entities
-
-	// version con un solo join
-	// eavService.db.Joins(
-	// 	"JOIN values ON values.entity_id = entities.id",
-	// ).Joins(
-	// 	`JOIN attributes ON
-	// 		values.attribute_id = attributes.id
-	// 		AND attributes.name IN ?`,
-	// 	maps.Keys(params),
-	// ).Where(
-	// 	`entities.entity_type_id = ?
-	// 	AND values.value = ?`,
-	// 	ett.ID,
-	// 	params["no se que poner aca"],
-	// ).Find(&entities)
-
-	// version all in memory
-	// eavService.db.Where(
-	// 	"entity_type_id = ?",
-	// 	ett.ID,
-	// ).Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").Find(&entities)
-
-	// resultSet := make([]*models.Entity, 0, len(entities))
-	// var keep bool
-	// for _, et := range entities {
-	// 	keep = true
-	// 	for _, value := range et.Fields {
-	// 		for k, v := range params {
-	// 			if k == value.Attribute.Name {
-	// 				switch value.Attribute.ValueType {
-	// 				case models.StringValueType:
-	// 					if v != value.StringVal {
-	// 						keep = false
-	// 					}
-	// 				case models.IntValueType:
-	// 					intVal, err := strconv.Atoi(v)
-	// 					if err != nil {
-	// 						break
-	// 					}
-	// 					if intVal != value.IntVal {
-	// 						keep = false
-	// 					}
-	// 				case models.FloatValueType:
-	// 					floatVal, err := strconv.ParseFloat(v, 64)
-	// 					if err != nil {
-	// 						break
-	// 					}
-	// 					if floatVal != value.FloatVal {
-	// 						keep = false
-	// 					}
-	// 				case models.RelationValueType:
-	// 					uuidVal, err := uuid.Parse(v)
-	// 					if err != nil {
-	// 						keep = false
-	// 					}
-	// 					if uuidVal != value.RelationVal {
-	// 						keep = false
-	// 					}
-	// 				case models.BooleanValueType:
-	// 					boolVal, err := strconv.ParseBool(v)
-	// 					if err != nil {
-	// 						break
-	// 					}
-	// 					if boolVal != value.BoolVal {
-	// 						keep = false
-	// 					}
-	// 				}
-	// 			}
-	// 		}
-	// 	}
-	// 	if keep {
-	// 		resultSet = append(resultSet, et)
-	// 	}
-	// }
-	// return resultSet
 }
 
 // Delete an entity
