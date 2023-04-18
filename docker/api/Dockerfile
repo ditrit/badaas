@@ -8,6 +8,9 @@ RUN CGO_ENABLED=1 go build -a -o badaas .
 
 # final image for end users
 FROM alpine:3.16.2
+RUN addgroup -S badaas \
+    && adduser -S badaas -G badaas
+USER badaas
 COPY --from=builder /app/badaas .
 COPY --from=builder /app/docker/api/badaas.yml .
 EXPOSE 8000
