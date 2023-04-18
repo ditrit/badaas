@@ -1,9 +1,6 @@
 # builder image
 FROM golang:1.19-alpine as builder
 RUN apk add build-base
-RUN addgroup -S badaas \
-    && adduser -S badaas -G badaas
-USER badaas
 WORKDIR /app
 COPY commands/ ./commands
 COPY configuration/ ./configuration
@@ -25,7 +22,8 @@ RUN CGO_ENABLED=1 go build -a -o badaas .
 
 # final image for end users
 FROM alpine:3.16.2
-COPY --from=builder /etc/passwd /etc/passwd
+RUN addgroup -S badaas \
+    && adduser -S badaas -G badaas
 USER badaas
 COPY --from=builder /app/badaas .
 COPY docker/api/badaas.yml .

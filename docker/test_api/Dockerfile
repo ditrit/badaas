@@ -1,6 +1,8 @@
 # DEVELOPMENT ONLY, DO NOT USE FOR PRODUCTION
 FROM golang:1.19-alpine
-RUN mkdir /badaas
+RUN addgroup -S badaas \
+    && adduser -S badaas -G badaas
+USER badaas
 WORKDIR /badaas
 COPY go.mod .
 COPY go.sum .
