@@ -18,9 +18,9 @@ COPY badaas.go .
 COPY go.mod .
 COPY go.sum .
 RUN CGO_ENABLED=1 go build -a -o badaas .
-RUN addgroup -S nonroot \
-    && adduser -S nonroot -G nonroot
-
+RUN addgroup -S badaas \
+    && adduser -S badaas -G badaas
+USER badaas
 
 # final image for end users
 FROM alpine:3.16.2
