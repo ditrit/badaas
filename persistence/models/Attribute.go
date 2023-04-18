@@ -35,7 +35,7 @@ type Attribute struct {
 
 	ValueType ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
 	// id of the EntityType to which a RelationValueType points to. Only if ValueType == RelationValueType
-	RelationTargetEntityTypeID uuid.UUID `gorm:"type:uuid;foreignKey:EntityType"`
+	RelationTargetEntityTypeID uuid.UUID `gorm:"type:uuid;foreignKey:EntityType;index:fk_relation_target_entity_type"`
 
 	// GORM relations
 	EntityTypeID uuid.UUID `gorm:"uniqueIndex:unique_name_entity_type"`

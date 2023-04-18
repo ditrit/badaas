@@ -18,7 +18,7 @@ type Value struct {
 	FloatVal    float64
 	IntVal      int
 	BoolVal     bool
-	RelationVal uuid.UUID `gorm:"type:uuid;foreignKey:Entity"`
+	RelationVal uuid.UUID `gorm:"type:uuid;foreignKey:Entity;index:fk_relation_val_entity"`
 
 	// GORM relations
 	EntityID    uuid.UUID
