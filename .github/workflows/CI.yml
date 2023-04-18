@@ -93,7 +93,7 @@ jobs:
         uses: mydea/action-wait-for-api@v1
         with:
           url: "http://localhost:8000/info"
-          timeout: 20
+          timeout: 30
       - name: Run test
         run:  go test -tags=e2e ./test_e2e -v
       - name: Get logs 
