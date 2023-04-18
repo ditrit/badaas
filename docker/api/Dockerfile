@@ -22,6 +22,7 @@ RUN addgroup -S badaas \
     && adduser -S badaas -G badaas
 USER badaas
 
+
 # final image for end users
 FROM alpine:3.16.2
 COPY --from=builder /etc/passwd /etc/passwd
