@@ -1,7 +1,10 @@
 # builder image
 FROM golang:1.19-alpine as builder
-WORKDIR /app
 RUN apk add build-base
+RUN addgroup -S badaas \
+    && adduser -S badaas -G badaas
+USER badaas
+WORKDIR /app
 COPY commands/ ./commands
 COPY configuration/ ./configuration
 COPY controllers/ ./controllers
@@ -18,9 +21,6 @@ COPY badaas.go .
 COPY go.mod .
 COPY go.sum .
 RUN CGO_ENABLED=1 go build -a -o badaas .
-RUN addgroup -S badaas \
-    && adduser -S badaas -G badaas
-USER badaas
 
 
 # final image for end users
