@@ -25,7 +25,6 @@ content-type: application/json
 
 ###
 
-# => SHOULD FAIl
 # DELETE all posts
 DELETE {{URI}}/objects/post/ HTTP/1.1
 content-type: application/json

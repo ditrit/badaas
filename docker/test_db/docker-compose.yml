@@ -14,4 +14,4 @@ services:
       - "8080:8080" # Web based dashboard
     environment:
       - COCKROACH_USER=root
-      - COCKROACH_DB=badaas_db
+      - COCKROACH_DATABASE=badaas_db

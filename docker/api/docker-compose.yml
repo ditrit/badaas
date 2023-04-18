@@ -1,0 +1,28 @@
+version: '3.5'
+
+services:
+  db:
+    image: cockroachdb/cockroach:latest
+    container_name: "badaas-db"
+    ports:
+      - "26257:26257"
+      - "8080:8080" # Web based dashboard
+    command: start-single-node --insecure
+    volumes:
+      - "${PWD}/_temp/cockroach-data:/cockroach/cockroach-data"
+    environment:
+      - COCKROACH_USER=root
+      - COCKROACH_DATABASE=badaas_db
+
+  api:
+    build:
+      context: ../..
+      dockerfile: ./docker/api/Dockerfile
+    container_name: "badaas-api"
+    entrypoint: ./badaas --config_path badaas.yml
+    ports:
+      - "8000:8000"
+    environment:
+      BADAAS_SERVER_EXAMPLE: ${EXAMPLE}
+    depends_on:
+      - db

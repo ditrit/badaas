@@ -20,4 +20,6 @@ func initServerCommands(cfg *verdeter.VerdeterCommand) {
 	cfg.GKey(configuration.ServerPaginationMaxElemPerPage, verdeter.IsUint, "", "The max number of records returned per page")
 	cfg.SetDefault(configuration.ServerPaginationMaxElemPerPage, 100)
 
+	cfg.GKey(configuration.ServerExampleKey, verdeter.IsStr, "", "Example server to exec (birds | posts)")
+	cfg.SetDefault(configuration.ServerExampleKey, "")
 }

@@ -1,0 +1,7 @@
+database:
+  host: badaas-db
+  port: 26257
+  sslmode: disable
+  username: root
+  password: postgres
+  name: badaas_db

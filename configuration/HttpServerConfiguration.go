@@ -13,6 +13,7 @@ const (
 	ServerHostKey                  string = "server.host"
 	ServerPortKey                  string = "server.port"
 	ServerPaginationMaxElemPerPage string = "server.pagination.page.max"
+	ServerExampleKey               string = "server.example"
 )
 
 // Hold the configuration values for the http server
