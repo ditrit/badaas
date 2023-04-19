@@ -3,6 +3,7 @@
 - [Contribute to the development of badaas](#contribute-to-the-development-of-badaas)
   - [Tests](#tests)
     - [Unit tests](#unit-tests)
+    - [Integration tests](#integration-tests)
     - [Feature tests (of end to end tests)](#feature-tests-of-end-to-end-tests)
   - [Logger](#logger)
   - [Directory structure](#directory-structure)
@@ -23,6 +24,16 @@ To run them, please run:
 make test_unit
 ```
 
+### Integration tests
+
+Integration tests have an available CockroachDB node and the dependency injection system.
+
+Run:
+
+```sh
+make test_integration
+```
+
 ### Feature tests (of end to end tests)
 
 We use docker to run a Badaas instance in combination with one node of CockroachDB.
@@ -37,7 +48,7 @@ The feature files can be found in the `test_e2e/features` folder.
 
 ## Logger
 
-We use ubber's [zap](https://pkg.go.dev/go.uber.org/zap) to log stuff, please take `zap.Logger` as an argument for your services constructors. [fx](https://github.com/uber-go/fx) will provide your service with an instance.
+We use uber's [zap](https://pkg.go.dev/go.uber.org/zap) to log stuff, please take `zap.Logger` as an argument for your services constructors. [fx](https://github.com/uber-go/fx) will provide your service with an instance.
 
 ## Directory structure
 
@@ -52,7 +63,7 @@ This is the directory structure we use for the project:
 - `persistance/` *(Go code)*:
   - `/gormdatabase/` *(Go code)*: Contains the logic to create a <https://gorm.io> database. Also contains a go package named `gormzap`: it is a compatibility layer between *gorm.io/gorm* and *github.com/uber-go/zap*.
   - `/models/` *(Go code)*: Contains the models. (For a structure to me considered a valid model, it has to embed `models.BaseModel` and satisfy the `models.Tabler` interface. This interface returns the name of the sql table.)
-    - `/dto/` *(Go code)*: Contains the Data Transfert Objects. They are used mainly to decode json payloads.
+    - `/dto/` *(Go code)*: Contains the Data Transfer Objects. They are used mainly to decode json payloads.
   - `/pagination/` *(Go code)*: Contains the pagination logic.
   - `/repository/` *(Go code)*: Contains the repository interface and implementation. Use uint as ID when using gorm models.
 - `resources/` *(Go code)*: Contains the resources shared with the rest of the codebase (ex: API version).
@@ -60,10 +71,10 @@ This is the directory structure we use for the project:
   - `/middlewares/` *(Go code)*: Contains the various http middlewares that we use.
 - `scripts/e2e/` : Contains the docker-compose file for end-to-end test.
   - `/api/` : Contains the Dockerfile to build badaas with a dedicated config file.
-  - `/db/` : Contains the Dockerfile to build a developpement version of CockroachDB.
-- `services/` *(Go code)*: Contains the Dockerfile to build a developpement version of CockroachDB.
-  - `/auth/protocols/`: Contains the implementations of authentication clients for differents protocols.
-    - `/basicauth/` *(Go code)*: Handle the authentification using email/password.
+  - `/db/` : Contains the Dockerfile to build a development version of CockroachDB.
+- `services/` *(Go code)*: Contains the Dockerfile to build a development version of CockroachDB.
+  - `/auth/protocols/`: Contains the implementations of authentication clients for different protocols.
+    - `/basicauth/` *(Go code)*: Handle the authentication using email/password.
     - `/oidc/` *(Go code)*: Handle the authentication via Open-ID Connect.
   - `/sessionservice/` *(Go code)*: Handle sessions and their lifecycle.
   - `/userservice/` *(Go code)*: Handle users.
@@ -87,7 +98,7 @@ At the root of the project, you will find:
   Accepted prefixes are:
   - `feature`, used for feature development
   - `bugfix`, used for bug fix
-  - `improvement`, used for refacto
+  - `improvement`, used for refactor
   - `library`, used for updating library
   - `prerelease`, used for preparing the branch for the release
   - `release`, used for releasing project
