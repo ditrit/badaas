@@ -192,6 +192,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 	}
 
 	w.Header().Add("Location", buildLocationString(et))
+	w.WriteHeader(http.StatusCreated)
 
 	return et, nil
 }

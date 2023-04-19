@@ -28,11 +28,6 @@ type TestContext struct {
 }
 
 var opts = godog.Options{Output: colors.Colored(os.Stdout)}
-
-// var testsCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-// 	Run: injectDependencies,
-// })
-
 var db *gorm.DB
 
 func init() {
@@ -42,11 +37,6 @@ func init() {
 func TestMain(_ *testing.M) {
 	pflag.Parse()
 	opts.Paths = pflag.Args()
-
-	// _, b, _, _ := runtime.Caller(0)
-	// basePath := filepath.Dir(b)
-	// viper.Set("config_path", path.Join(basePath, "e2e_test_config.yml"))
-	// commands.InitCommands(testsCfg)
 
 	logger, _ := zap.NewDevelopment()
 	var err error
@@ -129,4 +119,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I expect status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^I expect response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJson)
+	ctx.Step(`^a "(.+)" object exists with properties$`, t.objectExists)
+	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
 }

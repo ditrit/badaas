@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -29,23 +28,19 @@ func (t *TestContext) requestGET(url string) error {
 func (t *TestContext) storeResponseInContext(response *http.Response) {
 	t.statusCode = response.StatusCode
 
-	if t.statusCode != 404 {
-		buffer, err := io.ReadAll(response.Body)
-		if err != nil {
-			log.Panic(err)
-		}
-		response.Body.Close()
+	buffer, err := io.ReadAll(response.Body)
+	if err != nil {
+		log.Panic(err)
+	}
+	response.Body.Close()
 
-		err = json.Unmarshal(buffer, &t.json)
-		if err != nil {
-			t.json = map[string]any{}
-		}
-	} else {
+	err = json.Unmarshal(buffer, &t.json)
+	if err != nil {
 		t.json = map[string]any{}
 	}
 }
 
-func (t *TestContext) assertStatusCode(_ context.Context, expectedStatusCode int) error {
+func (t *TestContext) assertStatusCode(expectedStatusCode int) error {
 	if t.statusCode != expectedStatusCode {
 		return fmt.Errorf("expect status code %d but is %d", expectedStatusCode, t.statusCode)
 	}
@@ -208,4 +203,43 @@ func contains[T comparable](set []T, target T) bool {
 		}
 	}
 	return false
+}
+
+func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) error {
+	err := t.requestWithJson(
+		"/v1/objects/"+entityType,
+		"POST",
+		jsonTable,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusCreated)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) queryWithObjectID(entityType string) error {
+	id, present := t.json["id"]
+	if !present {
+		panic("object id not available")
+	}
+
+	err := t.requestGET(
+		"/v1/objects/" + entityType + "/" + id.(string),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(200)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
