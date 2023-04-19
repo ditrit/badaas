@@ -14,7 +14,7 @@ import (
 
 type TestContext struct {
 	statusCode int
-	json       map[string]interface{}
+	json       map[string]any
 	httpClient *http.Client
 }
 

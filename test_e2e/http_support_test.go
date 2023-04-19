@@ -33,7 +33,15 @@ func (t *TestContext) storeResponseInContext(response *http.Response) {
 		log.Panic(err)
 	}
 	response.Body.Close()
-	json.Unmarshal(buffer, &t.json)
+
+	if len(buffer) > 0 {
+		err = json.Unmarshal(buffer, &t.json)
+		if err != nil {
+			log.Panic(err)
+		}
+	} else {
+		t.json = map[string]any{}
+	}
 }
 
 func (t *TestContext) assertStatusCode(_ context.Context, expectedStatusCode int) error {
@@ -42,11 +50,18 @@ func (t *TestContext) assertStatusCode(_ context.Context, expectedStatusCode int
 	}
 	return nil
 }
+
 func (t *TestContext) assertResponseFieldIsEquals(field string, expectedValue string) error {
-	value := t.json[field].(string)
-	if !assertValue(value, expectedValue) {
-		return fmt.Errorf("expect response field %s is %s but is %s", field, expectedValue, value)
+	value, present := t.json[field]
+	if !present {
+		return fmt.Errorf("expected response field %s to be %s but it is not present", field, expectedValue)
 	}
+
+	valueString := value.(string)
+	if !assertValue(valueString, expectedValue) {
+		return fmt.Errorf("expected response field %s to be %s but is %s", field, expectedValue, valueString)
+	}
+
 	return nil
 }
 

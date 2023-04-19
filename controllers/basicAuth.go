@@ -18,7 +18,8 @@ var (
 		"Request malformed",
 		"The schema of the received data is not correct",
 		nil,
-		false)
+		false,
+	)
 )
 
 // Basic Authentification Controller
@@ -37,7 +38,7 @@ type basicAuthentificationController struct {
 	sessionService sessionservice.SessionService
 }
 
-// BasicAuthentificationController contructor
+// BasicAuthentificationController constructor
 func NewBasicAuthentificationController(
 	logger *zap.Logger,
 	userService userservice.UserService,
@@ -78,6 +79,8 @@ func (basicAuthController *basicAuthentificationController) BasicLoginHandler(w 
 
 // Log Out the user
 func (basicAuthController *basicAuthentificationController) Logout(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	basicAuthController.sessionService.LogUserOut(sessionservice.GetSessionClaimsFromContext(r.Context()), w)
-	return nil, nil
+	return nil, basicAuthController.sessionService.LogUserOut(
+		sessionservice.GetSessionClaimsFromContext(r.Context()),
+		w,
+	)
 }
