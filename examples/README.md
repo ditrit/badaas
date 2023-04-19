@@ -44,7 +44,7 @@ classDiagram
 
 The Users are stored on a classic sql table outside of the object storage engine (EAV), so the userID will be a value. We will use the Profile object to store info about the users.
 
-For now we need to setup the schema manually using a invoke function that will run at the initialization of the programme. The definition can be found [here](examples.go#104)
+For now we need to setup the schema manually using a invoke function that will run at the initialization of the programme. The definition can be found [here](examples.go#L104).
 Make sure that the database you are gonna use is empty.
 
 ## Authentication

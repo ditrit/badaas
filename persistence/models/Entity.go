@@ -58,32 +58,6 @@ func (e *Entity) GetValue(attrName string) (interface{}, error) {
 	return (*value).Value(), nil
 }
 
-// Encode the Entity to json
-func (e *Entity) EncodeToJSON() []byte {
-	var pairs []string
-	pairs = append(pairs,
-		fmt.Sprintf("%q: %d", "id", e.ID),
-		fmt.Sprintf("%q: %q", "type", e.EntityType.Name),
-		fmt.Sprintf("%q: %s", "attrs", e.encodeAttributesToJSON()),
-	)
-
-	return []byte(utils.BuildJSONFromStrings(pairs))
-}
-
-// return the attribute in a json encoded string
-func (e *Entity) encodeAttributesToJSON() string {
-	var pairs []string
-	for _, f := range e.Fields {
-		if f.IsNull {
-			continue
-		}
-		pair, _ := f.BuildJSONKVPair()
-		pairs = append(pairs, pair)
-	}
-
-	return utils.BuildJSONFromStrings(pairs)
-}
-
 func (Entity) TableName() string {
 	return "entities"
 }

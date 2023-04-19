@@ -1,5 +1,5 @@
 @hostname = localhost
-@port = 8002
+@port = 8000
 @host = {{hostname}}:{{port}}
 
 @URI = http://{{hostname}}:{{port}}/v1
