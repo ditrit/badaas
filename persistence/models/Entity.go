@@ -19,6 +19,13 @@ type Entity struct {
 	EntityType   *EntityType
 }
 
+func NewEntity(entityType *EntityType) *Entity {
+	return &Entity{
+		EntityType:   entityType,
+		EntityTypeID: entityType.ID,
+	}
+}
+
 // Encode the entity to json
 // use the [encoding/json.Marshaler] interface
 func (e *Entity) MarshalJSON() ([]byte, error) {

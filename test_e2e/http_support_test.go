@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/cucumber/godog"
+	"github.com/elliotchance/pie/v2"
 )
 
 const BaseUrl = "http://localhost:8000"
@@ -28,16 +29,16 @@ func (t *TestContext) requestGET(url string) error {
 func (t *TestContext) storeResponseInContext(response *http.Response) {
 	t.statusCode = response.StatusCode
 
-	buffer, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Panic(err)
-	}
-	response.Body.Close()
-
-	if len(buffer) > 0 {
-		err = json.Unmarshal(buffer, &t.json)
+	if t.statusCode != 404 {
+		buffer, err := io.ReadAll(response.Body)
 		if err != nil {
 			log.Panic(err)
+		}
+		response.Body.Close()
+
+		err = json.Unmarshal(buffer, &t.json)
+		if err != nil {
+			t.json = map[string]any{}
 		}
 	} else {
 		t.json = map[string]any{}
@@ -52,21 +53,48 @@ func (t *TestContext) assertStatusCode(_ context.Context, expectedStatusCode int
 }
 
 func (t *TestContext) assertResponseFieldIsEquals(field string, expectedValue string) error {
-	value, present := t.json[field]
+	fields := strings.Split(field, ".")
+	jsonMap := t.json
+
+	for _, field := range fields[:len(fields)-1] {
+		intValue, present := jsonMap[field]
+		if !present {
+			return fmt.Errorf("expected response field %s to be %s but it is not present", field, expectedValue)
+		}
+		jsonMap = intValue.(map[string]any)
+	}
+
+	lastValue, present := jsonMap[pie.Last(fields)]
 	if !present {
 		return fmt.Errorf("expected response field %s to be %s but it is not present", field, expectedValue)
 	}
 
-	valueString := value.(string)
-	if !assertValue(valueString, expectedValue) {
-		return fmt.Errorf("expected response field %s to be %s but is %s", field, expectedValue, valueString)
+	if !assertValue(lastValue, expectedValue) {
+		return fmt.Errorf("expected response field %s to be %s but is %v", field, expectedValue, lastValue)
 	}
 
 	return nil
 }
 
-func assertValue(value string, expectedValue string) bool {
-	return expectedValue == value
+func assertValue(value any, expectedValue string) bool {
+	switch value.(type) {
+	case string:
+		return expectedValue == value
+	case int:
+		expectedValueInt, err := strconv.Atoi(expectedValue)
+		if err != nil {
+			panic(err)
+		}
+		return expectedValueInt == value
+	case float64:
+		expectedValueFloat, err := strconv.ParseFloat(expectedValue, 64)
+		if err != nil {
+			panic(err)
+		}
+		return expectedValueFloat == value
+	default:
+		panic("unsupported format")
+	}
 }
 
 func (t *TestContext) requestWithJson(url, method string, jsonTable *godog.Table) error {

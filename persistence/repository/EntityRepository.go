@@ -58,7 +58,12 @@ func (r *EntityRepository) Save(entity *models.Entity) error {
 			value.EntityID = uuid
 		})
 
-		r.valueRepository.Save(tx, entity.Fields)
+		if len(entity.Fields) > 0 {
+			err = r.valueRepository.Save(tx, entity.Fields)
+			if err != nil {
+				return err
+			}
+		}
 
 		entity.ID = uuid
 		return nil

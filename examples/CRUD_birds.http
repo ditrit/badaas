@@ -43,12 +43,10 @@ POST {{URI}}/objects/bird HTTP/1.1
 content-type: application/json
 
 {
-"attrs": {
     "color": "red",
     "specie": "aigle",
     "height": 106,
     "owner": 1
-}
 }
 
 ###
@@ -58,10 +56,8 @@ POST {{URI}}/objects/bird HTTP/1.1
 content-type: application/json
 
 {
-"attrs": {
     "color": "orange",
     "specie": "bird with null field (field absent of the request)"
-}
 }
 
 ###
@@ -71,12 +67,10 @@ POST {{URI}}/objects/bird HTTP/1.1
 content-type: application/json
 
 {
-"attrs": {
     "color": "orange",
     "specie": "bird with null field",
     "height": 50,
     "weight": null
-}
 }
 
 ###
@@ -87,9 +81,7 @@ POST {{URI}}/objects/bird HTTP/1.1
 content-type: application/json
 
 {
-    "attrs": {
-        "specie": "Should not end up in database"
-    }
+    "specie": "Should not end up in database"
 }
 
 ###
@@ -100,10 +92,8 @@ POST {{URI}}/objects/bird HTTP/1.1
 content-type: application/json
 
 {
-    "attrs": {
-        "color": null,
-        "specie": "Should not end up in database"
-    }
+    "color": null,
+    "specie": "Should not end up in database"
 }
 
 ###

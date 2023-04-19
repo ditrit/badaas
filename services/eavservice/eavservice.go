@@ -3,6 +3,7 @@ package eavservice
 import (
 	"errors"
 	"fmt"
+	"log"
 
 	uuid "github.com/google/uuid"
 
@@ -136,8 +137,10 @@ func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID
 }
 
 // Create a brand new entity
-func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map[string]interface{}) (*models.Entity, error) {
-	var et models.Entity
+func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map[string]any) (*models.Entity, error) {
+	log.Println(attrs)
+	// TODO si attr esta vacio da un error raro
+	et := models.NewEntity(ett)
 	for _, a := range ett.Attributes {
 		present := false
 
@@ -219,9 +222,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 		et.Fields = append(et.Fields, value)
 	}
 
-	et.EntityType = ett
-	et.EntityTypeID = ett.ID
-	return &et, eavService.entityRepository.Save(&et)
+	return et, eavService.entityRepository.Save(et)
 }
 
 func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {

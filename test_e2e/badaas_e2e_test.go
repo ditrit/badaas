@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"net/http/cookiejar"
 	"os"
@@ -9,7 +10,15 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/persistence/gormdatabase"
+	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
+	integrationtests "github.com/ditrit/badaas/test_integration"
 	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 type TestContext struct {
@@ -20,13 +29,80 @@ type TestContext struct {
 
 var opts = godog.Options{Output: colors.Colored(os.Stdout)}
 
+// var testsCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
+// 	Run: injectDependencies,
+// })
+
+var db *gorm.DB
+
 func init() {
 	godog.BindCommandLineFlags("godog.", &opts)
 }
 
-func TestMain(m *testing.M) {
+func TestMain(_ *testing.M) {
 	pflag.Parse()
 	opts.Paths = pflag.Args()
+
+	// _, b, _, _ := runtime.Caller(0)
+	// basePath := filepath.Dir(b)
+	// viper.Set("config_path", path.Join(basePath, "e2e_test_config.yml"))
+	// commands.InitCommands(testsCfg)
+
+	logger, _ := zap.NewDevelopment()
+	var err error
+
+	viper.Set(configuration.DatabasePortKey, 26257)
+	viper.Set(configuration.DatabaseHostKey, "localhost")
+	viper.Set(configuration.DatabaseNameKey, "badaas_db")
+	viper.Set(configuration.DatabaseUsernameKey, "root")
+	viper.Set(configuration.DatabasePasswordKey, "postgres")
+	viper.Set(configuration.DatabaseSslmodeKey, "disable")
+	viper.Set(configuration.DatabaseRetryKey, 10)
+	viper.Set(configuration.DatabaseRetryDurationKey, 5)
+	db, err = gormdatabase.CreateDatabaseConnectionFromConfiguration(
+		logger,
+		configuration.NewDatabaseConfiguration(),
+	)
+	if err != nil {
+		log.Fatalln("Unable to connect to database : ", err)
+	}
+
+	integrationtests.SetupDB(db)
+
+	adminUser := &models.User{
+		Username: "admin",
+		Email:    "admin-no-reply@badaas.com",
+		Password: basicauth.SaltAndHashPassword("admin"),
+	}
+	err = db.Create(&adminUser).Error
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	profileType := &models.EntityType{
+		Name: "profile",
+	}
+	displayNameAttr := &models.Attribute{
+		EntityTypeID: profileType.ID,
+		Name:         "displayName",
+		ValueType:    models.StringValueType,
+		Required:     false,
+	}
+	yearOfBirthAttr := &models.Attribute{
+		EntityTypeID: profileType.ID,
+		Name:         "yearOfBirth",
+		ValueType:    models.IntValueType,
+		Required:     false,
+	}
+	profileType.Attributes = append(profileType.Attributes,
+		displayNameAttr,
+		yearOfBirthAttr,
+	)
+
+	err = db.Create(&profileType).Error
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	status := godog.TestSuite{
 		Name:                "godogs",

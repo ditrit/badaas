@@ -179,15 +179,14 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 		return nil, ErrDBQueryFailed(err)
 	}
 
-	var cr createReq
-	err = json.NewDecoder(r.Body).Decode(&cr)
+	var attrs map[string]any
+	err = json.NewDecoder(r.Body).Decode(&attrs)
 	r.Body.Close()
 	if err != nil {
 		return nil, httperrors.NewBadRequestError("json decoding failed", "please use a correct json payload for entity creation")
 	}
 
-	fmt.Println(cr)
-	et, err := controller.eavService.CreateEntity(ett, cr.Attrs)
+	et, err := controller.eavService.CreateEntity(ett, attrs)
 	if err != nil {
 		return nil, httperrors.NewInternalServerError("creation failed", "", err)
 	}
@@ -199,10 +198,6 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 
 func buildLocationString(et *models.Entity) string {
 	return fmt.Sprintf("/v1/objects/%s/%d", et.EntityType.Name, et.ID)
-}
-
-type createReq struct {
-	Attrs map[string]interface{}
 }
 
 // The handler responsible for the updates of entities
