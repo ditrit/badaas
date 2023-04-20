@@ -271,10 +271,10 @@ func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[stri
 						return err
 					}
 				case nil:
-					if attribute.Required {
-						return fmt.Errorf("can't set a required variable to null")
+					err := value.SetNull()
+					if err != nil {
+						return err
 					}
-					value.SetNull()
 
 				default:
 					return fmt.Errorf("unsupported type")
