@@ -16,10 +16,25 @@ import (
 
 const BaseUrl = "http://localhost:8000"
 
-func (t *TestContext) requestGET(url string) error {
-	response, err := t.httpClient.Get(fmt.Sprintf("%s%s", BaseUrl, url))
+func (t *TestContext) requestGet(url string) error {
+	return t.requestGetWithParams(url, nil)
+}
+
+func (t *TestContext) requestGetWithParams(url string, query map[string]string) error {
+	request, err := http.NewRequest("GET", BaseUrl+url, nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to build request ERROR=%s", err.Error())
+	}
+
+	q := request.URL.Query()
+	for k, v := range query {
+		q.Add(k, v)
+	}
+	request.URL.RawQuery = q.Encode()
+
+	response, err := t.httpClient.Do(request)
+	if err != nil {
+		return fmt.Errorf("failed to run request ERROR=%s", err.Error())
 	}
 
 	t.storeResponseInContext(response)
@@ -101,6 +116,7 @@ func (t *TestContext) requestWithJson(url, method string, jsonTable *godog.Table
 	if err != nil {
 		return fmt.Errorf("failed to build request ERROR=%s", err.Error())
 	}
+
 	response, err := t.httpClient.Do(request)
 	if err != nil {
 		return fmt.Errorf("failed to run request ERROR=%s", err.Error())
@@ -235,7 +251,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 		panic("object id not available")
 	}
 
-	err := t.requestGET(
+	err := t.requestGet(
 		"/v1/objects/" + entityType + "/" + id.(string),
 	)
 	if err != nil {
@@ -250,8 +266,35 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 	return nil
 }
 
+func (t *TestContext) queryObjectsWithParameters(entityType string, jsonTable *godog.Table) error {
+	jsonMap, err := buildMapFromTable(jsonTable)
+	if err != nil {
+		return err
+	}
+
+	jsonMapString := map[string]string{}
+	for k, v := range jsonMap {
+		jsonMapString[k] = v.(string)
+	}
+
+	err = t.requestGetWithParams(
+		"/v1/objects/"+entityType,
+		jsonMapString,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(200)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (t *TestContext) queryAllObjects(entityType string) error {
-	err := t.requestGET(
+	err := t.requestGet(
 		"/v1/objects/" + entityType,
 	)
 	if err != nil {
