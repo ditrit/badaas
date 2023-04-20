@@ -131,4 +131,5 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there are "(\d+)" "(.+)" objects$`, t.thereAreObjects)
 	ctx.Step(`^there is a "(.+)" object with properties$`, t.thereIsObjectWithProperties)
 	ctx.Step(`^I query all "(.+)" objects with parameters$`, t.queryObjectsWithParameters)
+	ctx.Step(`^I delete a "(.+)" with the object id$`, t.deleteWithObjectID)
 }

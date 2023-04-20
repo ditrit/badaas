@@ -56,3 +56,12 @@ Feature: Saving and querying objects in the database using the EAV Model
       | key         | value         | type   |
       | displayName | Pierre Martin | string |
       | yearOfBirth | 2001          | float  |
+
+  Scenario: Created objects can be deleted
+    Given a "profile" object exists with properties
+      | key         | value       | type    |
+      | displayName | Jean Dupont | string  |
+      | yearOfBirth | 1997        | integer |
+    When I delete a "profile" with the object id
+    And I query all "profile" objects
+    Then there are "0" "profile" objects

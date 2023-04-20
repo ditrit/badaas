@@ -17,11 +17,28 @@ import (
 const BaseUrl = "http://localhost:8000"
 
 func (t *TestContext) requestGet(url string) error {
-	return t.requestGetWithParams(url, nil)
+	return t.request(url, http.MethodGet, nil, nil)
 }
 
-func (t *TestContext) requestGetWithParams(url string, query map[string]string) error {
-	request, err := http.NewRequest("GET", BaseUrl+url, nil)
+func (t *TestContext) requestWithJson(url, method string, jsonTable *godog.Table) error {
+	return t.request(url, method, nil, jsonTable)
+}
+
+func (t *TestContext) request(url, method string, query map[string]string, jsonTable *godog.Table) error {
+	var payload io.Reader
+	var err error
+	if jsonTable != nil {
+		payload, err = buildJSONFromTable(jsonTable)
+		if err != nil {
+			return err
+		}
+	}
+
+	method, err = checkMethod(method)
+	if err != nil {
+		return err
+	}
+	request, err := http.NewRequest(method, BaseUrl+url, payload)
 	if err != nil {
 		return fmt.Errorf("failed to build request ERROR=%s", err.Error())
 	}
@@ -36,7 +53,6 @@ func (t *TestContext) requestGetWithParams(url string, query map[string]string) 
 	if err != nil {
 		return fmt.Errorf("failed to run request ERROR=%s", err.Error())
 	}
-
 	t.storeResponseInContext(response)
 	return nil
 }
@@ -100,29 +116,6 @@ func assertValue(value any, expectedValue string) bool {
 	default:
 		panic("unsupported format")
 	}
-}
-
-func (t *TestContext) requestWithJson(url, method string, jsonTable *godog.Table) error {
-	payload, err := buildJSONFromTable(jsonTable)
-	if err != nil {
-		return err
-	}
-
-	method, err = checkMethod(method)
-	if err != nil {
-		return err
-	}
-	request, err := http.NewRequest(method, BaseUrl+url, payload)
-	if err != nil {
-		return fmt.Errorf("failed to build request ERROR=%s", err.Error())
-	}
-
-	response, err := t.httpClient.Do(request)
-	if err != nil {
-		return fmt.Errorf("failed to run request ERROR=%s", err.Error())
-	}
-	t.storeResponseInContext(response)
-	return nil
 }
 
 // build a map from a godog.Table
@@ -207,30 +200,21 @@ func checkMethod(method string) (string, error) {
 		http.MethodOptions,
 		http.MethodTrace}
 	sanitizedMethod := strings.TrimSpace(strings.ToUpper(method))
-	if !contains(
+	if !pie.Contains(
 		allowedMethods,
 		sanitizedMethod,
 	) {
 		return "", fmt.Errorf("%q is not a valid HTTP method (please choose between %v)", method, allowedMethods)
 	}
+
 	return sanitizedMethod, nil
-
-}
-
-// return true if the set contains the target
-func contains[T comparable](set []T, target T) bool {
-	for _, elem := range set {
-		if target == elem {
-			return true
-		}
-	}
-	return false
 }
 
 func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) error {
-	err := t.requestWithJson(
+	err := t.request(
 		"/v1/objects/"+entityType,
-		"POST",
+		http.MethodPost,
+		nil,
 		jsonTable,
 	)
 	if err != nil {
@@ -258,7 +242,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 		return err
 	}
 
-	err = t.assertStatusCode(200)
+	err = t.assertStatusCode(http.StatusOK)
 	if err != nil {
 		return err
 	}
@@ -277,15 +261,17 @@ func (t *TestContext) queryObjectsWithParameters(entityType string, jsonTable *g
 		jsonMapString[k] = v.(string)
 	}
 
-	err = t.requestGetWithParams(
+	err = t.request(
 		"/v1/objects/"+entityType,
+		http.MethodGet,
 		jsonMapString,
+		nil,
 	)
 	if err != nil {
 		return err
 	}
 
-	err = t.assertStatusCode(200)
+	err = t.assertStatusCode(http.StatusOK)
 	if err != nil {
 		return err
 	}
@@ -301,7 +287,7 @@ func (t *TestContext) queryAllObjects(entityType string) error {
 		return err
 	}
 
-	err = t.assertStatusCode(200)
+	err = t.assertStatusCode(http.StatusOK)
 	if err != nil {
 		return err
 	}
@@ -333,4 +319,28 @@ func (t *TestContext) thereIsObjectWithProperties(entityType string, jsonTable *
 	}
 
 	return fmt.Errorf("object with properties %v not found in %v", properties, listJson)
+}
+
+func (t *TestContext) deleteWithObjectID(entityType string) error {
+	id, present := t.json.(map[string]any)["id"]
+	if !present {
+		panic("object id not available")
+	}
+
+	err := t.request(
+		"/v1/objects/"+entityType+"/"+id.(string),
+		http.MethodDelete,
+		nil,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
