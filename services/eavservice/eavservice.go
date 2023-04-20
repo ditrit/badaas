@@ -174,9 +174,16 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 						return nil, err
 					}
 				case float64:
-					value, err = models.NewFloatValue(a, t)
-					if err != nil {
-						return nil, err
+					if utils.IsAnInt(t) && a.ValueType == models.IntValueType {
+						value, err = models.NewIntValue(a, int(t))
+						if err != nil {
+							return nil, err
+						}
+					} else {
+						value, err = models.NewFloatValue(a, t)
+						if err != nil {
+							return nil, err
+						}
 					}
 				case bool:
 					value, err = models.NewBoolValue(a, t)
