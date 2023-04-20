@@ -122,8 +122,8 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	})
 
 	ctx.Step(`^I request "(.+)"$`, t.requestGet)
-	ctx.Step(`^I expect status code is "(\d+)"$`, t.assertStatusCode)
-	ctx.Step(`^I expect response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
+	ctx.Step(`^status code is "(\d+)"$`, t.assertStatusCode)
+	ctx.Step(`^response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJson)
 	ctx.Step(`^a "(.+)" object exists with properties$`, t.objectExists)
 	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
