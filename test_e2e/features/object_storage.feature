@@ -65,3 +65,16 @@ Feature: Saving and querying objects in the database using the EAV Model
     When I delete a "profile" with the object id
     And I query all "profile" objects
     Then there are "0" "profile" objects
+
+  Scenario: Created objects can be modified
+    Given a "profile" object exists with properties
+      | key         | value       | type    |
+      | displayName | Jean Dupont | string  |
+      | yearOfBirth | 1997        | integer |
+    When I modify a "profile" with properties
+      | key         | value       | type    |
+      | yearOfBirth | 1998        | integer |
+    And I query a "profile" with the object id
+    Then response field "type" is "profile"
+    And response field "attrs.displayName" is "Jean Dupont"
+    And response field "attrs.yearOfBirth" is "1998"

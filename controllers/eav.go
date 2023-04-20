@@ -229,14 +229,13 @@ func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http
 		}
 	}
 
-	var mr modifyReq
-	err = json.NewDecoder(r.Body).Decode(&mr)
+	var attrs map[string]any
+	err = json.NewDecoder(r.Body).Decode(&attrs)
 	if err != nil {
 		return nil, ErrDBQueryFailed(err)
 	}
 
-	fmt.Println(mr.Attrs)
-	controller.eavService.UpdateEntity(entity, mr.Attrs)
+	controller.eavService.UpdateEntity(entity, attrs)
 
 	return entity, nil
 }
@@ -247,8 +246,4 @@ func GetErrMsg(msg string) string {
 		`{"error": %q}`,
 		msg,
 	)
-}
-
-type modifyReq struct {
-	Attrs map[string]interface{}
 }

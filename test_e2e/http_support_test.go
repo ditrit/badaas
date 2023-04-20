@@ -344,3 +344,27 @@ func (t *TestContext) deleteWithObjectID(entityType string) error {
 
 	return nil
 }
+
+func (t *TestContext) modifyWithProperties(entityType string, jsonTable *godog.Table) error {
+	id, present := t.json.(map[string]any)["id"]
+	if !present {
+		panic("object id not available")
+	}
+
+	err := t.request(
+		"/v1/objects/"+entityType+"/"+id.(string),
+		http.MethodPut,
+		nil,
+		jsonTable,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
