@@ -17,7 +17,7 @@ func SetupRouter(
 	authenticationMiddleware middlewares.AuthenticationMiddleware,
 
 	// controllers
-	basicAuthentificationController controllers.BasicAuthentificationController,
+	basicAuthentificationController controllers.BasicAuthenticationController,
 	informationController controllers.InformationController,
 	eavController controllers.EAVController,
 ) http.Handler {

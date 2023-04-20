@@ -22,29 +22,27 @@ var (
 	)
 )
 
-// Basic Authentification Controller
-type BasicAuthentificationController interface {
+type BasicAuthenticationController interface {
 	BasicLoginHandler(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
 	Logout(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
 }
 
 // Check interface compliance
-var _ BasicAuthentificationController = (*basicAuthentificationController)(nil)
+var _ BasicAuthenticationController = (*basicAuthenticationController)(nil)
 
-// BasicAuthentificationController implementation
-type basicAuthentificationController struct {
+type basicAuthenticationController struct {
 	logger         *zap.Logger
 	userService    userservice.UserService
 	sessionService sessionservice.SessionService
 }
 
-// BasicAuthentificationController constructor
-func NewBasicAuthentificationController(
+// BasicAuthenticationController constructor
+func NewBasicAuthenticationController(
 	logger *zap.Logger,
 	userService userservice.UserService,
 	sessionService sessionservice.SessionService,
-) BasicAuthentificationController {
-	return &basicAuthentificationController{
+) BasicAuthenticationController {
+	return &basicAuthenticationController{
 		logger:         logger,
 		userService:    userService,
 		sessionService: sessionService,
@@ -52,7 +50,7 @@ func NewBasicAuthentificationController(
 }
 
 // Log In with username and password
-func (basicAuthController *basicAuthentificationController) BasicLoginHandler(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (basicAuthController *basicAuthenticationController) BasicLoginHandler(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	var loginJSONStruct dto.UserLoginDTO
 	err := json.NewDecoder(r.Body).Decode(&loginJSONStruct)
 	if err != nil {
@@ -78,7 +76,7 @@ func (basicAuthController *basicAuthentificationController) BasicLoginHandler(w 
 }
 
 // Log Out the user
-func (basicAuthController *basicAuthentificationController) Logout(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (basicAuthController *basicAuthenticationController) Logout(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	return nil, basicAuthController.sessionService.LogUserOut(
 		sessionservice.GetSessionClaimsFromContext(r.Context()),
 		w,
