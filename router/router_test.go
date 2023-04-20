@@ -15,7 +15,7 @@ func TestSetupRouter(t *testing.T) {
 	middlewareLogger := middlewaresMocks.NewMiddlewareLogger(t)
 	authenticationMiddleware := middlewaresMocks.NewAuthenticationMiddleware(t)
 
-	basicController := controllersMocks.NewBasicAuthentificationController(t)
+	basicController := controllersMocks.NewBasicAuthenticationController(t)
 	informationController := controllersMocks.NewInformationController(t)
 	eavController := controllersMocks.NewEAVController(t)
 	jsonController.On("Wrap", mock.Anything).Return(func(response http.ResponseWriter, request *http.Request) {})
