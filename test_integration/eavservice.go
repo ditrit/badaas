@@ -2,11 +2,11 @@ package integrationtests
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/eavservice"
+	"github.com/elliotchance/pie/v2"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -56,6 +56,7 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 		ValueType:    models.StringValueType,
 		Required:     false,
 	}
+
 	ts.profileType.Attributes = append(ts.profileType.Attributes,
 		ts.displayNameAttr,
 		ts.descriptionAttr,
@@ -63,12 +64,6 @@ func (ts *EAVServiceIntTestSuite) SetupTest() {
 
 	err := ts.db.Create(&ts.profileType).Error
 	ts.Nil(err)
-
-	log.Println(ts.profileType.ID)
-	log.Println(ts.displayNameAttr.Name)
-	log.Println(ts.displayNameAttr.ID)
-	log.Println(ts.descriptionAttr.Name)
-	log.Println(ts.descriptionAttr.ID)
 }
 
 // ------------------------- GetEntitiesWithParams --------------------------------
@@ -322,14 +317,12 @@ func (ts *EAVServiceIntTestSuite) TestWithParamOfRelationType() {
 	ts.Nil(err)
 
 	match, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{
-		"displayName": "match",
-		"relation":    otherEntity1.ID.String(),
+		"relation": otherEntity1.ID.String(),
 	})
 	ts.Nil(err)
 
 	_, err = ts.eavService.CreateEntity(ts.profileType, map[string]any{
-		"displayName": "not_match",
-		"relation":    otherEntity2.ID.String(),
+		"relation": otherEntity2.ID.String(),
 	})
 	ts.Nil(err)
 
@@ -377,11 +370,81 @@ func (ts *EAVServiceIntTestSuite) TestCreateMultipleEntitiesDoesNotGenerateGormB
 		for _, value := range entity.Fields {
 			if value.Attribute.Name == "displayName" {
 				ts.Equal(initialDisplayNameID, value.AttributeID)
-			} else {
+			} else if value.Attribute.Name == "description" {
 				ts.Equal(initialDescriptionID, value.AttributeID)
 			}
 		}
 	}
+}
+
+func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfUUIDCantBeParsed() {
+	otherType := &models.EntityType{
+		Name: "other",
+	}
+	err := ts.db.Create(&otherType).Error
+	ts.Nil(err)
+
+	relationAttr := models.NewRelationAttribute(ts.profileType, "relation", false, false, otherType)
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		relationAttr,
+	)
+
+	err = ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	params := map[string]any{
+		"displayName": "displayName",
+		"relation":    "not-a-uuid",
+	}
+	entity, err := ts.eavService.CreateEntity(ts.profileType, params)
+	ts.Nil(entity)
+	ts.ErrorIs(err, eavservice.ErrCantParseUUID)
+}
+
+func (ts *EAVServiceIntTestSuite) TestCreatesDefaultAttributes() {
+	intAttr := &models.Attribute{
+		EntityTypeID: ts.profileType.ID,
+		Name:         "int",
+		ValueType:    models.IntValueType,
+		Required:     false,
+		Default:      true,
+		DefaultInt:   1,
+	}
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		intAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	entity, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{})
+	ts.Nil(err)
+	ts.Len(entity.Fields, 3)
+	notNull := pie.Filter(entity.Fields, func(value *models.Value) bool {
+		return !value.IsNull
+	})
+	ts.Len(notNull, 1)
+	ts.Equal(1, notNull[0].Value())
+}
+
+func (ts *EAVServiceIntTestSuite) TestCreatesWithoutRequiredValueRespondsError() {
+	requiredAttr := &models.Attribute{
+		Name:      "required",
+		Required:  true,
+		ValueType: models.StringValueType,
+	}
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		requiredAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	entity, err := ts.eavService.CreateEntity(ts.profileType, map[string]any{})
+	ts.Nil(entity)
+	ts.ErrorContains(err, "field required is missing and is required")
 }
 
 // ------------------------- UpdateEntity --------------------------------
@@ -415,7 +478,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityMultipleTimesDoesNotGenerateGo
 		for _, value := range entity.Fields {
 			if value.Attribute.Name == "displayName" {
 				ts.Equal(initialDisplayNameID, value.AttributeID)
-			} else {
+			} else if value.Attribute.Name == "description" {
 				ts.Equal(initialDescriptionID, value.AttributeID)
 			}
 		}
@@ -436,20 +499,8 @@ func (ts *EAVServiceIntTestSuite) createProfile(entityType *models.EntityType, d
 		descriptionVal,
 	)
 
-	log.Println("Before create")
-	log.Println(displayNameVal.Attribute.Name)
-	log.Println(displayNameVal.AttributeID)
-	log.Println(descriptionVal.Attribute.Name)
-	log.Println(descriptionVal.AttributeID)
-
 	err := ts.entityRepository.Save(entity)
 	ts.Nil(err)
-
-	log.Println("After create")
-	for _, field := range entity.Fields {
-		log.Println(field.Attribute.Name)
-		log.Println(field.AttributeID)
-	}
 
 	return entity
 }

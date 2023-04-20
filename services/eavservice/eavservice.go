@@ -174,16 +174,9 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 						return nil, err
 					}
 				case float64:
-					if utils.IsAnInt(t) && a.ValueType == models.IntValueType {
-						value, err = models.NewIntValue(a, int(t))
-						if err != nil {
-							return nil, err
-						}
-					} else {
-						value, err = models.NewFloatValue(a, t)
-						if err != nil {
-							return nil, err
-						}
+					value, err = models.NewFloatValue(a, t)
+					if err != nil {
+						return nil, err
 					}
 				case bool:
 					value, err = models.NewBoolValue(a, t)
@@ -203,7 +196,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 
 		if !present {
 			if a.Required {
-				return nil, fmt.Errorf("field %q is missing and is required", a.Name)
+				return nil, fmt.Errorf("field %s is missing and is required", a.Name)
 			}
 
 			if a.Default {
