@@ -32,7 +32,25 @@ func createDsn(host, username, password, sslmode, dbname string, port int) strin
 	)
 }
 
-// Initialize the database with using the database configuration
+// Creates the database object with using the database configuration and exec the setup
+func SetupDatabaseConnection(logger *zap.Logger, databaseConfiguration configuration.DatabaseConfiguration) (*gorm.DB, error) {
+	db, err := CreateDatabaseConnectionFromConfiguration(logger, databaseConfiguration)
+	if err != nil {
+		return nil, err
+	}
+
+	err = AutoMigrate(logger, db)
+	if err != nil {
+		logger.Error("migration failed")
+		return nil, err
+	}
+	logger.Info("AutoMigration was executed successfully")
+
+	return db, nil
+}
+
+// Creates the database object with using the database configuration
+// Should not be using directly
 func CreateDatabaseConnectionFromConfiguration(logger *zap.Logger, databaseConfiguration configuration.DatabaseConfiguration) (*gorm.DB, error) {
 	dsn := createDsnFromConf(databaseConfiguration)
 	var err error
@@ -41,12 +59,6 @@ func CreateDatabaseConnectionFromConfiguration(logger *zap.Logger, databaseConfi
 		database, err = initializeDBFromDsn(dsn, logger)
 		if err == nil {
 			logger.Sugar().Debugf("Database connection is active")
-			err = AutoMigrate(logger, database)
-			if err != nil {
-				logger.Error("migration failed")
-				return nil, err
-			}
-			logger.Info("AutoMigration was executed successfully")
 			return database, err
 		}
 		logger.Sugar().Debugf("Database connection failed with error %q", err.Error())

@@ -43,7 +43,7 @@ func SetupRouter(
 	// CRUD
 	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.GetObject)).Methods("GET")
 	// Get whole collection
-	router.HandleFunc("/v1/objects/{type}/", jsonController.Wrap(eavController.GetAll)).Methods("GET")
+	router.HandleFunc("/v1/objects/{type}", jsonController.Wrap(eavController.GetAll)).Methods("GET")
 	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.DeleteObject)).Methods("DELETE")
 	router.HandleFunc("/v1/objects/{type}", jsonController.Wrap(eavController.CreateObject)).Methods("POST")
 	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.ModifyObject)).Methods("PUT")

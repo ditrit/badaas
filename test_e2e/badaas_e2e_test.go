@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
 	"net/http/cookiejar"
@@ -23,7 +24,7 @@ import (
 
 type TestContext struct {
 	statusCode int
-	json       map[string]any
+	json       any
 	httpClient *http.Client
 }
 
@@ -57,43 +58,6 @@ func TestMain(_ *testing.M) {
 		log.Fatalln("Unable to connect to database : ", err)
 	}
 
-	integrationtests.SetupDB(db)
-
-	adminUser := &models.User{
-		Username: "admin",
-		Email:    "admin-no-reply@badaas.com",
-		Password: basicauth.SaltAndHashPassword("admin"),
-	}
-	err = db.Create(&adminUser).Error
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	profileType := &models.EntityType{
-		Name: "profile",
-	}
-	displayNameAttr := &models.Attribute{
-		EntityTypeID: profileType.ID,
-		Name:         "displayName",
-		ValueType:    models.StringValueType,
-		Required:     false,
-	}
-	yearOfBirthAttr := &models.Attribute{
-		EntityTypeID: profileType.ID,
-		Name:         "yearOfBirth",
-		ValueType:    models.IntValueType,
-		Required:     false,
-	}
-	profileType.Attributes = append(profileType.Attributes,
-		displayNameAttr,
-		yearOfBirthAttr,
-	)
-
-	err = db.Create(&profileType).Error
-	if err != nil {
-		log.Fatalln(err)
-	}
-
 	status := godog.TestSuite{
 		Name:                "godogs",
 		ScenarioInitializer: InitializeScenario,
@@ -115,10 +79,55 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		Jar:       jar,
 	}
 
+	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
+		// clean db before each scenario
+		integrationtests.SetupDB(db)
+
+		adminUser := &models.User{
+			Username: "admin",
+			Email:    "admin-no-reply@badaas.com",
+			Password: basicauth.SaltAndHashPassword("admin"),
+		}
+		err = db.Create(&adminUser).Error
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		profileType := &models.EntityType{
+			Name: "profile",
+		}
+		displayNameAttr := &models.Attribute{
+			EntityTypeID: profileType.ID,
+			Name:         "displayName",
+			ValueType:    models.StringValueType,
+			Required:     false,
+		}
+		yearOfBirthAttr := &models.Attribute{
+			EntityTypeID: profileType.ID,
+			Name:         "yearOfBirth",
+			ValueType:    models.IntValueType,
+			Required:     false,
+		}
+		profileType.Attributes = append(profileType.Attributes,
+			displayNameAttr,
+			yearOfBirthAttr,
+		)
+
+		err = db.Create(&profileType).Error
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		return ctx, nil
+	})
+
 	ctx.Step(`^I request "(.+)"$`, t.requestGET)
 	ctx.Step(`^I expect status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^I expect response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJson)
 	ctx.Step(`^a "(.+)" object exists with properties$`, t.objectExists)
 	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
+	ctx.Step(`^I query all "(.+)" objects$`, t.queryAllObjects)
+	ctx.Step(`^there are "(\d+)" "(.+)" objects$`, t.thereAreObjects)
+	ctx.Step(`^there is a "(.+)" object with properties$`, t.thereIsObjectWithProperties)
 }

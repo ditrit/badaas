@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"reflect"
 	"strconv"
 	"strings"
 
@@ -28,13 +29,7 @@ func (t *TestContext) requestGET(url string) error {
 func (t *TestContext) storeResponseInContext(response *http.Response) {
 	t.statusCode = response.StatusCode
 
-	buffer, err := io.ReadAll(response.Body)
-	if err != nil {
-		log.Panic(err)
-	}
-	response.Body.Close()
-
-	err = json.Unmarshal(buffer, &t.json)
+	err := json.NewDecoder(response.Body).Decode(&t.json)
 	if err != nil {
 		t.json = map[string]any{}
 	}
@@ -49,7 +44,7 @@ func (t *TestContext) assertStatusCode(expectedStatusCode int) error {
 
 func (t *TestContext) assertResponseFieldIsEquals(field string, expectedValue string) error {
 	fields := strings.Split(field, ".")
-	jsonMap := t.json
+	jsonMap := t.json.(map[string]any)
 
 	for _, field := range fields[:len(fields)-1] {
 		intValue, present := jsonMap[field]
@@ -114,8 +109,8 @@ func (t *TestContext) requestWithJson(url, method string, jsonTable *godog.Table
 	return nil
 }
 
-// build a json payload in the form of a reader from a godog.Table
-func buildJSONFromTable(table *godog.Table) (io.Reader, error) {
+// build a map from a godog.Table
+func buildMapFromTable(table *godog.Table) (map[string]any, error) {
 	data := make(map[string]any, 0)
 	for indexRow, row := range table.Rows {
 		if indexRow == 0 {
@@ -158,6 +153,17 @@ func buildJSONFromTable(table *godog.Table) (io.Reader, error) {
 
 		}
 	}
+
+	return data, nil
+}
+
+// build a json payload in the form of a reader from a godog.Table
+func buildJSONFromTable(table *godog.Table) (io.Reader, error) {
+	data, err := buildMapFromTable(table)
+	if err != nil {
+		panic("should not return an error")
+	}
+
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		panic("should not return an error")
@@ -224,7 +230,7 @@ func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) er
 }
 
 func (t *TestContext) queryWithObjectID(entityType string) error {
-	id, present := t.json["id"]
+	id, present := t.json.(map[string]any)["id"]
 	if !present {
 		panic("object id not available")
 	}
@@ -242,4 +248,46 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 	}
 
 	return nil
+}
+
+func (t *TestContext) queryAllObjects(entityType string) error {
+	err := t.requestGET(
+		"/v1/objects/" + entityType,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(200)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) thereAreObjects(expectedAmount int, entityType string) error {
+	amount := len(t.json.([]any))
+	if amount != expectedAmount {
+		return fmt.Errorf("expect amount %d, but there are %d objects of type %s", expectedAmount, amount, entityType)
+	}
+
+	return nil
+}
+
+func (t *TestContext) thereIsObjectWithProperties(entityType string, jsonTable *godog.Table) error {
+	listJson := t.json.([]any)
+	properties, err := buildMapFromTable(jsonTable)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, object := range listJson {
+		objectMap := object.(map[string]any)
+		if objectMap["type"] == entityType && reflect.DeepEqual(objectMap["attrs"], properties) {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("object with properties %v not found in %v", properties, listJson)
 }
