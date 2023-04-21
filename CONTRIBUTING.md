@@ -26,7 +26,7 @@ make test_unit
 
 ### Integration tests
 
-Integration tests have an available CockroachDB node and the dependency injection system.
+Integration tests have available a CockroachDB node and the dependency injection system.
 
 Run:
 
