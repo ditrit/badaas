@@ -3,7 +3,7 @@ file-defaults:
   max-group-size: 100MiB
   file-permissions: 644
   buffered-writes: true
-  filter: INFO
+  filter: WARNING
   format: crdb-v2
   redact: false
   redactable: true
@@ -11,7 +11,7 @@ file-defaults:
   auditable: false
   dir: cockroach-data/logs
 fluent-defaults:
-  filter: INFO
+  filter: WARNING
   format: json-fluent-compact
   redact: false
   redactable: true
@@ -22,7 +22,7 @@ http-defaults:
   unsafe-tls: false
   timeout: 0s
   disable-keep-alives: false
-  filter: INFO
+  filter: WARNING
   format: json-compact
   redact: false
   redactable: true
@@ -32,8 +32,7 @@ sinks:
   file-groups:
     default:
       channels:
-        INFO: [DEV, OPS]
-        WARNING: all except [DEV, OPS]
+        WARNING: all
     health:
       channels: [HEALTH]
     pebble:
