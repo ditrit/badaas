@@ -113,15 +113,16 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, 
 	return entities
 }
 
-// Delete an entity
+// Delete an entity and its values
 func (eavService *eavServiceImpl) DeleteEntity(et *models.Entity) error {
-	for _, v := range et.Fields {
-		err := eavService.db.Delete(v).Error
+	return eavService.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("entity_id = ?", et.ID.String()).Delete(&models.Value{}).Error
 		if err != nil {
 			return err
 		}
-	}
-	return eavService.db.Delete(et).Error
+
+		return eavService.db.Delete(et).Error
+	})
 }
 
 func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error) {
@@ -158,6 +159,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 						if err != nil {
 							return nil, ErrCantParseUUID
 						}
+						// TODO verify that exists
 						value, err = models.NewRelationIDValue(a, uuidVal)
 						if err != nil {
 							return nil, err
@@ -222,7 +224,7 @@ func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map
 		et.Fields = append(et.Fields, value)
 	}
 
-	return et, eavService.entityRepository.Save(et)
+	return et, eavService.entityRepository.Create(et)
 }
 
 func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {
@@ -238,6 +240,7 @@ func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[stri
 							return ErrCantParseUUID
 						}
 
+						// TODO verify that exists
 						err = value.SetRelationVal(uuidVal)
 						if err != nil {
 							return err
@@ -281,8 +284,7 @@ func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[stri
 				}
 			}
 		}
-		eavService.db.Save(value)
 	}
 
-	return nil
+	return eavService.db.Save(et.Fields).Error
 }

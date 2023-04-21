@@ -25,7 +25,7 @@ func NewValueRepository(
 	}
 }
 
-func (r *ValueRepository) Save(tx *gorm.DB, values []*models.Value) error {
+func (r *ValueRepository) Create(tx *gorm.DB, values []*models.Value) error {
 	now := time.Now()
 
 	query := sq.Insert("values").
@@ -38,7 +38,8 @@ func (r *ValueRepository) Save(tx *gorm.DB, values []*models.Value) error {
 			value.RelationVal, value.EntityID, value.Attribute.ID)
 	}
 
-	queryString, queryValues, err := query.Suffix("RETURNING \"id\"").
+	queryString, queryValues, err := query.
+		Suffix("RETURNING \"id\"").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {

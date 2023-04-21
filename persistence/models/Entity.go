@@ -65,11 +65,11 @@ func (e *Entity) GetValue(attrName string) (interface{}, error) {
 	return (*value).Value(), nil
 }
 
-func (Entity) TableName() string {
-	return "entities"
-}
-
 func (e Entity) Equal(other Entity) bool {
 	return e.ID == other.ID &&
 		e.EntityType.ID == other.EntityType.ID
+}
+
+func (Entity) TableName() string {
+	return "entities"
 }

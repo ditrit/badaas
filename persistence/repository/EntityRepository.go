@@ -29,7 +29,7 @@ func NewEntityRepository(
 	}
 }
 
-func (r *EntityRepository) Save(entity *models.Entity) error {
+func (r *EntityRepository) Create(entity *models.Entity) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		now := time.Now()
 
@@ -59,7 +59,7 @@ func (r *EntityRepository) Save(entity *models.Entity) error {
 		})
 
 		if len(entity.Fields) > 0 {
-			err = r.valueRepository.Save(tx, entity.Fields)
+			err = r.valueRepository.Create(tx, entity.Fields)
 			if err != nil {
 				return err
 			}
