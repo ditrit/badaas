@@ -81,7 +81,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		// clean db before each scenario
-		integrationtests.SetupDB(db)
+		integrationtests.CleanDB(db)
 
 		adminUser := &models.User{
 			Username: "admin",

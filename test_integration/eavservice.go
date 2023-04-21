@@ -40,7 +40,7 @@ func NewEAVServiceIntTestSuite(
 }
 
 func (ts *EAVServiceIntTestSuite) SetupTest() {
-	SetupDB(ts.db)
+	CleanDB(ts.db)
 
 	// CREATION OF THE PROFILE TYPE AND ASSOCIATED ATTRIBUTES
 	ts.profileType = &models.EntityType{
