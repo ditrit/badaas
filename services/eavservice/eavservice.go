@@ -121,7 +121,7 @@ func (eavService *eavServiceImpl) DeleteEntity(et *models.Entity) error {
 			return err
 		}
 
-		return eavService.db.Delete(et).Error
+		return tx.Delete(et).Error
 	})
 }
 
