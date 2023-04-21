@@ -1,14 +1,15 @@
-package models
+package models_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/ditrit/badaas/persistence/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestExpired(t *testing.T) {
-	sessionInstance := &Session{
+	sessionInstance := &models.Session{
 		ExpiresAt: time.Now().Add(time.Second),
 	}
 	assert.False(t, sessionInstance.IsExpired())
@@ -18,7 +19,7 @@ func TestExpired(t *testing.T) {
 
 func TestCanBeRolled(t *testing.T) {
 	sessionDuration := 500 * time.Millisecond
-	sessionInstance := &Session{
+	sessionInstance := &models.Session{
 		ExpiresAt: time.Now().Add(sessionDuration),
 	}
 	assert.False(t, sessionInstance.CanBeRolled(sessionDuration/4))
@@ -27,5 +28,5 @@ func TestCanBeRolled(t *testing.T) {
 }
 
 func TestTableName(t *testing.T) {
-	assert.Equal(t, "sessions", Session{}.TableName())
+	assert.Equal(t, "sessions", models.Session{}.TableName())
 }
