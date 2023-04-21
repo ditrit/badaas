@@ -8,11 +8,8 @@ echo "******************************* Starting single cockroach node..."
 
 ./cockroach start-single-node --insecure --log-config-file=files/logs.yaml --background
 
-# echo "******************************* Creating user"
-# cockroach user set ${COCKROACH_USER} --password 1234 --echo-sql
-# cockroach user ls
-
 echo "******************************* Init database"
+echo "*******************************  |=> Creating init.sql"
 
 cat > init.sql <<EOF
 -- Create Database
