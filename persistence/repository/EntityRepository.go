@@ -29,6 +29,10 @@ func NewEntityRepository(
 	}
 }
 
+// Creates an entity and its values in the database
+// must be used in place of gorm's db.Save(entity) because of the bug
+// when using gorm with cockroachDB. For more info refer to:
+// https://github.com/FrancoLiberali/cockroachdb_gorm_bug
 func (r *EntityRepository) Create(entity *models.Entity) error {
 	return r.db.Transaction(func(tx *gorm.DB) error {
 		now := time.Now()

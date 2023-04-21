@@ -25,6 +25,7 @@ func NewValueRepository(
 	}
 }
 
+// Creates multiples values in the database
 func (r *ValueRepository) Create(tx *gorm.DB, values []*models.Value) error {
 	now := time.Now()
 
