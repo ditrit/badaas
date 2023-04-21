@@ -17,7 +17,7 @@ func SetupRouter(
 	authenticationMiddleware middlewares.AuthenticationMiddleware,
 
 	// controllers
-	basicAuthentificationController controllers.BasicAuthenticationController,
+	basicAuthenticationController controllers.BasicAuthenticationController,
 	informationController controllers.InformationController,
 	eavController controllers.EAVController,
 ) http.Handler {
@@ -31,14 +31,14 @@ func SetupRouter(
 	router.HandleFunc(
 		"/login",
 		jsonController.Wrap(
-			basicAuthentificationController.BasicLoginHandler,
+			basicAuthenticationController.BasicLoginHandler,
 		),
 	).Methods("POST")
 
 	protected := router.PathPrefix("").Subrouter()
 	protected.Use(authenticationMiddleware.Handle)
 
-	protected.HandleFunc("/logout", jsonController.Wrap(basicAuthentificationController.Logout)).Methods("GET")
+	protected.HandleFunc("/logout", jsonController.Wrap(basicAuthenticationController.Logout)).Methods("GET")
 
 	// CRUD
 	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.GetObject)).Methods("GET")

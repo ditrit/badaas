@@ -1,4 +1,4 @@
-Feature: Login as superadmin using the basic authentification
+Feature: Login as superadmin using the basic authentication
 
   Scenario: Should be a success on valid credentials
     When I request "/login" with method "POST" with json
@@ -30,6 +30,6 @@ Feature: Login as superadmin using the basic authentification
   Scenario: Should be an error if we try to logout without login first
     When I request "/logout"
     Then status code is "401"
-    And response field "err" is "Authentification Error"
+    And response field "err" is "Authentication Error"
     And response field "msg" is "not authenticated"
     And response field "status" is "Unauthorized"
