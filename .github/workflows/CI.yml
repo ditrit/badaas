@@ -99,7 +99,7 @@ jobs:
           url: "http://localhost:8000/info"
           timeout: 60
       - name: Run test
-        run:  go test -tags=e2e ./test_e2e -v
+        run:  go test ./test_e2e -v
       - name: Get logs 
         if: always()
         run: docker compose -f "docker/test_db/docker-compose.yml" -f "docker/test_api/docker-compose.yml" logs --no-color 2>&1 | tee app.log &
