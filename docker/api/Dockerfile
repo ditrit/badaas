@@ -1,5 +1,5 @@
 # builder image
-FROM golang:1.19-alpine as builder
+FROM golang:1.19-alpine AS builder
 RUN apk add build-base
 WORKDIR /app
 COPY commands/ ./commands

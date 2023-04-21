@@ -2,11 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 
 	uuid "github.com/google/uuid"
-
-	"github.com/ditrit/badaas/utils"
 )
 
 // Describe an instance of an EntityType
@@ -50,19 +47,6 @@ func (e *Entity) encodeAttributes() map[string]any {
 	}
 
 	return pairs
-}
-
-func (e *Entity) GetValue(attrName string) (interface{}, error) {
-	value := utils.FindFirst(e.Fields,
-		func(v *Value) bool {
-			return v.Attribute.Name == attrName
-		},
-	)
-	if value == nil {
-		return nil, fmt.Errorf("value for attribute %s not found", attrName)
-	}
-
-	return (*value).Value(), nil
 }
 
 func (e Entity) Equal(other Entity) bool {
