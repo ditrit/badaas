@@ -59,6 +59,7 @@ This is the directory structure we use for the project:
 - `controllers/` *(Go code)*: Contains all the http controllers, they handle http requests and consume services.
 - `docs/`: Contains the documentation.
 - `test_e2e/`: Contains all the feature tests (or end to end tests).
+- `test_integration/`: Contains all the integration tests.
 - `logger/` *(Go code)*: Contains the logger creation logic. Please don't call it from your own services and code, use the dependency injection system.
 - `persistance/` *(Go code)*:
   - `/gormdatabase/` *(Go code)*: Contains the logic to create a <https://gorm.io> database. Also contains a go package named `gormzap`: it is a compatibility layer between *gorm.io/gorm* and *github.com/uber-go/zap*.
@@ -69,9 +70,10 @@ This is the directory structure we use for the project:
 - `resources/` *(Go code)*: Contains the resources shared with the rest of the codebase (ex: API version).
 - `router/` *(Go code)*: Contains http router of badaas.
   - `/middlewares/` *(Go code)*: Contains the various http middlewares that we use.
-- `scripts/e2e/` : Contains the docker-compose file for end-to-end test.
+- `docker/` : Contains the docker, docker-compose file and configuration files for different environments.
   - `/api/` : Contains the Dockerfile to build badaas with a dedicated config file.
-  - `/db/` : Contains the Dockerfile to build a development version of CockroachDB.
+  - `/test_db/` : Contains the Dockerfile to build a development/test version of CockroachDB.
+  - `/test_api/` : Contains files to build a development/test version of the api.
 - `services/` *(Go code)*: Contains the Dockerfile to build a development version of CockroachDB.
   - `/auth/protocols/`: Contains the implementations of authentication clients for different protocols.
     - `/basicauth/` *(Go code)*: Handle the authentication using email/password.
