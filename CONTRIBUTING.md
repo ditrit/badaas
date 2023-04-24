@@ -86,7 +86,6 @@ At the root of the project, you will find:
 
 - The README.
 - The changelog.
-- The files for the E2E test http support.
 - The LICENSE file.
 
 ## Git
