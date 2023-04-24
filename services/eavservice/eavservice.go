@@ -24,8 +24,8 @@ type EAVService interface {
 	GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity
 	DeleteEntity(et *models.Entity) error
 	GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error)
-	CreateEntity(ett *models.EntityType, attrs map[string]interface{}) (*models.Entity, error)
-	UpdateEntity(et *models.Entity, attrs map[string]interface{}) error
+	CreateEntity(ett *models.EntityType, attrs map[string]any) (*models.Entity, error)
+	UpdateEntity(et *models.Entity, attrs map[string]any) error
 }
 
 type eavServiceImpl struct {
@@ -137,94 +137,57 @@ func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID
 }
 
 // Create a brand new entity
-func (eavService *eavServiceImpl) CreateEntity(ett *models.EntityType, attrs map[string]any) (*models.Entity, error) {
-	et := models.NewEntity(ett)
-	for _, a := range ett.Attributes {
-		present := false
-
-		var value *models.Value
-		var err error
-
-		for k, v := range attrs {
-			if k == a.Name {
-				present = true
-
-				switch t := v.(type) {
-				case string:
-					if a.ValueType == models.RelationValueType {
-						uuidVal, err := uuid.Parse(t)
-						if err != nil {
-							return nil, ErrCantParseUUID
-						}
-						// TODO verify that exists
-						value, err = models.NewRelationIDValue(a, uuidVal)
-						if err != nil {
-							return nil, err
-						}
-					} else {
-						value, err = models.NewStringValue(a, t)
-						if err != nil {
-							return nil, err
-						}
-					}
-				case int:
-					value, err = models.NewIntValue(a, t)
-					if err != nil {
-						return nil, err
-					}
-				case float64:
-					if utils.IsAnInt(t) && a.ValueType == models.IntValueType {
-						value, err = models.NewIntValue(a, int(t))
-						if err != nil {
-							return nil, err
-						}
-					} else {
-						value, err = models.NewFloatValue(a, t)
-						if err != nil {
-							return nil, err
-						}
-					}
-				case bool:
-					value, err = models.NewBoolValue(a, t)
-					if err != nil {
-						return nil, err
-					}
-				case nil:
-					value, err = models.NewNullValue(a)
-					if err != nil {
-						return nil, err
-					}
-				default:
-					return nil, fmt.Errorf("unsupported type")
-				}
-			}
+func (eavService *eavServiceImpl) CreateEntity(entityType *models.EntityType, params map[string]any) (*models.Entity, error) {
+	entity := models.NewEntity(entityType)
+	for _, attribute := range entityType.Attributes {
+		value, err := eavService.createValueFromParams(attribute, params)
+		if err != nil {
+			return nil, err
 		}
-
-		if !present {
-			if a.Required {
-				return nil, fmt.Errorf("field %s is missing and is required", a.Name)
-			}
-
-			if a.Default {
-				value, err = a.GetNewDefaultValue()
-				if err != nil {
-					return nil, err
-				}
-			} else {
-				value, err = models.NewNullValue(a)
-				if err != nil {
-					return nil, err
-				}
-			}
-		}
-
-		et.Fields = append(et.Fields, value)
+		entity.Fields = append(entity.Fields, value)
 	}
 
-	return et, eavService.entityRepository.Create(et)
+	return entity, eavService.entityRepository.Create(entity)
 }
 
-func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {
+func (eavService *eavServiceImpl) createValueFromParams(attribute *models.Attribute, params map[string]any) (*models.Value, error) {
+	attributeValue, isPresent := params[attribute.Name]
+	if isPresent {
+		switch attributeValueTyped := attributeValue.(type) {
+		case string:
+			if attribute.ValueType == models.RelationValueType {
+				uuidVal, err := uuid.Parse(attributeValueTyped)
+				if err != nil {
+					return nil, ErrCantParseUUID
+				}
+				// TODO verify that exists
+				return models.NewRelationIDValue(attribute, uuidVal)
+			}
+			return models.NewStringValue(attribute, attributeValueTyped)
+		case int:
+			return models.NewIntValue(attribute, attributeValueTyped)
+		case float64:
+			if utils.IsAnInt(attributeValueTyped) && attribute.ValueType == models.IntValueType {
+				return models.NewIntValue(attribute, int(attributeValueTyped))
+			}
+			return models.NewFloatValue(attribute, attributeValueTyped)
+		case bool:
+			return models.NewBoolValue(attribute, attributeValueTyped)
+		case nil:
+			return models.NewNullValue(attribute)
+		default:
+			return nil, fmt.Errorf("unsupported type")
+		}
+	}
+
+	if attribute.Default {
+		return attribute.GetNewDefaultValue()
+	} else if attribute.Required {
+		return nil, fmt.Errorf("field %s is missing and is required", attribute.Name)
+	}
+	return models.NewNullValue(attribute)
+}
+func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]any) error {
 	for _, value := range et.Fields {
 		attribute := value.Attribute
 		for k, v := range attrs {
