@@ -80,15 +80,6 @@ func NewRelationIDValue(attr *Attribute, uuidVal uuid.UUID) (*Value, error) {
 	return value, value.SetRelationVal(uuidVal)
 }
 
-// Check if the Value is whole. eg, no fields are nil
-func (v *Value) CheckWhole() error {
-	if v.Attribute == nil {
-		return fmt.Errorf("the Attribute pointer is nil in Value at %v", v)
-	}
-
-	return nil
-}
-
 // Return the underlying value as an interface
 func (v *Value) Value() any {
 	if v.IsNull {
@@ -106,20 +97,12 @@ func (v *Value) Value() any {
 		return v.BoolVal
 	case RelationValueType:
 		return v.RelationVal
-	default:
-		panic(fmt.Errorf(
-			"this Attribute.ValueType does not exists (got=%s)",
-			v.Attribute.ValueType,
-		))
 	}
+
+	return nil
 }
 
 func (v *Value) SetNull() error {
-	err := v.CheckWhole()
-	if err != nil {
-		return err
-	}
-
 	if v.Attribute.Required {
 		return fmt.Errorf("can't set null value for a required attribute")
 	}
@@ -135,11 +118,6 @@ func (v *Value) SetNull() error {
 }
 
 func (v *Value) SetStringVal(stringVal string) error {
-	err := v.CheckWhole()
-	if err != nil {
-		return err
-	}
-
 	if v.Attribute.ValueType != StringValueType {
 		return ErrAskingForWrongType
 	}
@@ -151,11 +129,6 @@ func (v *Value) SetStringVal(stringVal string) error {
 }
 
 func (v *Value) SetIntVal(intVal int) error {
-	err := v.CheckWhole()
-	if err != nil {
-		return err
-	}
-
 	if v.Attribute.ValueType != IntValueType {
 		return ErrAskingForWrongType
 	}
@@ -167,11 +140,6 @@ func (v *Value) SetIntVal(intVal int) error {
 }
 
 func (v *Value) SetFloatVal(floatVal float64) error {
-	err := v.CheckWhole()
-	if err != nil {
-		return err
-	}
-
 	if v.Attribute.ValueType != FloatValueType {
 		return ErrAskingForWrongType
 	}
@@ -183,11 +151,6 @@ func (v *Value) SetFloatVal(floatVal float64) error {
 }
 
 func (v *Value) SetBooleanVal(boolVal bool) error {
-	err := v.CheckWhole()
-	if err != nil {
-		return err
-	}
-
 	if v.Attribute.ValueType != BooleanValueType {
 		return ErrAskingForWrongType
 	}
@@ -199,11 +162,6 @@ func (v *Value) SetBooleanVal(boolVal bool) error {
 }
 
 func (v *Value) SetRelationVal(relationVal uuid.UUID) error {
-	err := v.CheckWhole()
-	if err != nil {
-		return err
-	}
-
 	if v.Attribute.ValueType != RelationValueType {
 		return ErrAskingForWrongType
 	}
