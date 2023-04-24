@@ -58,58 +58,68 @@ func (eavService *eavServiceImpl) GetEntityTypeByName(name string) (*models.Enti
 	return &ett, nil
 }
 
-func (eavService *eavServiceImpl) GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity {
-	// TODO relations join
-	var entities []*models.Entity
-
+// Get entities of type entityType that match all conditions given in params
+// params are in {"attributeName": expectedValue} format
+// TODO relations join
+func (eavService *eavServiceImpl) GetEntitiesWithParams(entityType *models.EntityType, params map[string]string) []*models.Entity {
 	query := eavService.db.Select("entities.*")
 
-	for _, attr := range ett.Attributes {
-		v, present := params[attr.Name]
-		if present {
-			var valToUse string
-			if v != "null" { // TODO should be changed to be able to use nil
-				switch attr.ValueType {
-				case models.StringValueType:
-					valToUse = "string_val"
-				case models.IntValueType:
-					valToUse = "int_val"
-				case models.FloatValueType:
-					valToUse = "float_val"
-				case models.BooleanValueType:
-					valToUse = "bool_val"
-				case models.RelationValueType:
-					valToUse = "relation_val"
-				}
-			} else {
-				valToUse = "is_null"
-				v = "true"
-			}
-
-			query = query.Joins(
-				fmt.Sprintf(`
-					JOIN attributes ON
-						attributes.entity_type_id = entities.entity_type_id
-						AND attributes.name = ?
-					JOIN values ON
-						values.attribute_id = attributes.id
-						AND values.entity_id = entities.id
-						AND values.%s = ?`,
-					valToUse,
-				),
-				attr.Name, v,
-			)
+	// only entities that match the conditions in params
+	for _, attribute := range entityType.Attributes {
+		expectedValue, isPresent := params[attribute.Name]
+		if isPresent {
+			query = eavService.addValueCheckToQuery(query, attribute, expectedValue)
 		}
 	}
 
+	// only entities of type entityType
 	query = query.Where(
 		"entities.entity_type_id = ?",
-		ett.ID,
+		entityType.ID,
 	)
+
+	// execute query
+	var entities []*models.Entity
 	query = query.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType")
 	query.Find(&entities)
 
 	return entities
+}
+
+// Adds to the query the verification that the value for the attribute is expectedValue
+func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute *models.Attribute, expectedValue string) *gorm.DB {
+	var valToUseInQuery string
+	if expectedValue != "null" { // TODO should be changed to be able to use nil
+		switch attribute.ValueType {
+		case models.StringValueType:
+			valToUseInQuery = "string_val"
+		case models.IntValueType:
+			valToUseInQuery = "int_val"
+		case models.FloatValueType:
+			valToUseInQuery = "float_val"
+		case models.BooleanValueType:
+			valToUseInQuery = "bool_val"
+		case models.RelationValueType:
+			valToUseInQuery = "relation_val"
+		}
+	} else {
+		valToUseInQuery = "is_null"
+		expectedValue = "true"
+	}
+
+	return query.Joins(
+		fmt.Sprintf(
+			`JOIN attributes ON
+				attributes.entity_type_id = entities.entity_type_id
+				AND attributes.name = ?
+			JOIN values ON
+				values.attribute_id = attributes.id
+				AND values.entity_id = entities.id
+				AND values.%s = ?`,
+			valToUseInQuery,
+		),
+		attribute.Name, expectedValue,
+	)
 }
 
 // Delete an entity and its values
