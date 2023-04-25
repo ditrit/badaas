@@ -59,25 +59,8 @@ func NewStringValue(attr *Attribute, s string) (*Value, error) {
 // If et is nil, then the function returns an error
 // If et is of the wrong types, then the function returns an error
 func NewRelationValue(attr *Attribute, et *Entity) (*Value, error) {
-	if et == nil {
-		return nil, fmt.Errorf("can't create a new relation with a nil entity pointer")
-	}
-	if et.EntityType.ID != attr.RelationTargetEntityTypeID {
-		return nil, fmt.Errorf(
-			"can't create a relation with an entity of wrong EntityType (got the entityTypeID=%s, expected=%s)",
-			et.EntityType.ID.String(), attr.RelationTargetEntityTypeID.String(),
-		)
-	}
-
-	return NewRelationIDValue(attr, et.ID)
-}
-
-// Create a new relation value.
-// If et is nil, then the function returns an error
-// If et is of the wrong types, then the function returns an error
-func NewRelationIDValue(attr *Attribute, uuidVal uuid.UUID) (*Value, error) {
 	value := &Value{Attribute: attr, AttributeID: attr.ID}
-	return value, value.SetRelationVal(uuidVal)
+	return value, value.SetRelationVal(et)
 }
 
 // Return the underlying value as an interface
@@ -161,13 +144,24 @@ func (v *Value) SetBooleanVal(boolVal bool) error {
 	return nil
 }
 
-func (v *Value) SetRelationVal(relationVal uuid.UUID) error {
+func (v *Value) SetRelationVal(entity *Entity) error {
+	if entity == nil {
+		return fmt.Errorf("can't create a new relation with a nil entity pointer")
+	}
+
 	if v.Attribute.ValueType != RelationValueType {
 		return ErrAskingForWrongType
 	}
 
+	if entity.EntityType.ID != v.Attribute.RelationTargetEntityTypeID {
+		return fmt.Errorf(
+			"can't create a relation with an entity of wrong EntityType (got the entityTypeID=%s, expected=%s)",
+			entity.EntityType.ID.String(), v.Attribute.RelationTargetEntityTypeID.String(),
+		)
+	}
+
 	v.IsNull = false
-	v.RelationVal = relationVal
+	v.RelationVal = entity.ID
 
 	return nil
 }

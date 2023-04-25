@@ -131,7 +131,7 @@ func (eavService *eavServiceImpl) CreateEntity(entityTypeName string, attributeV
 
 			entity := models.NewEntity(entityType)
 			for _, attribute := range entityType.Attributes {
-				value, err := eavService.createValue(attribute, attributeValues)
+				value, err := eavService.createValue(tx, attribute, attributeValues)
 				if err != nil {
 					return nil, err
 				}
@@ -151,11 +151,11 @@ func (eavService *eavServiceImpl) CreateEntity(entityTypeName string, attributeV
 //
 // returns error is the type of the value provided for "attribute"
 // does not correspond with its ValueType
-func (eavService *eavServiceImpl) createValue(attribute *models.Attribute, attributesValues map[string]any) (*models.Value, error) {
+func (eavService *eavServiceImpl) createValue(tx *gorm.DB, attribute *models.Attribute, attributesValues map[string]any) (*models.Value, error) {
 	attributeValue, isPresent := attributesValues[attribute.Name]
 	if isPresent {
 		value := &models.Value{Attribute: attribute, AttributeID: attribute.ID}
-		err := eavService.updateValue(value, attributeValue)
+		err := eavService.updateValue(tx, value, attributeValue)
 		if err != nil {
 			return nil, err
 		}
@@ -188,7 +188,7 @@ func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID u
 			for _, value := range entity.Fields {
 				newValue, isPresent := newValues[value.Attribute.Name]
 				if isPresent {
-					err := eavService.updateValue(value, newValue)
+					err := eavService.updateValue(tx, value, newValue)
 					if err != nil {
 						return nil, err
 					}
@@ -204,17 +204,11 @@ func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID u
 //
 // returns error is the type of the "newValue" does not correspond
 // with the type expected for the "value"'s attribute
-func (eavService *eavServiceImpl) updateValue(value *models.Value, newValue any) error {
+func (eavService *eavServiceImpl) updateValue(tx *gorm.DB, value *models.Value, newValue any) error {
 	switch newValueTyped := newValue.(type) {
 	case string:
 		if value.Attribute.ValueType == models.RelationValueType {
-			uuidVal, err := uuid.Parse(newValueTyped)
-			if err != nil {
-				return ErrCantParseUUID
-			}
-
-			// TODO verify that exists
-			return value.SetRelationVal(uuidVal)
+			return eavService.updateRelationValue(tx, value, newValueTyped)
 		}
 		return value.SetStringVal(newValueTyped)
 	case int:
@@ -231,6 +225,29 @@ func (eavService *eavServiceImpl) updateValue(value *models.Value, newValue any)
 	default:
 		return fmt.Errorf("unsupported type")
 	}
+}
+
+// Updates Value "value" to point to "newID"
+//
+// returns error if entity with "newID" does not exist
+// or its type is not the same as the one pointed by the attribute's RelationTargetEntityTypeID
+func (eavService *eavServiceImpl) updateRelationValue(tx *gorm.DB, value *models.Value, newID string) error {
+	uuidVal, err := uuid.Parse(newID)
+	if err != nil {
+		return ErrCantParseUUID
+	}
+
+	relationEntityType, err := eavService.entityTypeRepository.Get(tx, value.Attribute.RelationTargetEntityTypeID)
+	if err != nil {
+		return err
+	}
+
+	relationEntity, err := eavService.entityRepository.Get(tx, relationEntityType.Name, uuidVal)
+	if err != nil {
+		return err
+	}
+
+	return value.SetRelationVal(relationEntity)
 }
 
 // Deletes Entity with type "entityTypeName" and id "entityID" and its values

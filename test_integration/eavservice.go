@@ -431,6 +431,15 @@ func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfEntityTypeDoesNotExist
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 
+func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfTheTypeOfAValueIsUnsupported() {
+	params := map[string]any{
+		"displayName": []string{"salut", "bonjour"},
+	}
+	entity, err := ts.eavService.CreateEntity(ts.profileType.Name, params)
+	ts.Nil(entity)
+	ts.ErrorContains(err, "unsupported type")
+}
+
 func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfUUIDCantBeParsed() {
 	otherType := &models.EntityType{
 		Name: "other",
@@ -453,6 +462,29 @@ func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfUUIDCantBeParsed() {
 	entity, err := ts.eavService.CreateEntity(ts.profileType.Name, params)
 	ts.Nil(entity)
 	ts.ErrorIs(err, services.ErrCantParseUUID)
+}
+
+func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfRelationAttributePointsToNotExistentType() {
+	relationAttr := &models.Attribute{
+		EntityTypeID:               ts.profileType.ID,
+		Name:                       "relation",
+		ValueType:                  models.RelationValueType,
+		RelationTargetEntityTypeID: uuid.New(),
+	}
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		relationAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	params := map[string]any{
+		"displayName": "displayName",
+		"relation":    uuid.New().String(),
+	}
+	entity, err := ts.eavService.CreateEntity(ts.profileType.Name, params)
+	ts.Nil(entity)
+	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *EAVServiceIntTestSuite) TestCreatesDefaultAttributes() {
@@ -761,6 +793,76 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfUUIDCantBeParsed
 	}
 	_, err = ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, paramsUpdate)
 	ts.ErrorIs(err, services.ErrCantParseUUID)
+}
+
+func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfUUIDDoesNotExists() {
+	otherEntityType := &models.EntityType{
+		Name: "other",
+	}
+
+	err := ts.db.Create(otherEntityType).Error
+	ts.Nil(err)
+
+	relationAttr := models.NewRelationAttribute(
+		ts.profileType, "relation",
+		false, false, otherEntityType,
+	)
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		relationAttr,
+	)
+
+	err = ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	entity, err := ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{})
+	ts.Nil(err)
+
+	paramsUpdate := map[string]any{
+		"relation": uuid.New().String(),
+	}
+	_, err = ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, paramsUpdate)
+	ts.ErrorIs(err, gorm.ErrRecordNotFound)
+}
+
+func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfUUIDDoesNotCorrespondsToTheRelationEntityType() {
+	otherEntityType := &models.EntityType{
+		Name: "other",
+	}
+
+	otherEntityType2 := &models.EntityType{
+		Name: "other2",
+	}
+
+	err := ts.db.Create(otherEntityType).Error
+	ts.Nil(err)
+
+	err = ts.db.Create(otherEntityType2).Error
+	ts.Nil(err)
+
+	relationAttr := models.NewRelationAttribute(
+		ts.profileType, "relation",
+		false, false, otherEntityType,
+	)
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		relationAttr,
+	)
+
+	err = ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	entity, err := ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{})
+	ts.Nil(err)
+
+	entityOther2, err := ts.eavService.CreateEntity(otherEntityType2.Name, map[string]any{})
+	ts.Nil(err)
+
+	paramsUpdate := map[string]any{
+		"relation": entityOther2.ID.String(),
+	}
+	_, err = ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, paramsUpdate)
+	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *EAVServiceIntTestSuite) TestUpdateEntityDoesNotUpdateAValueIfOtherFails() {
