@@ -202,12 +202,30 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 
 // ----------------------- GetAll -----------------------
 
-func TestGetAllOfNotExistentTypeReturnsEmpty(t *testing.T) {
+func TestGetAllWithoutTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"GET",
+		"/objects/",
+		strings.NewReader(""),
+	)
+
+	_, err := controller.GetAll(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+}
+
+func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mocksEAVService.NewEAVService(t)
 
 	eavService.
 		On("GetEntities", "no-exists", map[string]string{}).
-		Return([]*models.Entity{}, nil)
+		Return(nil, gorm.ErrRecordNotFound)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -221,9 +239,31 @@ func TestGetAllOfNotExistentTypeReturnsEmpty(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
 
-	entities, err := controller.GetAll(response, request)
-	assert.Nil(t, err)
-	assert.Len(t, entities, 0)
+	_, err := controller.GetAll(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+}
+
+func TestGetAllWithErrorInDBReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	eavService.
+		On("GetEntities", "no-exists", map[string]string{}).
+		Return(nil, errors.New("db error"))
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"GET",
+		"/objects/no-exists",
+		strings.NewReader(""),
+	)
+	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
+
+	_, err := controller.GetAll(response, request)
+	assert.ErrorContains(t, err, "db error")
 }
 
 func TestGetAllWithoutParams(t *testing.T) {
@@ -301,6 +341,49 @@ func TestGetAllWithParams(t *testing.T) {
 
 // ----------------------- DeleteObject -----------------------
 
+func TestDeleteWithoutTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"DELETE",
+		"/objects/",
+		strings.NewReader(""),
+	)
+
+	_, err := controller.DeleteObject(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+}
+
+func TestDeleteOfNotExistentTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	uuid := uuid.New()
+
+	eavService.
+		On("DeleteEntity", "no-exists", uuid).
+		Return(gorm.ErrRecordNotFound)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"DELETE",
+		"/objects/no-exists/"+uuid.String(),
+		strings.NewReader(""),
+	)
+	request = mux.SetURLVars(request, map[string]string{"type": "no-exists", "id": uuid.String()})
+
+	_, err := controller.DeleteObject(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
+}
+
 func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 	eavService := mocksEAVService.NewEAVService(t)
 
@@ -362,6 +445,24 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 
 // ----------------------- CreateObject -----------------------
 
+func TestCreateWithoutTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"POST",
+		"/objects/",
+		strings.NewReader(""),
+	)
+
+	_, err := controller.CreateObject(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+}
+
 func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 	eavService := mocksEAVService.NewEAVService(t)
 
@@ -383,6 +484,29 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 
 	_, err := controller.CreateObject(response, request)
 	assert.ErrorContains(t, err, "json decoding failed")
+}
+
+func TestCreateOfNotExistentTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	eavService.
+		On("CreateEntity", "no-exists", map[string]any{"1": "1"}).
+		Return(nil, gorm.ErrRecordNotFound)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"POST",
+		"/objects/no-exists",
+		strings.NewReader("{\"1\": \"1\"}"),
+	)
+	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
+
+	_, err := controller.CreateObject(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
 }
 
 func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
@@ -445,6 +569,74 @@ func TestCreteObjectReturnsObject(t *testing.T) {
 }
 
 // ----------------------- ModifyObject -----------------------
+
+func TestModifyWithoutTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"PUT",
+		"/objects/",
+		strings.NewReader(""),
+	)
+
+	_, err := controller.ModifyObject(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+}
+
+func TestModifyObjectWithBadJSONReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	entityType := &models.EntityType{
+		Name: "entityType",
+	}
+
+	uuid := uuid.New()
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"PUT",
+		"/objects/exists",
+		strings.NewReader("bad json"),
+	)
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
+
+	_, err := controller.ModifyObject(response, request)
+	assert.ErrorContains(t, err, "json decoding failed")
+}
+
+func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {
+	eavService := mocksEAVService.NewEAVService(t)
+
+	uuid := uuid.New()
+
+	eavService.
+		On("UpdateEntity", "no-exists", uuid, map[string]any{"1": "1"}).
+		Return(nil, gorm.ErrRecordNotFound)
+
+	controller := controllers.NewEAVController(
+		logger,
+		eavService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"POST",
+		"/objects/no-exists",
+		strings.NewReader("{\"1\": \"1\"}"),
+	)
+	request = mux.SetURLVars(request, map[string]string{"type": "no-exists", "id": uuid.String()})
+
+	_, err := controller.ModifyObject(response, request)
+	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
+}
 
 func TestModifyObjectWithErrorInDBReturnsError(t *testing.T) {
 	eavService := mocksEAVService.NewEAVService(t)
