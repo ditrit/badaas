@@ -27,4 +27,5 @@ var PersistanceModule = fx.Module(
 
 	fx.Provide(repository.NewValueRepository),
 	fx.Provide(repository.NewEntityRepository),
+	fx.Provide(repository.NewEntityTypeRepository),
 )

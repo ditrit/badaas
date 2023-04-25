@@ -10,7 +10,7 @@ import (
 
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/services/eavservice"
+	"github.com/ditrit/badaas/services"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -39,7 +39,7 @@ var _ EAVController = (*eavControllerImpl)(nil)
 // The InformationController constructor
 func NewEAVController(
 	logger *zap.Logger,
-	eavService eavservice.EAVService,
+	eavService services.EAVService,
 ) EAVController {
 	return &eavControllerImpl{
 		logger:     logger,
@@ -50,7 +50,7 @@ func NewEAVController(
 // The concrete implementation of the InformationController
 type eavControllerImpl struct {
 	logger     *zap.Logger
-	eavService eavservice.EAVService
+	eavService services.EAVService
 }
 
 // The handler responsible for the retrieval of une entity

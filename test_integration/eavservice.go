@@ -5,7 +5,7 @@ import (
 
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
-	"github.com/ditrit/badaas/services/eavservice"
+	"github.com/ditrit/badaas/services"
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -17,7 +17,7 @@ type EAVServiceIntTestSuite struct {
 	suite.Suite
 	logger           *zap.Logger
 	db               *gorm.DB
-	eavService       eavservice.EAVService
+	eavService       services.EAVService
 	entityRepository *repository.EntityRepository
 	profileType      *models.EntityType
 	displayNameAttr  *models.Attribute
@@ -27,7 +27,7 @@ type EAVServiceIntTestSuite struct {
 func NewEAVServiceIntTestSuite(
 	logger *zap.Logger,
 	db *gorm.DB,
-	eavService eavservice.EAVService,
+	eavService services.EAVService,
 	entityRepository *repository.EntityRepository,
 ) *EAVServiceIntTestSuite {
 	return &EAVServiceIntTestSuite{
@@ -452,7 +452,7 @@ func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfUUIDCantBeParsed() {
 	}
 	entity, err := ts.eavService.CreateEntity(ts.profileType.Name, params)
 	ts.Nil(entity)
-	ts.ErrorIs(err, eavservice.ErrCantParseUUID)
+	ts.ErrorIs(err, services.ErrCantParseUUID)
 }
 
 func (ts *EAVServiceIntTestSuite) TestCreatesDefaultAttributes() {
@@ -760,7 +760,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfUUIDCantBeParsed
 		"relation": "not-uuid",
 	}
 	_, err = ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, paramsUpdate)
-	ts.ErrorIs(err, eavservice.ErrCantParseUUID)
+	ts.ErrorIs(err, services.ErrCantParseUUID)
 }
 
 func (ts *EAVServiceIntTestSuite) TestUpdateEntityDoesNotUpdateAValueIfOtherFails() {
@@ -860,7 +860,7 @@ func (ts *EAVServiceIntTestSuite) createProfile(entityType *models.EntityType, d
 		descriptionVal,
 	)
 
-	err := ts.entityRepository.Create(entity)
+	err := ts.entityRepository.Create(ts.db, entity)
 	ts.Nil(err)
 
 	return entity

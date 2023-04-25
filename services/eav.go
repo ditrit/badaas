@@ -1,4 +1,4 @@
-package eavservice
+package services
 
 import (
 	"errors"
@@ -27,40 +27,29 @@ type EAVService interface {
 }
 
 type eavServiceImpl struct {
-	logger           *zap.Logger
-	db               *gorm.DB
-	entityRepository *repository.EntityRepository
+	logger               *zap.Logger
+	db                   *gorm.DB
+	entityTypeRepository *repository.EntityTypeRepository
+	entityRepository     *repository.EntityRepository
 }
 
 func NewEAVService(
 	logger *zap.Logger,
 	db *gorm.DB,
+	entityTypeRepository *repository.EntityTypeRepository,
 	entityRepository *repository.EntityRepository,
 ) EAVService {
 	return &eavServiceImpl{
-		logger:           logger,
-		db:               db,
-		entityRepository: entityRepository,
+		logger:               logger,
+		db:                   db,
+		entityTypeRepository: entityTypeRepository,
+		entityRepository:     entityRepository,
 	}
 }
 
 // Get the Entity of type with name "entityTypeName" that has the "id"
 func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error) {
-	var entity models.Entity
-
-	query := eavService.db.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType")
-	query = query.Joins(
-		`JOIN entity_types ON
-			entity_types.id = entities.entity_type_id`,
-	)
-	err := query.Where(
-		map[string]any{"entities.id": id, "entity_types.name": entityTypeName},
-	).First(&entity).Error
-	if err != nil {
-		return nil, err
-	}
-
-	return &entity, nil
+	return eavService.entityRepository.Get(eavService.db, entityTypeName, id)
 }
 
 // Get entities of type with name "entityTypeName" that match all "conditions"
@@ -69,33 +58,38 @@ func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id uuid.UUID)
 // "conditions" are in {"attributeName": expectedValue} format
 // TODO relations join
 func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions map[string]string) ([]*models.Entity, error) {
-	entityType, err := eavService.getEntityTypeByName(entityTypeName)
-	if err != nil {
-		return nil, err
-	}
+	return ExecWithTransaction(
+		eavService.db,
+		func(tx *gorm.DB) ([]*models.Entity, error) {
+			entityType, err := eavService.entityTypeRepository.GetByName(tx, entityTypeName)
+			if err != nil {
+				return nil, err
+			}
 
-	query := eavService.db.Select("entities.*")
+			query := tx.Select("entities.*")
 
-	// only entities that match the conditions
-	for _, attribute := range entityType.Attributes {
-		expectedValue, isPresent := conditions[attribute.Name]
-		if isPresent {
-			query = eavService.addValueCheckToQuery(query, attribute, expectedValue)
-		}
-	}
+			// only entities that match the conditions
+			for _, attribute := range entityType.Attributes {
+				expectedValue, isPresent := conditions[attribute.Name]
+				if isPresent {
+					query = eavService.addValueCheckToQuery(query, attribute, expectedValue)
+				}
+			}
 
-	// only entities of type entityType
-	query = query.Where(
-		"entities.entity_type_id = ?",
-		entityType.ID,
+			// only entities of type entityType
+			query = query.Where(
+				"entities.entity_type_id = ?",
+				entityType.ID,
+			)
+
+			// execute query
+			var entities []*models.Entity
+			query = query.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType")
+			err = query.Find(&entities).Error
+
+			return entities, err
+		},
 	)
-
-	// execute query
-	var entities []*models.Entity
-	query = query.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType")
-	err = query.Find(&entities).Error
-
-	return entities, err
 }
 
 // Adds to the "query" the verification that the value for "attribute" is "expectedValue"
@@ -127,21 +121,26 @@ func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute
 //
 // "attributeValues" are in {"attributeName": value} format
 func (eavService *eavServiceImpl) CreateEntity(entityTypeName string, attributeValues map[string]any) (*models.Entity, error) {
-	entityType, err := eavService.getEntityTypeByName(entityTypeName)
-	if err != nil {
-		return nil, err
-	}
+	return ExecWithTransaction(
+		eavService.db,
+		func(tx *gorm.DB) (*models.Entity, error) {
+			entityType, err := eavService.entityTypeRepository.GetByName(tx, entityTypeName)
+			if err != nil {
+				return nil, err
+			}
 
-	entity := models.NewEntity(entityType)
-	for _, attribute := range entityType.Attributes {
-		value, err := eavService.createValue(attribute, attributeValues)
-		if err != nil {
-			return nil, err
-		}
-		entity.Fields = append(entity.Fields, value)
-	}
+			entity := models.NewEntity(entityType)
+			for _, attribute := range entityType.Attributes {
+				value, err := eavService.createValue(attribute, attributeValues)
+				if err != nil {
+					return nil, err
+				}
+				entity.Fields = append(entity.Fields, value)
+			}
 
-	return entity, eavService.entityRepository.Create(entity)
+			return entity, eavService.entityRepository.Create(tx, entity)
+		},
+	)
 }
 
 // Creates a new Value for the "attribute" with the information provided in "attributesValues"
@@ -178,22 +177,27 @@ func (eavService *eavServiceImpl) createValue(attribute *models.Attribute, attri
 //
 // "newValues" are in {"attributeName": newValue} format
 func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]any) (*models.Entity, error) {
-	entity, err := eavService.GetEntity(entityTypeName, entityID)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, value := range entity.Fields {
-		newValue, isPresent := newValues[value.Attribute.Name]
-		if isPresent {
-			err := eavService.updateValue(value, newValue)
+	return ExecWithTransaction(
+		eavService.db,
+		func(tx *gorm.DB) (*models.Entity, error) {
+			entity, err := eavService.entityRepository.Get(tx, entityTypeName, entityID)
 			if err != nil {
 				return nil, err
 			}
-		}
-	}
 
-	return entity, eavService.db.Save(entity.Fields).Error
+			for _, value := range entity.Fields {
+				newValue, isPresent := newValues[value.Attribute.Name]
+				if isPresent {
+					err := eavService.updateValue(value, newValue)
+					if err != nil {
+						return nil, err
+					}
+				}
+			}
+
+			return entity, tx.Save(entity.Fields).Error
+		},
+	)
 }
 
 // Updates Value "value" to have the value "newValue"
@@ -231,26 +235,20 @@ func (eavService *eavServiceImpl) updateValue(value *models.Value, newValue any)
 
 // Deletes Entity with type "entityTypeName" and id "entityID" and its values
 func (eavService *eavServiceImpl) DeleteEntity(entityTypeName string, entityID uuid.UUID) error {
-	entity, err := eavService.GetEntity(entityTypeName, entityID)
-	if err != nil {
-		return err
-	}
+	return ExecWithTransactionNoResponse(
+		eavService.db,
+		func(tx *gorm.DB) error {
+			entity, err := eavService.entityRepository.Get(tx, entityTypeName, entityID)
+			if err != nil {
+				return err
+			}
 
-	return eavService.db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Where("entity_id = ?", entityID.String()).Delete(&models.Value{}).Error
-		if err != nil {
-			return err
-		}
+			err = tx.Where("entity_id = ?", entityID.String()).Delete(&models.Value{}).Error
+			if err != nil {
+				return err
+			}
 
-		return tx.Delete(entity).Error
-	})
-}
-
-func (eavService *eavServiceImpl) getEntityTypeByName(name string) (*models.EntityType, error) {
-	var entityType models.EntityType
-	err := eavService.db.Preload("Attributes").First(&entityType, "name = ?", name).Error
-	if err != nil {
-		return nil, err
-	}
-	return &entityType, nil
+			return tx.Delete(entity).Error
+		},
+	)
 }
