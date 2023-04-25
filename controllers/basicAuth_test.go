@@ -33,7 +33,7 @@ func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader("qsdqsdqsd"),
 	)
 
@@ -64,7 +64,7 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
 			"password":"1234"
@@ -87,7 +87,7 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
 			"password":"1234"
@@ -130,7 +130,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
 			"password":"1234"

@@ -56,7 +56,7 @@ The default credentials for the user are ̀`admin-no-reply@badaas.com` and `admi
 
 httpie util will be used in the examples below, but it works with curl or any similar tools.
 
-Let's first start by getting all the profiles: `http localhost:8000/v1/objects/profile/`
+Let's first start by getting all the profiles: `http localhost:8000/objects/profile/`
 
 ```json
 HTTP/1.1 200 OK
@@ -78,7 +78,7 @@ Date: Thu, 05 Jan 2023 11:53:35 GMT
 ]
 ```
 
-Let's get all the posts posted by this user: `http localhost:8000/v1/objects/post/?ownerID=wowASuperCoolUserID`
+Let's get all the posts posted by this user: `http localhost:8000/objects/post/?ownerID=wowASuperCoolUserID`
 
 ```json
 HTTP/1.1 200 OK

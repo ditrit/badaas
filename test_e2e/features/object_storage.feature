@@ -1,6 +1,6 @@
 Feature: Saving and querying objects in the database using the EAV Model
   Scenario: Objects can be created with CreateObject
-    When I request "/v1/objects/profile" with method "POST" with json
+    When I request "/objects/profile" with method "POST" with json
       | key         | value       | type    |
       | displayName | Jean Dupont | string  |
       | yearOfBirth | 1997        | integer |

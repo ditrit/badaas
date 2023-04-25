@@ -212,7 +212,7 @@ func checkMethod(method string) (string, error) {
 
 func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) error {
 	err := t.request(
-		"/v1/objects/"+entityType,
+		"/objects/"+entityType,
 		http.MethodPost,
 		nil,
 		jsonTable,
@@ -236,7 +236,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 	}
 
 	err := t.requestGet(
-		"/v1/objects/" + entityType + "/" + id.(string),
+		"/objects/" + entityType + "/" + id.(string),
 	)
 	if err != nil {
 		return err
@@ -262,7 +262,7 @@ func (t *TestContext) queryObjectsWithParameters(entityType string, jsonTable *g
 	}
 
 	err = t.request(
-		"/v1/objects/"+entityType,
+		"/objects/"+entityType,
 		http.MethodGet,
 		jsonMapString,
 		nil,
@@ -281,7 +281,7 @@ func (t *TestContext) queryObjectsWithParameters(entityType string, jsonTable *g
 
 func (t *TestContext) queryAllObjects(entityType string) error {
 	err := t.requestGet(
-		"/v1/objects/" + entityType,
+		"/objects/" + entityType,
 	)
 	if err != nil {
 		return err
@@ -328,7 +328,7 @@ func (t *TestContext) deleteWithObjectID(entityType string) error {
 	}
 
 	err := t.request(
-		"/v1/objects/"+entityType+"/"+id.(string),
+		"/objects/"+entityType+"/"+id.(string),
 		http.MethodDelete,
 		nil,
 		nil,
@@ -352,7 +352,7 @@ func (t *TestContext) modifyWithProperties(entityType string, jsonTable *godog.T
 	}
 
 	err := t.request(
-		"/v1/objects/"+entityType+"/"+id.(string),
+		"/objects/"+entityType+"/"+id.(string),
 		http.MethodPut,
 		nil,
 		jsonTable,

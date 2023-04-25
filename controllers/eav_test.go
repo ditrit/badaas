@@ -30,7 +30,7 @@ func TestGetWithoutTypeReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/",
+		"/objects/",
 		strings.NewReader(""),
 	)
 
@@ -53,7 +53,7 @@ func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/no-exists/id",
+		"/objects/no-exists/id",
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists", "id": uuid.String()})
@@ -76,7 +76,7 @@ func TestGetWithoutEntityIDReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/",
+		"/objects/exists/",
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
@@ -99,7 +99,7 @@ func TestGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/not-uuid",
+		"/objects/exists/not-uuid",
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": "not-uuid"})
@@ -128,7 +128,7 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
@@ -157,7 +157,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
@@ -190,7 +190,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
@@ -216,7 +216,7 @@ func TestGetAllOfNotExistentTypeReturnsEmpty(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/no-exists",
+		"/objects/no-exists",
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
@@ -251,7 +251,7 @@ func TestGetAllWithoutParams(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/",
+		"/objects/exists/",
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
@@ -285,7 +285,7 @@ func TestGetAllWithParams(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/v1/objects/exists/",
+		"/objects/exists/",
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
@@ -321,7 +321,7 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"DELETE",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
@@ -350,7 +350,7 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"DELETE",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
@@ -376,7 +376,7 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/objects/exists",
+		"/objects/exists",
 		strings.NewReader("bad json"),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
@@ -403,7 +403,7 @@ func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/objects/exists",
+		"/objects/exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
@@ -434,7 +434,7 @@ func TestCreteObjectReturnsObject(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/objects/exists",
+		"/objects/exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
@@ -466,7 +466,7 @@ func TestModifyObjectWithErrorInDBReturnsError(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"PUT",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
@@ -498,7 +498,7 @@ func TestModifyObjectReturnsObject(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"PUT",
-		"/v1/objects/exists/"+uuid.String(),
+		"/objects/exists/"+uuid.String(),
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})

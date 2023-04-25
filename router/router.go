@@ -40,13 +40,14 @@ func SetupRouter(
 
 	protected.HandleFunc("/logout", jsonController.Wrap(basicAuthenticationController.Logout)).Methods("GET")
 
-	// CRUD
-	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.GetObject)).Methods("GET")
-	// Get whole collection
-	router.HandleFunc("/v1/objects/{type}", jsonController.Wrap(eavController.GetAll)).Methods("GET")
-	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.DeleteObject)).Methods("DELETE")
-	router.HandleFunc("/v1/objects/{type}", jsonController.Wrap(eavController.CreateObject)).Methods("POST")
-	router.HandleFunc("/v1/objects/{type}/{id}", jsonController.Wrap(eavController.ModifyObject)).Methods("PUT")
+	// Objects CRUD
+	objectsBase := "/objects/{type}"
+	objectsWithID := objectsBase + "/{id}"
+	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.GetObject)).Methods("GET")
+	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.GetAll)).Methods("GET")
+	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.CreateObject)).Methods("POST")
+	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.ModifyObject)).Methods("PUT")
+	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.DeleteObject)).Methods("DELETE")
 
 	cors := handlers.CORS(
 		handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"}),

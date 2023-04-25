@@ -120,7 +120,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 }
 
 func buildLocationString(et *models.Entity) string {
-	return fmt.Sprintf("/v1/objects/%s/%s", et.EntityType.Name, et.ID.String())
+	return fmt.Sprintf("/objects/%s/%s", et.EntityType.Name, et.ID.String())
 }
 
 // The handler responsible for the updates of entities
