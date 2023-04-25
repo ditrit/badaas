@@ -4,7 +4,7 @@ import (
 	"errors"
 	"fmt"
 
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 // Describe the type of an attribute

@@ -6,13 +6,12 @@ import (
 	"sync"
 	"time"
 
-	uuid "github.com/google/uuid"
-
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 

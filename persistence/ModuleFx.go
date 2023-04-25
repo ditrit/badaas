@@ -1,7 +1,7 @@
 package persistence
 
 import (
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"

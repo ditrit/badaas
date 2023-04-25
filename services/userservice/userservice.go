@@ -3,8 +3,6 @@ package userservice
 import (
 	"fmt"
 
-	uuid "github.com/google/uuid"
-
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
@@ -12,6 +10,7 @@ import (
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
 	validator "github.com/ditrit/badaas/validators"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 

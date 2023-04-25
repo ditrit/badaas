@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"net/http"
 
-	uuid "github.com/google/uuid"
-
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"gorm.io/gorm"

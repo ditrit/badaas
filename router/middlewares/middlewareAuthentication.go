@@ -3,10 +3,9 @@ package middlewares
 import (
 	"net/http"
 
-	uuid "github.com/google/uuid"
-
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/services/sessionservice"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 

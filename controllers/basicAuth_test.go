@@ -5,14 +5,13 @@ import (
 	"strings"
 	"testing"
 
-	uuid "github.com/google/uuid"
-
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/httperrors"
 	mocksSessionService "github.com/ditrit/badaas/mocks/services/sessionservice"
 	mocksUserService "github.com/ditrit/badaas/mocks/services/userservice"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"

@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	uuid "github.com/google/uuid"
-
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/utils"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

@@ -3,8 +3,7 @@ package models
 import (
 	"testing"
 
-	uuid "github.com/google/uuid"
-
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
 

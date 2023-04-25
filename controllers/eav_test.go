@@ -9,7 +9,7 @@ import (
 	"github.com/ditrit/badaas/controllers"
 	mockServices "github.com/ditrit/badaas/mocks/services"
 	"github.com/ditrit/badaas/persistence/models"
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"

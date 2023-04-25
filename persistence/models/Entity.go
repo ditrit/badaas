@@ -3,7 +3,7 @@ package models
 import (
 	"encoding/json"
 
-	uuid "github.com/google/uuid"
+	"github.com/google/uuid"
 )
 
 // Describe an instance of an EntityType
