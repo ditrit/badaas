@@ -77,8 +77,5 @@ func (basicAuthController *basicAuthenticationController) BasicLoginHandler(w ht
 
 // Log Out the user
 func (basicAuthController *basicAuthenticationController) Logout(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	return nil, basicAuthController.sessionService.LogUserOut(
-		sessionservice.GetSessionClaimsFromContext(r.Context()),
-		w,
-	)
+	return nil, basicAuthController.sessionService.LogUserOut(sessionservice.GetSessionClaimsFromContext(r.Context()), w)
 }
