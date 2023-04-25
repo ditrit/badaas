@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/ditrit/badaas/controllers"
-	mocksEAVService "github.com/ditrit/badaas/mocks/services/eavservice"
+	mockServices "github.com/ditrit/badaas/mocks/services"
 	"github.com/ditrit/badaas/persistence/models"
 	uuid "github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -21,7 +21,7 @@ var logger, _ = zap.NewDevelopment()
 // ----------------------- GetObject -----------------------
 
 func TestGetWithoutTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -39,7 +39,7 @@ func TestGetWithoutTypeReturnsError(t *testing.T) {
 }
 
 func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	uuid := uuid.New()
 	eavService.
@@ -63,7 +63,7 @@ func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 }
 
 func TestGetWithoutEntityIDReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -86,7 +86,7 @@ func TestGetWithoutEntityIDReturnsError(t *testing.T) {
 }
 
 func TestGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -109,7 +109,7 @@ func TestGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 }
 
 func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -138,7 +138,7 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 }
 
 func TestGetWithErrorInDBReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -167,7 +167,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 }
 
 func TestGetWithCorrectIDReturnsObject(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -203,7 +203,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 // ----------------------- GetAll -----------------------
 
 func TestGetAllWithoutTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -216,12 +216,12 @@ func TestGetAllWithoutTypeReturnsError(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	_, err := controller.GetAll(response, request)
+	_, err := controller.GetObjects(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
 }
 
 func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	eavService.
 		On("GetEntities", "no-exists", map[string]string{}).
@@ -239,12 +239,12 @@ func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
 
-	_, err := controller.GetAll(response, request)
+	_, err := controller.GetObjects(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
 }
 
 func TestGetAllWithErrorInDBReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	eavService.
 		On("GetEntities", "no-exists", map[string]string{}).
@@ -262,12 +262,12 @@ func TestGetAllWithErrorInDBReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
 
-	_, err := controller.GetAll(response, request)
+	_, err := controller.GetObjects(response, request)
 	assert.ErrorContains(t, err, "db error")
 }
 
 func TestGetAllWithoutParams(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -296,7 +296,7 @@ func TestGetAllWithoutParams(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
-	entitiesReturned, err := controller.GetAll(response, request)
+	entitiesReturned, err := controller.GetObjects(response, request)
 	assert.Nil(t, err)
 	assert.Len(t, entitiesReturned, 2)
 	assert.Contains(t, entitiesReturned, entity1)
@@ -304,7 +304,7 @@ func TestGetAllWithoutParams(t *testing.T) {
 }
 
 func TestGetAllWithParams(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -333,7 +333,7 @@ func TestGetAllWithParams(t *testing.T) {
 	q.Add("param1", "something")
 	request.URL.RawQuery = q.Encode()
 
-	entitiesReturned, err := controller.GetAll(response, request)
+	entitiesReturned, err := controller.GetObjects(response, request)
 	assert.Nil(t, err)
 	assert.Len(t, entitiesReturned, 1)
 	assert.Contains(t, entitiesReturned, entity1)
@@ -342,7 +342,7 @@ func TestGetAllWithParams(t *testing.T) {
 // ----------------------- DeleteObject -----------------------
 
 func TestDeleteWithoutTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -360,7 +360,7 @@ func TestDeleteWithoutTypeReturnsError(t *testing.T) {
 }
 
 func TestDeleteOfNotExistentTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	uuid := uuid.New()
 
@@ -385,7 +385,7 @@ func TestDeleteOfNotExistentTypeReturnsError(t *testing.T) {
 }
 
 func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -414,7 +414,7 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 }
 
 func TestDeleteObjectReturnsNil(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -446,7 +446,7 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 // ----------------------- CreateObject -----------------------
 
 func TestCreateWithoutTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -464,7 +464,7 @@ func TestCreateWithoutTypeReturnsError(t *testing.T) {
 }
 
 func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -487,7 +487,7 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 }
 
 func TestCreateOfNotExistentTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	eavService.
 		On("CreateEntity", "no-exists", map[string]any{"1": "1"}).
@@ -510,7 +510,7 @@ func TestCreateOfNotExistentTypeReturnsError(t *testing.T) {
 }
 
 func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -537,7 +537,7 @@ func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
 }
 
 func TestCreteObjectReturnsObject(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -568,10 +568,10 @@ func TestCreteObjectReturnsObject(t *testing.T) {
 	assert.Equal(t, entity, responded)
 }
 
-// ----------------------- ModifyObject -----------------------
+// ----------------------- UpdateObject -----------------------
 
 func TestModifyWithoutTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -584,12 +584,12 @@ func TestModifyWithoutTypeReturnsError(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	_, err := controller.ModifyObject(response, request)
+	_, err := controller.UpdateObject(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
 }
 
-func TestModifyObjectWithBadJSONReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -609,12 +609,12 @@ func TestModifyObjectWithBadJSONReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
-	_, err := controller.ModifyObject(response, request)
+	_, err := controller.UpdateObject(response, request)
 	assert.ErrorContains(t, err, "json decoding failed")
 }
 
 func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+	eavService := mockServices.NewEAVService(t)
 
 	uuid := uuid.New()
 
@@ -634,12 +634,12 @@ func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists", "id": uuid.String()})
 
-	_, err := controller.ModifyObject(response, request)
+	_, err := controller.UpdateObject(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
 }
 
-func TestModifyObjectWithErrorInDBReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+func TestUpdateObjectWithErrorInDBReturnsError(t *testing.T) {
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -663,12 +663,12 @@ func TestModifyObjectWithErrorInDBReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
-	_, err := controller.ModifyObject(response, request)
+	_, err := controller.UpdateObject(response, request)
 	assert.ErrorContains(t, err, "db error")
 }
 
-func TestModifyObjectReturnsObject(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
+func TestUpdateObjectReturnsObject(t *testing.T) {
+	eavService := mockServices.NewEAVService(t)
 
 	entityType := &models.EntityType{
 		Name: "entityType",
@@ -695,7 +695,7 @@ func TestModifyObjectReturnsObject(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
-	responded, err := controller.ModifyObject(response, request)
+	responded, err := controller.UpdateObject(response, request)
 	assert.Nil(t, err)
 	assert.Equal(t, entity, responded)
 }

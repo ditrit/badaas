@@ -14,17 +14,17 @@ type EAVService struct {
 	mock.Mock
 }
 
-// CreateEntity provides a mock function with given fields: entityTypeName, attrs
-func (_m *EAVService) CreateEntity(entityTypeName string, attrs map[string]interface{}) (*models.Entity, error) {
-	ret := _m.Called(entityTypeName, attrs)
+// CreateEntity provides a mock function with given fields: entityTypeName, attributeValues
+func (_m *EAVService) CreateEntity(entityTypeName string, attributeValues map[string]interface{}) (*models.Entity, error) {
+	ret := _m.Called(entityTypeName, attributeValues)
 
 	var r0 *models.Entity
 	var r1 error
 	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) (*models.Entity, error)); ok {
-		return rf(entityTypeName, attrs)
+		return rf(entityTypeName, attributeValues)
 	}
 	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) *models.Entity); ok {
-		r0 = rf(entityTypeName, attrs)
+		r0 = rf(entityTypeName, attributeValues)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Entity)
@@ -32,7 +32,7 @@ func (_m *EAVService) CreateEntity(entityTypeName string, attrs map[string]inter
 	}
 
 	if rf, ok := ret.Get(1).(func(string, map[string]interface{}) error); ok {
-		r1 = rf(entityTypeName, attrs)
+		r1 = rf(entityTypeName, attributeValues)
 	} else {
 		r1 = ret.Error(1)
 	}

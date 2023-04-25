@@ -17,8 +17,8 @@ import (
 )
 
 var (
-	ErrEntityNotFound     = httperrors.NewErrorNotFound("entity", "please use a valid entity id")
-	ErrEntityTypeNotFound = httperrors.NewErrorNotFound("entity type", "please use a type that exists in the schema")
+	ErrEntityNotFound     = httperrors.NewErrorNotFound("entity", "please use a valid object id")
+	ErrEntityTypeNotFound = httperrors.NewErrorNotFound("entity type", "please use a type that exists")
 	ErrIDNotAnUUID        = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
 	ErrDBQueryFailed      = func(err error) httperrors.HTTPError {
 		return httperrors.NewInternalServerError("db error", "database query failed", err)
@@ -27,16 +27,15 @@ var (
 
 type EAVController interface {
 	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	GetAll(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	CreateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	ModifyObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	UpdateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 }
 
 // check interface compliance
 var _ EAVController = (*eavControllerImpl)(nil)
 
-// The InformationController constructor
 func NewEAVController(
 	logger *zap.Logger,
 	eavService services.EAVService,
@@ -47,13 +46,13 @@ func NewEAVController(
 	}
 }
 
-// The concrete implementation of the InformationController
+// The concrete implementation of the EAVController
 type eavControllerImpl struct {
 	logger     *zap.Logger
 	eavService services.EAVService
 }
 
-// The handler responsible for the retrieval of une entity
+// The handler responsible of the retrieval of one objects
 func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, entityID, herr := controller.getEntityTypeNameAndEntityID(r)
 	if herr != nil {
@@ -71,7 +70,8 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 	return entity, nil
 }
 
-func (controller *eavControllerImpl) GetAll(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+// The handler responsible of the retrieval of multiple objects
+func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
 	if herr != nil {
 		return nil, herr
@@ -93,7 +93,7 @@ func (controller *eavControllerImpl) GetAll(w http.ResponseWriter, r *http.Reque
 	return entities, nil
 }
 
-// The handler responsible for the creation of entities
+// The handler responsible of the creation of a object
 func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
 	if herr != nil {
@@ -123,8 +123,8 @@ func buildLocationString(et *models.Entity) string {
 	return fmt.Sprintf("/objects/%s/%s", et.EntityType.Name, et.ID.String())
 }
 
-// The handler responsible for the updates of entities
-func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+// The handler responsible for the updates of one object
+func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, entityID, herr := controller.getEntityTypeNameAndEntityID(r)
 	if herr != nil {
 		return nil, herr
@@ -146,7 +146,7 @@ func (controller *eavControllerImpl) ModifyObject(w http.ResponseWriter, r *http
 	return entity, nil
 }
 
-// The handler responsible for the deletion of entities and their associated value
+// The handler responsible for the deletion of a object
 func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, entityID, herr := controller.getEntityTypeNameAndEntityID(r)
 	if herr != nil {
@@ -164,6 +164,7 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 	return nil, nil
 }
 
+// Extract the "type" parameter from url
 func (controller *eavControllerImpl) getEntityTypeNameFromRequest(r *http.Request) (string, httperrors.HTTPError) {
 	entityTypeName, present := mux.Vars(r)["type"]
 	if !present {
@@ -188,6 +189,7 @@ func (controller *eavControllerImpl) getEntityIDFromRequest(r *http.Request) (uu
 	return uid, nil
 }
 
+// Extract the "type" and "id" parameters from url
 func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Request) (string, uuid.UUID, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
 	if herr != nil {
@@ -202,6 +204,7 @@ func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Reques
 	return entityTypeName, entityID, nil
 }
 
+// Decode json present in request body
 func (controller *eavControllerImpl) decodeJSON(r *http.Request) (map[string]any, httperrors.HTTPError) {
 	var attrs map[string]any
 	err := json.NewDecoder(r.Body).Decode(&attrs)

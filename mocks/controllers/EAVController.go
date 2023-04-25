@@ -70,34 +70,6 @@ func (_m *EAVController) DeleteObject(w http.ResponseWriter, r *http.Request) (i
 	return r0, r1
 }
 
-// GetAll provides a mock function with given fields: w, r
-func (_m *EAVController) GetAll(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
-	ret := _m.Called(w, r)
-
-	var r0 interface{}
-	var r1 httperrors.HTTPError
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) (interface{}, httperrors.HTTPError)); ok {
-		return rf(w, r)
-	}
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) interface{}); ok {
-		r0 = rf(w, r)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(http.ResponseWriter, *http.Request) httperrors.HTTPError); ok {
-		r1 = rf(w, r)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(httperrors.HTTPError)
-		}
-	}
-
-	return r0, r1
-}
-
 // GetObject provides a mock function with given fields: w, r
 func (_m *EAVController) GetObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
 	ret := _m.Called(w, r)
@@ -126,8 +98,36 @@ func (_m *EAVController) GetObject(w http.ResponseWriter, r *http.Request) (inte
 	return r0, r1
 }
 
-// ModifyObject provides a mock function with given fields: w, r
-func (_m *EAVController) ModifyObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
+// GetObjects provides a mock function with given fields: w, r
+func (_m *EAVController) GetObjects(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
+	ret := _m.Called(w, r)
+
+	var r0 interface{}
+	var r1 httperrors.HTTPError
+	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) (interface{}, httperrors.HTTPError)); ok {
+		return rf(w, r)
+	}
+	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) interface{}); ok {
+		r0 = rf(w, r)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(interface{})
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(http.ResponseWriter, *http.Request) httperrors.HTTPError); ok {
+		r1 = rf(w, r)
+	} else {
+		if ret.Get(1) != nil {
+			r1 = ret.Get(1).(httperrors.HTTPError)
+		}
+	}
+
+	return r0, r1
+}
+
+// UpdateObject provides a mock function with given fields: w, r
+func (_m *EAVController) UpdateObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
 	ret := _m.Called(w, r)
 
 	var r0 interface{}
