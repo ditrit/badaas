@@ -19,6 +19,9 @@ test_e2e:
 	./docker/wait_for_api.sh 8000/info
 	go test ./test_e2e -v
 
+test_generate_mocks:
+	mockery --all --keeptree
+
 example_birds:
 	EXAMPLE=birds docker compose -f "docker/api/docker-compose.yml" up
 

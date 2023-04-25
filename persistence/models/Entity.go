@@ -31,13 +31,13 @@ func (e *Entity) MarshalJSON() ([]byte, error) {
 	dto["type"] = e.EntityType.Name
 	dto["createdAt"] = e.CreatedAt
 	dto["updatedAt"] = e.UpdatedAt
-	dto["attrs"] = e.encodeAttributes()
+	dto["attrs"] = e.encodeValues()
 
 	return json.Marshal(dto)
 }
 
-// return the attribute in a json encoded string
-func (e *Entity) encodeAttributes() map[string]any {
+// return the values in a json encoded string
+func (e *Entity) encodeValues() map[string]any {
 	pairs := make(map[string]any, len(e.Fields))
 	for _, field := range e.Fields {
 		if field.IsNull {

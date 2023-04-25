@@ -14,25 +14,25 @@ type EAVService struct {
 	mock.Mock
 }
 
-// CreateEntity provides a mock function with given fields: ett, attrs
-func (_m *EAVService) CreateEntity(ett *models.EntityType, attrs map[string]interface{}) (*models.Entity, error) {
-	ret := _m.Called(ett, attrs)
+// CreateEntity provides a mock function with given fields: entityTypeName, attrs
+func (_m *EAVService) CreateEntity(entityTypeName string, attrs map[string]interface{}) (*models.Entity, error) {
+	ret := _m.Called(entityTypeName, attrs)
 
 	var r0 *models.Entity
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*models.EntityType, map[string]interface{}) (*models.Entity, error)); ok {
-		return rf(ett, attrs)
+	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) (*models.Entity, error)); ok {
+		return rf(entityTypeName, attrs)
 	}
-	if rf, ok := ret.Get(0).(func(*models.EntityType, map[string]interface{}) *models.Entity); ok {
-		r0 = rf(ett, attrs)
+	if rf, ok := ret.Get(0).(func(string, map[string]interface{}) *models.Entity); ok {
+		r0 = rf(entityTypeName, attrs)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Entity)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*models.EntityType, map[string]interface{}) error); ok {
-		r1 = rf(ett, attrs)
+	if rf, ok := ret.Get(1).(func(string, map[string]interface{}) error); ok {
+		r1 = rf(entityTypeName, attrs)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -40,13 +40,13 @@ func (_m *EAVService) CreateEntity(ett *models.EntityType, attrs map[string]inte
 	return r0, r1
 }
 
-// DeleteEntity provides a mock function with given fields: et
-func (_m *EAVService) DeleteEntity(et *models.Entity) error {
-	ret := _m.Called(et)
+// DeleteEntity provides a mock function with given fields: entityTypeName, entityID
+func (_m *EAVService) DeleteEntity(entityTypeName string, entityID uuid.UUID) error {
+	ret := _m.Called(entityTypeName, entityID)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Entity) error); ok {
-		r0 = rf(et)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID) error); ok {
+		r0 = rf(entityTypeName, entityID)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -54,41 +54,51 @@ func (_m *EAVService) DeleteEntity(et *models.Entity) error {
 	return r0
 }
 
-// GetEntitiesWithParams provides a mock function with given fields: ett, params
-func (_m *EAVService) GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity {
-	ret := _m.Called(ett, params)
+// GetEntities provides a mock function with given fields: entityTypeName, conditions
+func (_m *EAVService) GetEntities(entityTypeName string, conditions map[string]string) ([]*models.Entity, error) {
+	ret := _m.Called(entityTypeName, conditions)
 
 	var r0 []*models.Entity
-	if rf, ok := ret.Get(0).(func(*models.EntityType, map[string]string) []*models.Entity); ok {
-		r0 = rf(ett, params)
+	var r1 error
+	if rf, ok := ret.Get(0).(func(string, map[string]string) ([]*models.Entity, error)); ok {
+		return rf(entityTypeName, conditions)
+	}
+	if rf, ok := ret.Get(0).(func(string, map[string]string) []*models.Entity); ok {
+		r0 = rf(entityTypeName, conditions)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*models.Entity)
 		}
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(string, map[string]string) error); ok {
+		r1 = rf(entityTypeName, conditions)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
-// GetEntity provides a mock function with given fields: ett, id
-func (_m *EAVService) GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error) {
-	ret := _m.Called(ett, id)
+// GetEntity provides a mock function with given fields: entityTypeName, id
+func (_m *EAVService) GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error) {
+	ret := _m.Called(entityTypeName, id)
 
 	var r0 *models.Entity
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*models.EntityType, uuid.UUID) (*models.Entity, error)); ok {
-		return rf(ett, id)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID) (*models.Entity, error)); ok {
+		return rf(entityTypeName, id)
 	}
-	if rf, ok := ret.Get(0).(func(*models.EntityType, uuid.UUID) *models.Entity); ok {
-		r0 = rf(ett, id)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID) *models.Entity); ok {
+		r0 = rf(entityTypeName, id)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Entity)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*models.EntityType, uuid.UUID) error); ok {
-		r1 = rf(ett, id)
+	if rf, ok := ret.Get(1).(func(string, uuid.UUID) error); ok {
+		r1 = rf(entityTypeName, id)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -96,44 +106,30 @@ func (_m *EAVService) GetEntity(ett *models.EntityType, id uuid.UUID) (*models.E
 	return r0, r1
 }
 
-// GetEntityTypeByName provides a mock function with given fields: name
-func (_m *EAVService) GetEntityTypeByName(name string) (*models.EntityType, error) {
-	ret := _m.Called(name)
+// UpdateEntity provides a mock function with given fields: entityTypeName, entityID, newValues
+func (_m *EAVService) UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]interface{}) (*models.Entity, error) {
+	ret := _m.Called(entityTypeName, entityID, newValues)
 
-	var r0 *models.EntityType
+	var r0 *models.Entity
 	var r1 error
-	if rf, ok := ret.Get(0).(func(string) (*models.EntityType, error)); ok {
-		return rf(name)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID, map[string]interface{}) (*models.Entity, error)); ok {
+		return rf(entityTypeName, entityID, newValues)
 	}
-	if rf, ok := ret.Get(0).(func(string) *models.EntityType); ok {
-		r0 = rf(name)
+	if rf, ok := ret.Get(0).(func(string, uuid.UUID, map[string]interface{}) *models.Entity); ok {
+		r0 = rf(entityTypeName, entityID, newValues)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.EntityType)
+			r0 = ret.Get(0).(*models.Entity)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(name)
+	if rf, ok := ret.Get(1).(func(string, uuid.UUID, map[string]interface{}) error); ok {
+		r1 = rf(entityTypeName, entityID, newValues)
 	} else {
 		r1 = ret.Error(1)
 	}
 
 	return r0, r1
-}
-
-// UpdateEntity provides a mock function with given fields: et, attrs
-func (_m *EAVService) UpdateEntity(et *models.Entity, attrs map[string]interface{}) error {
-	ret := _m.Called(et, attrs)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Entity, map[string]interface{}) error); ok {
-		r0 = rf(et, attrs)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
 }
 
 type mockConstructorTestingTNewEAVService interface {

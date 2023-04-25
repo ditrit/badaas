@@ -14,18 +14,16 @@ import (
 )
 
 var (
-	ErrIDDontMatchEntityType = errors.New("this object doesn't belong to this type")
-	ErrCantParseUUID         = errors.New("can't parse uuid")
+	ErrCantParseUUID = errors.New("can't parse uuid")
 )
 
 // EAV service provide handle EAV objects
 type EAVService interface {
-	GetEntityTypeByName(name string) (*models.EntityType, error)
-	GetEntitiesWithParams(ett *models.EntityType, params map[string]string) []*models.Entity
-	DeleteEntity(et *models.Entity) error
-	GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error)
-	CreateEntity(ett *models.EntityType, attrs map[string]any) (*models.Entity, error)
-	UpdateEntity(et *models.Entity, attrs map[string]any) error
+	GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error)
+	GetEntities(entityTypeName string, conditions map[string]string) ([]*models.Entity, error)
+	CreateEntity(entityTypeName string, attributeValues map[string]any) (*models.Entity, error)
+	UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]any) (*models.Entity, error)
+	DeleteEntity(entityTypeName string, entityID uuid.UUID) error
 }
 
 type eavServiceImpl struct {
@@ -46,27 +44,41 @@ func NewEAVService(
 	}
 }
 
-// Get EntityType by name (string)
-func (eavService *eavServiceImpl) GetEntityTypeByName(name string) (*models.EntityType, error) {
-	var ett models.EntityType
-	err := eavService.db.Preload("Attributes").First(&ett, "name = ?", name).Error
+// Get the Entity of type with name "entityTypeName" that has the "id"
+func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error) {
+	var entity models.Entity
+
+	query := eavService.db.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType")
+	query = query.Joins(
+		`JOIN entity_types ON
+			entity_types.id = entities.entity_type_id`,
+	)
+	err := query.Where(
+		map[string]any{"entities.id": id, "entity_types.name": entityTypeName},
+	).First(&entity).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, fmt.Errorf("EntityType named %q not found", name)
-		}
+		return nil, err
 	}
-	return &ett, nil
+
+	return &entity, nil
 }
 
-// Get entities of type entityType that match all conditions given in params
-// params are in {"attributeName": expectedValue} format
+// Get entities of type with name "entityTypeName" that match all "conditions"
+// entries in "conditions" that do not correspond to any attribute of "entityTypeName" are ignored
+//
+// "conditions" are in {"attributeName": expectedValue} format
 // TODO relations join
-func (eavService *eavServiceImpl) GetEntitiesWithParams(entityType *models.EntityType, params map[string]string) []*models.Entity {
+func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions map[string]string) ([]*models.Entity, error) {
+	entityType, err := eavService.getEntityTypeByName(entityTypeName)
+	if err != nil {
+		return nil, err
+	}
+
 	query := eavService.db.Select("entities.*")
 
-	// only entities that match the conditions in params
+	// only entities that match the conditions
 	for _, attribute := range entityType.Attributes {
-		expectedValue, isPresent := params[attribute.Name]
+		expectedValue, isPresent := conditions[attribute.Name]
 		if isPresent {
 			query = eavService.addValueCheckToQuery(query, attribute, expectedValue)
 		}
@@ -81,28 +93,15 @@ func (eavService *eavServiceImpl) GetEntitiesWithParams(entityType *models.Entit
 	// execute query
 	var entities []*models.Entity
 	query = query.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType")
-	query.Find(&entities)
+	err = query.Find(&entities).Error
 
-	return entities
+	return entities, err
 }
 
-// Adds to the query the verification that the value for the attribute is expectedValue
+// Adds to the "query" the verification that the value for "attribute" is "expectedValue"
 func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute *models.Attribute, expectedValue string) *gorm.DB {
-	var valToUseInQuery string
-	if expectedValue != "null" { // TODO should be changed to be able to use nil
-		switch attribute.ValueType {
-		case models.StringValueType:
-			valToUseInQuery = "string_val"
-		case models.IntValueType:
-			valToUseInQuery = "int_val"
-		case models.FloatValueType:
-			valToUseInQuery = "float_val"
-		case models.BooleanValueType:
-			valToUseInQuery = "bool_val"
-		case models.RelationValueType:
-			valToUseInQuery = "relation_val"
-		}
-	} else {
+	var valToUseInQuery = string(attribute.ValueType) + "_val"
+	if expectedValue == "null" { // TODO should be changed to be able to use nil
 		valToUseInQuery = "is_null"
 		expectedValue = "true"
 	}
@@ -122,35 +121,20 @@ func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute
 	)
 }
 
-// Delete an entity and its values
-func (eavService *eavServiceImpl) DeleteEntity(et *models.Entity) error {
-	return eavService.db.Transaction(func(tx *gorm.DB) error {
-		err := tx.Where("entity_id = ?", et.ID.String()).Delete(&models.Value{}).Error
-		if err != nil {
-			return err
-		}
-
-		return tx.Delete(et).Error
-	})
-}
-
-func (eavService *eavServiceImpl) GetEntity(ett *models.EntityType, id uuid.UUID) (*models.Entity, error) {
-	var et models.Entity
-	err := eavService.db.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType.Attributes").Preload("EntityType").First(&et, id).Error
+// Creates a Entity of type "entityType" and its Values from the information provided in "attributeValues"
+// not specified values are set with the default value (if exists) or a null value.
+// entries in "attributeValues" that do not correspond to any attribute of "entityType" are ignored
+//
+// "attributeValues" are in {"attributeName": value} format
+func (eavService *eavServiceImpl) CreateEntity(entityTypeName string, attributeValues map[string]any) (*models.Entity, error) {
+	entityType, err := eavService.getEntityTypeByName(entityTypeName)
 	if err != nil {
 		return nil, err
 	}
-	if ett.ID != et.EntityTypeID {
-		return nil, ErrIDDontMatchEntityType
-	}
-	return &et, nil
-}
 
-// Create a brand new entity
-func (eavService *eavServiceImpl) CreateEntity(entityType *models.EntityType, params map[string]any) (*models.Entity, error) {
 	entity := models.NewEntity(entityType)
 	for _, attribute := range entityType.Attributes {
-		value, err := eavService.createValueFromParams(attribute, params)
+		value, err := eavService.createValue(attribute, attributeValues)
 		if err != nil {
 			return nil, err
 		}
@@ -160,36 +144,27 @@ func (eavService *eavServiceImpl) CreateEntity(entityType *models.EntityType, pa
 	return entity, eavService.entityRepository.Create(entity)
 }
 
-func (eavService *eavServiceImpl) createValueFromParams(attribute *models.Attribute, params map[string]any) (*models.Value, error) {
-	attributeValue, isPresent := params[attribute.Name]
+// Creates a new Value for the "attribute" with the information provided in "attributesValues"
+// or with the default value (if exists)
+// or a null value if the value for "attribute" is not specified in "attributesValues"
+//
+// "attributesValues" is in {"attributeName": value} format
+//
+// returns error is the type of the value provided for "attribute"
+// does not correspond with its ValueType
+func (eavService *eavServiceImpl) createValue(attribute *models.Attribute, attributesValues map[string]any) (*models.Value, error) {
+	attributeValue, isPresent := attributesValues[attribute.Name]
 	if isPresent {
-		switch attributeValueTyped := attributeValue.(type) {
-		case string:
-			if attribute.ValueType == models.RelationValueType {
-				uuidVal, err := uuid.Parse(attributeValueTyped)
-				if err != nil {
-					return nil, ErrCantParseUUID
-				}
-				// TODO verify that exists
-				return models.NewRelationIDValue(attribute, uuidVal)
-			}
-			return models.NewStringValue(attribute, attributeValueTyped)
-		case int:
-			return models.NewIntValue(attribute, attributeValueTyped)
-		case float64:
-			if utils.IsAnInt(attributeValueTyped) && attribute.ValueType == models.IntValueType {
-				return models.NewIntValue(attribute, int(attributeValueTyped))
-			}
-			return models.NewFloatValue(attribute, attributeValueTyped)
-		case bool:
-			return models.NewBoolValue(attribute, attributeValueTyped)
-		case nil:
-			return models.NewNullValue(attribute)
-		default:
-			return nil, fmt.Errorf("unsupported type")
+		value := &models.Value{Attribute: attribute, AttributeID: attribute.ID}
+		err := eavService.updateValue(value, attributeValue)
+		if err != nil {
+			return nil, err
 		}
+
+		return value, nil
 	}
 
+	// attribute not present in params, set the default value (if exists) or a null value
 	if attribute.Default {
 		return attribute.GetNewDefaultValue()
 	} else if attribute.Required {
@@ -197,64 +172,85 @@ func (eavService *eavServiceImpl) createValueFromParams(attribute *models.Attrib
 	}
 	return models.NewNullValue(attribute)
 }
-func (eavService *eavServiceImpl) UpdateEntity(et *models.Entity, attrs map[string]any) error {
-	for _, value := range et.Fields {
-		attribute := value.Attribute
-		for k, v := range attrs {
-			if k == attribute.Name {
-				switch t := v.(type) {
-				case string:
-					if attribute.ValueType == models.RelationValueType {
-						uuidVal, err := uuid.Parse(t)
-						if err != nil {
-							return ErrCantParseUUID
-						}
 
-						// TODO verify that exists
-						err = value.SetRelationVal(uuidVal)
-						if err != nil {
-							return err
-						}
-					} else {
-						err := value.SetStringVal(t)
-						if err != nil {
-							return err
-						}
-					}
-				case int:
-					err := value.SetIntVal(t)
-					if err != nil {
-						return err
-					}
-				case float64:
-					if utils.IsAnInt(t) && attribute.ValueType == models.IntValueType {
-						err := value.SetIntVal(int(t))
-						if err != nil {
-							return err
-						}
-					} else {
-						err := value.SetFloatVal(t)
-						if err != nil {
-							return err
-						}
-					}
-				case bool:
-					err := value.SetBooleanVal(t)
-					if err != nil {
-						return err
-					}
-				case nil:
-					err := value.SetNull()
-					if err != nil {
-						return err
-					}
+// Updates entity with type "entityTypeName" and "id" Values to the new values provided in "newValues"
+// entries in "newValues" that do not correspond to any attribute of the EntityType are ignored
+//
+// "newValues" are in {"attributeName": newValue} format
+func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]any) (*models.Entity, error) {
+	entity, err := eavService.GetEntity(entityTypeName, entityID)
+	if err != nil {
+		return nil, err
+	}
 
-				default:
-					return fmt.Errorf("unsupported type")
-				}
+	for _, value := range entity.Fields {
+		newValue, isPresent := newValues[value.Attribute.Name]
+		if isPresent {
+			err := eavService.updateValue(value, newValue)
+			if err != nil {
+				return nil, err
 			}
 		}
 	}
 
-	return eavService.db.Save(et.Fields).Error
+	return entity, eavService.db.Save(entity.Fields).Error
+}
+
+// Updates Value "value" to have the value "newValue"
+//
+// returns error is the type of the "newValue" does not correspond
+// with the type expected for the "value"'s attribute
+func (eavService *eavServiceImpl) updateValue(value *models.Value, newValue any) error {
+	switch newValueTyped := newValue.(type) {
+	case string:
+		if value.Attribute.ValueType == models.RelationValueType {
+			uuidVal, err := uuid.Parse(newValueTyped)
+			if err != nil {
+				return ErrCantParseUUID
+			}
+
+			// TODO verify that exists
+			return value.SetRelationVal(uuidVal)
+		}
+		return value.SetStringVal(newValueTyped)
+	case int:
+		return value.SetIntVal(newValueTyped)
+	case float64:
+		if utils.IsAnInt(newValueTyped) && value.Attribute.ValueType == models.IntValueType {
+			return value.SetIntVal(int(newValueTyped))
+		}
+		return value.SetFloatVal(newValueTyped)
+	case bool:
+		return value.SetBooleanVal(newValueTyped)
+	case nil:
+		return value.SetNull()
+	default:
+		return fmt.Errorf("unsupported type")
+	}
+}
+
+// Deletes Entity with type "entityTypeName" and id "entityID" and its values
+func (eavService *eavServiceImpl) DeleteEntity(entityTypeName string, entityID uuid.UUID) error {
+	entity, err := eavService.GetEntity(entityTypeName, entityID)
+	if err != nil {
+		return err
+	}
+
+	return eavService.db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Where("entity_id = ?", entityID.String()).Delete(&models.Value{}).Error
+		if err != nil {
+			return err
+		}
+
+		return tx.Delete(entity).Error
+	})
+}
+
+func (eavService *eavServiceImpl) getEntityTypeByName(name string) (*models.EntityType, error) {
+	var entityType models.EntityType
+	err := eavService.db.Preload("Attributes").First(&entityType, "name = ?", name).Error
+	if err != nil {
+		return nil, err
+	}
+	return &entityType, nil
 }

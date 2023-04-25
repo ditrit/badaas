@@ -9,7 +9,6 @@ import (
 	"github.com/ditrit/badaas/controllers"
 	mocksEAVService "github.com/ditrit/badaas/mocks/services/eavservice"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/services/eavservice"
 	uuid "github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
@@ -42,8 +41,9 @@ func TestGetWithoutTypeReturnsError(t *testing.T) {
 func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mocksEAVService.NewEAVService(t)
 
+	uuid := uuid.New()
 	eavService.
-		On("GetEntityTypeByName", "no-exists").
+		On("GetEntity", "no-exists", uuid).
 		Return(nil, gorm.ErrRecordNotFound)
 
 	controller := controllers.NewEAVController(
@@ -56,10 +56,10 @@ func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 		"/v1/objects/no-exists/id",
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": "no-exists", "id": uuid.String()})
 
 	_, err := controller.GetObject(response, request)
-	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
 }
 
 func TestGetWithoutEntityIDReturnsError(t *testing.T) {
@@ -68,10 +68,6 @@ func TestGetWithoutEntityIDReturnsError(t *testing.T) {
 	entityType := &models.EntityType{
 		Name: "entityType",
 	}
-
-	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -83,7 +79,7 @@ func TestGetWithoutEntityIDReturnsError(t *testing.T) {
 		"/v1/objects/exists/",
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
 	_, err := controller.GetObject(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
@@ -96,10 +92,6 @@ func TestGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
 	controller := controllers.NewEAVController(
 		logger,
 		eavService,
@@ -110,7 +102,7 @@ func TestGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 		"/v1/objects/exists/not-uuid",
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": "not-uuid"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": "not-uuid"})
 
 	_, err := controller.GetObject(response, request)
 	assert.ErrorIs(t, err, controllers.ErrIDNotAnUUID)
@@ -126,11 +118,7 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	uuid := uuid.New()
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
+		On("GetEntity", entityType.Name, uuid).
 		Return(nil, gorm.ErrRecordNotFound)
 
 	controller := controllers.NewEAVController(
@@ -143,43 +131,10 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	_, err := controller.GetObject(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
-}
-
-func TestGetWithEntityIDThatDoesNotMatchEntityTypeReturnsError(t *testing.T) {
-	eavService := mocksEAVService.NewEAVService(t)
-
-	entityType := &models.EntityType{
-		Name: "entityType",
-	}
-
-	uuid := uuid.New()
-
-	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
-		Return(nil, eavservice.ErrIDDontMatchEntityType)
-
-	controller := controllers.NewEAVController(
-		logger,
-		eavService,
-	)
-	response := httptest.NewRecorder()
-	request := httptest.NewRequest(
-		"GET",
-		"/v1/objects/exists/"+uuid.String(),
-		strings.NewReader(""),
-	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
-
-	_, err := controller.GetObject(response, request)
-	assert.ErrorIs(t, err, controllers.ErrEntityTypeDontMatchEntity)
 }
 
 func TestGetWithErrorInDBReturnsError(t *testing.T) {
@@ -192,11 +147,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 	uuid := uuid.New()
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
+		On("GetEntity", entityType.Name, uuid).
 		Return(nil, errors.New("db error"))
 
 	controller := controllers.NewEAVController(
@@ -209,7 +160,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	_, err := controller.GetObject(response, request)
 	assert.ErrorContains(t, err, "db error")
@@ -229,11 +180,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 	uuid := uuid.New()
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
+		On("GetEntity", entityType.Name, uuid).
 		Return(entity, nil)
 
 	controller := controllers.NewEAVController(
@@ -246,7 +193,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	entityReturned, err := controller.GetObject(response, request)
 	assert.Nil(t, err)
@@ -255,12 +202,12 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 
 // ----------------------- GetAll -----------------------
 
-func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
+func TestGetAllOfNotExistentTypeReturnsEmpty(t *testing.T) {
 	eavService := mocksEAVService.NewEAVService(t)
 
 	eavService.
-		On("GetEntityTypeByName", "no-exists").
-		Return(nil, gorm.ErrRecordNotFound)
+		On("GetEntities", "no-exists", map[string]string{}).
+		Return([]*models.Entity{}, nil)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -274,8 +221,9 @@ func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": "no-exists"})
 
-	_, err := controller.GetAll(response, request)
-	assert.ErrorIs(t, err, controllers.ErrEntityTypeNotFound)
+	entities, err := controller.GetAll(response, request)
+	assert.Nil(t, err)
+	assert.Len(t, entities, 0)
 }
 
 func TestGetAllWithoutParams(t *testing.T) {
@@ -293,12 +241,8 @@ func TestGetAllWithoutParams(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntitiesWithParams", entityType, map[string]string{}).
-		Return([]*models.Entity{entity1, entity2})
+		On("GetEntities", entityType.Name, map[string]string{}).
+		Return([]*models.Entity{entity1, entity2}, nil)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -310,7 +254,7 @@ func TestGetAllWithoutParams(t *testing.T) {
 		"/v1/objects/exists/",
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
 	entitiesReturned, err := controller.GetAll(response, request)
 	assert.Nil(t, err)
@@ -331,12 +275,8 @@ func TestGetAllWithParams(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntitiesWithParams", entityType, map[string]string{"param1": "something"}).
-		Return([]*models.Entity{entity1})
+		On("GetEntities", entityType.Name, map[string]string{"param1": "something"}).
+		Return([]*models.Entity{entity1}, nil)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -348,7 +288,7 @@ func TestGetAllWithParams(t *testing.T) {
 		"/v1/objects/exists/",
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 	q := request.URL.Query()
 	q.Add("param1", "something")
 	request.URL.RawQuery = q.Encode()
@@ -368,22 +308,10 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	entity := &models.Entity{
-		EntityType: entityType,
-	}
-
 	uuid := uuid.New()
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
-		Return(entity, nil)
-
-	eavService.
-		On("DeleteEntity", entity).
+		On("DeleteEntity", entityType.Name, uuid).
 		Return(errors.New("db error"))
 
 	controller := controllers.NewEAVController(
@@ -396,7 +324,7 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	_, err := controller.DeleteObject(response, request)
 	assert.ErrorContains(t, err, "db error")
@@ -409,22 +337,10 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 		Name: "entityType",
 	}
 
-	entity := &models.Entity{
-		EntityType: entityType,
-	}
-
 	uuid := uuid.New()
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
-		Return(entity, nil)
-
-	eavService.
-		On("DeleteEntity", entity).
+		On("DeleteEntity", entityType.Name, uuid).
 		Return(nil)
 
 	controller := controllers.NewEAVController(
@@ -437,7 +353,7 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	returned, err := controller.DeleteObject(response, request)
 	assert.Nil(t, err)
@@ -453,10 +369,6 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
 	controller := controllers.NewEAVController(
 		logger,
 		eavService,
@@ -467,7 +379,7 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 		"/v1/objects/exists",
 		strings.NewReader("bad json"),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
 	_, err := controller.CreateObject(response, request)
 	assert.ErrorContains(t, err, "json decoding failed")
@@ -481,11 +393,7 @@ func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("CreateEntity", entityType, map[string]any{"1": "1"}).
+		On("CreateEntity", entityType.Name, map[string]any{"1": "1"}).
 		Return(nil, errors.New("db error"))
 
 	controller := controllers.NewEAVController(
@@ -498,7 +406,7 @@ func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
 		"/v1/objects/exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
 	_, err := controller.CreateObject(response, request)
 	assert.ErrorContains(t, err, "db error")
@@ -516,11 +424,7 @@ func TestCreteObjectReturnsObject(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("CreateEntity", entityType, map[string]any{"1": "1"}).
+		On("CreateEntity", entityType.Name, map[string]any{"1": "1"}).
 		Return(entity, nil)
 
 	controller := controllers.NewEAVController(
@@ -533,7 +437,7 @@ func TestCreteObjectReturnsObject(t *testing.T) {
 		"/v1/objects/exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists"})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
 	responded, err := controller.CreateObject(response, request)
 	assert.Nil(t, err)
@@ -550,21 +454,10 @@ func TestModifyObjectWithErrorInDBReturnsError(t *testing.T) {
 	}
 
 	uuid := uuid.New()
-	entity := &models.Entity{
-		EntityType: entityType,
-	}
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
-		Return(entity, nil)
-
-	eavService.
-		On("UpdateEntity", entity, map[string]any{"1": "1"}).
-		Return(errors.New("db error"))
+		On("UpdateEntity", entityType.Name, uuid, map[string]any{"1": "1"}).
+		Return(nil, errors.New("db error"))
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -576,7 +469,7 @@ func TestModifyObjectWithErrorInDBReturnsError(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	_, err := controller.ModifyObject(response, request)
 	assert.ErrorContains(t, err, "db error")
@@ -595,16 +488,8 @@ func TestModifyObjectReturnsObject(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntityTypeByName", "exists").
-		Return(entityType, nil)
-
-	eavService.
-		On("GetEntity", entityType, uuid).
+		On("UpdateEntity", entityType.Name, uuid, map[string]any{"1": "1"}).
 		Return(entity, nil)
-
-	eavService.
-		On("UpdateEntity", entity, map[string]any{"1": "1"}).
-		Return(nil)
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -616,7 +501,7 @@ func TestModifyObjectReturnsObject(t *testing.T) {
 		"/v1/objects/exists/"+uuid.String(),
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
-	request = mux.SetURLVars(request, map[string]string{"type": "exists", "id": uuid.String()})
+	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	responded, err := controller.ModifyObject(response, request)
 	assert.Nil(t, err)
