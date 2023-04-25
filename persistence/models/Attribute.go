@@ -23,7 +23,7 @@ type Attribute struct {
 	BaseModel
 	Name     string `gorm:"uniqueIndex:unique_name_entity_type"`
 	Unique   bool   // TODO validate this
-	Required bool   // TODO validate this
+	Required bool
 
 	Default bool // if there is a default value
 
