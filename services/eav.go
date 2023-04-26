@@ -251,20 +251,17 @@ func (eavService *eavServiceImpl) updateRelationValue(tx *gorm.DB, value *models
 
 // Deletes Entity with type "entityTypeName" and id "entityID" and its values
 func (eavService *eavServiceImpl) DeleteEntity(entityTypeName string, entityID uuid.UUID) error {
-	return ExecWithTransactionNoResponse(
-		eavService.db,
-		func(tx *gorm.DB) error {
-			entity, err := eavService.entityRepository.Get(tx, entityTypeName, entityID)
-			if err != nil {
-				return err
-			}
+	return eavService.db.Transaction(func(tx *gorm.DB) error {
+		entity, err := eavService.entityRepository.Get(tx, entityTypeName, entityID)
+		if err != nil {
+			return err
+		}
 
-			err = tx.Where("entity_id = ?", entityID.String()).Delete(&models.Value{}).Error
-			if err != nil {
-				return err
-			}
+		err = tx.Where("entity_id = ?", entityID.String()).Delete(&models.Value{}).Error
+		if err != nil {
+			return err
+		}
 
-			return tx.Delete(entity).Error
-		},
-	)
+		return tx.Delete(entity).Error
+	})
 }
