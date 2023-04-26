@@ -223,7 +223,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	ts.Nil(err)
 
 	params := map[string]any{
-		"int": "1",
+		"int": 1.0,
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
 	ts.Nil(err)
@@ -231,7 +231,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
 }
 
-func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntTypeThatIsNotAnIntReturnsError() {
+func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIncorrectTypeReturnsEmptyList() {
 	intAttr := &models.Attribute{
 		EntityTypeID: ts.profileType.ID,
 		Name:         "int",
@@ -247,22 +247,17 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntTypeThatIsNot
 	ts.Nil(err)
 
 	_, err = ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
-		"displayName": "match",
-		"int":         1,
-	})
-	ts.Nil(err)
-
-	_, err = ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
 		"displayName": "not_match",
-		"int":         2,
+		"int":         1,
 	})
 	ts.Nil(err)
 
 	params := map[string]any{
 		"int": "not_an_int",
 	}
-	_, err = ts.eavService.GetEntities(ts.profileType.Name, params)
-	ts.NotNil(err)
+	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
+	ts.Nil(err)
+	ts.Len(entities, 0)
 }
 
 func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
@@ -293,7 +288,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	ts.Nil(err)
 
 	params := map[string]any{
-		"float": "1.1",
+		"float": 1.1,
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
 	ts.Nil(err)
@@ -329,7 +324,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 	ts.Nil(err)
 
 	params := map[string]any{
-		"bool": "true",
+		"bool": true,
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
 	ts.Nil(err)
@@ -400,6 +395,91 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionFilterByNull() {
 	ts.Nil(err)
 
 	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
+}
+
+func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsReturnsOneIfOnlyOneMatch() {
+	match, err := ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
+		"displayName": "match",
+		"description": "match_description",
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
+		"displayName": "not_match",
+		"description": "not_match",
+	})
+	ts.Nil(err)
+
+	params := map[string]any{
+		"displayName": "match",
+		"description": "match_description",
+	}
+	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
+	ts.Nil(err)
+
+	EqualEntityList(&ts.Suite, []*models.Entity{match}, entities)
+}
+
+func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDifferentTypesWorks() {
+	intAttr := &models.Attribute{
+		EntityTypeID: ts.profileType.ID,
+		Name:         "int",
+		ValueType:    models.IntValueType,
+		Required:     false,
+	}
+
+	boolAttr := &models.Attribute{
+		EntityTypeID: ts.profileType.ID,
+		Name:         "bool",
+		ValueType:    models.BooleanValueType,
+		Required:     false,
+	}
+
+	ts.profileType.Attributes = append(ts.profileType.Attributes,
+		intAttr,
+		boolAttr,
+	)
+
+	err := ts.db.Save(&ts.profileType).Error
+	ts.Nil(err)
+
+	match1, err := ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
+		"displayName": "match",
+		"int":         1,
+		"bool":        true,
+	})
+	ts.Nil(err)
+
+	match2, err := ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
+		"displayName": "match",
+		"int":         1,
+		"bool":        true,
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
+		"displayName": "not_match",
+		"int":         1,
+		"bool":        true,
+	})
+	ts.Nil(err)
+
+	_, err = ts.eavService.CreateEntity(ts.profileType.Name, map[string]any{
+		"displayName": "match",
+		"int":         2,
+		"bool":        true,
+	})
+	ts.Nil(err)
+
+	params := map[string]any{
+		"displayName": "match",
+		"int":         1.0,
+		"bool":        true,
+	}
+	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
+	ts.Nil(err)
+
+	EqualEntityList(&ts.Suite, []*models.Entity{match1, match2}, entities)
 }
 
 // ------------------------- CreateEntity --------------------------------

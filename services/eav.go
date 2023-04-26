@@ -71,7 +71,10 @@ func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions 
 			for _, attribute := range entityType.Attributes {
 				expectedValue, isPresent := conditions[attribute.Name]
 				if isPresent {
-					query = eavService.addValueCheckToQuery(query, attribute, expectedValue)
+					query, err = eavService.addValueCheckToQuery(query, attribute.Name, expectedValue)
+					if err != nil {
+						return nil, err
+					}
 				}
 			}
 
@@ -92,25 +95,51 @@ func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions 
 }
 
 // Adds to the "query" the verification that the value for "attribute" is "expectedValue"
-func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute *models.Attribute, expectedValue any) *gorm.DB {
-	var valToUseInQuery = string(attribute.ValueType) + "_val"
-	if expectedValue == nil {
-		valToUseInQuery = "is_null"
-		expectedValue = "true"
+func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attributeName string, expectedValue any) (*gorm.DB, error) {
+	stringQuery := fmt.Sprintf(
+		`JOIN attributes attributes_%[1]s ON
+			attributes_%[1]s.entity_type_id = entities.entity_type_id
+			AND attributes_%[1]s.name = ?
+		JOIN values values_%[1]s ON
+			values_%[1]s.attribute_id = attributes_%[1]s.id
+			AND values_%[1]s.entity_id = entities.id
+		`,
+		attributeName,
+	)
+	switch expectedValueTyped := expectedValue.(type) {
+	case float64:
+		stringQuery += fmt.Sprintf(
+			"AND ((%s) OR (%s))",
+			getQueryCheckValueOfType(attributeName, models.IntValueType),
+			getQueryCheckValueOfType(attributeName, models.FloatValueType),
+		)
+	case bool:
+		stringQuery += "AND " + getQueryCheckValueOfType(attributeName, models.BooleanValueType)
+	case string:
+		_, err := uuid.Parse(expectedValueTyped)
+		if err == nil {
+			stringQuery += "AND " + getQueryCheckValueOfType(attributeName, models.RelationValueType)
+		} else {
+			stringQuery += "AND " + getQueryCheckValueOfType(attributeName, models.StringValueType)
+		}
+	case nil:
+		stringQuery += fmt.Sprintf(
+			"AND values_%s.is_null = true",
+			attributeName,
+		)
+	default:
+		return nil, fmt.Errorf("unsupported type")
 	}
 
-	return query.Joins(
-		fmt.Sprintf(
-			`JOIN attributes ON
-				attributes.entity_type_id = entities.entity_type_id
-				AND attributes.name = ?
-			JOIN values ON
-				values.attribute_id = attributes.id
-				AND values.entity_id = entities.id
-				AND values.%s = ?`,
-			valToUseInQuery,
-		),
-		attribute.Name, expectedValue,
+	query = query.Joins(stringQuery, attributeName, expectedValue, expectedValue)
+
+	return query, nil
+}
+
+func getQueryCheckValueOfType(attributeName string, valueType models.ValueTypeT) string {
+	return fmt.Sprintf(
+		"attributes_%[1]s.value_type = '%[2]s' AND values_%[1]s.%[2]s_val = ?",
+		attributeName, string(valueType),
 	)
 }
 

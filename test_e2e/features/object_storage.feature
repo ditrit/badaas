@@ -39,7 +39,7 @@ Feature: Saving and querying objects in the database using the EAV Model
       | displayName | Pierre Martin | string |
       | yearOfBirth | 2001          | float  |
 
-  Scenario: Created objects can be queried with parameters
+  Scenario: Created objects can be queried by a property
     Given a "profile" object exists with properties
       | key         | value       | type    |
       | displayName | Jean Dupont | string  |
@@ -49,8 +49,31 @@ Feature: Saving and querying objects in the database using the EAV Model
       | displayName | Pierre Martin | string  |
       | yearOfBirth | 2001          | integer |
     When I query all "profile" objects with parameters
+      | key         | value         | type    |
+      | yearOfBirth | 2001          | integer |
+    Then there are "1" "profile" objects
+    And there is a "profile" object with properties
       | key         | value         | type   |
-      | yearOfBirth | 2001          | string |
+      | displayName | Pierre Martin | string |
+      | yearOfBirth | 2001          | float  |
+
+  Scenario: Created objects can be queried by multiple properties
+    Given a "profile" object exists with properties
+      | key         | value       | type    |
+      | displayName | Jean Dupont | string  |
+      | yearOfBirth | 1997        | integer |
+    And a "profile" object exists with properties
+      | key         | value         | type    |
+      | displayName | Pierre Martin | string  |
+      | yearOfBirth | 2001          | integer |
+    And a "profile" object exists with properties
+      | key         | value           | type    |
+      | displayName | Gabriel Bernard | string  |
+      | yearOfBirth | 2001            | integer |
+    When I query all "profile" objects with parameters
+      | key         | value         | type    |
+      | displayName | Pierre Martin | string  |
+      | yearOfBirth | 2001          | integer |
     Then there are "1" "profile" objects
     And there is a "profile" object with properties
       | key         | value         | type   |
