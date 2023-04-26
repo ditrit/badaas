@@ -6,12 +6,13 @@ test_unit:
 test_unit_and_cover:
 	go test $(PATHS) -coverpkg=./... -coverprofile=coverage_unit.out -v
 
-test_integration:
+test_db:
 	docker compose -f "docker/test_db/docker-compose.yml" up -d
+
+test_integration: test_db
 	go test ./test_integration -v
 
-test_integration_and_cover:
-	docker compose -f "docker/test_db/docker-compose.yml" up -d
+test_integration_and_cover: test_db
 	go test ./test_integration -coverpkg=./... -coverprofile=coverage_int.out -v
 
 test_e2e:
