@@ -224,7 +224,7 @@ func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
 	eavService.
-		On("GetEntities", "no-exists", map[string]string{}).
+		On("GetEntities", "no-exists", map[string]any{}).
 		Return(nil, gorm.ErrRecordNotFound)
 
 	controller := controllers.NewEAVController(
@@ -247,7 +247,7 @@ func TestGetAllWithErrorInDBReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
 	eavService.
-		On("GetEntities", "no-exists", map[string]string{}).
+		On("GetEntities", "no-exists", map[string]any{}).
 		Return(nil, errors.New("db error"))
 
 	controller := controllers.NewEAVController(
@@ -281,7 +281,7 @@ func TestGetAllWithoutParams(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntities", entityType.Name, map[string]string{}).
+		On("GetEntities", entityType.Name, map[string]any{}).
 		Return([]*models.Entity{entity1, entity2}, nil)
 
 	controller := controllers.NewEAVController(
@@ -315,7 +315,7 @@ func TestGetAllWithParams(t *testing.T) {
 	}
 
 	eavService.
-		On("GetEntities", entityType.Name, map[string]string{"param1": "something"}).
+		On("GetEntities", entityType.Name, map[string]any{"param1": "something"}).
 		Return([]*models.Entity{entity1}, nil)
 
 	controller := controllers.NewEAVController(
@@ -326,12 +326,9 @@ func TestGetAllWithParams(t *testing.T) {
 	request := httptest.NewRequest(
 		"GET",
 		"/objects/exists/",
-		strings.NewReader(""),
+		strings.NewReader("{\"param1\": \"something\"}"),
 	)
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
-	q := request.URL.Query()
-	q.Add("param1", "something")
-	request.URL.RawQuery = q.Encode()
 
 	entitiesReturned, err := controller.GetObjects(response, request)
 	assert.Nil(t, err)

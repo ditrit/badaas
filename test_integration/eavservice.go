@@ -101,12 +101,12 @@ func (ts *EAVServiceIntTestSuite) TestGetEntityWorksIfEntityTypeMatch() {
 // ------------------------- GetEntities --------------------------------
 
 func (ts *EAVServiceIntTestSuite) TestGetEntitiesOfNotExistentTypeReturnsError() {
-	_, err := ts.eavService.GetEntities("not-exists", map[string]string{})
+	_, err := ts.eavService.GetEntities("not-exists", map[string]any{})
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsEmptyIfNotEntitiesCreated() {
-	entities, err := ts.eavService.GetEntities(ts.profileType.Name, map[string]string{})
+	entities, err := ts.eavService.GetEntities(ts.profileType.Name, map[string]any{})
 	ts.Nil(err)
 
 	EqualEntityList(&ts.Suite, []*models.Entity{}, entities)
@@ -115,7 +115,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsEmptyIf
 func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheOnlyOneIfOneEntityCreated() {
 	profile := ts.createProfile(ts.profileType, "profile")
 
-	entities, err := ts.eavService.GetEntities(ts.profileType.Name, make(map[string]string))
+	entities, err := ts.eavService.GetEntities(ts.profileType.Name, make(map[string]any))
 	ts.Nil(err)
 
 	EqualEntityList(&ts.Suite, []*models.Entity{profile}, entities)
@@ -126,14 +126,14 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheList
 	profile2 := ts.createProfile(ts.profileType, "profile2")
 	profile3 := ts.createProfile(ts.profileType, "profile3")
 
-	entities, err := ts.eavService.GetEntities(ts.profileType.Name, make(map[string]string))
+	entities, err := ts.eavService.GetEntities(ts.profileType.Name, make(map[string]any))
 	ts.Nil(err)
 
 	EqualEntityList(&ts.Suite, []*models.Entity{profile1, profile2, profile3}, entities)
 }
 
 func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNotEntitiesCreated() {
-	params := map[string]string{
+	params := map[string]any{
 		"displayName": "not_created",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -145,7 +145,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNot
 func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNothingMatch() {
 	ts.createProfile(ts.profileType, "profile")
 
-	params := map[string]string{
+	params := map[string]any{
 		"displayName": "not_match",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -158,7 +158,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnlyO
 	matchProfile := ts.createProfile(ts.profileType, "match")
 	ts.createProfile(ts.profileType, "something_else")
 
-	params := map[string]string{
+	params := map[string]any{
 		"displayName": "match",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -172,7 +172,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleIf
 	match2 := ts.createProfile(ts.profileType, "match")
 	ts.createProfile(ts.profileType, "something_else")
 
-	params := map[string]string{
+	params := map[string]any{
 		"displayName": "match",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -186,7 +186,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionThatDoesNotExistRe
 	match2 := ts.createProfile(ts.profileType, "match")
 	match3 := ts.createProfile(ts.profileType, "match")
 
-	params := map[string]string{
+	params := map[string]any{
 		"not_exists": "not_exists",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -222,7 +222,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	})
 	ts.Nil(err)
 
-	params := map[string]string{
+	params := map[string]any{
 		"int": "1",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -258,7 +258,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntTypeThatIsNot
 	})
 	ts.Nil(err)
 
-	params := map[string]string{
+	params := map[string]any{
 		"int": "not_an_int",
 	}
 	_, err = ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -292,7 +292,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	})
 	ts.Nil(err)
 
-	params := map[string]string{
+	params := map[string]any{
 		"float": "1.1",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -328,7 +328,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 	})
 	ts.Nil(err)
 
-	params := map[string]string{
+	params := map[string]any{
 		"bool": "true",
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -373,7 +373,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
 	})
 	ts.Nil(err)
 
-	params := map[string]string{
+	params := map[string]any{
 		"relation": otherEntity1.ID.String(),
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
@@ -393,8 +393,8 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionFilterByNull() {
 	})
 	ts.Nil(err)
 
-	params := map[string]string{
-		"displayName": "null",
+	params := map[string]any{
+		"displayName": nil,
 	}
 	entities, err := ts.eavService.GetEntities(ts.profileType.Name, params)
 	ts.Nil(err)

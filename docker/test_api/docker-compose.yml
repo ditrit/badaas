@@ -14,5 +14,7 @@ services:
     ports:
       - "8000:8000"
     restart: always
+    environment:
+      BADAAS_SERVER_EXAMPLE: ${EXAMPLE}
     depends_on:
       - db

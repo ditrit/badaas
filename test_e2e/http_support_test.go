@@ -251,21 +251,10 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 }
 
 func (t *TestContext) queryObjectsWithParameters(entityType string, jsonTable *godog.Table) error {
-	jsonMap, err := buildMapFromTable(jsonTable)
-	if err != nil {
-		return err
-	}
-
-	jsonMapString := map[string]string{}
-	for k, v := range jsonMap {
-		jsonMapString[k] = v.(string)
-	}
-
-	err = t.request(
+	err := t.requestWithJson(
 		"/objects/"+entityType,
 		http.MethodGet,
-		jsonMapString,
-		nil,
+		jsonTable,
 	)
 	if err != nil {
 		return err

@@ -78,7 +78,7 @@ Date: Thu, 05 Jan 2023 11:53:35 GMT
 ]
 ```
 
-Let's get all the posts posted by this user: `http localhost:8000/objects/post/?ownerID=wowASuperCoolUserID`
+Let's get all the posts posted by this user: `http GET localhost:8000/objects/post ownerID=wowASuperCoolUserID`
 
 ```json
 HTTP/1.1 200 OK
@@ -89,8 +89,8 @@ Date: Fri, 06 Jan 2023 08:20:33 GMT
 [
     {
         "attrs": {
-            "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\tIn consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi.\n\tIn erat mi, pharetra ut lacinia at, facilisis vitae nunc.\n\t",
-            "ownerID": "wowasupercooluserID",
+            "body": "Lorem ipsum dolor sit amet, consectetur adipiscing elit.\n\n\t\tIn consectetur, ex at hendrerit lobortis, tellus lorem blandit eros, vel ornare odio lorem eget nisi.\n\n\t\tIn erat mi, pharetra ut lacinia at, facilisis vitae nunc.\n\t",
+            "ownerID": "wowASuperCoolUserID",
             "title": "Why cats like mice ?"
         },
         "createdAt": "2023-01-06T09:18:53.313565+01:00",

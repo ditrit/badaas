@@ -19,7 +19,7 @@ var (
 // EAV service provide handle EAV objects
 type EAVService interface {
 	GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error)
-	GetEntities(entityTypeName string, conditions map[string]string) ([]*models.Entity, error)
+	GetEntities(entityTypeName string, conditions map[string]any) ([]*models.Entity, error)
 	CreateEntity(entityTypeName string, attributeValues map[string]any) (*models.Entity, error)
 	UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]any) (*models.Entity, error)
 	DeleteEntity(entityTypeName string, entityID uuid.UUID) error
@@ -56,7 +56,7 @@ func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id uuid.UUID)
 //
 // "conditions" are in {"attributeName": expectedValue} format
 // TODO relations join
-func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions map[string]string) ([]*models.Entity, error) {
+func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions map[string]any) ([]*models.Entity, error) {
 	return ExecWithTransaction(
 		eavService.db,
 		func(tx *gorm.DB) ([]*models.Entity, error) {
@@ -92,9 +92,9 @@ func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions 
 }
 
 // Adds to the "query" the verification that the value for "attribute" is "expectedValue"
-func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute *models.Attribute, expectedValue string) *gorm.DB {
+func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attribute *models.Attribute, expectedValue any) *gorm.DB {
 	var valToUseInQuery = string(attribute.ValueType) + "_val"
-	if expectedValue == "null" { // TODO should be changed to be able to use nil
+	if expectedValue == nil {
 		valToUseInQuery = "is_null"
 		expectedValue = "true"
 	}

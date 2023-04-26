@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/ditrit/badaas/httperrors"
@@ -76,12 +77,12 @@ func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.R
 		return nil, herr
 	}
 
-	var qp = make(map[string]string)
-	for k, v := range r.URL.Query() {
-		qp[k] = v[0]
+	params, herr := controller.decodeJSON(r)
+	if herr != nil {
+		return nil, herr
 	}
 
-	entities, err := controller.eavService.GetEntities(entityTypeName, qp)
+	entities, err := controller.eavService.GetEntities(entityTypeName, params)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityTypeNotFound
@@ -207,7 +208,11 @@ func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Reques
 func (controller *eavControllerImpl) decodeJSON(r *http.Request) (map[string]any, httperrors.HTTPError) {
 	var attrs map[string]any
 	err := json.NewDecoder(r.Body).Decode(&attrs)
-	if err != nil {
+	switch {
+	case err == io.EOF:
+		// empty body
+		return map[string]any{}, nil
+	case err != nil:
 		return nil, httperrors.NewBadRequestError("json decoding failed", "please use a correct json payload")
 	}
 
