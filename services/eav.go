@@ -53,7 +53,10 @@ func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id uuid.UUID)
 
 // Get entities of type with name "entityTypeName" that match all "conditions"
 //
-// "conditions" are in {"attributeName": expectedValue} format
+// "conditions" is in {"attributeName": expectedValue} format
+// in case of join "conditions" can have the format:
+//
+//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions map[string]any) ([]*models.Entity, error) {
 	return ExecWithTransaction(
 		eavService.db,
@@ -67,7 +70,7 @@ func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions 
 
 			// only entities that match the conditions
 			for attributeName, expectedValue := range conditions {
-				err = eavService.addValueCheckToQuery(query, attributeName, expectedValue, "")
+				err = eavService.entityRepository.AddValueCheckToQuery(query, attributeName, expectedValue)
 				if err != nil {
 					return nil, err
 				}
@@ -87,88 +90,6 @@ func (eavService *eavServiceImpl) GetEntities(entityTypeName string, conditions 
 			return entities, err
 		},
 	)
-}
-
-// Adds to the "query" the verification that the value for "attribute" is "expectedValue"
-func (eavService *eavServiceImpl) addValueCheckToQuery(query *gorm.DB, attributeName string, expectedValue any, entitiesTableSuffix string) error {
-	attributesSuffix := entitiesTableSuffix + "_" + attributeName
-	stringQuery := fmt.Sprintf(
-		`JOIN attributes attributes%[1]s ON
-			attributes%[1]s.entity_type_id = entities%[2]s.entity_type_id
-			AND attributes%[1]s.name = ?
-		JOIN values values%[1]s ON
-			values%[1]s.attribute_id = attributes%[1]s.id
-			AND values%[1]s.entity_id = entities%[2]s.id
-		`,
-		attributesSuffix,
-		entitiesTableSuffix,
-	)
-	switch expectedValueTyped := expectedValue.(type) {
-	case float64:
-		stringQuery += fmt.Sprintf(
-			"AND ((%s) OR (%s))",
-			getQueryCheckValueOfType(attributesSuffix, models.IntValueType),
-			getQueryCheckValueOfType(attributesSuffix, models.FloatValueType),
-		)
-	case bool:
-		stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.BooleanValueType)
-	case string:
-		_, err := uuid.Parse(expectedValueTyped)
-		if err == nil {
-			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.RelationValueType)
-		} else {
-			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.StringValueType)
-		}
-	case nil:
-		stringQuery += fmt.Sprintf(
-			"AND values%s.is_null = true",
-			attributesSuffix,
-		)
-	case map[string]any:
-		return eavService.addJoinToQuery(
-			query, attributeName, expectedValueTyped,
-			attributesSuffix, stringQuery,
-		)
-	default:
-		return fmt.Errorf("unsupported type")
-	}
-
-	query.Joins(stringQuery, attributeName, expectedValue, expectedValue)
-
-	return nil
-}
-
-func getQueryCheckValueOfType(attributesSuffix string, valueType models.ValueTypeT) string {
-	return fmt.Sprintf(
-		"attributes%[1]s.value_type = '%[2]s' AND values%[1]s.%[2]s_val = ?",
-		attributesSuffix, string(valueType),
-	)
-}
-
-func (eavService *eavServiceImpl) addJoinToQuery(
-	query *gorm.DB, attributeName string, expectedValues map[string]any,
-	attributesSuffix, stringQuery string,
-) error {
-	stringQuery += fmt.Sprintf(`
-				AND attributes%[1]s.value_type = 'relation'
-			JOIN entities entities%[1]s ON
-				entities%[1]s.id = values%[1]s.relation_val
-				AND entities%[1]s.deleted_at IS NULL
-			`,
-		attributesSuffix,
-	)
-
-	query.Joins(stringQuery, attributeName)
-
-	var err error
-	for joinEntityAttribute, joinEntityValue := range expectedValues {
-		err = eavService.addValueCheckToQuery(query, joinEntityAttribute, joinEntityValue, attributesSuffix)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 // Creates a Entity of type "entityType" and its Values from the information provided in "attributeValues"
