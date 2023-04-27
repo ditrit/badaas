@@ -30,8 +30,6 @@ func NewJSONController(logger *zap.Logger) JSONController {
 // Marshall the response from the JSONHandler and handle HTTPError if needed
 func (controller *jsonControllerImpl) Wrap(handler JSONHandler) func(response http.ResponseWriter, request *http.Request) {
 	return func(response http.ResponseWriter, request *http.Request) {
-		defer request.Body.Close()
-
 		object, herr := handler(response, request)
 		if herr != nil {
 			herr.Write(response, controller.logger)
