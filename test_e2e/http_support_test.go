@@ -6,11 +6,11 @@ import (
 	"io"
 	"log"
 	"net/http"
-	"reflect"
 	"strconv"
 	"strings"
 
 	"github.com/cucumber/godog"
+	"github.com/cucumber/messages-go/v16"
 	"github.com/elliotchance/pie/v2"
 )
 
@@ -154,6 +154,13 @@ func buildMapFromTable(table *godog.Table) (map[string]any, error) {
 					return nil, fmt.Errorf("can't parse %q as float for key %q", valueAsString, key)
 				}
 				data[key] = floatingNumber
+			case jsonValueType:
+				jsonMap := map[string]string{}
+				err := json.Unmarshal([]byte(valueAsString), &jsonMap)
+				if err != nil {
+					return nil, fmt.Errorf("can't parse %q as json for key %q", valueAsString, key)
+				}
+				data[key] = jsonMap
 			case nullValueType:
 				data[key] = nil
 			default:
@@ -186,6 +193,7 @@ const (
 	integerValueType = "integer"
 	floatValueType   = "float"
 	nullValueType    = "null"
+	jsonValueType    = "json"
 )
 
 // check if the method is allowed and sanitize the string
@@ -229,6 +237,28 @@ func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) er
 	return nil
 }
 
+func (t *TestContext) objectExistsWithRelation(entityType string, relationAttribute string, jsonTable *godog.Table) error {
+	id, present := t.json.(map[string]any)["id"]
+	if !present {
+		panic("object id not available")
+	}
+
+	jsonTable.Rows = append(jsonTable.Rows, &messages.PickleTableRow{
+		Cells: []*messages.PickleTableCell{
+			{
+				Value: relationAttribute,
+			},
+			{
+				Value: id.(string),
+			},
+			{
+				Value: stringValueType,
+			},
+		},
+	})
+	return t.objectExists(entityType, jsonTable)
+}
+
 func (t *TestContext) queryWithObjectID(entityType string) error {
 	id, present := t.json.(map[string]any)["id"]
 	if !present {
@@ -250,7 +280,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 	return nil
 }
 
-func (t *TestContext) queryObjectsWithParameters(entityType string, jsonTable *godog.Table) error {
+func (t *TestContext) queryObjectsWithConditions(entityType string, jsonTable *godog.Table) error {
 	err := t.requestWithJson(
 		"/objects/"+entityType,
 		http.MethodGet,
@@ -293,21 +323,33 @@ func (t *TestContext) thereAreObjects(expectedAmount int, entityType string) err
 	return nil
 }
 
-func (t *TestContext) thereIsObjectWithProperties(entityType string, jsonTable *godog.Table) error {
-	listJson := t.json.([]any)
-	properties, err := buildMapFromTable(jsonTable)
+func (t *TestContext) thereIsObjectWithAttributes(expectedEntityType string, jsonTable *godog.Table) error {
+	objectList := t.json.([]any)
+	expectedValues, err := buildMapFromTable(jsonTable)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	for _, object := range listJson {
+	for _, object := range objectList {
 		objectMap := object.(map[string]any)
-		if objectMap["type"] == entityType && reflect.DeepEqual(objectMap["attrs"], properties) {
-			return nil
+		objectAttrs := objectMap["attrs"].(map[string]any)
+
+		if objectMap["type"] == expectedEntityType {
+			allEqual := true
+			for attributeName, expectedValue := range expectedValues {
+				actualValue, isPresent := objectAttrs[attributeName]
+				if !isPresent || actualValue != expectedValue {
+					allEqual = false
+				}
+			}
+
+			if allEqual {
+				return nil
+			}
 		}
 	}
 
-	return fmt.Errorf("object with properties %v not found in %v", properties, listJson)
+	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectList)
 }
 
 func (t *TestContext) deleteWithObjectID(entityType string) error {
@@ -334,7 +376,7 @@ func (t *TestContext) deleteWithObjectID(entityType string) error {
 	return nil
 }
 
-func (t *TestContext) modifyWithProperties(entityType string, jsonTable *godog.Table) error {
+func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.Table) error {
 	id, present := t.json.(map[string]any)["id"]
 	if !present {
 		panic("object id not available")

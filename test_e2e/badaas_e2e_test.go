@@ -93,6 +93,24 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 			log.Fatalln(err)
 		}
 
+		userType := &models.EntityType{
+			Name: "user",
+		}
+		nameAttr := &models.Attribute{
+			EntityTypeID: userType.ID,
+			Name:         "name",
+			ValueType:    models.StringValueType,
+			Required:     false,
+		}
+		userType.Attributes = append(userType.Attributes,
+			nameAttr,
+		)
+
+		err = db.Create(&userType).Error
+		if err != nil {
+			log.Fatalln(err)
+		}
+
 		profileType := &models.EntityType{
 			Name: "profile",
 		}
@@ -108,9 +126,11 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 			ValueType:    models.IntValueType,
 			Required:     false,
 		}
+		userAttr := models.NewRelationAttribute(profileType, "userID", false, false, userType)
 		profileType.Attributes = append(profileType.Attributes,
 			displayNameAttr,
 			yearOfBirthAttr,
+			userAttr,
 		)
 
 		err = db.Create(&profileType).Error
@@ -125,12 +145,13 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJson)
-	ctx.Step(`^a "(.+)" object exists with properties$`, t.objectExists)
+	ctx.Step(`^a "(.+)" object exists with attributes$`, t.objectExists)
 	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
 	ctx.Step(`^I query all "(.+)" objects$`, t.queryAllObjects)
 	ctx.Step(`^there are "(\d+)" "(.+)" objects$`, t.thereAreObjects)
-	ctx.Step(`^there is a "(.+)" object with properties$`, t.thereIsObjectWithProperties)
-	ctx.Step(`^I query all "(.+)" objects with parameters$`, t.queryObjectsWithParameters)
+	ctx.Step(`^there is a "(.+)" object with attributes$`, t.thereIsObjectWithAttributes)
+	ctx.Step(`^I query all "(.+)" objects with conditions$`, t.queryObjectsWithConditions)
 	ctx.Step(`^I delete a "(.+)" with the object id$`, t.deleteWithObjectID)
-	ctx.Step(`^I modify a "(.+)" with properties$`, t.modifyWithProperties)
+	ctx.Step(`^I modify a "(.+)" with attributes$`, t.modifyWithAttributes)
+	ctx.Step(`^a "(.+)" object exists with property "(.+)" related to last object and properties$`, t.objectExistsWithRelation)
 }
