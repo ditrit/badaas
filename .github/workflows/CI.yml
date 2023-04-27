@@ -5,6 +5,8 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+    branches:
+      - master
 jobs:
   branch-naming-rules:
     name: Check branch name
@@ -17,25 +19,6 @@ jobs:
           ignore: main,dev
           min_length: 5
           max_length: 50
-
-  unit-tests:
-    name: Unit tests
-    needs: [branch-naming-rules]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '^1.18'
-          cache: true
-      - name: Run test
-        run:  make test_unit_and_cover
-      - uses: actions/upload-artifact@v3
-        with:
-          name: coverage_unit
-          path: coverage_unit.out
 
   check-style:
     name: Code style
@@ -56,6 +39,38 @@ jobs:
           skip-cache: true
           skip-pkg-cache: true
           skip-build-cache: true
+
+  go-sec:
+    runs-on: ubuntu-latest
+    env:
+      GO111MODULE: on
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Run Gosec Security Scanner
+        uses: securego/gosec@master
+        with:
+          args: ./...
+
+  unit-tests:
+    name: Unit tests
+    needs: [branch-naming-rules]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.18'
+          cache: true
+      - name: Run test
+        run:  make test_unit_and_cover
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage_unit
+          path: coverage_unit.out
 
   integration-tests:
     name: Integration tests

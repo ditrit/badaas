@@ -55,18 +55,35 @@ var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
-	InitCommands(rootCfg)
+	err := InitCommands(rootCfg)
+	if err != nil {
+		panic(err)
+	}
 
 	rootCfg.Execute()
 }
 
-func InitCommands(config *verdeter.VerdeterCommand) {
-	config.GKey("config_path", verdeter.IsStr, "", "Path to the config file/directory")
+func InitCommands(config *verdeter.VerdeterCommand) error {
+	if err := config.GKey("config_path", verdeter.IsStr, "", "Path to the config file/directory"); err != nil {
+		return err
+	}
 	config.SetDefault("config_path", ".")
 
-	initServerCommands(config)
-	initLoggerCommands(config)
-	initDatabaseCommands(config)
-	initInitialisationCommands(config)
-	initSessionCommands(config)
+	if err := initServerCommands(config); err != nil {
+		return err
+	}
+	if err := initLoggerCommands(config); err != nil {
+		return err
+	}
+	if err := initDatabaseCommands(config); err != nil {
+		return err
+	}
+	if err := initInitialisationCommands(config); err != nil {
+		return err
+	}
+	if err := initSessionCommands(config); err != nil {
+		return err
+	}
+
+	return nil
 }
