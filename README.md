@@ -5,11 +5,11 @@ Badaas enables the effortless construction of ***distributed, resilient, highly 
 Badaas provides several key features:
 
 - **Authentication**: Badaas can authenticate users using its internal authentication scheme or externally by using protocols such as OIDC, SAML, Oauth2...
-- **Authorization**: On a resource access, Badaas will check if the user is authorized using a RBAC model.
+- **Authorization**: On resource access, Badaas will check if the user is authorized using a RBAC model.
 - **Distribution**: Badaas is built to run in clusters by default. Communications between nodes are TLS encrypted using [shoset](https://github.com/ditrit/shoset).
-- **Persistence**: Applicative objects are persisted as well as user files. Those resources are shared accross the clusters to increase resiliency.
+- **Persistence**: Applicative objects are persisted as well as user files. Those resources are shared across the clusters to increase resiliency.
 - **Querying Resources**: Resources are accessible via a REST API.
-- **Posix complient**: Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
+- **Posix compliant**: Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
 - **Advanced logs management**: Badaas provides an interface to interact with the logs produced by the clusters. Logs are formatted in json by default.
 
 To quickly get badaas up and running, please head to the [miniblog tutorial](<!-- TODO: link the miniblog tutorial here -->)
