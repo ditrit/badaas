@@ -1,9 +1,8 @@
 package cmd
 
 import (
-	"log"
+	"embed"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/ditrit/verdeter"
@@ -11,6 +10,10 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+//go:embed docker/*
+//go:embed scripts/*
+var embedFS embed.FS
 
 // genCmd represents the run command
 var genCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
@@ -37,47 +40,60 @@ func init() {
 }
 
 func generateDockerFiles(cmd *cobra.Command, args []string) {
-	executablePath, err := os.Executable()
-	if err != nil {
-		log.Fatal(err)
-	}
-	executableDir := filepath.Dir(executablePath)
+	sourceDockerDir := "docker"
+	destBadaasDir := "badaas"
+	destDockerDir := filepath.Join(destBadaasDir, "docker")
+
+	copyDir(
+		filepath.Join(sourceDockerDir, "api"),
+		filepath.Join(destDockerDir, "api"),
+	)
 
 	dbProvider := viper.GetString(DBProviderKey)
-	copyFolder(
-		filepath.Join(executableDir, "docker", "api"),
-		filepath.Join("badaas", "docker", "api"),
-	)
-	copyFolder(
-		filepath.Join(executableDir, "docker", dbProvider),
-		filepath.Join("badaas", "docker", "db"),
+	copyDir(
+		filepath.Join(sourceDockerDir, dbProvider),
+		filepath.Join(destDockerDir, "db"),
 	)
 
 	copyFile(
-		filepath.Join(executableDir, "scripts", "run.sh"),
-		"badaas",
+		filepath.Join("scripts", "run.sh"),
+		filepath.Join(destBadaasDir, "run.sh"),
 	)
+
 	copyFile(
-		filepath.Join(executableDir, "docker", ".dockerignore"),
-		".",
+		filepath.Join(sourceDockerDir, ".dockerignore"),
+		".dockerignore",
 	)
 }
 
 func copyFile(sourcePath, destPath string) {
-	err := exec.Command("cp", "-f", sourcePath, destPath).Run()
+	fileContent, err := embedFS.ReadFile(sourcePath)
 	if err != nil {
+		panic(err)
+	}
+
+	if err := os.WriteFile(destPath, fileContent, 0o0666); err != nil {
 		panic(err)
 	}
 }
 
-func copyFolder(sourcePath, destPath string) {
-	err := exec.Command("mkdir", "-p", destPath).Run()
+func copyDir(sourceDir, destDir string) {
+	files, err := embedFS.ReadDir(sourceDir)
 	if err != nil {
 		panic(err)
 	}
 
-	err = exec.Command("cp", "-rf", sourcePath+"/.", destPath).Run()
-	if err != nil {
+	_, err = os.Stat(destDir)
+	if os.IsNotExist(err) {
+		os.MkdirAll(destDir, os.ModePerm)
+	} else if err != nil {
 		panic(err)
+	}
+
+	for _, file := range files {
+		copyFile(
+			filepath.Join(sourceDir, file.Name()),
+			filepath.Join(destDir, file.Name()),
+		)
 	}
 }
