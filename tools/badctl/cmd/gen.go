@@ -10,9 +10,11 @@ import (
 	"github.com/ditrit/verdeter/validators"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
 )
 
 //go:embed docker/*
+//go:embed config/*
 var embedFS embed.FS
 
 var genCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
@@ -22,11 +24,18 @@ var genCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Run:   generateDockerFiles,
 })
 
+const destBadaasDir = "badaas"
+
 const (
 	DBProviderKey = "db_provider"
 	Cockroachdb   = "cockroachdb"
 	Postgres      = "postgres"
 )
+
+var DBPorts = map[string]int{
+	Cockroachdb: 26257,
+	Postgres:    5432,
+}
 
 func init() {
 	rootCmd.AddSubCommand(genCmd)
@@ -43,7 +52,6 @@ func init() {
 
 func generateDockerFiles(cmd *cobra.Command, args []string) {
 	sourceDockerDir := "docker"
-	destBadaasDir := "badaas"
 	destDockerDir := filepath.Join(destBadaasDir, "docker")
 
 	copyDir(
@@ -61,6 +69,41 @@ func generateDockerFiles(cmd *cobra.Command, args []string) {
 		filepath.Join(sourceDockerDir, ".dockerignore"),
 		".dockerignore",
 	)
+
+	copyBadaasConfig(dbProvider)
+}
+
+func copyBadaasConfig(dbProvider string) {
+	configFile, err := embedFS.ReadFile(
+		filepath.Join("config", "badaas.yml"),
+	)
+	if err != nil {
+		panic(err)
+	}
+
+	configData := map[string]any{}
+	err = yaml.Unmarshal(configFile, &configData)
+	if err != nil {
+		panic(err)
+	}
+
+	configData["database"].(map[string]any)["port"] = DBPorts[dbProvider]
+
+	configBytes, err := yaml.Marshal(&configData)
+	if err != nil {
+		panic(err)
+	}
+
+	destConfigDir := filepath.Join(destBadaasDir, "config")
+	os.MkdirAll(destConfigDir, os.ModePerm)
+
+	err = os.WriteFile(
+		filepath.Join(destConfigDir, "badaas.yml"),
+		configBytes, 0o0666,
+	)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func copyFile(sourcePath, destPath string) {

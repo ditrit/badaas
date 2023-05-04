@@ -12,6 +12,6 @@ RUN addgroup -S badaas \
     && adduser -S badaas -G badaas
 USER badaas
 COPY --from=builder /app/badaas_service .
-COPY ./badaas/docker/api/badaas.yml .
+COPY ./badaas/config/badaas.yml .
 EXPOSE 8000
 ENTRYPOINT ["./badaas_service", "--config_path", "badaas.yml"]

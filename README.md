@@ -110,7 +110,7 @@ The api will be available at <http://localhost:8000>.
 
 Badaas use [verdeter](https://github.com/ditrit/verdeter) to manage it's configuration, so Badaas is POSIX compliant by default.
 
-Badgen automatically generates a default configuration in `badaas/docker/api/badaas.yml`, but you are free to modify it if you need to.
+Badgen automatically generates a default configuration in `badaas/config/badaas.yml`, but you are free to modify it if you need to.
 
 This can be done using environment variables, configuration files or CLI flags.
 CLI flags take priority on the environment variables and the environment variables take priority on the content of the configuration file.

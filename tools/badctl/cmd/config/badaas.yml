@@ -1,7 +1,5 @@
 database:
   host: badaas-db
-  # TODO must be modified according to the db_provider
-  port: 26257
   sslmode: disable
   username: root
   password: postgres
