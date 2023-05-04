@@ -2,13 +2,21 @@
 
 `badctl` is the command line tool that makes it possible to configure and run your BadAas applications easily.
 
+- [badctl: the BadAas controller](#badctl-the-badaas-controller)
+  - [Install with go install](#install-with-go-install)
+  - [Build from sources](#build-from-sources)
+  - [Commands](#commands)
+    - [gen](#gen)
+    - [run](#run)
+  - [Contributing](#contributing)
+
 ## Install with go install
 
 For simply installing it, use:
 
 <!-- TODO remove commit when badctl has a first tagged version -->
 ```bash
-go install github.com/ditrit/badaas/tools/badctl@dbd7e55
+go install github.com/ditrit/badaas/tools/badctl@bef1116
 ```
 
 Or you can build it from sources.

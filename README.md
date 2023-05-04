@@ -87,7 +87,7 @@ For installing it, use:
 
 <!-- TODO remove commit when badctl has a first tagged version -->
 ```bash
-go install github.com/ditrit/badaas/tools/badctl@dbd7e55
+go install github.com/ditrit/badaas/tools/badctl@bef1116
 ```
 
 Then generate files to make this project work with `cockroach` as database:
