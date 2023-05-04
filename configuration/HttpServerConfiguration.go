@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/ditrit/badaas/utils"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 )
@@ -44,7 +45,7 @@ func NewHTTPServerConfiguration() HTTPServerConfiguration {
 func (httpServerConfiguration *hTTPServerConfigurationImpl) Reload() {
 	httpServerConfiguration.host = viper.GetString(ServerHostKey)
 	httpServerConfiguration.port = viper.GetInt(ServerPortKey)
-	httpServerConfiguration.timeout = intToSecond(viper.GetInt(ServerTimeoutKey))
+	httpServerConfiguration.timeout = utils.IntToSecond(viper.GetInt(ServerTimeoutKey))
 }
 
 // Return the host addr
