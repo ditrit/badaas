@@ -6,9 +6,9 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-	Use:   "badgen",
-	Short: "Code generator for Badaas",
-	Long:  `TODO`,
+	Use:   "badctl",
+	Short: "the BadAas controller",
+	Long:  `badctl is the command line tool that makes it possible to configure and run your BadAas applications easily.`,
 })
 
 // Execute adds all child commands to the root command and sets flags appropriately.

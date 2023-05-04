@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"embed"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -12,14 +13,12 @@ import (
 )
 
 //go:embed docker/*
-//go:embed scripts/*
 var embedFS embed.FS
 
-// genCmd represents the run command
 var genCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Use:   "gen",
-	Short: "TODO",
-	Long:  `TODO`,
+	Short: "Generate files and configurations necessary to use BadAss",
+	Long:  `gen is the command you can use to generate the files and configurations necessary for your project to use BadAss in a simple way.`,
 	Run:   generateDockerFiles,
 })
 
@@ -32,7 +31,10 @@ const (
 func init() {
 	rootCmd.AddSubCommand(genCmd)
 
-	genCmd.LKey(DBProviderKey, verdeter.IsStr, "p", "Database provider")
+	genCmd.LKey(
+		DBProviderKey, verdeter.IsStr, "p",
+		fmt.Sprintf("Database provider (%s|%s)", Cockroachdb, Postgres),
+	)
 	genCmd.SetRequired(DBProviderKey)
 
 	providerValidator := validators.AuthorizedValues(Cockroachdb, Postgres)
@@ -53,11 +55,6 @@ func generateDockerFiles(cmd *cobra.Command, args []string) {
 	copyDir(
 		filepath.Join(sourceDockerDir, dbProvider),
 		filepath.Join(destDockerDir, "db"),
-	)
-
-	copyFile(
-		filepath.Join("scripts", "run.sh"),
-		filepath.Join(destBadaasDir, "run.sh"),
 	)
 
 	copyFile(

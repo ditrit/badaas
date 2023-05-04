@@ -12,70 +12,107 @@ Badaas provides several key features:
 - **Posix compliant**: Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
 - **Advanced logs management**: Badaas provides an interface to interact with the logs produced by the clusters. Logs are formatted in json by default.
 
-To quickly get badaas up and running, please head to the [miniblog tutorial](<!-- TODO: link the miniblog tutorial here -->)
-
 - [BADAAS: Backend And Distribution As A Service](#badaas-backend-and-distribution-as-a-service)
   - [Quickstart](#quickstart)
-  - [Docker install](#docker-install)
-  - [Examples](#examples)
-  - [Build from sources](#build-from-sources)
-    - [Prerequisites](#prerequisites)
-    - [Configuration](#configuration)
+    - [Example](#example)
+    - [Step-by-step instructions](#step-by-step-instructions)
+  - [Configuration](#configuration)
   - [Contributing](#contributing)
   - [License](#license)
 
 ## Quickstart
 
-You can either use the [Docker Install](#docker-install) (recommended) or [Build from sources](#build-from-sources).
+### Example
 
-## Docker install
+To quickly get badaas up and running, you can head to the [miniblog example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project
 
-You can build the image, run a CockroachDB and the api using `make badaas`. The api will be available at <http://localhost:8000>.
+### Step-by-step instructions
 
-## Examples
+Once you have started your project with `go init`, you must add the dependency to badaas. Also, to use badaas, your project must also use [`fx`](https://github.com/uber-go/fx) and [`verdeter`](https://github.com/ditrit/verdeter):
 
-Some example apps are available, visit [Examples](./examples/README.md) for details.
-
-## Build from sources
-
-### Prerequisites
-
-Get the sources of the project, either by visiting the [releases](https://github.com/ditrit/badaas/releases) page and downloading an archive or clone the main branch (please be aware that is it not a stable version).
-
-To build the project:
-
-- [Install go](https://go.dev/dl/#go1.18.4) v1.18
-- Install project dependencies
-
+<!-- TODO remove commit when badaas as a library has a first tagged version -->
 ```bash
-go get
+go get -u github.com/ditrit/badaas@dbd7e55
+go get -u github.com/uber-go/fx
+go get -u github.com/ditrit/verdeter
 ```
 
-- Run build command
+Then, your application must be defined as a `verdeter command` and you have to call the configuration of this command:
 
-```bash
-go build .
+```go
+var command = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
+  Use:   "badaas",
+  Short: "Backend and Distribution as a Service",
+  Run:   runCommandFunc,
+})
+
+func main() {
+  badaas.ConfigCommandParameters(command)
+  command.Execute()
+}
 ```
 
-Well done, you have a binary `badaas` at the root of the project.
+Then, in the Run function of your command, you must use `fx` and start the badaas functions:
 
-Then you can launch Badaas directly with:
+```go
+func runCommandFunc(cmd *cobra.Command, args []string) {
+  fx.New(
+    badaas.BadaasModule,
+
+    // Here you can add the functionalities provided by badaas
+    // Here you can start the rest of the modules that your project uses.
+  ).Run()
+}
+```
+
+You are free to choose which badaas functionalities you wish to use. To add them, you must initialise the corresponding module:
+
+```go
+func runCommandFunc(cmd *cobra.Command, args []string) {
+  fx.New(
+    badaas.BadaasModule,
+
+    // add routes provided by badaas
+    fx.Invoke(router.AddInfoRoutes),
+    fx.Invoke(router.AddLoginRoutes),
+    fx.Invoke(router.AddCRUDRoutes),
+    // Here you can start the rest of the modules that your project uses.
+  ).Run()
+}
+```
+
+Once you have defined the functionalities of your project (an http api for example), you can generate everything you need to run your application using `badctl`.
+
+For installing it, use:
+
+<!-- TODO remove commit when badctl has a first tagged version -->
+```bash
+go install github.com/ditrit/badaas/tools/badctl@dbd7e55
+```
+
+Then generate files to make this project work with `cockroach` as database:
 
 ```bash
-export BADAAS_DATABASE_PORT=<complete>
-export BADAAS_DATABASE_HOST=<complete>
-export BADAAS_DATABASE_DBNAME=<complete>
-export BADAAS_DATABASE_SSLMODE=<complete>
-export BADAAS_DATABASE_USERNAME=<complete>
-export BADAAS_DATABASE_PASSWORD=<complete>
-./badaas 
+badctl gen --db_provider cockroachdb
 ```
+
+For more information about `badctl` refer to [BadGen Docs](https://github.com/ditrit/badaas/tools/badctl).
+
+Finally, you can run the api with:
+
+```bash
+badctl run
+```
+
+The api will be available at <http://localhost:8000>.
 
 ### Configuration
 
-Badaas use [verdeter](https://github.com/ditrit/verdeter) to manage it's configuration. So Badaas is POSIX compliant by default.
+Badaas use [verdeter](https://github.com/ditrit/verdeter) to manage it's configuration, so Badaas is POSIX compliant by default.
 
-Badaas can be configured using environment variables, configuration files or CLI flags.
+Badgen automatically generates a default configuration in `badaas/docker/api/badaas.yml`, but you are free to modify it if you need to.
+
+This can be done using environment variables, configuration files or CLI flags.
 CLI flags take priority on the environment variables and the environment variables take priority on the content of the configuration file.
 
 As an example we will define the `database.port` configuration key using the 3 methods:
@@ -87,7 +124,7 @@ As an example we will define the `database.port` configuration key using the 3 m
     ```yml
     # /etc/badaas/badaas.yml
     database:
-        port: 1222
+      port: 1222
     ```
 
 The config file can be placed at `/etc/badaas/badaas.yml` or `$HOME/.config/badaas/badaas.yml` or in the same folder as the badaas binary `./badaas.yml`.
