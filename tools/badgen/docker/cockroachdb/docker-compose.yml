@@ -9,7 +9,7 @@ services:
       - "8080:8080" # Web based dashboard
     command: start-single-node --insecure
     volumes:
-      - "${PWD}/badaas/.cockroach-data:/cockroach/cockroach-data"
+      - "${PWD}/badaas/docker/db/.cockroach-data:/cockroach/cockroach-data"
     environment:
       - COCKROACH_USER=root
       - COCKROACH_DATABASE=badaas_db

@@ -2,10 +2,10 @@ version: '3.5'
 
 services:
   api:
+    image: badaas-api:latest
     build:
-      # TODO
-      context: ../../../..
-      dockerfile: ./example/badaas/docker/api/Dockerfile
+      context: ../../..
+      dockerfile: ./badaas/docker/api/Dockerfile
     container_name: "badaas-api"
     ports:
       - "8000:8000"
