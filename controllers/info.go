@@ -4,13 +4,13 @@ import (
 	"net/http"
 
 	"github.com/ditrit/badaas/httperrors"
-	"github.com/ditrit/badaas/persistence/models/dto"
-	"github.com/ditrit/badaas/resources"
 )
+
+const Version = "UNRELEASED"
 
 // The information controller
 type InformationController interface {
-	// Return the badaas server informations
+	// Return the badaas server information
 	Info(response http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 }
 
@@ -25,12 +25,17 @@ func NewInfoController() InformationController {
 // The concrete implementation of the InformationController
 type infoControllerImpl struct{}
 
-// Return the badaas server informations
+// Return the badaas server information
 func (*infoControllerImpl) Info(response http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 
-	infos := &dto.DTOBadaasServerInfo{
+	infos := &BadaasServerInfo{
 		Status:  "OK",
-		Version: resources.Version,
+		Version: Version,
 	}
 	return infos, nil
+}
+
+type BadaasServerInfo struct {
+	Status  string `json:"status"`
+	Version string `json:"version"`
 }

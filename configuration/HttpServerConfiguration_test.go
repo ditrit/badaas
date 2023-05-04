@@ -33,6 +33,12 @@ func TestHTTPServerConfigurationGetHost(t *testing.T) {
 	assert.Equal(t, "0.0.0.0", HTTPServerConfiguration.GetHost())
 }
 
+func TestHTTPServerConfigurationGetAddr(t *testing.T) {
+	setupViperEnvironment(HTTPServerConfigurationString)
+	HTTPServerConfiguration := configuration.NewHTTPServerConfiguration()
+	assert.Equal(t, "0.0.0.0:8000", HTTPServerConfiguration.GetAddr())
+}
+
 func TestHTTPServerConfigurationGetMaxTimeout(t *testing.T) {
 	setupViperEnvironment(HTTPServerConfigurationString)
 	HTTPServerConfiguration := configuration.NewHTTPServerConfiguration()

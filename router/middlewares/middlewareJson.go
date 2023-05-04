@@ -8,6 +8,9 @@ import (
 	"go.uber.org/zap"
 )
 
+// A JSONHandler is a function that returns a Marshable object and/or an [github.com/ditrit/badaas/httperrors.HTTPError]
+type JSONHandler func(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+
 // transform a JSON handler into a standard [http.HandlerFunc]
 // handle [github.com/ditrit/badaas/httperrors.HTTPError] and JSON marshaling
 type JSONController interface {
@@ -27,7 +30,8 @@ func NewJSONController(logger *zap.Logger) JSONController {
 	return &jsonControllerImpl{logger}
 }
 
-// Marshall the response from the JSONHandler and handle HTTPError if needed
+// Transforms a JSONHandler into a standard [http.HandlerFunc]
+// It marshalls the response from the JSONHandler and handles HTTPError if needed
 func (controller *jsonControllerImpl) Wrap(handler JSONHandler) func(response http.ResponseWriter, request *http.Request) {
 	return func(response http.ResponseWriter, request *http.Request) {
 		object, herr := handler(response, request)

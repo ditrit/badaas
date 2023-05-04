@@ -23,14 +23,5 @@ test_e2e:
 test_generate_mocks:
 	mockery --all --keeptree
 
-example_birds:
-	EXAMPLE=birds docker compose -f "docker/api/docker-compose.yml" up
-
-example_posts:
-	EXAMPLE=posts docker compose -f "docker/api/docker-compose.yml" up
-
-badaas:
-	docker compose -f "docker/api/docker-compose.yml" up
-
-.PHONY: test_unit test_integration test_e2e example_birds example_posts badaas
+.PHONY: test_unit test_integration test_e2e
 

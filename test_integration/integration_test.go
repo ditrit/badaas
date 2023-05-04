@@ -6,7 +6,7 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ditrit/badaas/commands"
+	"github.com/ditrit/badaas"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/logger"
@@ -24,7 +24,7 @@ import (
 
 var tGlobal *testing.T
 
-var testsCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
+var testsCommand = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Run: injectDependencies,
 })
 
@@ -34,11 +34,11 @@ func TestAll(t *testing.T) {
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(b)
 	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
-	commands.InitCommands(testsCfg)
+	badaas.ConfigCommandParameters(testsCommand)
 
 	tGlobal = t
 
-	testsCfg.Execute()
+	testsCommand.Execute()
 }
 
 func injectDependencies(cmd *cobra.Command, args []string) {

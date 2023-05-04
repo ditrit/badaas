@@ -1,6 +1,7 @@
 package configuration
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/spf13/viper"
@@ -19,6 +20,7 @@ const (
 // Hold the configuration values for the http server
 type HTTPServerConfiguration interface {
 	ConfigurationHolder
+	GetAddr() string
 	GetHost() string
 	GetPort() int
 	GetMaxTimeout() time.Duration
@@ -55,7 +57,7 @@ func (httpServerConfiguration *hTTPServerConfigurationImpl) GetPort() int {
 	return httpServerConfiguration.port
 }
 
-// Return the maximum timout for read and write
+// Return the maximum timeout for read and write
 func (httpServerConfiguration *hTTPServerConfigurationImpl) GetMaxTimeout() time.Duration {
 	return httpServerConfiguration.timeout
 }
@@ -66,5 +68,13 @@ func (httpServerConfiguration *hTTPServerConfigurationImpl) Log(logger *zap.Logg
 		zap.String("host", httpServerConfiguration.host),
 		zap.Int("port", httpServerConfiguration.port),
 		zap.Duration("timeout", httpServerConfiguration.timeout),
+	)
+}
+
+// Create the addr string in format: "<host>:<port>"
+func (httpServerConfiguration *hTTPServerConfigurationImpl) GetAddr() string {
+	return fmt.Sprintf("%s:%d",
+		httpServerConfiguration.GetHost(),
+		httpServerConfiguration.GetPort(),
 	)
 }

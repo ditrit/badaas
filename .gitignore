@@ -15,7 +15,7 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Go workspace file
 go.work
@@ -23,13 +23,8 @@ go.work
 # cockroach files
 node*
 
-#Vscode conf
+# vscode conf
 .vscode
 
 # binary output
 badaas
-
-# temporary directories
-_temp
-
-vendor/

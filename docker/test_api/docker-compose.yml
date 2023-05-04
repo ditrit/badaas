@@ -10,11 +10,9 @@ services:
     image: badaas-test-api
     volumes:
       - ../..:/badaas:ro
-    entrypoint: go run /badaas/badaas.go --config_path /badaas/docker/test_api/badaas.yml
+    entrypoint: go run /badaas/test_e2e/test_api.go --config_path /badaas/docker/test_api/badaas.yml
     ports:
       - "8000:8000"
     restart: always
-    environment:
-      BADAAS_SERVER_EXAMPLE: ${EXAMPLE}
     depends_on:
       - db
