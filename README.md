@@ -28,7 +28,7 @@ To quickly get badaas up and running, you can head to the [miniblog example](htt
 
 ### Step-by-step instructions
 
-Once you have started your project with `go init`, you must add the dependency to badaas. Also, to use badaas, your project must also use [`fx`](https://github.com/uber-go/fx) and [`verdeter`](https://github.com/ditrit/verdeter):
+Once you have started your project with `go init`, you must add the dependency to badaas. To use badaas, your project must also use [`fx`](https://github.com/uber-go/fx) and [`verdeter`](https://github.com/ditrit/verdeter):
 
 <!-- TODO remove commit when badaas as a library has a first tagged version -->
 ```bash
@@ -96,7 +96,7 @@ Then generate files to make this project work with `cockroach` as database:
 badctl gen --db_provider cockroachdb
 ```
 
-For more information about `badctl` refer to [BadGen Docs](https://github.com/ditrit/badaas/tools/badctl).
+For more information about `badctl` refer to [badctl docs](https://github.com/ditrit/badaas/tools/badctl/README.md).
 
 Finally, you can run the api with:
 
