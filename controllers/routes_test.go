@@ -1,4 +1,4 @@
-package router
+package controllers
 
 import (
 	"errors"
@@ -6,11 +6,12 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/ditrit/badaas/controllers"
+	"github.com/Masterminds/semver/v3"
 	mocks "github.com/ditrit/badaas/mocks/configuration"
 	mockControllers "github.com/ditrit/badaas/mocks/controllers"
 	mockMiddlewares "github.com/ditrit/badaas/mocks/router/middlewares"
 	mockUserServices "github.com/ditrit/badaas/mocks/services/userservice"
+	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -74,11 +75,13 @@ func TestCreateSuperUser_UserServiceError(t *testing.T) {
 	require.Equal(t, 1, logs.Len())
 }
 
-func TestAddInfoRoutes(t *testing.T) {
-	jsonController := middlewares.NewJSONController(nil)
-	informationController := controllers.NewInfoController()
+var logger, _ = zap.NewDevelopment()
 
-	router := NewRouter()
+func TestAddInfoRoutes(t *testing.T) {
+	jsonController := middlewares.NewJSONController(logger)
+	informationController := NewInfoController(semver.MustParse("1.0.1"))
+
+	router := router.NewRouter()
 	AddInfoRoutes(
 		router,
 		jsonController,
@@ -94,11 +97,11 @@ func TestAddInfoRoutes(t *testing.T) {
 
 	router.ServeHTTP(response, request)
 	assert.Equal(t, response.Code, http.StatusOK)
-	assert.Equal(t, response.Body.String(), "{\"status\":\"OK\",\"version\":\"UNRELEASED\"}")
+	assert.Equal(t, response.Body.String(), "{\"status\":\"OK\",\"version\":\"1.0.1\"}")
 }
 
 func TestAddLoginRoutes(t *testing.T) {
-	jsonController := middlewares.NewJSONController(nil)
+	jsonController := middlewares.NewJSONController(logger)
 
 	initializationConfig := mocks.NewInitializationConfiguration(t)
 	initializationConfig.
@@ -116,8 +119,8 @@ func TestAddLoginRoutes(t *testing.T) {
 
 	authenticationMiddleware := mockMiddlewares.NewAuthenticationMiddleware(t)
 
-	router := NewRouter()
-	AddLoginRoutes(
+	router := router.NewRouter()
+	AddAuthRoutes(
 		nil,
 		router,
 		authenticationMiddleware,
@@ -140,15 +143,15 @@ func TestAddLoginRoutes(t *testing.T) {
 }
 
 func TestAddCRUDRoutes(t *testing.T) {
-	jsonController := middlewares.NewJSONController(nil)
+	jsonController := middlewares.NewJSONController(logger)
 
 	eavController := mockControllers.NewEAVController(t)
 	eavController.
 		On("GetObjects", mock.Anything, mock.Anything).
 		Return(map[string]string{"GetObjects": "called"}, nil)
 
-	router := NewRouter()
-	AddCRUDRoutes(
+	router := router.NewRouter()
+	AddEAVCRUDRoutes(
 		router,
 		eavController,
 		jsonController,

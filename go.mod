@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/Masterminds/semver/v3 v3.1.1
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/ditrit/verdeter v0.4.0
 	github.com/elliotchance/pie/v2 v2.5.2

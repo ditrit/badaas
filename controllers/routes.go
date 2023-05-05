@@ -1,10 +1,9 @@
-package router
+package controllers
 
 import (
 	"strings"
 
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/gorilla/mux"
@@ -14,7 +13,7 @@ import (
 func AddInfoRoutes(
 	router *mux.Router,
 	jsonController middlewares.JSONController,
-	infoController controllers.InformationController,
+	infoController InformationController,
 ) {
 	router.HandleFunc(
 		"/info",
@@ -26,11 +25,11 @@ func AddInfoRoutes(
 // /login
 // /logout
 // And creates a very first user
-func AddLoginRoutes(
+func AddAuthRoutes(
 	logger *zap.Logger,
 	router *mux.Router,
 	authenticationMiddleware middlewares.AuthenticationMiddleware,
-	basicAuthenticationController controllers.BasicAuthenticationController,
+	basicAuthenticationController BasicAuthenticationController,
 	jsonController middlewares.JSONController,
 	config configuration.InitializationConfiguration,
 	userService userservice.UserService,
@@ -69,9 +68,9 @@ func createSuperUser(
 	return nil
 }
 
-func AddCRUDRoutes(
+func AddEAVCRUDRoutes(
 	router *mux.Router,
-	eavController controllers.EAVController,
+	eavController EAVController,
 	jsonController middlewares.JSONController,
 ) {
 	// Objects CRUD

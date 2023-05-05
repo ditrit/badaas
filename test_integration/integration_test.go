@@ -7,12 +7,6 @@ import (
 	"testing"
 
 	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/controllers"
-	"github.com/ditrit/badaas/logger"
-	"github.com/ditrit/badaas/persistence"
-	"github.com/ditrit/badaas/router"
-	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -47,12 +41,7 @@ func TestAll(t *testing.T) {
 func injectDependencies(cmd *cobra.Command, args []string) {
 	fx.New(
 		// Modules
-		configuration.ConfigurationModule,
-		router.RouterModule,
-		controllers.ControllerModule,
-		logger.LoggerModule,
-		persistence.PersistanceModule,
-		services.ServicesModule,
+		badaas.BadaasModule,
 
 		// logger for fx
 		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {

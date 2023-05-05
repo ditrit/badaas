@@ -5,9 +5,10 @@ import (
 	"net"
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/ditrit/badaas"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/router"
+	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/verdeter"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -44,10 +45,11 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
 
+		fx.Provide(NewAPIVersion),
 		// add routes provided by badaas
-		fx.Invoke(router.AddInfoRoutes),
-		fx.Invoke(router.AddLoginRoutes),
-		fx.Invoke(router.AddCRUDRoutes),
+		controllers.InfoControllerModule,
+		controllers.AuthControllerModule,
+		controllers.EAVControllerModule,
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),
@@ -55,6 +57,10 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		// Finally: we invoke the newly created server
 		fx.Invoke(func(*http.Server) { /* we need this function to be empty*/ }),
 	).Run()
+}
+
+func NewAPIVersion() *semver.Version {
+	return semver.MustParse("0.0.0-unreleased")
 }
 
 func NewHTTPServer(

@@ -3,10 +3,9 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/Masterminds/semver/v3"
 	"github.com/ditrit/badaas/httperrors"
 )
-
-const Version = "UNRELEASED"
 
 // The information controller
 type InformationController interface {
@@ -17,19 +16,23 @@ type InformationController interface {
 // check interface compliance
 var _ InformationController = (*infoControllerImpl)(nil)
 
-// The InformationController constructor
-func NewInfoController() InformationController {
-	return &infoControllerImpl{}
+// The concrete implementation of the InformationController
+type infoControllerImpl struct {
+	Version *semver.Version
 }
 
-// The concrete implementation of the InformationController
-type infoControllerImpl struct{}
+// The InformationController constructor
+func NewInfoController(version *semver.Version) InformationController {
+	return &infoControllerImpl{
+		Version: version,
+	}
+}
 
 // Return the badaas server information
-func (*infoControllerImpl) Info(response http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (c *infoControllerImpl) Info(response http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	return &BadaasServerInfo{
 		Status:  "OK",
-		Version: Version,
+		Version: c.Version.String(),
 	}, nil
 }
 

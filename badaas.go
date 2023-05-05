@@ -2,7 +2,6 @@ package badaas
 
 import (
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/logger"
 	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/router"
@@ -16,7 +15,6 @@ var BadaasModule = fx.Module(
 	"badaas",
 	configuration.ConfigurationModule,
 	router.RouterModule,
-	controllers.ControllerModule,
 	logger.LoggerModule,
 	persistence.PersistanceModule,
 	services.ServicesModule,
