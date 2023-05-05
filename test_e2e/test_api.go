@@ -25,7 +25,10 @@ var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 })
 
 func main() {
-	badaas.ConfigCommandParameters(rootCfg)
+	err := badaas.ConfigCommandParameters(rootCfg)
+	if err != nil {
+		panic(err)
+	}
 
 	rootCfg.Execute()
 }
@@ -87,7 +90,7 @@ func NewHTTPServer(
 		},
 		OnStop: func(ctx context.Context) error {
 			// Flush the logger
-			logger.Sync()
+			_ = logger.Sync()
 			return srv.Shutdown(ctx)
 		},
 	})

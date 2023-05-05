@@ -32,6 +32,8 @@ const (
 	Postgres      = "postgres"
 )
 
+var dbProviders = []string{Cockroachdb, Postgres}
+
 var DBPorts = map[string]int{
 	Cockroachdb: 26257,
 	Postgres:    5432,
@@ -40,14 +42,18 @@ var DBPorts = map[string]int{
 func init() {
 	rootCmd.AddSubCommand(genCmd)
 
-	genCmd.LKey(
+	err := genCmd.LKey(
 		DBProviderKey, verdeter.IsStr, "p",
-		fmt.Sprintf("Database provider (%s|%s)", Cockroachdb, Postgres),
+		fmt.Sprintf("Database provider %v", dbProviders),
 	)
+	if err != nil {
+		panic(err)
+	}
 	genCmd.SetRequired(DBProviderKey)
-
-	providerValidator := validators.AuthorizedValues(Cockroachdb, Postgres)
-	genCmd.AddValidator(DBProviderKey, providerValidator)
+	genCmd.AddValidator(
+		DBProviderKey,
+		validators.AuthorizedValues(dbProviders...),
+	)
 }
 
 func generateDockerFiles(cmd *cobra.Command, args []string) {
@@ -95,11 +101,14 @@ func copyBadaasConfig(dbProvider string) {
 	}
 
 	destConfigDir := filepath.Join(destBadaasDir, "config")
-	os.MkdirAll(destConfigDir, os.ModePerm)
+	err = os.MkdirAll(destConfigDir, os.ModePerm)
+	if err != nil {
+		panic(err)
+	}
 
 	err = os.WriteFile(
 		filepath.Join(destConfigDir, "badaas.yml"),
-		configBytes, 0o0666,
+		configBytes, 0o0600,
 	)
 	if err != nil {
 		panic(err)
@@ -112,7 +121,7 @@ func copyFile(sourcePath, destPath string) {
 		panic(err)
 	}
 
-	if err := os.WriteFile(destPath, fileContent, 0o0666); err != nil {
+	if err := os.WriteFile(destPath, fileContent, 0o0600); err != nil {
 		panic(err)
 	}
 }
@@ -124,10 +133,15 @@ func copyDir(sourceDir, destDir string) {
 	}
 
 	_, err = os.Stat(destDir)
-	if os.IsNotExist(err) {
-		os.MkdirAll(destDir, os.ModePerm)
-	} else if err != nil {
-		panic(err)
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic(err)
+		}
+
+		err = os.MkdirAll(destDir, os.ModePerm)
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	for _, file := range files {
