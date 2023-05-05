@@ -70,11 +70,15 @@ badctl help [command]
 
 gen is the command you can use to generate the files and configurations necessary for your project to use BadAss in a simple way.
 
-Depending of the `db_provider` chosen `gen` will generate the docker and configuration files needed to run the application in the `badaas` folder. All these files can be modified in case you need different values than those provided by default.
+Depending of the `db_provider` chosen `gen` will generate the docker and configuration files needed to run the application in the `badaas/docker/db` and `badaas/config` folders respectively. It will also generate docker files to run a http api in `badaas/docker/api`.
+
+The possible values for `db_provider` are `cockroachdb` and `postgres`. CockroachDB is recommended since it's a distributed database from its conception and postgres compatible.
+
+All these files can be modified in case you need different values than those provided by default. For more information about the configuration head to [configuration docs](../../configuration.md).
 
 ### run
 
-`run` is the command that will allow you to run your application once you have generated the necessary files with gen
+`run` is the command that will allow you to run your application once you have generated the necessary files with gen.
 
 ## Contributing
 

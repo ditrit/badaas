@@ -1,6 +1,6 @@
 # Configuration
 
-To see a complete example of a working config file: head to [`badaas.example.yml`](./badaas.example.yml)
+To see a complete example of a working config file: head to [`badaas.example.yml`](./badaas.example.yml).
 
 As said in the README:
 
@@ -9,7 +9,7 @@ As said in the README:
 
 In this documentation file, we will mainly focus our attention on config files but we won't forget that we can use environment variables and CLI flags to change Badaas' config.
 
-The config file can be formatted in any syntax that [github.com/spf13/viper](https://github.com/spf13/viper) supports but we will only use YAML syntax in our docs.
+The config file can be formatted in any syntax that [`viper`](https://github.com/spf13/viper) supports but we will only use YAML syntax in our docs.
 
 - [Configuration](#configuration)
   - [Database](#database)
@@ -19,8 +19,6 @@ The config file can be formatted in any syntax that [github.com/spf13/viper](htt
   - [Session management](#session-management)
 
 ## Database
-
-We use CockroachDB as a database. It is Postgres compatible, so the information we need to provide will not be a surprise to Postgres users.
 
 ```yml
 # The settings for the database.
@@ -60,7 +58,7 @@ Please note that the init section `init:` is not mandatory. Badaas is suited wit
 
 ## Logger
 
-Badaas use a structured logger that can output json logs in production and user adapted logs for debug using the `logger.mode` key.  
+Badaas use a structured logger that can output json logs in production and user adapted logs for debug using the `logger.mode` key.
 
 Badaas offers the possibility to change the log message of the Middleware Logger but provides a sane default. It is formatted using the Jinja syntax. The values available are `method`, `url` and `protocol`.
 

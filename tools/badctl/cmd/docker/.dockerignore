@@ -1,1 +1,11 @@
+# general
+.editorconfig
+.git
+.gitignore
+.github
+*.md
+LICENSE
+.vscode
+
+# badaas
 badaas/docker

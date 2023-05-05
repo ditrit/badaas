@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
@@ -32,7 +33,7 @@ const (
 	Postgres      = "postgres"
 )
 
-var dbProviders = []string{Cockroachdb, Postgres}
+var DBProviders = []string{Cockroachdb, Postgres}
 
 var DBPorts = map[string]int{
 	Cockroachdb: 26257,
@@ -44,15 +45,19 @@ func init() {
 
 	err := genCmd.LKey(
 		DBProviderKey, verdeter.IsStr, "p",
-		fmt.Sprintf("Database provider %v", dbProviders),
+		fmt.Sprintf(
+			"Database provider (%s), default: %s",
+			strings.Join(DBProviders, "|"),
+			Cockroachdb,
+		),
 	)
 	if err != nil {
 		panic(err)
 	}
-	genCmd.SetRequired(DBProviderKey)
+	genCmd.SetDefault(DBProviderKey, Cockroachdb)
 	genCmd.AddValidator(
 		DBProviderKey,
-		validators.AuthorizedValues(dbProviders...),
+		validators.AuthorizedValues(DBProviders...),
 	)
 }
 

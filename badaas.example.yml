@@ -34,7 +34,7 @@ database:
 server:
   # The address to bind badaas to.
   # default ("0.0.0.0")
-  host: "" 
+  host: ""
 
   # The port badaas should use.
   # default (8000)
@@ -42,7 +42,7 @@ server:
 
   # The maximum timeout for the http server in seconds.
   # default (15)
-  timeout: 15 
+  timeout: 15
 
   # The settings for the pagination.
   pagination:
@@ -50,9 +50,6 @@ server:
       # The maximum number of record per page 
       # default (100)
       max: 100
-
-  # Example server to exec (birds | posts)
-  example: ""
 
 # The settings for the logger.
 logger:

@@ -35,5 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add some examples of data models.
 - Add transaction executor to run services that lead to multiples queries.
 - Add repositories to manage querying to the database.
+- Transform BadAas into a library.
+- Add BadCtl tool.
 
 [unreleased]: https://github.com/ditrit/badaas/blob/main/changelog.md#unreleased
