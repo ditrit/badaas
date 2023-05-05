@@ -52,6 +52,10 @@ func (controller *jsonControllerImpl) Wrap(handler JSONHandler) func(response ht
 			return
 		}
 		response.Header().Set("Content-Type", "application/json")
-		response.Write(payload)
+		_, err = response.Write(payload)
+		controller.logger.Error(
+			"Error while writing http response",
+			zap.String("error", err.Error()),
+		)
 	}
 }

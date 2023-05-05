@@ -34,7 +34,10 @@ func TestAll(t *testing.T) {
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(b)
 	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
-	badaas.ConfigCommandParameters(testsCommand)
+	err := badaas.ConfigCommandParameters(testsCommand)
+	if err != nil {
+		panic(err)
+	}
 
 	tGlobal = t
 
