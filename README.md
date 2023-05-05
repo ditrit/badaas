@@ -32,7 +32,7 @@ Once you have started your project with `go init`, you must add the dependency t
 
 <!-- TODO remove commit when badaas as a library has a first tagged version -->
 ```bash
-go get -u github.com/ditrit/badaas@dbd7e55
+go get -u github.com/ditrit/badaas@cbd4c9e035709de25df59ec17e4b302b3a7b9931
 go get -u github.com/uber-go/fx
 go get -u github.com/ditrit/verdeter
 ```
@@ -72,12 +72,17 @@ func runCommandFunc(cmd *cobra.Command, args []string) {
   fx.New(
     badaas.BadaasModule,
 
+    fx.Provide(NewAPIVersion),
     // add routes provided by badaas
-    fx.Invoke(router.AddInfoRoutes),
-    fx.Invoke(router.AddLoginRoutes),
-    fx.Invoke(router.AddCRUDRoutes),
+    badaasControllers.InfoControllerModule,
+    badaasControllers.AuthControllerModule,
+    badaasControllers.EAVControllerModule,
     // Here you can start the rest of the modules that your project uses.
   ).Run()
+}
+
+func NewAPIVersion() *semver.Version {
+  return semver.MustParse("0.0.0-unreleased")
 }
 ```
 
@@ -87,7 +92,7 @@ For installing it, use:
 
 <!-- TODO remove commit when badctl has a first tagged version -->
 ```bash
-go install github.com/ditrit/badaas/tools/badctl@bef1116
+go install github.com/ditrit/badaas/tools/badctl@cbd4c9e035709de25df59ec17e4b302b3a7b9931
 ```
 
 Then generate files to make this project work with `cockroach` as database:
@@ -105,6 +110,59 @@ badctl run
 ```
 
 The api will be available at <http://localhost:8000>.
+
+### Provided functionalities
+
+#### InfoControllerModule
+
+`InfoControllerModule` adds the path `/info`, where the api version will be answered. To set the version we want to be responded to we must provide the version using fx:
+
+```go
+func runCommandFunc(cmd *cobra.Command, args []string) {
+  fx.New(
+    badaas.BadaasModule,
+
+    // provide api version
+    fx.Provide(NewAPIVersion),
+    // add /info route provided by badaas
+    badaasControllers.InfoControllerModule,
+  ).Run()
+}
+
+func NewAPIVersion() *semver.Version {
+  return semver.MustParse("0.0.0-unreleased")
+}
+```
+
+#### AuthControllerModule
+
+`AuthControllerModule` adds `/login` and `/logout`, which allow us to add authentication to our application in a simple way:
+
+```go
+func runCommandFunc(cmd *cobra.Command, args []string) {
+  fx.New(
+    badaas.BadaasModule,
+
+    // add /login and /logout routes provided by badaas
+    badaasControllers.AuthControllerModule,
+  ).Run()
+}
+```
+
+#### EAVControllerModule
+
+`EAVControllerModule` adds `/objects/{type}` and `/objects/{type}/{id}`, where `{type}` is any defined type and `{id}` is any uuid. These routes allow us to create, read, update and remove objects. For more information on how to use them, see the [miniblog example](https://github.com/ditrit/badaas-example).
+
+```go
+func runCommandFunc(cmd *cobra.Command, args []string) {
+  fx.New(
+    badaas.BadaasModule,
+
+    // add /login and /logout routes provided by badaas
+    badaasControllers.EAVControllerModule,
+  ).Run()
+}
+```
 
 ### Configuration
 
