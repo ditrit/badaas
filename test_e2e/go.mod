@@ -7,6 +7,7 @@ require (
 	github.com/cucumber/godog v0.12.5
 	github.com/ditrit/verdeter v0.4.0
 	github.com/google/uuid v1.3.0
+	github.com/gorilla/handlers v1.5.1
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.13.0
 	github.com/magiconair/properties v1.8.6
@@ -23,7 +24,6 @@ require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/elliotchance/pie/v2 v2.5.2
 	gotest.tools v2.2.0+incompatible
-	github.com/gorilla/handlers v1.5.1
 )
 
 require (
