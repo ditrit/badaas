@@ -1,0 +1,7 @@
+go 1.20
+
+use (
+	.
+	./test_e2e
+	./tools/badctl
+)
