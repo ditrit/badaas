@@ -28,6 +28,7 @@ func runApp(cmd *cobra.Command, args []string) {
 		"up", "--build", "-d",
 	)
 	dockerCommand.Stdout = os.Stdout
+	dockerCommand.Stderr = os.Stderr
 
 	err := dockerCommand.Run()
 	if err != nil {

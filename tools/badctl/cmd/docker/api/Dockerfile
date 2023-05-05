@@ -14,4 +14,4 @@ USER badaas
 COPY --from=builder /app/badaas_service .
 COPY ./badaas/config/badaas.yml .
 EXPOSE 8000
-ENTRYPOINT ["./badaas_service", "--config_path", "badaas.yml"]
+ENTRYPOINT ["./badaas_service"]
