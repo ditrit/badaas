@@ -15,13 +15,11 @@ func AddInfoRoutes(
 	router *mux.Router,
 	jsonController middlewares.JSONController,
 	infoController controllers.InformationController,
-) *mux.Router {
+) {
 	router.HandleFunc(
 		"/info",
 		jsonController.Wrap(infoController.Info),
 	).Methods("GET")
-
-	return router
 }
 
 // Adds to the "router" the routes for handling authentication:

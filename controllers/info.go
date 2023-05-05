@@ -27,12 +27,10 @@ type infoControllerImpl struct{}
 
 // Return the badaas server information
 func (*infoControllerImpl) Info(response http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-
-	infos := &BadaasServerInfo{
+	return &BadaasServerInfo{
 		Status:  "OK",
 		Version: Version,
-	}
-	return infos, nil
+	}, nil
 }
 
 type BadaasServerInfo struct {
