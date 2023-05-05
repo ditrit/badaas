@@ -5,28 +5,54 @@ import (
 	"github.com/ditrit/verdeter"
 )
 
-func initDatabaseCommands(cfg *verdeter.VerdeterCommand) {
-	cfg.GKey(configuration.DatabasePortKey, verdeter.IsInt, "", "The port of the database server")
+func initDatabaseCommands(cfg *verdeter.VerdeterCommand) error {
+	err := cfg.GKey(configuration.DatabasePortKey, verdeter.IsInt, "", "The port of the database server")
+	if err != nil {
+		return err
+	}
 	cfg.SetRequired(configuration.DatabasePortKey)
 
-	cfg.GKey(configuration.DatabaseHostKey, verdeter.IsStr, "", "The host of the database server")
+	err = cfg.GKey(configuration.DatabaseHostKey, verdeter.IsStr, "", "The host of the database server")
+	if err != nil {
+		return err
+	}
 	cfg.SetRequired(configuration.DatabaseHostKey)
 
-	cfg.GKey(configuration.DatabaseNameKey, verdeter.IsStr, "", "The name of the database to use")
+	err = cfg.GKey(configuration.DatabaseNameKey, verdeter.IsStr, "", "The name of the database to use")
+	if err != nil {
+		return err
+	}
 	cfg.SetRequired(configuration.DatabaseNameKey)
 
-	cfg.GKey(configuration.DatabaseUsernameKey, verdeter.IsStr, "", "The username of the account on the database server")
+	err = cfg.GKey(configuration.DatabaseUsernameKey, verdeter.IsStr, "", "The username of the account on the database server")
+	if err != nil {
+		return err
+	}
 	cfg.SetRequired(configuration.DatabaseUsernameKey)
 
-	cfg.GKey(configuration.DatabasePasswordKey, verdeter.IsStr, "", "The password of the account one the database server")
+	err = cfg.GKey(configuration.DatabasePasswordKey, verdeter.IsStr, "", "The password of the account one the database server")
+	if err != nil {
+		return err
+	}
 	cfg.SetRequired(configuration.DatabasePasswordKey)
 
-	cfg.GKey(configuration.DatabaseSslmodeKey, verdeter.IsStr, "", "The sslmode to use when connecting to the database server")
+	err = cfg.GKey(configuration.DatabaseSslmodeKey, verdeter.IsStr, "", "The sslmode to use when connecting to the database server")
+	if err != nil {
+		return err
+	}
 	cfg.SetRequired(configuration.DatabaseSslmodeKey)
 
-	cfg.GKey(configuration.DatabaseRetryKey, verdeter.IsUint, "", "The number of times badaas tries to establish a connection with the database")
+	err = cfg.GKey(configuration.DatabaseRetryKey, verdeter.IsUint, "", "The number of times badaas tries to establish a connection with the database")
+	if err != nil {
+		return err
+	}
 	cfg.SetDefault(configuration.DatabaseRetryKey, uint(10))
 
-	cfg.GKey(configuration.DatabaseRetryDurationKey, verdeter.IsUint, "", "The duration in seconds badaas wait between connection attempts")
+	err = cfg.GKey(configuration.DatabaseRetryDurationKey, verdeter.IsUint, "", "The duration in seconds badaas wait between connection attempts")
+	if err != nil {
+		return err
+	}
 	cfg.SetDefault(configuration.DatabaseRetryDurationKey, uint(5))
+
+	return nil
 }

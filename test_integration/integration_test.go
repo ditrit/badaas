@@ -34,7 +34,10 @@ func TestAll(t *testing.T) {
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(b)
 	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
-	commands.InitCommands(testsCfg)
+	err := commands.InitCommands(testsCfg)
+	if err != nil {
+		panic(err)
+	}
 
 	tGlobal = t
 
