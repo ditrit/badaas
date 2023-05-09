@@ -85,7 +85,7 @@ func AddEAVCRUDRoutes(
 
 func AddCRUDRoutes(
 	router *mux.Router,
-	generalCRUDController GeneralCRUDController,
+	generalCRUDController *GeneralCRUDController,
 	jsonController middlewares.JSONController,
 ) {
 	// Objects CRUD
