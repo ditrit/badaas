@@ -69,8 +69,8 @@ func createSuperUser(
 }
 
 func AddEAVCRUDRoutes(
-	router *mux.Router,
 	eavController CRUDController,
+	router *mux.Router,
 	jsonController middlewares.JSONController,
 ) {
 	// Objects CRUD

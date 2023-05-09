@@ -1,6 +1,12 @@
 package controllers
 
-import "go.uber.org/fx"
+import (
+	"fmt"
+
+	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/services"
+	"go.uber.org/fx"
+)
 
 var InfoControllerModule = fx.Module(
 	"infoController",
@@ -22,7 +28,12 @@ var EAVControllerModule = fx.Module(
 			fx.ResultTags(`name:"eavController"`),
 		),
 	),
-	fx.Invoke(AddEAVCRUDRoutes),
+	fx.Invoke(
+		fx.Annotate(
+			AddEAVCRUDRoutes,
+			fx.ParamTags(`name:"eavController"`),
+		),
+	),
 )
 
 var CRUDControllerModule = fx.Module(
@@ -30,3 +41,23 @@ var CRUDControllerModule = fx.Module(
 	fx.Provide(NewGeneralCRUDController),
 	fx.Invoke(AddCRUDRoutes),
 )
+
+func GetCRUDModule[T models.Tabler, ID any]() fx.Option {
+	return fx.Module(
+		"crudModule",
+		fx.Provide(
+			fx.Annotate(
+				NewCRUDController[T, ID],
+				fx.ResultTags(
+					fmt.Sprintf(
+						`name:"%TCRUDController"`,
+						*new(T),
+					),
+				),
+			),
+		),
+		fx.Provide(
+			services.NewCRUDService[T],
+		),
+	)
+}
