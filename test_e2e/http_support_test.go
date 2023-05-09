@@ -220,7 +220,7 @@ func checkMethod(method string) (string, error) {
 
 func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) error {
 	err := t.request(
-		"/objects/"+entityType,
+		"/eav/objects/"+entityType,
 		http.MethodPost,
 		nil,
 		jsonTable,
@@ -266,7 +266,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 	}
 
 	err := t.requestGet(
-		"/objects/" + entityType + "/" + id.(string),
+		"/eav/objects/" + entityType + "/" + id.(string),
 	)
 	if err != nil {
 		return err
@@ -282,7 +282,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 
 func (t *TestContext) queryObjectsWithConditions(entityType string, jsonTable *godog.Table) error {
 	err := t.requestWithJson(
-		"/objects/"+entityType,
+		"/eav/objects/"+entityType,
 		http.MethodGet,
 		jsonTable,
 	)
@@ -300,7 +300,7 @@ func (t *TestContext) queryObjectsWithConditions(entityType string, jsonTable *g
 
 func (t *TestContext) queryAllObjects(entityType string) error {
 	err := t.requestGet(
-		"/objects/" + entityType,
+		"/eav/objects/" + entityType,
 	)
 	if err != nil {
 		return err
@@ -359,7 +359,7 @@ func (t *TestContext) deleteWithObjectID(entityType string) error {
 	}
 
 	err := t.request(
-		"/objects/"+entityType+"/"+id.(string),
+		"/eav/objects/"+entityType+"/"+id.(string),
 		http.MethodDelete,
 		nil,
 		nil,
@@ -383,7 +383,7 @@ func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.T
 	}
 
 	err := t.request(
-		"/objects/"+entityType+"/"+id.(string),
+		"/eav/objects/"+entityType+"/"+id.(string),
 		http.MethodPut,
 		nil,
 		jsonTable,

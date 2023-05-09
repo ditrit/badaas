@@ -70,15 +70,30 @@ func createSuperUser(
 
 func AddEAVCRUDRoutes(
 	router *mux.Router,
-	eavController EAVController,
+	eavController CRUDController,
 	jsonController middlewares.JSONController,
 ) {
 	// Objects CRUD
-	objectsBase := "/objects/{type}"
+	objectsBase := "/eav/objects/{type}"
 	objectsWithID := objectsBase + "/{id}"
 	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.GetObject)).Methods("GET")
 	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.GetObjects)).Methods("GET")
 	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.CreateObject)).Methods("POST")
 	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.UpdateObject)).Methods("PUT")
 	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.DeleteObject)).Methods("DELETE")
+}
+
+func AddCRUDRoutes(
+	router *mux.Router,
+	generalCRUDController GeneralCRUDController,
+	jsonController middlewares.JSONController,
+) {
+	// Objects CRUD
+	objectsBase := "/objects/{type}"
+	objectsWithID := objectsBase + "/{id}"
+	router.HandleFunc(objectsWithID, jsonController.Wrap(generalCRUDController.GetObject)).Methods("GET")
+	router.HandleFunc(objectsBase, jsonController.Wrap(generalCRUDController.GetObjects)).Methods("GET")
+	router.HandleFunc(objectsBase, jsonController.Wrap(generalCRUDController.CreateObject)).Methods("POST")
+	router.HandleFunc(objectsWithID, jsonController.Wrap(generalCRUDController.UpdateObject)).Methods("PUT")
+	router.HandleFunc(objectsWithID, jsonController.Wrap(generalCRUDController.DeleteObject)).Methods("DELETE")
 }

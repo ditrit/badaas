@@ -7,6 +7,11 @@ var ListOfTables = []any{
 	Entity{},
 	Value{},
 	Attribute{},
+	// TODO esto deberia poder ser seteado por el usuario
+	Company{},
+	Product{},
+	Seller{},
+	Sale{},
 }
 
 // The interface "type" need to implement to be considered models

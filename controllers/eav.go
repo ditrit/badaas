@@ -25,21 +25,13 @@ var (
 	}
 )
 
-type EAVController interface {
-	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	CreateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	UpdateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-}
-
 // check interface compliance
-var _ EAVController = (*eavControllerImpl)(nil)
+var _ CRUDController = (*eavControllerImpl)(nil)
 
 func NewEAVController(
 	logger *zap.Logger,
 	eavService services.EAVService,
-) EAVController {
+) CRUDController {
 	return &eavControllerImpl{
 		logger:     logger,
 		eavService: eavService,
@@ -120,7 +112,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 }
 
 func buildLocationString(et *models.Entity) string {
-	return fmt.Sprintf("/objects/%s/%s", et.EntityType.Name, et.ID.String())
+	return fmt.Sprintf("eav/objects/%s/%s", et.EntityType.Name, et.ID.String())
 }
 
 // The handler responsible for the updates of one object

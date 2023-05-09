@@ -14,6 +14,10 @@ var ListOfTables = []any{
 	models.Entity{},
 	models.Attribute{},
 	models.EntityType{},
+	models.Sale{},
+	models.Seller{},
+	models.Company{},
+	models.Product{},
 }
 
 func CleanDB(db *gorm.DB) {
