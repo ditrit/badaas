@@ -16,7 +16,12 @@ var AuthControllerModule = fx.Module(
 
 var EAVControllerModule = fx.Module(
 	"eavController",
-	fx.Provide(NewEAVController),
+	fx.Provide(
+		fx.Annotate(
+			NewEAVController,
+			fx.ResultTags(`name:"eavController"`),
+		),
+	),
 	fx.Invoke(AddEAVCRUDRoutes),
 )
 
