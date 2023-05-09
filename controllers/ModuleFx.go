@@ -19,3 +19,9 @@ var EAVControllerModule = fx.Module(
 	fx.Provide(NewEAVController),
 	fx.Invoke(AddEAVCRUDRoutes),
 )
+
+var CRUDControllerModule = fx.Module(
+	"crudController",
+	fx.Provide(NewGeneralCRUDController),
+	fx.Invoke(AddCRUDRoutes),
+)
