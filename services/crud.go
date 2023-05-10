@@ -121,6 +121,7 @@ func (service *crudServiceImpl[T, ID]) addJoinToQuery(
 	stringQuery := fmt.Sprintf(
 		`JOIN %[1]s %[2]s ON
 			%[2]s.id = %[3]s.%[4]s_id
+			AND %[2]s.deleted_at IS NULL
 		`,
 		tableName,
 		tableWithSuffix,
