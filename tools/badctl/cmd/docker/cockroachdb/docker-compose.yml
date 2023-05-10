@@ -5,6 +5,7 @@ services:
     image: cockroachdb/cockroach:latest
     container_name: badaas-db
     ports:
+      - "26257:26257" # TODO ver si mantener esto o no, necesario en dev para conectarme a la base
       - "8080:8080" # Web based dashboard
     command: start-single-node --insecure
     volumes:

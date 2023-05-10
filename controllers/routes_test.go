@@ -152,8 +152,8 @@ func TestAddCRUDRoutes(t *testing.T) {
 
 	router := router.NewRouter()
 	AddEAVCRUDRoutes(
-		router,
 		eavController,
+		router,
 		jsonController,
 	)
 
