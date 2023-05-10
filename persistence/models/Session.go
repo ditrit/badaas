@@ -13,6 +13,14 @@ type Session struct {
 	ExpiresAt time.Time `gorm:"not null"`
 }
 
+// Create a new session
+func NewSession(userID uuid.UUID, sessionDuration time.Duration) *Session {
+	return &Session{
+		UserID:    userID,
+		ExpiresAt: time.Now().Add(sessionDuration),
+	}
+}
+
 // Return true is expired
 func (session *Session) IsExpired() bool {
 	return time.Now().After(session.ExpiresAt)
@@ -25,7 +33,7 @@ func (session *Session) CanBeRolled(rollInterval time.Duration) bool {
 
 // Return the pluralized table name
 //
-// Satisfie the Tabler interface
+// Satisfy the Tabler interface
 func (Session) TableName() string {
 	return "sessions"
 }

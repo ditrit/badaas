@@ -115,6 +115,11 @@ func NewInternalServerError(errorName string, msg string, err error) HTTPError {
 	)
 }
 
+// Constructor for an HttpError "DB Error", a internal server error produced by a query
+func NewDBError(err error) HTTPError {
+	return NewInternalServerError("db error", "database query failed", err)
+}
+
 // A constructor for an HttpError "Unauthorized Error"
 func NewUnauthorizedError(errorName string, msg string) HTTPError {
 	return NewHTTPError(

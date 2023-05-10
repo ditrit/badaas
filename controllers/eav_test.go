@@ -480,7 +480,7 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name})
 
 	_, err := controller.CreateObject(response, request)
-	assert.ErrorContains(t, err, "json decoding failed")
+	assert.ErrorContains(t, err, "The schema of the received data is not correct")
 }
 
 func TestCreateOfNotExistentTypeReturnsError(t *testing.T) {
@@ -607,7 +607,7 @@ func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
 	request = mux.SetURLVars(request, map[string]string{"type": entityType.Name, "id": uuid.String()})
 
 	_, err := controller.UpdateObject(response, request)
-	assert.ErrorContains(t, err, "json decoding failed")
+	assert.ErrorContains(t, err, "The schema of the received data is not correct")
 }
 
 func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {

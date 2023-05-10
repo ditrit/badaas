@@ -1,9 +1,7 @@
 package controllers
 
 import (
-	"encoding/json"
 	"errors"
-	"io"
 	"net/http"
 
 	"github.com/ditrit/badaas/httperrors"
@@ -28,11 +26,11 @@ type CRUDController interface {
 // check interface compliance
 var _ CRUDController = (*crudControllerImpl[models.User])(nil)
 
-func NewCRUDController[T models.Tabler, ID any](
+func NewCRUDController[T models.Tabler](
 	logger *zap.Logger,
 	crudService services.CRUDService[T, uuid.UUID],
 ) CRUDController {
-	return &crudControllerImpl[T]{ // TODO ver este uuid hardcode
+	return &crudControllerImpl[T]{
 		logger:      logger,
 		crudService: crudService,
 	}
@@ -56,7 +54,7 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return entity, nil
@@ -64,7 +62,7 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 
 // The handler responsible of the retrieval of multiple objects
 func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	params, herr := controller.decodeJSON(r)
+	params, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
@@ -74,7 +72,7 @@ func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *ht
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityTypeNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return entities, nil
@@ -82,7 +80,7 @@ func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *ht
 
 // The handler responsible of the creation of a object
 func (controller *crudControllerImpl[T]) CreateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	attrs, herr := controller.decodeJSON(r)
+	attrs, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
@@ -92,7 +90,7 @@ func (controller *crudControllerImpl[T]) CreateObject(w http.ResponseWriter, r *
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityTypeNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	// TODO ver como hacer esto
@@ -109,7 +107,7 @@ func (controller *crudControllerImpl[T]) UpdateObject(w http.ResponseWriter, r *
 		return nil, herr
 	}
 
-	attrs, herr := controller.decodeJSON(r)
+	attrs, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
@@ -119,7 +117,7 @@ func (controller *crudControllerImpl[T]) UpdateObject(w http.ResponseWriter, r *
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return entity, nil
@@ -137,7 +135,7 @@ func (controller *crudControllerImpl[T]) DeleteObject(w http.ResponseWriter, r *
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return nil, nil
@@ -158,19 +156,4 @@ func (controller *crudControllerImpl[T]) getEntityIDFromRequest(r *http.Request)
 	}
 
 	return uid, nil
-}
-
-// Decode json present in request body
-func (controller *crudControllerImpl[T]) decodeJSON(r *http.Request) (map[string]any, httperrors.HTTPError) {
-	var attrs map[string]any
-	err := json.NewDecoder(r.Body).Decode(&attrs)
-	switch {
-	case err == io.EOF:
-		// empty body
-		return map[string]any{}, nil
-	case err != nil:
-		return nil, httperrors.NewBadRequestError("json decoding failed", "please use a correct json payload")
-	}
-
-	return attrs, nil
 }

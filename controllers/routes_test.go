@@ -160,11 +160,11 @@ func TestAddCRUDRoutes(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"GET",
-		"/objects/posts",
+		"/eav/objects/posts",
 		nil,
 	)
 
 	router.ServeHTTP(response, request)
-	assert.Equal(t, response.Code, http.StatusOK)
-	assert.Equal(t, response.Body.String(), "{\"GetObjects\":\"called\"}")
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, "{\"GetObjects\":\"called\"}", response.Body.String())
 }

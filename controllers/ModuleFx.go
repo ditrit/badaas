@@ -4,7 +4,9 @@ import (
 	"fmt"
 
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services"
+	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
@@ -42,12 +44,14 @@ var CRUDControllerModule = fx.Module(
 	fx.Invoke(AddCRUDRoutes),
 )
 
-func GetCRUDModule[T models.Tabler, ID any]() fx.Option {
+func GetCRUDModule[T models.Tabler]() fx.Option {
 	return fx.Module(
 		"crudModule",
+		fx.Provide(repository.NewCRUDRepository[T, uuid.UUID]),
+		fx.Provide(services.NewCRUDService[T, uuid.UUID]),
 		fx.Provide(
 			fx.Annotate(
-				NewCRUDController[T, ID],
+				NewCRUDController[T],
 				fx.ResultTags(
 					fmt.Sprintf(
 						`name:"%TCRUDController"`,
@@ -55,9 +59,6 @@ func GetCRUDModule[T models.Tabler, ID any]() fx.Option {
 					),
 				),
 			),
-		),
-		fx.Provide(
-			services.NewCRUDService[T],
 		),
 	)
 }

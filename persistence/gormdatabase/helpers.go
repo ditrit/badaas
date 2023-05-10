@@ -11,7 +11,7 @@ func isPostgresError(err error, errCode string) bool {
 	postgresError, ok := err.(*pgconn.PgError)
 	if ok {
 		return postgresError.Code == errCode
-
 	}
+
 	return false
 }

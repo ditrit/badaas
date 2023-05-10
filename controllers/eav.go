@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"net/http"
 
 	"github.com/ditrit/badaas/httperrors"
@@ -20,9 +18,6 @@ var (
 	ErrEntityNotFound     = httperrors.NewErrorNotFound("entity", "please use a valid object id")
 	ErrEntityTypeNotFound = httperrors.NewErrorNotFound("entity type", "please use a type that exists")
 	ErrIDNotAnUUID        = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
-	ErrDBQueryFailed      = func(err error) httperrors.HTTPError {
-		return httperrors.NewInternalServerError("db error", "database query failed", err)
-	}
 )
 
 // check interface compliance
@@ -56,7 +51,7 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return entity, nil
@@ -69,7 +64,7 @@ func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.R
 		return nil, herr
 	}
 
-	params, herr := controller.decodeJSON(r)
+	params, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
@@ -79,7 +74,7 @@ func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.R
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityTypeNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return entities, nil
@@ -92,7 +87,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 		return nil, herr
 	}
 
-	attrs, herr := controller.decodeJSON(r)
+	attrs, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
@@ -102,7 +97,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityTypeNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	w.Header().Add("Location", buildLocationString(entity))
@@ -122,7 +117,7 @@ func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http
 		return nil, herr
 	}
 
-	attrs, herr := controller.decodeJSON(r)
+	attrs, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
@@ -132,7 +127,7 @@ func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return entity, nil
@@ -150,7 +145,7 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, ErrEntityNotFound
 		}
-		return nil, ErrDBQueryFailed(err)
+		return nil, httperrors.NewDBError(err)
 	}
 
 	return nil, nil
@@ -194,19 +189,4 @@ func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Reques
 	}
 
 	return entityTypeName, entityID, nil
-}
-
-// Decode json present in request body
-func (controller *eavControllerImpl) decodeJSON(r *http.Request) (map[string]any, httperrors.HTTPError) {
-	var attrs map[string]any
-	err := json.NewDecoder(r.Body).Decode(&attrs)
-	switch {
-	case err == io.EOF:
-		// empty body
-		return map[string]any{}, nil
-	case err != nil:
-		return nil, httperrors.NewBadRequestError("json decoding failed", "please use a correct json payload")
-	}
-
-	return attrs, nil
 }

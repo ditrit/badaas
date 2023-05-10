@@ -1,16 +1,14 @@
 package sessionservice
 
 import (
-	"net/http/httptest"
+	"errors"
 	"testing"
 	"time"
 
-	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/httperrors"
-	configurationmocks "github.com/ditrit/badaas/mocks/configuration"
-	repositorymocks "github.com/ditrit/badaas/mocks/persistence/repository"
+	configurationMocks "github.com/ditrit/badaas/mocks/configuration"
+	repositoryMocks "github.com/ditrit/badaas/mocks/persistence/repository"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/pagination"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
@@ -18,24 +16,51 @@ import (
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+	"gorm.io/gorm"
 )
 
+var gormDB *gorm.DB
+
+// make values for test
+func setupTest(
+	t *testing.T,
+) (
+	*repositoryMocks.CRUDRepository[models.Session, uuid.UUID],
+	*sessionServiceImpl,
+	*observer.ObservedLogs,
+	*configurationMocks.SessionConfiguration,
+) {
+	core, logs := observer.New(zap.DebugLevel)
+	logger := zap.New(core)
+	sessionRepositoryMock := repositoryMocks.NewCRUDRepository[models.Session, uuid.UUID](t)
+	sessionConfiguration := configurationMocks.NewSessionConfiguration(t)
+	service := &sessionServiceImpl{
+		sessionRepository:    sessionRepositoryMock,
+		logger:               logger,
+		cache:                make(map[uuid.UUID]*models.Session),
+		sessionConfiguration: sessionConfiguration,
+		db:                   gormDB,
+	}
+
+	return sessionRepositoryMock, service, logs, sessionConfiguration
+}
+
 func TestNewSession(t *testing.T) {
-	sessionInstance := newSession(uuid.Nil, time.Second)
+	sessionInstance := models.NewSession(uuid.Nil, time.Second)
 	assert.NotNil(t, sessionInstance)
 	assert.Equal(t, uuid.Nil, sessionInstance.UserID)
 }
 
 func TestLogInUser(t *testing.T) {
 	sessionRepositoryMock, service, logs, sessionConfigurationMock := setupTest(t)
-	sessionRepositoryMock.On("Create", mock.Anything).Return(nil)
+	sessionRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
+
 	sessionConfigurationMock.On("GetSessionDuration").Return(time.Minute)
-	response := httptest.NewRecorder()
 	user := &models.User{
 		Username: "bob",
 		Email:    "bob@email.com",
 	}
-	err := service.LogUserIn(user, response)
+	_, err := service.LogUserIn(user)
 	require.NoError(t, err)
 	assert.Len(t, service.cache, 1)
 	assert.Equal(t, 1, logs.Len())
@@ -44,40 +69,19 @@ func TestLogInUser(t *testing.T) {
 	require.Len(t, log.Context, 1)
 }
 
-// make values for test
-func setupTest(
-	t *testing.T,
-) (
-	*repositorymocks.CRUDRepository[models.Session, uuid.UUID],
-	*sessionServiceImpl,
-	*observer.ObservedLogs,
-	*configurationmocks.SessionConfiguration,
-) {
-	core, logs := observer.New(zap.DebugLevel)
-	logger := zap.New(core)
-	sessionRepositoryMock := repositorymocks.NewCRUDRepository[models.Session, uuid.UUID](t)
-	sessionConfiguration := configurationmocks.NewSessionConfiguration(t)
-	service := &sessionServiceImpl{
-		sessionRepository:    sessionRepositoryMock,
-		logger:               logger,
-		cache:                make(map[uuid.UUID]*models.Session),
-		sessionConfiguration: sessionConfiguration,
-	}
-
-	return sessionRepositoryMock, service, logs, sessionConfiguration
-}
-
 func TestLogInUserDbError(t *testing.T) {
 	sessionRepositoryMock, service, logs, sessionConfigurationMock := setupTest(t)
-	sessionRepositoryMock.On("Create", mock.Anything).Return(httperrors.NewInternalServerError("db err", "nil", nil))
+	sessionRepositoryMock.
+		On("Create", gormDB, mock.Anything).
+		Return(errors.New("db err"))
+
 	sessionConfigurationMock.On("GetSessionDuration").Return(time.Minute)
 
-	response := httptest.NewRecorder()
 	user := &models.User{
 		Username: "bob",
 		Email:    "bob@email.com",
 	}
-	err := service.LogUserIn(user, response)
+	_, err := service.LogUserIn(user)
 	require.Error(t, err)
 	assert.Len(t, service.cache, 0)
 	assert.Equal(t, 0, logs.Len())
@@ -85,7 +89,7 @@ func TestLogInUserDbError(t *testing.T) {
 
 func TestIsValid(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	sessionRepositoryMock.On("Create", mock.Anything).Return(nil)
+	sessionRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
 	uuidSample := uuid.New()
 	session := &models.Session{
 		BaseModel: models.BaseModel{
@@ -109,18 +113,16 @@ func TestIsValid(t *testing.T) {
 func TestIsValid_SessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.
-		On("Find", mock.Anything, mock.Anything, mock.Anything).
-		Return(pagination.NewPage([]*models.Session{}, 0, 125, 1236), nil)
+		On("GetOptional", gormDB, mock.Anything).
+		Return(nil, nil)
 	uuidSample := uuid.New()
 	isValid, _ := service.IsValid(uuidSample)
 	require.False(t, isValid)
-	//
 }
 
 func TestLogOutUser(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	sessionRepositoryMock.On("Delete", mock.Anything).Return(nil)
-	response := httptest.NewRecorder()
+	sessionRepositoryMock.On("Delete", gormDB, mock.Anything).Return(nil)
 	uuidSample := uuid.New()
 	session := &models.Session{
 		BaseModel: models.BaseModel{
@@ -130,15 +132,17 @@ func TestLogOutUser(t *testing.T) {
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
-	err := service.LogUserOut(makeSessionClaims(session), response)
+	err := service.LogUserOut(makeSessionClaims(session))
 	require.NoError(t, err)
 	assert.Len(t, service.cache, 0)
 }
 
 func TestLogOutUserDbError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	sessionRepositoryMock.On("Delete", mock.Anything).Return(httperrors.NewInternalServerError("db errors", "oh we failed to delete the session", nil))
-	response := httptest.NewRecorder()
+	sessionRepositoryMock.
+		On("Delete", gormDB, mock.Anything).
+		Return(errors.New("db errors"))
+
 	uuidSample := uuid.New()
 	session := &models.Session{
 		BaseModel: models.BaseModel{
@@ -148,7 +152,7 @@ func TestLogOutUserDbError(t *testing.T) {
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
-	err := service.LogUserOut(makeSessionClaims(session), response)
+	err := service.LogUserOut(makeSessionClaims(session))
 	require.Error(t, err)
 	assert.Len(t, service.cache, 1)
 }
@@ -156,9 +160,9 @@ func TestLogOutUserDbError(t *testing.T) {
 func TestLogOutUser_SessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.
-		On("Find", mock.Anything, nil, nil).
-		Return(nil, httperrors.NewInternalServerError("db errors", "oh we failed to delete the session", nil))
-	response := httptest.NewRecorder()
+		On("GetOptional", gormDB, mock.Anything).
+		Return(nil, errors.New("db errors"))
+
 	uuidSample := uuid.New()
 	session := &models.Session{
 		BaseModel: models.BaseModel{
@@ -170,14 +174,14 @@ func TestLogOutUser_SessionNotFound(t *testing.T) {
 	service.cache[uuidSample] = session
 	sessionClaims := makeSessionClaims(session)
 	sessionClaims.SessionUUID = uuid.Nil
-	err := service.LogUserOut(sessionClaims, response)
+	err := service.LogUserOut(sessionClaims)
 	require.Error(t, err)
 	assert.Len(t, service.cache, 1)
 }
 
 func TestRollSession(t *testing.T) {
 	sessionRepositoryMock, service, _, sessionConfigurationMock := setupTest(t)
-	sessionRepositoryMock.On("Save", mock.Anything).Return(nil)
+	sessionRepositoryMock.On("Save", gormDB, mock.Anything).Return(nil)
 	sessionDuration := time.Minute
 	sessionConfigurationMock.On("GetSessionDuration").Return(sessionDuration)
 	sessionConfigurationMock.On("GetRollDuration").Return(sessionDuration / 4)
@@ -231,7 +235,11 @@ func TestRollSession_falseUUID(t *testing.T) {
 		ExpiresAt: originalExpirationTime,
 	}
 	service.cache[uuidSample] = session
-	repoSession.On("Find", mock.Anything, nil, nil).Return(pagination.NewPage([]*models.Session{}, 0, 2, 5), nil)
+
+	repoSession.
+		On("GetOptional", gormDB, mock.Anything).
+		Return(nil, nil)
+
 	err := service.RollSession(uuid.New())
 	require.NoError(t, err)
 }
@@ -239,9 +247,8 @@ func TestRollSession_falseUUID(t *testing.T) {
 func TestRollSession_sessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, sessionConfigurationMock := setupTest(t)
 	sessionRepositoryMock.
-		On("Find", squirrel.Eq{"uuid": "00000000-0000-0000-0000-000000000000"}, nil, nil).
-		Return(
-			pagination.NewPage([]*models.Session{}, 0, 10, 0), nil)
+		On("GetOptional", gormDB, map[string]any{"uuid": "00000000-0000-0000-0000-000000000000"}).
+		Return(nil, nil)
 
 	sessionDuration := time.Minute
 	sessionConfigurationMock.On("GetSessionDuration").Return(sessionDuration)
@@ -260,7 +267,7 @@ func Test_pullFromDB(t *testing.T) {
 		UserID:    uuid.Nil,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
-	sessionRepositoryMock.On("GetAll", nil).Return([]*models.Session{session}, nil)
+	sessionRepositoryMock.On("GetAll", gormDB).Return([]*models.Session{session}, nil)
 
 	service.pullFromDB()
 	assert.Len(t, service.cache, 1)
@@ -274,7 +281,7 @@ func Test_pullFromDB(t *testing.T) {
 
 func Test_pullFromDB_repoError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	sessionRepositoryMock.On("GetAll", nil).Return(nil, httperrors.AnError)
+	sessionRepositoryMock.On("GetAll", gormDB).Return(nil, httperrors.AnError)
 	assert.PanicsWithError(t, httperrors.AnError.Error(), func() { service.pullFromDB() })
 }
 
@@ -289,7 +296,7 @@ func Test_removeExpired(t *testing.T) {
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
-		On("Delete", session).
+		On("Delete", gormDB, session).
 		Return(nil)
 	service.cache[uuidSample] = session
 
@@ -314,7 +321,7 @@ func Test_removeExpired_RepositoryError(t *testing.T) {
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
-		On("Delete", session).
+		On("Delete", gormDB, session).
 		Return(httperrors.AnError)
 	service.cache[uuidSample] = session
 
@@ -332,8 +339,8 @@ func Test_get(t *testing.T) {
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
-		On("Find", mock.Anything, nil, nil).
-		Return(pagination.NewPage([]*models.Session{session}, 0, 12, 13), nil)
+		On("GetOptional", gormDB, mock.Anything).
+		Return(session, nil)
 
 	sessionFound := service.get(uuidSample)
 	assert.Equal(t, sessionFound, session)
