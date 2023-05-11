@@ -9,6 +9,7 @@ import (
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services"
+	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
@@ -37,8 +38,12 @@ func NewCRUDController[T models.Tabler](
 	logger *zap.Logger,
 	crudService services.CRUDService[T, uuid.UUID],
 ) CRUDRoute {
+	fullTypeName := strings.ToLower(fmt.Sprintf("%T", *new(T)))
+	// remove the package name of the type
+	typeName := pie.Last(strings.Split(fullTypeName, "."))
+
 	return CRUDRoute{
-		TypeName: strings.ToLower(fmt.Sprintf("%T", *new(T))),
+		TypeName: typeName,
 		Controller: &crudControllerImpl[T]{
 			logger:      logger,
 			crudService: crudService,
