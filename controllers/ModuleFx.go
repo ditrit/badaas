@@ -60,8 +60,9 @@ var CRUDControllerModule = fx.Module(
 )
 
 func GetCRUDControllerModule[T models.Tabler]() fx.Option {
+	typeName := fmt.Sprintf("%T", *new(T))
 	return fx.Module(
-		"crudControllerModule",
+		typeName+"CRUDControllerModule",
 		// service
 		services.GetCRUDServiceModule[T](),
 
@@ -69,12 +70,7 @@ func GetCRUDControllerModule[T models.Tabler]() fx.Option {
 		fx.Provide(
 			fx.Annotate(
 				NewCRUDController[T],
-				fx.ResultTags(
-					fmt.Sprintf(
-						`name:"%TCRUDController"`,
-						*new(T),
-					),
-				),
+				fx.ResultTags(`name:"`+typeName+`CRUDController"`),
 			),
 		),
 	)

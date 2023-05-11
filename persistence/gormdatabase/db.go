@@ -11,8 +11,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var ListOfTables = []any{}
-
 // Create the dsn string from the configuration
 func createDsnFromConf(databaseConfiguration configuration.DatabaseConfiguration) string {
 	dsn := createDsn(
@@ -35,6 +33,7 @@ func createDsn(host, username, password, sslmode, dbname string, port int) strin
 
 // Creates the database object with using the database configuration and exec the setup
 func SetupDatabaseConnection(
+	listOfTables []any,
 	logger *zap.Logger,
 	databaseConfiguration configuration.DatabaseConfiguration,
 ) (*gorm.DB, error) {
@@ -43,7 +42,7 @@ func SetupDatabaseConnection(
 		return nil, err
 	}
 
-	err = db.AutoMigrate(ListOfTables...)
+	err = db.AutoMigrate(listOfTables...)
 	if err != nil {
 		logger.Error("migration failed")
 		return nil, err

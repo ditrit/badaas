@@ -67,6 +67,15 @@ func TestMain(_ *testing.M) {
 	os.Exit(status)
 }
 
+var ListOfTables = []any{
+	models.Session{},
+	models.User{},
+	models.Value{},
+	models.Attribute{},
+	models.Entity{},
+	models.EntityType{},
+}
+
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	t := &TestContext{}
 	jar, err := cookiejar.New(nil)
@@ -81,7 +90,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		// clean db before each scenario
-		integrationtests.CleanDB(db)
+		integrationtests.CleanDBTables(db, ListOfTables)
 
 		adminUser := &models.User{
 			Username: "admin",

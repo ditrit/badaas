@@ -8,8 +8,6 @@ import (
 )
 
 var ListOfTables = []any{
-	models.Session{},
-	models.User{},
 	models.Value{},
 	models.Attribute{},
 	models.Entity{},
@@ -21,8 +19,12 @@ var ListOfTables = []any{
 }
 
 func CleanDB(db *gorm.DB) {
+	CleanDBTables(db, ListOfTables)
+}
+
+func CleanDBTables(db *gorm.DB, listOfTables []any) {
 	// clean database to ensure independency between tests
-	for _, table := range ListOfTables {
+	for _, table := range listOfTables {
 		err := db.Unscoped().Where("1 = 1").Delete(table).Error
 		if err != nil {
 			log.Fatalln("could not clean database: ", err)

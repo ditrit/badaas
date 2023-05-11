@@ -1,7 +1,8 @@
 package services
 
 import (
-	"github.com/ditrit/badaas/persistence/gormdatabase"
+	"fmt"
+
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/sessionservice"
@@ -13,7 +14,8 @@ import (
 var AuthServiceModule = fx.Module(
 	"authService",
 	// models
-	fx.Invoke(addAuthModels),
+	fx.Provide(addModel[models.User]),
+	fx.Provide(addModel[models.Session]),
 	// repositories
 	fx.Provide(repository.NewCRUDRepository[models.Session, uuid.UUID]),
 	fx.Provide(repository.NewCRUDRepository[models.User, uuid.UUID]),
@@ -23,17 +25,13 @@ var AuthServiceModule = fx.Module(
 	fx.Provide(sessionservice.NewSessionService),
 )
 
-func addAuthModels() {
-	gormdatabase.ListOfTables = append(gormdatabase.ListOfTables,
-		models.User{},
-		models.Session{},
-	)
-}
-
 var EAVServiceModule = fx.Module(
 	"eavService",
 	// models
-	fx.Invoke(addEAVModels),
+	fx.Provide(addModel[models.EntityType]),
+	fx.Provide(addModel[models.Entity]),
+	fx.Provide(addModel[models.Value]),
+	fx.Provide(addModel[models.Attribute]),
 	// repositories
 	fx.Provide(repository.NewValueRepository),
 	fx.Provide(repository.NewEntityRepository),
@@ -43,20 +41,14 @@ var EAVServiceModule = fx.Module(
 	fx.Provide(NewEAVService),
 )
 
-func addEAVModels() {
-	gormdatabase.ListOfTables = append(gormdatabase.ListOfTables,
-		models.EntityType{},
-		models.Entity{},
-		models.Value{},
-		models.Attribute{},
-	)
-}
-
 func GetCRUDServiceModule[T models.Tabler]() fx.Option {
 	return fx.Module(
-		"crudServiceModule",
+		fmt.Sprintf(
+			"%TCRUDServiceModule",
+			*new(T),
+		),
 		// models
-		fx.Invoke(addCRUDModel[T]),
+		fx.Provide(addModel[T]),
 		// repository
 		fx.Provide(repository.NewCRUDRepository[T, uuid.UUID]),
 		// service
@@ -64,8 +56,14 @@ func GetCRUDServiceModule[T models.Tabler]() fx.Option {
 	)
 }
 
-func addCRUDModel[T models.Tabler]() {
-	gormdatabase.ListOfTables = append(gormdatabase.ListOfTables,
-		*new(T),
-	)
+type addModelResult struct {
+	fx.Out
+
+	Model any `group:"modelTables"`
+}
+
+func addModel[T any]() addModelResult {
+	return addModelResult{
+		Model: *new(T),
+	}
 }

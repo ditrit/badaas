@@ -13,5 +13,10 @@ import (
 var PersistanceModule = fx.Module(
 	"persistence",
 	// Database connection
-	fx.Provide(gormdatabase.SetupDatabaseConnection),
+	fx.Provide(
+		fx.Annotate(
+			gormdatabase.SetupDatabaseConnection,
+			fx.ParamTags(`group:"modelTables"`),
+		),
+	),
 )
