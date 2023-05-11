@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/sessionservice"
@@ -14,8 +15,8 @@ import (
 var AuthServiceModule = fx.Module(
 	"authService",
 	// models
-	fx.Provide(addModel[models.User]),
-	fx.Provide(addModel[models.Session]),
+	fx.Provide(persistence.AddModel[models.User]),
+	fx.Provide(persistence.AddModel[models.Session]),
 	// repositories
 	fx.Provide(repository.NewCRUDRepository[models.Session, uuid.UUID]),
 	fx.Provide(repository.NewCRUDRepository[models.User, uuid.UUID]),
@@ -28,10 +29,10 @@ var AuthServiceModule = fx.Module(
 var EAVServiceModule = fx.Module(
 	"eavService",
 	// models
-	fx.Provide(addModel[models.EntityType]),
-	fx.Provide(addModel[models.Entity]),
-	fx.Provide(addModel[models.Value]),
-	fx.Provide(addModel[models.Attribute]),
+	fx.Provide(persistence.AddModel[models.EntityType]),
+	fx.Provide(persistence.AddModel[models.Entity]),
+	fx.Provide(persistence.AddModel[models.Value]),
+	fx.Provide(persistence.AddModel[models.Attribute]),
 	// repositories
 	fx.Provide(repository.NewValueRepository),
 	fx.Provide(repository.NewEntityRepository),
@@ -48,22 +49,10 @@ func GetCRUDServiceModule[T models.Tabler]() fx.Option {
 			*new(T),
 		),
 		// models
-		fx.Provide(addModel[T]),
+		fx.Provide(persistence.AddModel[T]),
 		// repository
 		fx.Provide(repository.NewCRUDRepository[T, uuid.UUID]),
 		// service
 		fx.Provide(NewCRUDService[T, uuid.UUID]),
 	)
-}
-
-type addModelResult struct {
-	fx.Out
-
-	Model any `group:"modelTables"`
-}
-
-func addModel[T any]() addModelResult {
-	return addModelResult{
-		Model: *new(T),
-	}
 }

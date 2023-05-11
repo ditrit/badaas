@@ -20,3 +20,15 @@ var PersistanceModule = fx.Module(
 		),
 	),
 )
+
+type AddModelResult struct {
+	fx.Out
+
+	Model any `group:"modelTables"`
+}
+
+func AddModel[T any]() AddModelResult {
+	return AddModelResult{
+		Model: *new(T),
+	}
+}

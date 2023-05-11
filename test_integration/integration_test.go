@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/ditrit/badaas"
+	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
@@ -52,8 +53,8 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		services.GetCRUDServiceModule[Company](),
-		services.GetCRUDServiceModule[Seller](),
+		fx.Provide(persistence.AddModel[Company]),
+		fx.Provide(persistence.AddModel[Seller]),
 		services.GetCRUDServiceModule[Product](),
 		services.GetCRUDServiceModule[Sale](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
