@@ -9,19 +9,78 @@ import (
 	"gorm.io/gorm"
 )
 
+type Company struct {
+	models.BaseModel
+
+	Name    string
+	Sellers []Seller
+}
+
+type Product struct {
+	models.BaseModel
+
+	String string
+	Int    int
+	Float  float64
+	Bool   bool
+}
+
+type Seller struct {
+	models.BaseModel
+
+	Name      string
+	CompanyID *uuid.UUID
+}
+
+type Sale struct {
+	models.BaseModel
+
+	// belongsTo Product
+	Product   *Product
+	ProductID uuid.UUID
+
+	// belongsTo Seller
+	Seller   *Seller
+	SellerID uuid.UUID
+}
+
+func (Product) TableName() string {
+	return "products"
+}
+
+func (Sale) TableName() string {
+	return "sales"
+}
+
+func (Company) TableName() string {
+	return "companies"
+}
+
+func (Seller) TableName() string {
+	return "sellers"
+}
+
+func (m Product) Equal(other Product) bool {
+	return m.ID == other.ID
+}
+
+func (m Sale) Equal(other Sale) bool {
+	return m.ID == other.ID
+}
+
 type CRUDServiceIntTestSuite struct {
 	suite.Suite
 	logger             *zap.Logger
 	db                 *gorm.DB
-	crudProductService services.CRUDService[models.Product, uuid.UUID]
-	crudSaleService    services.CRUDService[models.Sale, uuid.UUID]
+	crudProductService services.CRUDService[Product, uuid.UUID]
+	crudSaleService    services.CRUDService[Sale, uuid.UUID]
 }
 
 func NewCRUDServiceIntTestSuite(
 	logger *zap.Logger,
 	db *gorm.DB,
-	crudProductService services.CRUDService[models.Product, uuid.UUID],
-	crudSaleService services.CRUDService[models.Sale, uuid.UUID],
+	crudProductService services.CRUDService[Product, uuid.UUID],
+	crudSaleService services.CRUDService[Sale, uuid.UUID],
 ) *CRUDServiceIntTestSuite {
 	return &CRUDServiceIntTestSuite{
 		logger:             logger,
@@ -41,7 +100,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsEmptyI
 	entities, err := ts.crudProductService.GetEntities(map[string]any{})
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{}, entities)
+	EqualList(&ts.Suite, []*Product{}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheOnlyOneIfOneEntityCreated() {
@@ -50,7 +109,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheOnl
 	entities, err := ts.crudProductService.GetEntities(map[string]any{})
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
+	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheListWhenMultipleCreated() {
@@ -61,7 +120,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheLis
 	entities, err := ts.crudProductService.GetEntities(map[string]any{})
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
+	EqualList(&ts.Suite, []*Product{match1, match2, match3}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNotEntitiesCreated() {
@@ -71,7 +130,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNo
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{}, entities)
+	EqualList(&ts.Suite, []*Product{}, entities)
 }
 
 // TODO mirar esto, el string del where se pone sin tabla, puede generar problemas cuando haya join
@@ -86,7 +145,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNo
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{}, entities)
+	EqualList(&ts.Suite, []*Product{}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnlyOneMatch() {
@@ -103,7 +162,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnly
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
+	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleIfMultipleMatch() {
@@ -123,7 +182,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleI
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
 }
 
 // TODO ver caso en el que la columna no existe
@@ -144,7 +203,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleI
 // 	entities, err := ts.crudProductService.GetEntities(params)
 // 	ts.Nil(err)
 
-// 	EqualList(&ts.Suite, []*models.Product{}, entities)
+// 	EqualList(&ts.Suite, []*Product{}, entities)
 // }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
@@ -163,7 +222,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
+	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
 // TODO ver este caso
@@ -197,7 +256,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
+	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
@@ -216,7 +275,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
+	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
 // TODO testear la creacion directo con entidades
@@ -231,12 +290,13 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 	ts.createSale(product2, seller2)
 
 	params := map[string]any{
+		// TODO ver esto, es un poco confuso que lo muestra como ProductID pero para queries es product_id
 		"product_id": product1.ID.String(),
 	}
 	entities, err := ts.crudSaleService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
 // TODO ver esto
@@ -252,7 +312,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 // 	entities, err := ts.crudProductService.GetEntities(params)
 // 	ts.Nil(err)
 
-// 	EqualList(&ts.Suite, []*models.Product{match}, entities)
+// 	EqualList(&ts.Suite, []*Product{match}, entities)
 // }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDifferentTypesWorks() {
@@ -286,7 +346,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDiffer
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoins() {
@@ -311,7 +371,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoins() {
 	entities, err := ts.crudSaleService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDifferentAttributes() {
@@ -339,7 +399,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffer
 	entities, err := ts.crudSaleService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
 // // TODO aca deberia agregar casos en lo que 1 matchea pero el otro no
@@ -368,7 +428,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferen
 	entities, err := ts.crudSaleService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultipleTimes() {
@@ -396,7 +456,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultiple
 	entities, err := ts.crudSaleService.GetEntities(params)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
 // TODO falta test de que joinea dos veces con la misma entidad
@@ -404,15 +464,15 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultiple
 
 // ------------------------- utils -------------------------
 
-func (ts *CRUDServiceIntTestSuite) createProduct(values map[string]any) *models.Product {
+func (ts *CRUDServiceIntTestSuite) createProduct(values map[string]any) *Product {
 	entity, err := ts.crudProductService.CreateEntity(values)
 	ts.Nil(err)
 
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createSale(product *models.Product, seller *models.Seller) *models.Sale {
-	entity := &models.Sale{
+func (ts *CRUDServiceIntTestSuite) createSale(product *Product, seller *Seller) *Sale {
+	entity := &Sale{
 		Product: product,
 		Seller:  seller,
 	}
@@ -422,12 +482,12 @@ func (ts *CRUDServiceIntTestSuite) createSale(product *models.Product, seller *m
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *models.Company) *models.Seller {
+func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *Company) *Seller {
 	var companyID *uuid.UUID
 	if company != nil {
 		companyID = &company.ID
 	}
-	entity := &models.Seller{
+	entity := &Seller{
 		Name:      name,
 		CompanyID: companyID,
 	}
@@ -437,8 +497,8 @@ func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *models.Com
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createCompany(name string) *models.Company {
-	entity := &models.Company{
+func (ts *CRUDServiceIntTestSuite) createCompany(name string) *Company {
+	entity := &Company{
 		Name: name,
 	}
 	err := ts.db.Create(entity).Error

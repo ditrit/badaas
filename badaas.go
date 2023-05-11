@@ -5,7 +5,6 @@ import (
 	"github.com/ditrit/badaas/logger"
 	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/router"
-	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
 	"go.uber.org/fx"
@@ -17,7 +16,6 @@ var BadaasModule = fx.Module(
 	router.RouterModule,
 	logger.LoggerModule,
 	persistence.PersistanceModule,
-	services.ServicesModule,
 )
 
 func ConfigCommandParameters(command *verdeter.VerdeterCommand) error {

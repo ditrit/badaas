@@ -7,8 +7,7 @@ import (
 	"testing"
 
 	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/controllers"
-	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -50,10 +49,13 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
 
+		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		controllers.GetCRUDModule[models.Product](),
-		controllers.GetCRUDModule[models.Sale](),
+		services.GetCRUDServiceModule[Company](),
+		services.GetCRUDServiceModule[Seller](),
+		services.GetCRUDServiceModule[Product](),
+		services.GetCRUDServiceModule[Sale](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
 
 		fx.Invoke(runTestSuites),

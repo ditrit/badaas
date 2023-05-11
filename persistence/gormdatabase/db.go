@@ -6,11 +6,12 @@ import (
 
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
-	"github.com/ditrit/badaas/persistence/models"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
+
+var ListOfTables = []any{}
 
 // Create the dsn string from the configuration
 func createDsnFromConf(databaseConfiguration configuration.DatabaseConfiguration) string {
@@ -33,13 +34,16 @@ func createDsn(host, username, password, sslmode, dbname string, port int) strin
 }
 
 // Creates the database object with using the database configuration and exec the setup
-func SetupDatabaseConnection(logger *zap.Logger, databaseConfiguration configuration.DatabaseConfiguration) (*gorm.DB, error) {
+func SetupDatabaseConnection(
+	logger *zap.Logger,
+	databaseConfiguration configuration.DatabaseConfiguration,
+) (*gorm.DB, error) {
 	db, err := CreateDatabaseConnectionFromConfiguration(logger, databaseConfiguration)
 	if err != nil {
 		return nil, err
 	}
 
-	err = AutoMigrate(logger, db)
+	err = db.AutoMigrate(ListOfTables...)
 	if err != nil {
 		logger.Error("migration failed")
 		return nil, err
@@ -90,22 +94,4 @@ func initializeDBFromDsn(dsn string, logger *zap.Logger) (*gorm.DB, error) {
 		return nil, err
 	}
 	return database, nil
-}
-
-// Migrate the database using gorm [https://gorm.io/docs/migration.html#Auto-Migration]
-func autoMigrate(database *gorm.DB, listOfDatabaseTables []any) error {
-	err := database.AutoMigrate(listOfDatabaseTables...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Run the automigration
-func AutoMigrate(logger *zap.Logger, database *gorm.DB) error {
-	err := autoMigrate(database, models.ListOfTables)
-	if err != nil {
-		return err
-	}
-	return nil
 }

@@ -12,6 +12,5 @@ var RouterModule = fx.Module(
 	// middlewares
 	fx.Provide(middlewares.NewJSONController),
 	fx.Provide(middlewares.NewMiddlewareLogger),
-	fx.Provide(middlewares.NewAuthenticationMiddleware),
 	fx.Invoke(middlewares.AddLoggerMiddleware),
 )

@@ -4,32 +4,46 @@ import (
 	"fmt"
 
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/repository"
+	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services"
-	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
 var InfoControllerModule = fx.Module(
 	"infoController",
+	// controller
 	fx.Provide(NewInfoController),
+	// routes
 	fx.Invoke(AddInfoRoutes),
 )
 
 var AuthControllerModule = fx.Module(
 	"authController",
+	// service
+	services.AuthServiceModule,
+
+	// controller
 	fx.Provide(NewBasicAuthenticationController),
+
+	// routes
+	fx.Provide(middlewares.NewAuthenticationMiddleware),
 	fx.Invoke(AddAuthRoutes),
 )
 
 var EAVControllerModule = fx.Module(
 	"eavController",
+	// service
+	services.EAVServiceModule,
+
+	// controller
 	fx.Provide(
 		fx.Annotate(
 			NewEAVController,
 			fx.ResultTags(`name:"eavController"`),
 		),
 	),
+
+	// routes
 	fx.Invoke(
 		fx.Annotate(
 			AddEAVCRUDRoutes,
@@ -40,15 +54,18 @@ var EAVControllerModule = fx.Module(
 
 var CRUDControllerModule = fx.Module(
 	"crudController",
+	// TODO cambiar el nombre de esto
 	fx.Provide(NewGeneralCRUDController),
 	fx.Invoke(AddCRUDRoutes),
 )
 
-func GetCRUDModule[T models.Tabler]() fx.Option {
+func GetCRUDControllerModule[T models.Tabler]() fx.Option {
 	return fx.Module(
-		"crudModule",
-		fx.Provide(repository.NewCRUDRepository[T, uuid.UUID]),
-		fx.Provide(services.NewCRUDService[T, uuid.UUID]),
+		"crudControllerModule",
+		// service
+		services.GetCRUDServiceModule[T](),
+
+		// controller
 		fx.Provide(
 			fx.Annotate(
 				NewCRUDController[T],
