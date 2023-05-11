@@ -2,7 +2,9 @@ package controllers
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
@@ -26,14 +28,23 @@ type CRUDController interface {
 // check interface compliance
 var _ CRUDController = (*crudControllerImpl[models.User])(nil)
 
+type CRUDRoute struct {
+	TypeName   string
+	Controller CRUDController
+}
+
 func NewCRUDController[T models.Tabler](
 	logger *zap.Logger,
 	crudService services.CRUDService[T, uuid.UUID],
-) CRUDController {
-	return &crudControllerImpl[T]{
-		logger:      logger,
-		crudService: crudService,
+) CRUDRoute {
+	return CRUDRoute{
+		TypeName: strings.ToLower(fmt.Sprintf("%T", *new(T))),
+		Controller: &crudControllerImpl[T]{
+			logger:      logger,
+			crudService: crudService,
+		},
 	}
+
 }
 
 // The concrete implementation of the EAVController

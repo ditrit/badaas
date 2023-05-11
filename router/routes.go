@@ -1,9 +1,10 @@
-package controllers
+package router
 
 import (
 	"strings"
 
 	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/gorilla/mux"
@@ -13,7 +14,7 @@ import (
 func AddInfoRoutes(
 	router *mux.Router,
 	jsonController middlewares.JSONController,
-	infoController InformationController,
+	infoController controllers.InformationController,
 ) {
 	router.HandleFunc(
 		"/info",
@@ -29,7 +30,7 @@ func AddAuthRoutes(
 	logger *zap.Logger,
 	router *mux.Router,
 	authenticationMiddleware middlewares.AuthenticationMiddleware,
-	basicAuthenticationController BasicAuthenticationController,
+	basicAuthenticationController controllers.BasicAuthenticationController,
 	jsonController middlewares.JSONController,
 	config configuration.InitializationConfiguration,
 	userService userservice.UserService,
@@ -69,7 +70,7 @@ func createSuperUser(
 }
 
 func AddEAVCRUDRoutes(
-	eavController CRUDController,
+	eavController controllers.CRUDController,
 	router *mux.Router,
 	jsonController middlewares.JSONController,
 ) {
@@ -84,16 +85,37 @@ func AddEAVCRUDRoutes(
 }
 
 func AddCRUDRoutes(
+	crudRoutes []controllers.CRUDRoute,
 	router *mux.Router,
-	generalCRUDController *GeneralCRUDController,
 	jsonController middlewares.JSONController,
 ) {
-	// Objects CRUD
-	objectsBase := "/objects/{type}"
-	objectsWithID := objectsBase + "/{id}"
-	router.HandleFunc(objectsWithID, jsonController.Wrap(generalCRUDController.GetObject)).Methods("GET")
-	router.HandleFunc(objectsBase, jsonController.Wrap(generalCRUDController.GetObjects)).Methods("GET")
-	router.HandleFunc(objectsBase, jsonController.Wrap(generalCRUDController.CreateObject)).Methods("POST")
-	router.HandleFunc(objectsWithID, jsonController.Wrap(generalCRUDController.UpdateObject)).Methods("PUT")
-	router.HandleFunc(objectsWithID, jsonController.Wrap(generalCRUDController.DeleteObject)).Methods("DELETE")
+	for _, crudRoute := range crudRoutes {
+		// Objects CRUD
+		objectsBase := "/objects/" + crudRoute.TypeName
+		objectsWithID := objectsBase + "/{id}"
+		// create
+		router.HandleFunc(
+			objectsBase,
+			jsonController.Wrap(crudRoute.Controller.CreateObject),
+		).Methods("POST")
+		// read
+		router.HandleFunc(
+			objectsWithID,
+			jsonController.Wrap(crudRoute.Controller.GetObject),
+		).Methods("GET")
+		router.HandleFunc(
+			objectsBase,
+			jsonController.Wrap(crudRoute.Controller.GetObjects),
+		).Methods("GET")
+		// update
+		router.HandleFunc(
+			objectsWithID,
+			jsonController.Wrap(crudRoute.Controller.UpdateObject),
+		).Methods("PUT")
+		// delete
+		router.HandleFunc(
+			objectsWithID,
+			jsonController.Wrap(crudRoute.Controller.DeleteObject),
+		).Methods("DELETE")
+	}
 }

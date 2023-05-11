@@ -8,7 +8,7 @@ import (
 	"github.com/Masterminds/semver/v3"
 	"github.com/ditrit/badaas"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/controllers"
+	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/verdeter"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -47,9 +47,9 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 
 		fx.Provide(NewAPIVersion),
 		// add routes provided by badaas
-		controllers.InfoControllerModule,
-		controllers.AuthControllerModule,
-		controllers.EAVControllerModule,
+		router.InfoRouteModule,
+		router.AuthRoutesModule,
+		router.EAVRoutesModule,
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),
