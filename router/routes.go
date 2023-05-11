@@ -1,7 +1,6 @@
 package router
 
 import (
-	"log"
 	"strings"
 
 	"github.com/ditrit/badaas/configuration"
@@ -90,9 +89,7 @@ func AddCRUDRoutes(
 	router *mux.Router,
 	jsonController middlewares.JSONController,
 ) {
-	log.Println(crudRoutes)
 	for _, crudRoute := range crudRoutes {
-		log.Println(crudRoute)
 		// Objects CRUD
 		objectsBase := "/objects/" + crudRoute.TypeName
 		objectsWithID := objectsBase + "/{id}"
