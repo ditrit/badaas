@@ -3,7 +3,6 @@ package badorm
 import (
 	"fmt"
 
-	"github.com/ditrit/badaas/badorm/tabler"
 	"go.uber.org/fx"
 )
 
@@ -17,7 +16,7 @@ var BaDORMModule = fx.Module(
 	),
 )
 
-func GetCRUDServiceModule[T tabler.Tabler, ID BadaasID]() fx.Option {
+func GetCRUDServiceModule[T any, ID BadaasID]() fx.Option {
 	return fx.Module(
 		fmt.Sprintf(
 			"%TCRUDServiceModule",

@@ -44,22 +44,6 @@ type Sale struct {
 	SellerID uuid.UUID
 }
 
-func (Product) TableName() string {
-	return "products"
-}
-
-func (Sale) TableName() string {
-	return "sales"
-}
-
-func (Company) TableName() string {
-	return "companies"
-}
-
-func (Seller) TableName() string {
-	return "sellers"
-}
-
 func (m Product) Equal(other Product) bool {
 	return m.ID == other.ID
 }

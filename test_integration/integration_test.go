@@ -66,13 +66,13 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 }
 
 func runTestSuites(
-	ts1 *EAVServiceIntTestSuite,
-	ts2 *CRUDServiceIntTestSuite,
+	tsEAV *EAVServiceIntTestSuite,
+	tsCRUD *CRUDServiceIntTestSuite,
 	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, ts1)
-	suite.Run(tGlobal, ts2)
+	suite.Run(tGlobal, tsEAV)
+	suite.Run(tGlobal, tsCRUD)
 
 	// let db cleaned
 	CleanDB(db)

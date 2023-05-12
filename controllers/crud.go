@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/tabler"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/elliotchance/pie/v2"
@@ -35,7 +34,7 @@ type CRUDRoute struct {
 	Controller CRUDController
 }
 
-func NewCRUDController[T tabler.Tabler](
+func NewCRUDController[T any](
 	logger *zap.Logger,
 	crudService badorm.CRUDService[T, uuid.UUID],
 ) CRUDRoute {
@@ -54,7 +53,7 @@ func NewCRUDController[T tabler.Tabler](
 }
 
 // The concrete implementation of the EAVController
-type crudControllerImpl[T tabler.Tabler] struct {
+type crudControllerImpl[T any] struct {
 	logger      *zap.Logger
 	crudService badorm.CRUDService[T, uuid.UUID]
 }

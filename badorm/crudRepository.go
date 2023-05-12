@@ -3,17 +3,17 @@ package badorm
 import (
 	"errors"
 	"fmt"
+	"sync"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/badorm/pagination"
-	"github.com/ditrit/badaas/badorm/tabler"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/gertd/go-pluralize"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"golang.org/x/exp/maps"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"gorm.io/gorm/schema"
 )
 
 type BadaasID interface {
@@ -21,7 +21,7 @@ type BadaasID interface {
 }
 
 // Generic CRUD Repository
-type CRUDRepository[T tabler.Tabler, ID BadaasID] interface {
+type CRUDRepository[T any, ID BadaasID] interface {
 	// create
 	Create(tx *gorm.DB, entity *T) error
 	// read
@@ -43,14 +43,14 @@ var (
 )
 
 // Implementation of the Generic CRUD Repository
-type CRUDRepositoryImpl[T tabler.Tabler, ID BadaasID] struct {
+type CRUDRepositoryImpl[T any, ID BadaasID] struct {
 	CRUDRepository[T, ID]
 	logger                  *zap.Logger
 	paginationConfiguration configuration.PaginationConfiguration
 }
 
 // Constructor of the Generic CRUD Repository
-func NewCRUDRepository[T tabler.Tabler, ID BadaasID](
+func NewCRUDRepository[T any, ID BadaasID](
 	logger *zap.Logger,
 	paginationConfiguration configuration.PaginationConfiguration,
 ) CRUDRepository[T, ID] {
@@ -151,7 +151,16 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 	var entity T
 	// only entities that match the conditions
 	for joinAttributeName, joinConditions := range joinConditions {
-		err := repository.addJoinToQuery(query, entity.TableName(), joinAttributeName, joinConditions)
+		schemaName, err := schema.Parse(entity, &sync.Map{}, tx.NamingStrategy)
+		if err != nil {
+			return nil, err
+		}
+		err = repository.addJoinToQuery(
+			query,
+			schemaName.Table,
+			joinAttributeName,
+			joinConditions,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -191,7 +200,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	}
 
 	pluralize := pluralize.NewClient()
-	// TODO me gustaria poder no hacer esto, en caso de que hayan difinido otra cosa
+	// TODO poder no hacer esto, en caso de que hayan difinido otra cosa
 	tableName := pluralize.Plural(joinAttributeName)
 	// TODO creo que deberia ser al revez
 	tableWithSuffix := tableName + "_" + previousTable
@@ -208,15 +217,17 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 		// TODO ver que pase si attributeName no existe como tabla
 	)
 
-	for _, attributeName := range maps.Keys(thisEntityConditions) {
+	conditionsValues := []any{}
+	for attributeName, conditionValue := range thisEntityConditions {
 		stringQuery += fmt.Sprintf(
 			`AND %[1]s.%[2]s = ?
 			`,
 			tableWithSuffix, attributeName,
 		)
+		conditionsValues = append(conditionsValues, conditionValue)
 	}
 
-	query.Joins(stringQuery, maps.Values(thisEntityConditions)...)
+	query.Joins(stringQuery, conditionsValues...)
 
 	// only entities that match the conditions
 	// TODO codigo duplicado
