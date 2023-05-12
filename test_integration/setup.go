@@ -16,6 +16,11 @@ var ListOfTables = []any{
 	Product{},
 	Seller{},
 	Company{},
+	City{},
+	Country{},
+	Employee{},
+	Bicycle{},
+	Person{},
 }
 
 func CleanDB(db *gorm.DB) {

@@ -3,12 +3,12 @@ package badorm
 import (
 	"errors"
 	"fmt"
+	"reflect"
 	"sync"
 
 	"github.com/Masterminds/squirrel"
 	"github.com/ditrit/badaas/badorm/pagination"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/gertd/go-pluralize"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -40,6 +40,12 @@ type CRUDRepository[T any, ID BadaasID] interface {
 var (
 	ErrMoreThanOneObjectFound = errors.New("found more that one object that meet the requested conditions")
 	ErrObjectNotFound         = errors.New("no object exists that meets the requested conditions")
+	ErrObjectsNotRelated      = func(typeName, attributeName string) error {
+		return fmt.Errorf("%[1]s has not attribute named %[2]s or %[2]sID", typeName, attributeName)
+	}
+	ErrModelNotRegistered = func(typeName, attributeName string) error {
+		return fmt.Errorf("%[1]s has an attribute named %[2]s or %[2]sID but %[2]s is not registered as model (use AddModel)", typeName, attributeName)
+	}
 )
 
 // Implementation of the Generic CRUD Repository
@@ -148,16 +154,18 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 
 	query := tx.Where(thisEntityConditions)
 
-	var entity T
+	entity := new(T)
 	// only entities that match the conditions
 	for joinAttributeName, joinConditions := range joinConditions {
-		schemaName, err := schema.Parse(entity, &sync.Map{}, tx.NamingStrategy)
+		tableName, err := getTableName(tx, entity)
 		if err != nil {
 			return nil, err
 		}
+
 		err = repository.addJoinToQuery(
 			query,
-			schemaName.Table,
+			entity,
+			tableName,
 			joinAttributeName,
 			joinConditions,
 		)
@@ -173,6 +181,15 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 	return entities, err
 }
 
+func getTableName(db *gorm.DB, entity any) (string, error) {
+	schemaName, err := schema.Parse(entity, &sync.Map{}, db.NamingStrategy)
+	if err != nil {
+		return "", err
+	}
+
+	return schemaName.Table, nil
+}
+
 func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
 	return repository.GetMultiple(tx, map[string]any{})
 }
@@ -181,8 +198,12 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
 // then, adds the verification that the values for the joined entity are "expectedValues"
 
 // "expectedValues" is in {"attributeName": expectedValue} format
+// TODO support ManyToMany relations
+// previousEntity is pointer
 func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
-	query *gorm.DB, previousTable, joinAttributeName string, conditions map[string]any,
+	query *gorm.DB, previousEntity any,
+	previousTableName, joinAttributeName string,
+	conditions map[string]any,
 ) error {
 	// TODO codigo duplicado
 	thisEntityConditions := map[string]any{}
@@ -199,23 +220,47 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 		}
 	}
 
-	pluralize := pluralize.NewClient()
-	// TODO poder no hacer esto, en caso de que hayan difinido otra cosa
-	tableName := pluralize.Plural(joinAttributeName)
-	// TODO creo que deberia ser al revez
-	tableWithSuffix := tableName + "_" + previousTable
-	stringQuery := fmt.Sprintf(
-		`JOIN %[1]s %[2]s ON
-			%[2]s.id = %[3]s.%[4]s_id
-			AND %[2]s.deleted_at IS NULL
-		`,
-		tableName,
-		tableWithSuffix,
-		previousTable,
+	relatedObject, relationIDIsInPreviousTable, err := getRelatedObject(
+		previousEntity,
 		joinAttributeName,
-		// TODO que pasa si el atributo no existe
-		// TODO ver que pase si attributeName no existe como tabla
 	)
+	if err != nil {
+		return err
+	}
+
+	joinTableName, err := getTableName(query, relatedObject)
+	if err != nil {
+		return err
+	}
+
+	tableWithSuffix := joinTableName + "_" + previousTableName
+
+	var stringQuery string
+	if relationIDIsInPreviousTable {
+		stringQuery = fmt.Sprintf(
+			`JOIN %[1]s %[2]s ON
+				%[2]s.id = %[3]s.%[4]s_id
+				AND %[2]s.deleted_at IS NULL
+			`,
+			joinTableName,
+			tableWithSuffix,
+			previousTableName,
+			joinAttributeName,
+		)
+	} else {
+		// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
+		previousAttribute := reflect.TypeOf(previousEntity).Elem().Name()
+		stringQuery = fmt.Sprintf(
+			`JOIN %[1]s %[2]s ON
+				%[2]s.%[4]s_id = %[3]s.id
+				AND %[2]s.deleted_at IS NULL
+			`,
+			joinTableName,
+			tableWithSuffix,
+			previousTableName,
+			previousAttribute,
+		)
+	}
 
 	conditionsValues := []any{}
 	for attributeName, conditionValue := range thisEntityConditions {
@@ -223,22 +268,66 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 			`AND %[1]s.%[2]s = ?
 			`,
 			tableWithSuffix, attributeName,
+			// TODO que pasa si el atributo no existe
 		)
 		conditionsValues = append(conditionsValues, conditionValue)
 	}
 
 	query.Joins(stringQuery, conditionsValues...)
 
-	// only entities that match the conditions
 	// TODO codigo duplicado
 	for joinAttributeName, joinConditions := range joinConditions {
-		err := repository.addJoinToQuery(query, tableWithSuffix, joinAttributeName, joinConditions)
+		err := repository.addJoinToQuery(
+			query,
+			relatedObject,
+			tableWithSuffix,
+			joinAttributeName,
+			joinConditions,
+		)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+// entity can be a pointer of not, now only works with pointer
+func getRelatedObject(entity any, relationName string) (any, bool, error) {
+	entityType := reflect.TypeOf(entity)
+
+	// entityType will be a pointer if the relation can be nullable
+	if entityType.Kind() == reflect.Pointer {
+		entityType = entityType.Elem()
+	}
+
+	field, isPresent := entityType.FieldByName(relationName)
+	if !isPresent {
+		// some gorm relations dont have a direct relation in the model, only the id
+		return getRelatedObjectByID(entityType, relationName)
+	}
+
+	_, isIDPresent := entityType.FieldByName(relationName + "ID")
+
+	return createObject(field.Type), isIDPresent, nil
+}
+
+func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, bool, error) {
+	_, isPresent := entityType.FieldByName(relationName + "ID")
+	if !isPresent {
+		return nil, false, ErrObjectsNotRelated(entityType.Name(), relationName)
+	}
+
+	fieldType, isPresent := modelsMapping[relationName]
+	if !isPresent {
+		return nil, false, ErrModelNotRegistered(entityType.Name(), relationName)
+	}
+
+	return createObject(fieldType), true, nil
+}
+
+func createObject(entityType reflect.Type) any {
+	return reflect.New(entityType).Elem().Interface()
 }
 
 // Find entities of a Model

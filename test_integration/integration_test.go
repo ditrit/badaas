@@ -56,9 +56,14 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		fx.Provide(NewEAVServiceIntTestSuite),
 
 		fx.Provide(badorm.AddModel[Company]),
-		fx.Provide(badorm.AddModel[Seller]),
+		badorm.GetCRUDServiceModule[Seller, uuid.UUID](),
 		badorm.GetCRUDServiceModule[Product, uuid.UUID](),
 		badorm.GetCRUDServiceModule[Sale, uuid.UUID](),
+		badorm.GetCRUDServiceModule[City, uuid.UUID](),
+		badorm.GetCRUDServiceModule[Country, uuid.UUID](),
+		badorm.GetCRUDServiceModule[Employee, uuid.UUID](),
+		fx.Provide(badorm.AddModel[Person]),
+		badorm.GetCRUDServiceModule[Bicycle, uuid.UUID](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
 
 		fx.Invoke(runTestSuites),
