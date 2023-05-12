@@ -4,10 +4,10 @@ import (
 	"errors"
 	"testing"
 
-	repositoryMocks "github.com/ditrit/badaas/mocks/persistence/repository"
+	"github.com/ditrit/badaas/badorm"
+	badormMocks "github.com/ditrit/badaas/mocks/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
-	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -26,7 +26,7 @@ func TestNewUserService(t *testing.T) {
 	observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	userRepositoryMock := repositoryMocks.NewCRUDRepository[models.User, uuid.UUID](t)
+	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 	userRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
 
 	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
@@ -53,7 +53,7 @@ func TestNewUserServiceDatabaseError(t *testing.T) {
 	observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	userRepositoryMock := repositoryMocks.NewCRUDRepository[models.User, uuid.UUID](t)
+	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 	userRepositoryMock.On(
 		"Create", gormDB, mock.Anything,
 	).Return(
@@ -73,7 +73,7 @@ func TestNewUserServiceEmailNotValid(t *testing.T) {
 	observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	userRepositoryMock := repositoryMocks.NewCRUDRepository[models.User, uuid.UUID](t)
+	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 
 	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
 	user, err := userService.NewUser("bob", "bob@", "1234")
@@ -89,7 +89,7 @@ func TestGetUser(t *testing.T) {
 	observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	userRepositoryMock := repositoryMocks.NewCRUDRepository[models.User, uuid.UUID](t)
+	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
 	userRepositoryMock.On(
 		"Create", gormDB, mock.Anything,
@@ -124,13 +124,13 @@ func TestGetUserNoUserFound(t *testing.T) {
 	observedZapCore, _ := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	userRepositoryMock := repositoryMocks.NewCRUDRepository[models.User, uuid.UUID](t)
+	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
 	userRepositoryMock.On(
 		"Get", gormDB, map[string]any{"email": "bobnotfound@email.com"},
 	).Return(
 		nil,
-		repository.ErrObjectNotFound,
+		badorm.ErrObjectNotFound,
 	)
 
 	userFound, err := userService.GetUser(dto.UserLoginDTO{Email: "bobnotfound@email.com", Password: "1234"})
@@ -144,7 +144,7 @@ func TestGetUserWrongPassword(t *testing.T) {
 	observedZapCore, _ := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	userRepositoryMock := repositoryMocks.NewCRUDRepository[models.User, uuid.UUID](t)
+	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 	userRepositoryMock.On(
 		"Create", gormDB, mock.Anything,
 	).Return(nil)

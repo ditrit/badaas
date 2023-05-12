@@ -3,7 +3,7 @@ package pagination_test
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/persistence/pagination"
+	"github.com/ditrit/badaas/badorm/pagination"
 	"github.com/stretchr/testify/assert"
 )
 

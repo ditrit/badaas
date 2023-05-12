@@ -3,10 +3,12 @@ package router
 import (
 	"fmt"
 
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/tabler"
 	"github.com/ditrit/badaas/controllers"
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services"
+	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
@@ -69,12 +71,12 @@ var EAVRoutesModule = fx.Module(
 	),
 )
 
-func GetCRUDRoutesModule[T models.Tabler]() fx.Option {
+func GetCRUDRoutesModule[T tabler.Tabler]() fx.Option {
 	typeName := fmt.Sprintf("%T", *new(T))
 	return fx.Module(
 		typeName+"CRUDRoutesModule",
 		// service
-		services.GetCRUDServiceModule[T](),
+		badorm.GetCRUDServiceModule[T, uuid.UUID](),
 
 		// controller
 		fx.Provide(

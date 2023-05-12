@@ -1,9 +1,11 @@
 package pagination
 
-import "github.com/ditrit/badaas/persistence/models"
+import (
+	"github.com/ditrit/badaas/badorm/tabler"
+)
 
 // A page hold ressources and data regarding the pagination
-type Page[T models.Tabler] struct {
+type Page[T tabler.Tabler] struct {
 	Ressources []*T `json:"ressources"`
 	// max d'element par page
 	Limit uint `json:"limit"`
@@ -21,7 +23,7 @@ type Page[T models.Tabler] struct {
 }
 
 // Create a new page
-func NewPage[T models.Tabler](records []*T, offset, size, nbElemTotal uint) *Page[T] {
+func NewPage[T tabler.Tabler](records []*T, offset, size, nbElemTotal uint) *Page[T] {
 	nbPage := nbElemTotal / size
 	p := Page[T]{
 		Ressources: records,

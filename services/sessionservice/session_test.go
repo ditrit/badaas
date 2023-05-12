@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/ditrit/badaas/httperrors"
+	badormMocks "github.com/ditrit/badaas/mocks/badorm"
 	configurationMocks "github.com/ditrit/badaas/mocks/configuration"
-	repositoryMocks "github.com/ditrit/badaas/mocks/persistence/repository"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -25,14 +25,14 @@ var gormDB *gorm.DB
 func setupTest(
 	t *testing.T,
 ) (
-	*repositoryMocks.CRUDRepository[models.Session, uuid.UUID],
+	*badormMocks.CRUDRepository[models.Session, uuid.UUID],
 	*sessionServiceImpl,
 	*observer.ObservedLogs,
 	*configurationMocks.SessionConfiguration,
 ) {
 	core, logs := observer.New(zap.DebugLevel)
 	logger := zap.New(core)
-	sessionRepositoryMock := repositoryMocks.NewCRUDRepository[models.Session, uuid.UUID](t)
+	sessionRepositoryMock := badormMocks.NewCRUDRepository[models.Session, uuid.UUID](t)
 	sessionConfiguration := configurationMocks.NewSessionConfiguration(t)
 	service := &sessionServiceImpl{
 		sessionRepository:    sessionRepositoryMock,

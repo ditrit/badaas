@@ -1,19 +1,41 @@
-package repository
+package badorm
 
 import (
 	"errors"
 	"fmt"
 
 	"github.com/Masterminds/squirrel"
+	"github.com/ditrit/badaas/badorm/pagination"
+	"github.com/ditrit/badaas/badorm/tabler"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/pagination"
 	"github.com/gertd/go-pluralize"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/exp/maps"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
+
+type BadaasID interface {
+	int | uuid.UUID
+}
+
+// Generic CRUD Repository
+type CRUDRepository[T tabler.Tabler, ID BadaasID] interface {
+	// create
+	Create(tx *gorm.DB, entity *T) error
+	// read
+	GetByID(tx *gorm.DB, id ID) (*T, error)
+	Get(tx *gorm.DB, conditions map[string]any) (*T, error)
+	GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error)
+	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
+	GetAll(tx *gorm.DB) ([]*T, error)
+	Find(tx *gorm.DB, filters squirrel.Sqlizer, pagination pagination.Paginator, sort SortOption) (*pagination.Page[T], error)
+	// update
+	Save(tx *gorm.DB, entity *T) error
+	// delete
+	Delete(tx *gorm.DB, entity *T) error
+}
 
 var (
 	ErrMoreThanOneObjectFound = errors.New("found more that one object that meet the requested conditions")
@@ -21,14 +43,14 @@ var (
 )
 
 // Implementation of the Generic CRUD Repository
-type CRUDRepositoryImpl[T models.Tabler, ID BadaasID] struct {
+type CRUDRepositoryImpl[T tabler.Tabler, ID BadaasID] struct {
 	CRUDRepository[T, ID]
 	logger                  *zap.Logger
 	paginationConfiguration configuration.PaginationConfiguration
 }
 
 // Constructor of the Generic CRUD Repository
-func NewCRUDRepository[T models.Tabler, ID BadaasID](
+func NewCRUDRepository[T tabler.Tabler, ID BadaasID](
 	logger *zap.Logger,
 	paginationConfiguration configuration.PaginationConfiguration,
 ) CRUDRepository[T, ID] {

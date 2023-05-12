@@ -5,10 +5,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -36,7 +36,7 @@ var _ SessionService = (*sessionServiceImpl)(nil)
 
 // The SessionService concrete interface
 type sessionServiceImpl struct {
-	sessionRepository    repository.CRUDRepository[models.Session, uuid.UUID]
+	sessionRepository    badorm.CRUDRepository[models.Session, uuid.UUID]
 	cache                map[uuid.UUID]*models.Session
 	mutex                sync.Mutex
 	logger               *zap.Logger
@@ -47,7 +47,7 @@ type sessionServiceImpl struct {
 // The SessionService constructor
 func NewSessionService(
 	logger *zap.Logger,
-	sessionRepository repository.CRUDRepository[models.Session, uuid.UUID],
+	sessionRepository badorm.CRUDRepository[models.Session, uuid.UUID],
 	sessionConfiguration configuration.SessionConfiguration,
 	db *gorm.DB,
 ) SessionService {

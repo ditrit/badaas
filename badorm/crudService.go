@@ -1,15 +1,15 @@
-package services
+package badorm
 
 import (
+	"github.com/ditrit/badaas/badorm/tabler"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
-type CRUDService[T models.Tabler, ID repository.BadaasID] interface {
+type CRUDService[T tabler.Tabler, ID BadaasID] interface {
 	GetEntity(id ID) (*T, error)
 	GetEntities(conditions map[string]any) ([]*T, error)
 	CreateEntity(attributeValues map[string]any) (*T, error)
@@ -21,17 +21,17 @@ type CRUDService[T models.Tabler, ID repository.BadaasID] interface {
 var _ CRUDService[models.User, uuid.UUID] = (*crudServiceImpl[models.User, uuid.UUID])(nil)
 
 // Implementation of the Generic CRUD Repository
-type crudServiceImpl[T models.Tabler, ID repository.BadaasID] struct {
+type crudServiceImpl[T tabler.Tabler, ID BadaasID] struct {
 	CRUDService[T, ID]
 	logger     *zap.Logger
 	db         *gorm.DB
-	repository repository.CRUDRepository[T, ID]
+	repository CRUDRepository[T, ID]
 }
 
-func NewCRUDService[T models.Tabler, ID repository.BadaasID](
+func NewCRUDService[T tabler.Tabler, ID BadaasID](
 	logger *zap.Logger,
 	db *gorm.DB,
-	repository repository.CRUDRepository[T, ID],
+	repository CRUDRepository[T, ID],
 ) CRUDService[T, ID] {
 	return &crudServiceImpl[T, ID]{
 		logger:     logger,

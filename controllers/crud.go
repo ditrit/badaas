@@ -6,9 +6,10 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/tabler"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/services"
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
@@ -34,9 +35,9 @@ type CRUDRoute struct {
 	Controller CRUDController
 }
 
-func NewCRUDController[T models.Tabler](
+func NewCRUDController[T tabler.Tabler](
 	logger *zap.Logger,
-	crudService services.CRUDService[T, uuid.UUID],
+	crudService badorm.CRUDService[T, uuid.UUID],
 ) CRUDRoute {
 	fullTypeName := strings.ToLower(fmt.Sprintf("%T", *new(T)))
 	// remove the package name of the type
@@ -53,9 +54,9 @@ func NewCRUDController[T models.Tabler](
 }
 
 // The concrete implementation of the EAVController
-type crudControllerImpl[T models.Tabler] struct {
+type crudControllerImpl[T tabler.Tabler] struct {
 	logger      *zap.Logger
-	crudService services.CRUDService[T, uuid.UUID]
+	crudService badorm.CRUDService[T, uuid.UUID]
 }
 
 // The handler responsible of the retrieval of one objects

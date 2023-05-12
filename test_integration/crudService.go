@@ -1,8 +1,8 @@
 package integrationtests
 
 import (
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/services"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -72,15 +72,15 @@ type CRUDServiceIntTestSuite struct {
 	suite.Suite
 	logger             *zap.Logger
 	db                 *gorm.DB
-	crudProductService services.CRUDService[Product, uuid.UUID]
-	crudSaleService    services.CRUDService[Sale, uuid.UUID]
+	crudProductService badorm.CRUDService[Product, uuid.UUID]
+	crudSaleService    badorm.CRUDService[Sale, uuid.UUID]
 }
 
 func NewCRUDServiceIntTestSuite(
 	logger *zap.Logger,
 	db *gorm.DB,
-	crudProductService services.CRUDService[Product, uuid.UUID],
-	crudSaleService services.CRUDService[Sale, uuid.UUID],
+	crudProductService badorm.CRUDService[Product, uuid.UUID],
+	crudSaleService badorm.CRUDService[Sale, uuid.UUID],
 ) *CRUDServiceIntTestSuite {
 	return &CRUDServiceIntTestSuite{
 		logger:             logger,

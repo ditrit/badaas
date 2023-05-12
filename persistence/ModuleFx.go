@@ -1,6 +1,7 @@
 package persistence
 
 import (
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"go.uber.org/fx"
 )
@@ -10,25 +11,11 @@ import (
 // Provides:
 //
 // - The database connection
+// - BaDORM
 var PersistanceModule = fx.Module(
 	"persistence",
 	// Database connection
-	fx.Provide(
-		fx.Annotate(
-			gormdatabase.SetupDatabaseConnection,
-			fx.ParamTags(`group:"modelTables"`),
-		),
-	),
+	fx.Provide(gormdatabase.SetupDatabaseConnection),
+	// activate BaDORM
+	badorm.BaDORMModule,
 )
-
-type AddModelResult struct {
-	fx.Out
-
-	Model any `group:"modelTables"`
-}
-
-func AddModel[T any]() AddModelResult {
-	return AddModelResult{
-		Model: *new(T),
-	}
-}

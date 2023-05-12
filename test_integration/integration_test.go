@@ -7,15 +7,17 @@ import (
 	"testing"
 
 	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/persistence"
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/verdeter"
+	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 var tGlobal *testing.T
@@ -53,10 +55,10 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		fx.Provide(persistence.AddModel[Company]),
-		fx.Provide(persistence.AddModel[Seller]),
-		services.GetCRUDServiceModule[Product](),
-		services.GetCRUDServiceModule[Sale](),
+		fx.Provide(badorm.AddModel[Company]),
+		fx.Provide(badorm.AddModel[Seller]),
+		badorm.GetCRUDServiceModule[Product, uuid.UUID](),
+		badorm.GetCRUDServiceModule[Sale, uuid.UUID](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
 
 		fx.Invoke(runTestSuites),
@@ -66,9 +68,13 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 func runTestSuites(
 	ts1 *EAVServiceIntTestSuite,
 	ts2 *CRUDServiceIntTestSuite,
+	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
 	suite.Run(tGlobal, ts1)
 	suite.Run(tGlobal, ts2)
+
+	// let db cleaned
+	CleanDB(db)
 	shutdowner.Shutdown()
 }

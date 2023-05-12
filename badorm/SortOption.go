@@ -1,4 +1,4 @@
-package repository
+package badorm
 
 type SortOption interface {
 	Column() string

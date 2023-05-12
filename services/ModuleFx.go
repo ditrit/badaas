@@ -1,9 +1,7 @@
 package services
 
 import (
-	"fmt"
-
-	"github.com/ditrit/badaas/persistence"
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/sessionservice"
@@ -15,11 +13,11 @@ import (
 var AuthServiceModule = fx.Module(
 	"authService",
 	// models
-	fx.Provide(persistence.AddModel[models.User]),
-	fx.Provide(persistence.AddModel[models.Session]),
+	fx.Provide(badorm.AddModel[models.User]),
+	fx.Provide(badorm.AddModel[models.Session]),
 	// repositories
-	fx.Provide(repository.NewCRUDRepository[models.Session, uuid.UUID]),
-	fx.Provide(repository.NewCRUDRepository[models.User, uuid.UUID]),
+	fx.Provide(badorm.NewCRUDRepository[models.Session, uuid.UUID]),
+	fx.Provide(badorm.NewCRUDRepository[models.User, uuid.UUID]),
 
 	// services
 	fx.Provide(userservice.NewUserService),
@@ -29,10 +27,10 @@ var AuthServiceModule = fx.Module(
 var EAVServiceModule = fx.Module(
 	"eavService",
 	// models
-	fx.Provide(persistence.AddModel[models.EntityType]),
-	fx.Provide(persistence.AddModel[models.Entity]),
-	fx.Provide(persistence.AddModel[models.Value]),
-	fx.Provide(persistence.AddModel[models.Attribute]),
+	fx.Provide(badorm.AddModel[models.EntityType]),
+	fx.Provide(badorm.AddModel[models.Entity]),
+	fx.Provide(badorm.AddModel[models.Value]),
+	fx.Provide(badorm.AddModel[models.Attribute]),
 	// repositories
 	fx.Provide(repository.NewValueRepository),
 	fx.Provide(repository.NewEntityRepository),
@@ -41,18 +39,3 @@ var EAVServiceModule = fx.Module(
 	// service
 	fx.Provide(NewEAVService),
 )
-
-func GetCRUDServiceModule[T models.Tabler]() fx.Option {
-	return fx.Module(
-		fmt.Sprintf(
-			"%TCRUDServiceModule",
-			*new(T),
-		),
-		// models
-		fx.Provide(persistence.AddModel[T]),
-		// repository
-		fx.Provide(repository.NewCRUDRepository[T, uuid.UUID]),
-		// service
-		fx.Provide(NewCRUDService[T, uuid.UUID]),
-	)
-}
