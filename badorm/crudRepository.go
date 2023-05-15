@@ -189,7 +189,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
 // then, adds the verification that the values for the joined entity are "expectedValues"
 
 // "expectedValues" is in {"attributeName": expectedValue} format
-// TODO support ManyToMany relations
 // previousEntity is pointer
 func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	query *gorm.DB, previousEntity any,
@@ -249,7 +248,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 			`AND %[1]s.%[2]s = ?
 			`,
 			tableWithSuffix, attributeName,
-			// TODO que pasa si el atributo no existe
 		)
 		conditionsValues = append(conditionsValues, conditionValue)
 	}
@@ -294,12 +292,7 @@ func divideConditionsByEntity(
 
 // entity can be a pointer of not, now only works with pointer
 func getRelatedObject(entity any, relationName string) (any, bool, error) {
-	entityType := reflect.TypeOf(entity)
-
-	// entityType will be a pointer if the relation can be nullable
-	if entityType.Kind() == reflect.Pointer {
-		entityType = entityType.Elem()
-	}
+	entityType := getEntityType(entity)
 
 	field, isPresent := entityType.FieldByName(relationName)
 	if !isPresent {
@@ -310,6 +303,17 @@ func getRelatedObject(entity any, relationName string) (any, bool, error) {
 	_, isIDPresent := entityType.FieldByName(relationName + "ID")
 
 	return createObject(field.Type), isIDPresent, nil
+}
+
+func getEntityType(entity any) reflect.Type {
+	entityType := reflect.TypeOf(entity)
+
+	// entityType will be a pointer if the relation can be nullable
+	if entityType.Kind() == reflect.Pointer {
+		entityType = entityType.Elem()
+	}
+
+	return entityType
 }
 
 func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, bool, error) {

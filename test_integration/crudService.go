@@ -2,6 +2,7 @@ package integrationtests
 
 import (
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
@@ -34,6 +35,8 @@ type Seller struct {
 
 type Sale struct {
 	models.BaseModel
+
+	Code int
 
 	// Sale belongsTo Product (Sale 0..* -> 1 Product)
 	Product   Product
@@ -193,7 +196,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNo
 	EqualList(&ts.Suite, []*Product{}, entities)
 }
 
-// TODO mirar esto, el string del where se pone sin tabla, puede generar problemas cuando haya join
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNothingMatch() {
 	ts.createProduct(map[string]any{
 		"string": "something_else",
@@ -245,26 +247,18 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleI
 	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
 }
 
-// TODO ver caso en el que la columna no existe
-// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatDoesNotExistReturnsEmpty() {
-// 	ts.createProduct(map[string]any{
-// 		"string": "match",
-// 	})
-// 	ts.createProduct(map[string]any{
-// 		"string": "match",
-// 	})
-// 	ts.createProduct(map[string]any{
-// 		"string": "match",
-// 	})
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatDoesNotExistReturnsDBError() {
+	ts.createProduct(map[string]any{
+		"string": "match",
+	})
 
-// 	params := map[string]any{
-// 		"not_exists": "not_exists",
-// 	}
-// 	entities, err := ts.crudProductService.GetEntities(params)
-// 	ts.Nil(err)
-
-// 	EqualList(&ts.Suite, []*Product{}, entities)
-// }
+	params := map[string]any{
+		"not_exists": "not_exists",
+	}
+	_, err := ts.crudProductService.GetEntities(params)
+	ts.NotNil(err)
+	ts.True(gormdatabase.IsPostgresError(err, "42703"))
+}
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	match := ts.createProduct(map[string]any{
@@ -285,20 +279,19 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
-// TODO ver este caso
-// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIncorrectTypeReturnsEmptyList() {
-// 	ts.createProduct(map[string]any{
-// 		"string": "not_match",
-// 		"int":    1,
-// 	})
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIncorrectTypeReturnsDBError() {
+	ts.createProduct(map[string]any{
+		"string": "not_match",
+		"int":    1,
+	})
 
-// 	params := map[string]any{
-// 		"int": "not_an_int",
-// 	}
-// 	entities, err := ts.crudProductService.GetEntities(params)
-// 	ts.Nil(err)
-// 	ts.Len(entities, 0)
-// }
+	params := map[string]any{
+		"int": "not_an_int",
+	}
+	_, err := ts.crudProductService.GetEntities(params)
+	ts.NotNil(err)
+	ts.True(gormdatabase.IsPostgresError(err, "22P02"))
+}
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	match := ts.createProduct(map[string]any{
@@ -338,7 +331,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
-// TODO testear la creacion directo con entidades
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
 	product1 := ts.createProduct(map[string]any{})
 	product2 := ts.createProduct(map[string]any{})
@@ -346,11 +338,10 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 	seller1 := ts.createSeller("franco", nil)
 	seller2 := ts.createSeller("agustin", nil)
 
-	match := ts.createSale(product1, seller1)
-	ts.createSale(product2, seller2)
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
 
 	params := map[string]any{
-		// TODO ver esto, es un poco confuso que lo muestra como ProductID pero para queries es product_id
 		"product_id": product1.ID.String(),
 	}
 	entities, err := ts.crudSaleService.GetEntities(params)
@@ -358,22 +349,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 
 	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
-
-// TODO ver esto
-// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionFilterByNull() {
-// 	match := ts.createProduct(map[string]any{})
-// 	ts.createProduct(map[string]any{
-// 		"string": "something",
-// 	})
-
-// 	params := map[string]any{
-// 		"string": nil,
-// 	}
-// 	entities, err := ts.crudProductService.GetEntities(params)
-// 	ts.Nil(err)
-
-// 	EqualList(&ts.Suite, []*Product{match}, entities)
-// }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDifferentTypesWorks() {
 	match1 := ts.createProduct(map[string]any{
@@ -417,8 +392,8 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsT
 		"int": 2,
 	})
 
-	match := ts.createSale(product1, nil)
-	ts.createSale(product2, nil)
+	match := ts.createSale(0, product1, nil)
+	ts.createSale(0, product2, nil)
 
 	params := map[string]any{
 		"Product": map[string]any{
@@ -442,8 +417,8 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneOp
 	seller1 := ts.createSeller("franco", nil)
 	seller2 := ts.createSeller("agustin", nil)
 
-	match := ts.createSale(product1, seller1)
-	ts.createSale(product2, seller2)
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
 
 	params := map[string]any{
 		"Seller": map[string]any{
@@ -585,8 +560,8 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffer
 	seller1 := ts.createSeller("franco", nil)
 	seller2 := ts.createSeller("agustin", nil)
 
-	match := ts.createSale(product1, seller1)
-	ts.createSale(product2, seller2)
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
 
 	params := map[string]any{
 		"Product": map[string]any{
@@ -600,7 +575,33 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffer
 	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
-// // TODO aca deberia agregar casos en lo que 1 matchea pero el otro no
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFiltersTheMainEntity() {
+	product1 := ts.createProduct(map[string]any{
+		"int": 1,
+	})
+	product2 := ts.createProduct(map[string]any{
+		"int": 2,
+	})
+
+	seller1 := ts.createSeller("franco", nil)
+	seller2 := ts.createSeller("agustin", nil)
+
+	match := ts.createSale(1, product1, seller1)
+	ts.createSale(2, product2, seller2)
+	ts.createSale(2, product1, seller2)
+
+	params := map[string]any{
+		"Product": map[string]any{
+			"int": 1.0,
+		},
+		"code": 1.0,
+	}
+	entities, err := ts.crudSaleService.GetEntities(params)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Sale{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferentEntities() {
 	product1 := ts.createProduct(map[string]any{
 		"int": 1,
@@ -612,8 +613,10 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferen
 	seller1 := ts.createSeller("franco", nil)
 	seller2 := ts.createSeller("agustin", nil)
 
-	match := ts.createSale(product1, seller1)
-	ts.createSale(product2, seller2)
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
+	ts.createSale(0, product1, seller2)
+	ts.createSale(0, product2, seller1)
 
 	params := map[string]any{
 		"Product": map[string]any{
@@ -639,11 +642,10 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultiple
 	seller1 := ts.createSeller("franco", company1)
 	seller2 := ts.createSeller("agustin", company2)
 
-	match := ts.createSale(product1, seller1)
-	ts.createSale(product2, seller2)
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
 
 	params := map[string]any{
-		// TODO meter algo aca tambien, que sea join y mio
 		"Seller": map[string]any{
 			"name": "franco",
 			"Company": map[string]any{
@@ -657,10 +659,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultiple
 	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
-// TODO test de que hay que poner el mismo nombre que el atributo y no como en la base de datos, aunque es lo mismo que el de product_id
-// TODO falta test de que joinea dos veces con la misma entidad
-// TODO faltan test para otros tipos de relaciones
-
 // ------------------------- utils -------------------------
 
 func (ts *CRUDServiceIntTestSuite) createProduct(values map[string]any) *Product {
@@ -670,8 +668,9 @@ func (ts *CRUDServiceIntTestSuite) createProduct(values map[string]any) *Product
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createSale(product *Product, seller *Seller) *Sale {
+func (ts *CRUDServiceIntTestSuite) createSale(code int, product *Product, seller *Seller) *Sale {
 	entity := &Sale{
+		Code:    code,
 		Product: *product,
 		Seller:  seller,
 	}
