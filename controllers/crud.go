@@ -46,13 +46,13 @@ func NewCRUDController[T any](
 
 }
 
-// The concrete implementation of the EAVController
+// The concrete implementation of the CRUDController
 type crudControllerImpl[T any] struct {
 	logger      *zap.Logger
 	crudService badorm.CRUDService[T, uuid.UUID]
 }
 
-// The handler responsible of the retrieval of one objects
+// The handler responsible of the retrieval of one object
 func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityID, herr := getEntityIDFromRequest(r)
 	if herr != nil {

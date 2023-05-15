@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// T can be any model whose identifier attribute is of type ID
 type CRUDService[T any, ID BadaasID] interface {
 	GetEntity(id ID) (*T, error)
 	GetEntities(conditions map[string]any) ([]*T, error)
@@ -15,7 +16,7 @@ type CRUDService[T any, ID BadaasID] interface {
 // check interface compliance
 var _ CRUDService[models.User, uuid.UUID] = (*crudServiceImpl[models.User, uuid.UUID])(nil)
 
-// Implementation of the Generic CRUD Repository
+// Implementation of the CRUD Service
 type crudServiceImpl[T any, ID BadaasID] struct {
 	CRUDService[T, ID]
 	logger     *zap.Logger
@@ -35,12 +36,12 @@ func NewCRUDService[T any, ID BadaasID](
 	}
 }
 
-// Get the Entity of type with name "entityTypeName" that has the "id"
+// Get the object of type T that has the "id"
 func (service *crudServiceImpl[T, ID]) GetEntity(id ID) (*T, error) {
 	return service.repository.GetByID(service.db, id)
 }
 
-// Get entities of type with name "entityTypeName" that match all "conditions"
+// Get entities of type T that match all "conditions"
 //
 // "conditions" is in {"attributeName": expectedValue} format
 // in case of join "conditions" can have the format:

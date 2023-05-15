@@ -13,11 +13,13 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+// supported types for model identifier
 type BadaasID interface {
 	int | uuid.UUID
 }
 
 // Generic CRUD Repository
+// T can be any model whose identifier attribute is of type ID
 type CRUDRepository[T any, ID BadaasID] interface {
 	// create
 	Create(tx *gorm.DB, entity *T) error
@@ -62,7 +64,7 @@ func NewCRUDRepository[T any, ID BadaasID](
 	}
 }
 
-// Create an entity of a Model
+// Create object "entity" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Create(tx *gorm.DB, entity *T) error {
 	err := tx.Create(entity).Error
 	if err != nil {
@@ -72,7 +74,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) Create(tx *gorm.DB, entity *T) erro
 	return nil
 }
 
-// Delete an entity of a Model
+// Delete object "entity" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Delete(tx *gorm.DB, entity *T) error {
 	err := tx.Delete(entity).Error
 	if err != nil {
@@ -82,7 +84,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) Delete(tx *gorm.DB, entity *T) erro
 	return nil
 }
 
-// Save an entity of a Model
+// Save object "entity" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Save(tx *gorm.DB, entity *T) error {
 	err := tx.Save(entity).Error
 	if err != nil {
@@ -92,7 +94,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) Save(tx *gorm.DB, entity *T) error 
 	return nil
 }
 
-// Get an entity of a Model By ID
+// Get an object by "id" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, error) {
 	var entity T
 	err := tx.First(&entity, "id = ?", id).Error
@@ -103,6 +105,11 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, er
 	return &entity, nil
 }
 
+// Get an object that matches "conditions" inside transaction "tx"
+// "conditions" is in {"attributeName": expectedValue} format
+// in case of join "conditions" can have the format:
+//
+//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[string]any) (T, error) {
 	entity, err := repository.GetOptional(tx, conditions)
 	var nilValue T
@@ -117,6 +124,11 @@ func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[str
 	return *entity, nil
 }
 
+// Get an object or nil that matches "conditions" inside transaction "tx"
+// "conditions" is in {"attributeName": expectedValue} format
+// in case of join "conditions" can have the format:
+//
+//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error) {
 	entities, err := repository.GetMultiple(tx, conditions)
 	if err != nil {
@@ -132,7 +144,11 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions
 	return nil, nil
 }
 
-// Get all entities of a Model
+// Get the list of objects that match "conditions" inside transaction "tx"
+// "conditions" is in {"attributeName": expectedValue} format
+// in case of join "conditions" can have the format:
+//
+//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
 	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
 	if err != nil {
@@ -168,6 +184,9 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 	return entities, err
 }
 
+// Get the name of the table in "db" in which the data for "entity" is saved
+// returns error is table name can not be found by gorm,
+// probably because the type of "entity" is not registered using AddModel
 func getTableName(db *gorm.DB, entity any) (string, error) {
 	schemaName, err := schema.Parse(entity, &sync.Map{}, db.NamingStrategy)
 	if err != nil {
@@ -177,15 +196,17 @@ func getTableName(db *gorm.DB, entity any) (string, error) {
 	return schemaName.Table, nil
 }
 
+// Get the list of objects of type T
 func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
 	return repository.GetMultiple(tx, map[string]any{})
 }
 
-// Adds a join to the "query" by the "attributeName" that must be relation type
-// then, adds the verification that the values for the joined entity are "expectedValues"
+// Adds a join to the "query" by the "joinAttributeName"
+// then, adds the verification that the joined values match "conditions"
 
-// "expectedValues" is in {"attributeName": expectedValue} format
-// previousEntity is pointer
+// "conditions" is in {"attributeName": expectedValue} format
+// "previousEntity" is a pointer to a object from where we navigate the relationship
+// "previousTableName" is the name of the table where the previous object is saved and from we the join will we done
 func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	query *gorm.DB, previousEntity any,
 	previousTableName, joinAttributeName string,
@@ -266,6 +287,16 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	return nil
 }
 
+// Given a map of "conditions" that is in {"attributeName": expectedValue} format
+// and in case of join "conditions" can have the format:
+//
+//	{"relationAttributeName": {"attributeName": expectedValue}}
+//
+// it divides the map in two:
+// the conditions that will be applied to the current entity ({"attributeName": expectedValue} format)
+// the conditions that will generate a join with another entity ({"relationAttributeName": {"attributeName": expectedValue}} format)
+//
+// Returns error if any expectedValue is not of a supported type
 func divideConditionsByEntity(
 	conditions map[string]any,
 ) (map[string]any, map[string]map[string]any, error) {
@@ -286,14 +317,22 @@ func divideConditionsByEntity(
 	return thisEntityConditions, joinConditions, nil
 }
 
-// entity can be a pointer of not, now only works with pointer
+// Returns an object of the type of the "entity" attribute called "relationName"
+// and a boolean value indicating whether the id attribute that relates them
+// in the database is in the "entity"'s table.
+// Returns error if "entity" not a relation called "relationName".
 func getRelatedObject(entity any, relationName string) (any, bool, error) {
 	entityType := getEntityType(entity)
 
 	field, isPresent := entityType.FieldByName(relationName)
 	if !isPresent {
 		// some gorm relations dont have a direct relation in the model, only the id
-		return getRelatedObjectByID(entityType, relationName)
+		relatedObject, err := getRelatedObjectByID(entityType, relationName)
+		if err != nil {
+			return nil, false, err
+		}
+
+		return relatedObject, true, nil
 	}
 
 	_, isIDPresent := entityType.FieldByName(relationName + "ID")
@@ -301,6 +340,7 @@ func getRelatedObject(entity any, relationName string) (any, bool, error) {
 	return createObject(field.Type), isIDPresent, nil
 }
 
+// Get the reflect.Type of any entity or pointer to entity
 func getEntityType(entity any) reflect.Type {
 	entityType := reflect.TypeOf(entity)
 
@@ -312,20 +352,23 @@ func getEntityType(entity any) reflect.Type {
 	return entityType
 }
 
-func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, bool, error) {
+// Returns an object of the type of the "entity" attribute called "relationName" + "ID"
+// Returns error if "entity" not a relation called "relationName" + "ID"
+func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, error) {
 	_, isPresent := entityType.FieldByName(relationName + "ID")
 	if !isPresent {
-		return nil, false, ErrObjectsNotRelated(entityType.Name(), relationName)
+		return nil, ErrObjectsNotRelated(entityType.Name(), relationName)
 	}
 
 	fieldType, isPresent := modelsMapping[relationName]
 	if !isPresent {
-		return nil, false, ErrModelNotRegistered(entityType.Name(), relationName)
+		return nil, ErrModelNotRegistered(entityType.Name(), relationName)
 	}
 
-	return createObject(fieldType), true, nil
+	return createObject(fieldType), nil
 }
 
+// Creates an object of type reflect.Type using reflection
 func createObject(entityType reflect.Type) any {
 	return reflect.New(entityType).Elem().Interface()
 }
