@@ -138,19 +138,9 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions
 
 // Get all entities of a Model
 func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
-	thisEntityConditions := map[string]any{}
-	joinConditions := map[string]map[string]any{}
-
-	// only entities that match the conditions
-	for attributeName, expectedValue := range conditions {
-		switch typedExpectedValue := expectedValue.(type) {
-		case float64, bool, string, nil:
-			thisEntityConditions[attributeName] = expectedValue
-		case map[string]any:
-			joinConditions[attributeName] = typedExpectedValue
-		default:
-			return nil, fmt.Errorf("unsupported type")
-		}
+	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
+	if err != nil {
+		return nil, err
 	}
 
 	query := tx.Where(thisEntityConditions)
@@ -177,7 +167,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 
 	// execute query
 	var entities []*T
-	err := query.Find(&entities).Error
+	err = query.Find(&entities).Error
 
 	return entities, err
 }
@@ -206,19 +196,9 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	previousTableName, joinAttributeName string,
 	conditions map[string]any,
 ) error {
-	// TODO codigo duplicado
-	thisEntityConditions := map[string]any{}
-	joinConditions := map[string]map[string]any{}
-
-	for attributeName, expectedValue := range conditions {
-		switch typedExpectedValue := expectedValue.(type) {
-		case float64, bool, string, nil:
-			thisEntityConditions[attributeName] = expectedValue
-		case map[string]any:
-			joinConditions[attributeName] = typedExpectedValue
-		default:
-			return fmt.Errorf("unsupported type")
-		}
+	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
+	if err != nil {
+		return err
 	}
 
 	relatedObject, relationIDIsInPreviousTable, err := getRelatedObject(
@@ -276,7 +256,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 
 	query.Joins(stringQuery, conditionsValues...)
 
-	// TODO codigo duplicado
 	for joinAttributeName, joinConditions := range joinConditions {
 		err := repository.addJoinToQuery(
 			query,
@@ -291,6 +270,26 @@ func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	}
 
 	return nil
+}
+
+func divideConditionsByEntity(
+	conditions map[string]any,
+) (map[string]any, map[string]map[string]any, error) {
+	thisEntityConditions := map[string]any{}
+	joinConditions := map[string]map[string]any{}
+
+	for attributeName, expectedValue := range conditions {
+		switch typedExpectedValue := expectedValue.(type) {
+		case float64, bool, string, nil:
+			thisEntityConditions[attributeName] = expectedValue
+		case map[string]any:
+			joinConditions[attributeName] = typedExpectedValue
+		default:
+			return nil, nil, fmt.Errorf("unsupported type")
+		}
+	}
+
+	return thisEntityConditions, joinConditions, nil
 }
 
 // entity can be a pointer of not, now only works with pointer
