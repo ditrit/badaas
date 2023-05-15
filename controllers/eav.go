@@ -20,13 +20,21 @@ var (
 	ErrIDNotAnUUID        = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
 )
 
+type EAVController interface {
+	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	CreateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	UpdateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+}
+
 // check interface compliance
-var _ CRUDController = (*eavControllerImpl)(nil)
+var _ EAVController = (*eavControllerImpl)(nil)
 
 func NewEAVController(
 	logger *zap.Logger,
 	eavService services.EAVService,
-) CRUDController {
+) EAVController {
 	return &eavControllerImpl{
 		logger:     logger,
 		eavService: eavService,

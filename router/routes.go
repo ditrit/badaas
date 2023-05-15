@@ -70,7 +70,7 @@ func createSuperUser(
 }
 
 func AddEAVCRUDRoutes(
-	eavController controllers.CRUDController,
+	eavController controllers.EAVController,
 	router *mux.Router,
 	jsonController middlewares.JSONController,
 ) {
@@ -93,11 +93,7 @@ func AddCRUDRoutes(
 		// Objects CRUD
 		objectsBase := "/objects/" + crudRoute.TypeName
 		objectsWithID := objectsBase + "/{id}"
-		// create
-		router.HandleFunc(
-			objectsBase,
-			jsonController.Wrap(crudRoute.Controller.CreateObject),
-		).Methods("POST")
+		// TODO create
 		// read
 		router.HandleFunc(
 			objectsWithID,
@@ -107,15 +103,7 @@ func AddCRUDRoutes(
 			objectsBase,
 			jsonController.Wrap(crudRoute.Controller.GetObjects),
 		).Methods("GET")
-		// update
-		router.HandleFunc(
-			objectsWithID,
-			jsonController.Wrap(crudRoute.Controller.UpdateObject),
-		).Methods("PUT")
-		// delete
-		router.HandleFunc(
-			objectsWithID,
-			jsonController.Wrap(crudRoute.Controller.DeleteObject),
-		).Methods("DELETE")
+		// TODO update
+		// TODO delete
 	}
 }

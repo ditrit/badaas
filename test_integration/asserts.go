@@ -26,7 +26,6 @@ func EqualList[T any](ts *suite.Suite, expectedList, actualList []T) {
 				}
 			}
 			if j == expectedLen {
-				// TODO mejorar esto
 				ts.Fail("Lists not equal", "element %v not in list %v", expectedList[i], actualList)
 				for _, element := range actualList {
 					log.Println(element)
