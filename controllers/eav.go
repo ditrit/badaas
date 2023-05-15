@@ -161,21 +161,6 @@ func (controller *eavControllerImpl) getEntityTypeNameFromRequest(r *http.Reques
 	return entityTypeName, nil
 }
 
-// Extract the "id" parameter from url
-func (controller *eavControllerImpl) getEntityIDFromRequest(r *http.Request) (uuid.UUID, httperrors.HTTPError) {
-	id, present := mux.Vars(r)["id"]
-	if !present {
-		return uuid.Nil, ErrEntityNotFound
-	}
-
-	uid, err := uuid.Parse(id)
-	if err != nil {
-		return uuid.Nil, ErrIDNotAnUUID
-	}
-
-	return uid, nil
-}
-
 // Extract the "type" and "id" parameters from url
 func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Request) (string, uuid.UUID, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
@@ -183,7 +168,7 @@ func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Reques
 		return "", uuid.Nil, herr
 	}
 
-	entityID, herr := controller.getEntityIDFromRequest(r)
+	entityID, herr := getEntityIDFromRequest(r)
 	if herr != nil {
 		return "", uuid.Nil, herr
 	}

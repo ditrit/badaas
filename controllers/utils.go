@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/ditrit/badaas/httperrors"
+	"github.com/google/uuid"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -42,4 +44,19 @@ func decodeJSONOptional(r *http.Request) (map[string]any, httperrors.HTTPError) 
 	}
 
 	return to, nil
+}
+
+// Extract the "id" parameter from url
+func getEntityIDFromRequest(r *http.Request) (uuid.UUID, httperrors.HTTPError) {
+	id, present := mux.Vars(r)["id"]
+	if !present {
+		return uuid.Nil, ErrEntityNotFound
+	}
+
+	uid, err := uuid.Parse(id)
+	if err != nil {
+		return uuid.Nil, ErrIDNotAnUUID
+	}
+
+	return uid, nil
 }
