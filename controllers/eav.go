@@ -100,13 +100,13 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 		return nil, httperrors.NewDBError(err)
 	}
 
-	w.Header().Add("Location", buildLocationString(entity))
+	w.Header().Add("Location", buildEAVLocationString(entity))
 	w.WriteHeader(http.StatusCreated)
 
 	return entity, nil
 }
 
-func buildLocationString(et *models.Entity) string {
+func buildEAVLocationString(et *models.Entity) string {
 	return fmt.Sprintf("eav/objects/%s/%s", et.EntityType.Name, et.ID.String())
 }
 

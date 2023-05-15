@@ -106,8 +106,7 @@ func (controller *crudControllerImpl[T]) CreateObject(w http.ResponseWriter, r *
 		return nil, httperrors.NewDBError(err)
 	}
 
-	// TODO ver como hacer esto
-	// w.Header().Add("Location", buildLocationString(entity))
+	// TODO add location header
 	w.WriteHeader(http.StatusCreated)
 
 	return entity, nil
