@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -28,14 +29,14 @@ func TestRelationValueEntityHasToBeTheTargetOfTheAttribute(t *testing.T) {
 	carEttID := uuid.New()
 
 	brandEtt := &EntityType{
-		BaseModel: BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: brandEttID,
 		},
 		Name: "brand",
 	}
 
 	carEtt := &EntityType{
-		BaseModel: BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: carEttID,
 		},
 		Name: "car",
@@ -60,14 +61,14 @@ func TestRelationValueEntityHasToBeTheTargetOfTheAttribute(t *testing.T) {
 
 func TestRelationValueWithCorrespondingEntity(t *testing.T) {
 	brandEtt := &EntityType{
-		BaseModel: BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.New(),
 		},
 		Name: "brand",
 	}
 
 	carEtt := &EntityType{
-		BaseModel: BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.New(),
 		},
 		Name: "car",

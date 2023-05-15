@@ -3,12 +3,13 @@ package models
 import (
 	"time"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 )
 
 // Represent a user session
 type Session struct {
-	BaseModel
+	badorm.UUIDModel
 	UserID    uuid.UUID `gorm:"not null"`
 	ExpiresAt time.Time `gorm:"not null"`
 }

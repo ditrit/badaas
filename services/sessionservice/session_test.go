@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	badormMocks "github.com/ditrit/badaas/mocks/badorm"
 	configurationMocks "github.com/ditrit/badaas/mocks/configuration"
@@ -92,7 +93,7 @@ func TestIsValid(t *testing.T) {
 	sessionRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
 		UserID:    uuid.Nil,
@@ -125,7 +126,7 @@ func TestLogOutUser(t *testing.T) {
 	sessionRepositoryMock.On("Delete", gormDB, mock.Anything).Return(nil)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
 		UserID:    uuid.Nil,
@@ -145,7 +146,7 @@ func TestLogOutUserDbError(t *testing.T) {
 
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
 		UserID:    uuid.Nil,
@@ -165,7 +166,7 @@ func TestLogOutUser_SessionNotFound(t *testing.T) {
 
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,
@@ -188,7 +189,7 @@ func TestRollSession(t *testing.T) {
 	uuidSample := uuid.New()
 	originalExpirationTime := time.Now().Add(sessionDuration / 5)
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,
@@ -208,7 +209,7 @@ func TestRollSession_Expired(t *testing.T) {
 	uuidSample := uuid.New()
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
 		UserID:    uuid.Nil,
@@ -228,7 +229,7 @@ func TestRollSession_falseUUID(t *testing.T) {
 	uuidSample := uuid.New()
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,
@@ -261,7 +262,7 @@ func TestRollSession_sessionNotFound(t *testing.T) {
 func Test_pullFromDB(t *testing.T) {
 	sessionRepositoryMock, service, logs, _ := setupTest(t)
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,
@@ -289,7 +290,7 @@ func Test_removeExpired(t *testing.T) {
 	sessionRepositoryMock, service, logs, _ := setupTest(t)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,
@@ -314,7 +315,7 @@ func Test_removeExpired_RepositoryError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,
@@ -332,7 +333,7 @@ func Test_get(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	uuidSample := uuid.New()
 	session := &models.Session{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		UserID:    uuid.Nil,

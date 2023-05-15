@@ -4,12 +4,13 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 )
 
 // Describe the attribute value of an Entity
 type Value struct {
-	BaseModel
+	badorm.UUIDModel
 	IsNull      bool
 	StringVal   string
 	FloatVal    float64

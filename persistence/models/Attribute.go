@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 )
 
@@ -20,7 +21,7 @@ const (
 
 // Describe the attribute of a en EntityType
 type Attribute struct {
-	BaseModel
+	badorm.UUIDModel
 	Name     string `gorm:"uniqueIndex:unique_name_entity_type"`
 	Unique   bool   // TODO validate this
 	Required bool

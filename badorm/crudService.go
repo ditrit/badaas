@@ -1,7 +1,6 @@
 package badorm
 
 import (
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -14,7 +13,7 @@ type CRUDService[T any, ID BadaasID] interface {
 }
 
 // check interface compliance
-var _ CRUDService[models.User, uuid.UUID] = (*crudServiceImpl[models.User, uuid.UUID])(nil)
+var _ CRUDService[UUIDModel, uuid.UUID] = (*crudServiceImpl[UUIDModel, uuid.UUID])(nil)
 
 // Implementation of the CRUD Service
 type crudServiceImpl[T any, ID BadaasID] struct {

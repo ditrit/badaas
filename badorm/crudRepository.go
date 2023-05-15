@@ -7,16 +7,10 @@ import (
 	"sync"
 
 	"github.com/ditrit/badaas/configuration"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
-
-// supported types for model identifier
-type BadaasID interface {
-	int | uuid.UUID
-}
 
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID

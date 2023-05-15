@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/httperrors"
 	mocksSessionService "github.com/ditrit/badaas/mocks/services/sessionservice"
@@ -95,7 +96,7 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	)
 	userService := mocksUserService.NewUserService(t)
 	user := &models.User{
-		BaseModel: models.BaseModel{},
+		UUIDModel: badorm.UUIDModel{},
 		Username:  "bob",
 		Email:     "bob@email.com",
 		Password:  []byte("hash of 1234"),
@@ -138,7 +139,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	)
 	userService := mocksUserService.NewUserService(t)
 	user := &models.User{
-		BaseModel: models.BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: uuid.Nil,
 		},
 		Username: "bob",

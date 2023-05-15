@@ -3,6 +3,7 @@ package models
 import (
 	"testing"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 )
@@ -10,11 +11,11 @@ import (
 func TestMarshall(t *testing.T) {
 	id := uuid.MustParse("11e1d4b8-701d-47cc-852f-6d36922bcc75")
 	ett := &EntityType{
-		BaseModel: BaseModel{ID: id},
+		UUIDModel: badorm.UUIDModel{ID: id},
 		Name:      "bird",
 		Attributes: []*Attribute{
 			{
-				BaseModel: BaseModel{
+				UUIDModel: badorm.UUIDModel{
 					ID: id,
 				},
 				Name:          "color",
@@ -23,7 +24,7 @@ func TestMarshall(t *testing.T) {
 				EntityTypeID:  id,
 			},
 			{
-				BaseModel: BaseModel{
+				UUIDModel: badorm.UUIDModel{
 					ID: id,
 				},
 				Name:         "heigh",
@@ -34,12 +35,12 @@ func TestMarshall(t *testing.T) {
 	}
 
 	et := &Entity{
-		BaseModel: BaseModel{
+		UUIDModel: badorm.UUIDModel{
 			ID: id,
 		},
 		Fields: []*Value{
 			{
-				BaseModel: BaseModel{
+				UUIDModel: badorm.UUIDModel{
 					ID: id,
 				},
 
@@ -50,7 +51,7 @@ func TestMarshall(t *testing.T) {
 				Attribute:   ett.Attributes[0],
 			},
 			{
-				BaseModel: BaseModel{
+				UUIDModel: badorm.UUIDModel{
 					ID: id,
 				},
 

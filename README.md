@@ -24,7 +24,7 @@ Badaas provides several key features:
 
 ### Example
 
-To quickly get badaas up and running, you can head to the [miniblog example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project
+To quickly get badaas up and running, you can head to the [miniblog example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project.
 
 ### Step-by-step instructions
 

@@ -3,7 +3,6 @@ package integrationtests
 import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/gormdatabase"
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -11,14 +10,14 @@ import (
 )
 
 type Company struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name    string
 	Sellers []Seller // Company HasMany Sellers (Company 1 -> 0..* Seller)
 }
 
 type Product struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	String string
 	Int    int
@@ -27,14 +26,14 @@ type Product struct {
 }
 
 type Seller struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name      string
 	CompanyID *uuid.UUID // Company HasMany Sellers (Company 1 -> 0..* Seller)
 }
 
 type Sale struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Code int
 
@@ -60,14 +59,14 @@ func (m Seller) Equal(other Seller) bool {
 }
 
 type Country struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name    string
 	Capital City // Country HasOne City (Country 1 -> 1 City)
 }
 
 type City struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name      string
 	CountryID uuid.UUID // Country HasOne City (Country 1 -> 1 City)
@@ -82,7 +81,7 @@ func (m City) Equal(other City) bool {
 }
 
 type Employee struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name   string
 	Boss   *Employee // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
@@ -94,7 +93,7 @@ func (m Employee) Equal(other Employee) bool {
 }
 
 type Person struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name string
 }
@@ -104,7 +103,7 @@ func (m Person) TableName() string {
 }
 
 type Bicycle struct {
-	models.BaseModel
+	badorm.UUIDModel
 
 	Name string
 	// Bicycle BelongsTo Person (Bicycle 0..* -> 1 Person)

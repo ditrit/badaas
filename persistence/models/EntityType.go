@@ -1,8 +1,10 @@
 package models
 
+import "github.com/ditrit/badaas/badorm"
+
 // Describe an object type
 type EntityType struct {
-	BaseModel
+	badorm.UUIDModel
 	Name string `gorm:"unique;not null"`
 
 	// GORM relations
