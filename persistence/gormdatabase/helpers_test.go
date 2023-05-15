@@ -20,14 +20,14 @@ func TestIsDuplicateError(t *testing.T) {
 
 func Test_isPostgresError(t *testing.T) {
 	var postgresErrorAsError error = &pgconn.PgError{Code: "1234"}
-	assert.True(t, isPostgresError(
+	assert.True(t, IsPostgresError(
 		postgresErrorAsError,
 		"1234",
 	))
 	postgresErrorAsError = &pgconn.PgError{Code: ""}
-	assert.False(t, isPostgresError(
+	assert.False(t, IsPostgresError(
 		postgresErrorAsError,
 		"1234",
 	))
-	assert.False(t, isPostgresError(errors.New("a classic error"), "1234"))
+	assert.False(t, IsPostgresError(errors.New("a classic error"), "1234"))
 }

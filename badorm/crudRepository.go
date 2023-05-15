@@ -6,13 +6,10 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/Masterminds/squirrel"
-	"github.com/ditrit/badaas/badorm/pagination"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
-	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 )
 
@@ -30,7 +27,6 @@ type CRUDRepository[T any, ID BadaasID] interface {
 	GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error)
 	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
 	GetAll(tx *gorm.DB) ([]*T, error)
-	Find(tx *gorm.DB, filters squirrel.Sqlizer, pagination pagination.Paginator, sort SortOption) (*pagination.Page[T], error)
 	// update
 	Save(tx *gorm.DB, entity *T) error
 	// delete
@@ -332,64 +328,4 @@ func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, bo
 
 func createObject(entityType reflect.Type) any {
 	return reflect.New(entityType).Elem().Interface()
-}
-
-// Find entities of a Model
-func (repository *CRUDRepositoryImpl[T, ID]) Find(
-	tx *gorm.DB,
-	filters squirrel.Sqlizer,
-	page pagination.Paginator,
-	sortOption SortOption,
-) (*pagination.Page[T], error) {
-	var instances []*T
-	whereClause, values, err := filters.ToSql()
-	if err != nil {
-		return nil, err
-	}
-
-	if page != nil {
-		tx = tx.
-			Offset(
-				int((page.Offset() - 1) * page.Limit()),
-			).
-			Limit(
-				int(page.Limit()),
-			)
-	} else {
-		page = pagination.NewPaginator(0, repository.paginationConfiguration.GetMaxElemPerPage())
-	}
-
-	if sortOption != nil {
-		tx = tx.Order(buildClauseFromSortOption(sortOption))
-	}
-
-	err = tx.Where(whereClause, values...).Find(&instances).Error
-	if err != nil {
-		return nil, err
-	}
-
-	// Get Count
-	nbElem, err := repository.count(tx, whereClause, values)
-	if err != nil {
-		return nil, err
-	}
-
-	return pagination.NewPage(instances, page.Offset(), page.Limit(), nbElem), nil
-}
-
-// Count the number of record that match the where clause with the provided values on the db
-func (repository *CRUDRepositoryImpl[T, ID]) count(tx *gorm.DB, whereClause string, values []interface{}) (uint, error) {
-	var entity *T
-	var count int64
-	err := tx.Model(entity).Where(whereClause, values).Count(&count).Error
-	if err != nil {
-		return 0, err
-	}
-
-	return uint(count), nil
-}
-
-// Build a gorm order clause from a SortOption
-func buildClauseFromSortOption(sortOption SortOption) clause.OrderByColumn {
-	return clause.OrderByColumn{Column: clause.Column{Name: sortOption.Column()}, Desc: sortOption.Desc()}
 }
