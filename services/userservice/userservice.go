@@ -88,5 +88,5 @@ func (userService *userServiceImpl) GetUser(userLoginDTO dto.UserLoginDTO) (*mod
 		return nil, ErrWrongPassword
 	}
 
-	return user, nil
+	return &user, nil
 }

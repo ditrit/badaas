@@ -26,7 +26,7 @@ type CRUDRepository[T any, ID BadaasID] interface {
 	Create(tx *gorm.DB, entity *T) error
 	// read
 	GetByID(tx *gorm.DB, id ID) (*T, error)
-	Get(tx *gorm.DB, conditions map[string]any) (*T, error)
+	Get(tx *gorm.DB, conditions map[string]any) (T, error)
 	GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error)
 	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
 	GetAll(tx *gorm.DB) ([]*T, error)
@@ -107,17 +107,18 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, er
 	return &entity, nil
 }
 
-func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[string]any) (*T, error) {
+func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[string]any) (T, error) {
 	entity, err := repository.GetOptional(tx, conditions)
+	var nilValue T
 	if err != nil {
-		return nil, err
+		return nilValue, err
 	}
 
 	if entity == nil {
-		return nil, ErrObjectNotFound
+		return nilValue, ErrObjectNotFound
 	}
 
-	return entity, nil
+	return *entity, nil
 }
 
 func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error) {

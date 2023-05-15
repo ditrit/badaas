@@ -73,20 +73,18 @@ func (_m *CRUDRepository[T, ID]) Find(tx *gorm.DB, filters squirrel.Sqlizer, _a2
 }
 
 // Get provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) Get(tx *gorm.DB, conditions map[string]interface{}) (*T, error) {
+func (_m *CRUDRepository[T, ID]) Get(tx *gorm.DB, conditions map[string]interface{}) (T, error) {
 	ret := _m.Called(tx, conditions)
 
-	var r0 *T
+	var r0 T
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) (*T, error)); ok {
+	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) (T, error)); ok {
 		return rf(tx, conditions)
 	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) *T); ok {
+	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) T); ok {
 		r0 = rf(tx, conditions)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*T)
-		}
+		r0 = ret.Get(0).(T)
 	}
 
 	if rf, ok := ret.Get(1).(func(*gorm.DB, map[string]interface{}) error); ok {

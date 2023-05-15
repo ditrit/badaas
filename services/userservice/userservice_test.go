@@ -101,7 +101,7 @@ func TestGetUser(t *testing.T) {
 	userRepositoryMock.On(
 		"Get", gormDB, map[string]any{"email": "bob@email.com"},
 	).Return(
-		user,
+		*user,
 		nil,
 	)
 
@@ -129,7 +129,7 @@ func TestGetUserNoUserFound(t *testing.T) {
 	userRepositoryMock.On(
 		"Get", gormDB, map[string]any{"email": "bobnotfound@email.com"},
 	).Return(
-		nil,
+		models.User{},
 		badorm.ErrObjectNotFound,
 	)
 
@@ -156,7 +156,7 @@ func TestGetUserWrongPassword(t *testing.T) {
 	userRepositoryMock.On(
 		"Get", gormDB, map[string]any{"email": "bob@email.com"},
 	).Return(
-		user,
+		*user,
 		nil,
 	)
 
