@@ -43,7 +43,7 @@ func SetupDatabaseConnection(
 		database, err = initializeDBFromDsn(dsn, logger)
 		if err == nil {
 			logger.Sugar().Debugf("Database connection is active")
-			return database, err
+			return database, nil
 		}
 		logger.Sugar().Debugf("Database connection failed with error %q", err.Error())
 		logger.Sugar().Debugf("Retrying database connection %d/%d in %s",

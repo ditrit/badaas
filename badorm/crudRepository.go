@@ -6,7 +6,6 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/ditrit/badaas/configuration"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
@@ -43,18 +42,15 @@ var (
 // Implementation of the Generic CRUD Repository
 type CRUDRepositoryImpl[T any, ID BadaasID] struct {
 	CRUDRepository[T, ID]
-	logger                  *zap.Logger
-	paginationConfiguration configuration.PaginationConfiguration
+	logger *zap.Logger
 }
 
 // Constructor of the Generic CRUD Repository
 func NewCRUDRepository[T any, ID BadaasID](
 	logger *zap.Logger,
-	paginationConfiguration configuration.PaginationConfiguration,
 ) CRUDRepository[T, ID] {
 	return &CRUDRepositoryImpl[T, ID]{
-		logger:                  logger,
-		paginationConfiguration: paginationConfiguration,
+		logger: logger,
 	}
 }
 
