@@ -65,6 +65,7 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		fx.Provide(badorm.AddModel[Person]),
 		badorm.GetCRUDServiceModule[Bicycle, uuid.UUID](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
+		fx.Provide(NewCRUDRepositoryIntTestSuite),
 
 		fx.Invoke(runTestSuites),
 	).Run()
@@ -73,11 +74,13 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 func runTestSuites(
 	tsEAV *EAVServiceIntTestSuite,
 	tsCRUD *CRUDServiceIntTestSuite,
+	tsCRUDRepository *CRUDRepositoryIntTestSuite,
 	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
 	suite.Run(tGlobal, tsEAV)
 	suite.Run(tGlobal, tsCRUD)
+	suite.Run(tGlobal, tsCRUDRepository)
 
 	// let db cleaned
 	CleanDB(db)
