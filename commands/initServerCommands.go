@@ -14,6 +14,9 @@ func initServerCommands(cfg *verdeter.VerdeterCommand) error {
 	cfg.SetDefault(configuration.ServerTimeoutKey, 15)
 
 	err = cfg.GKey(configuration.ServerHostKey, verdeter.IsStr, "", "Address to bind (default is 0.0.0.0)")
+	if err != nil {
+		return err
+	}
 	cfg.SetDefault(configuration.ServerHostKey, "0.0.0.0")
 
 	err = cfg.GKey(configuration.ServerPortKey, verdeter.IsInt, "p", "Port to bind (default is 8000)")
