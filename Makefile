@@ -8,6 +8,7 @@ test_unit_and_cover:
 
 test_db:
 	docker compose -f "docker/test_db/docker-compose.yml" up -d
+	./docker/wait_for_api.sh 8080/health
 
 test_integration: test_db
 	go test ./test_integration -v
