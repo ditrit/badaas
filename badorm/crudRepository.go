@@ -18,7 +18,7 @@ type CRUDRepository[T any, ID BadaasID] interface {
 	Create(tx *gorm.DB, entity *T) error
 	// read
 	GetByID(tx *gorm.DB, id ID) (*T, error)
-	Get(tx *gorm.DB, conditions map[string]any) (T, error)
+	Get(tx *gorm.DB, conditions map[string]any) (*T, error)
 	GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error)
 	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
 	GetAll(tx *gorm.DB) ([]*T, error)
@@ -56,32 +56,17 @@ func NewCRUDRepository[T any, ID BadaasID](
 
 // Create object "entity" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Create(tx *gorm.DB, entity *T) error {
-	err := tx.Create(entity).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tx.Create(entity).Error
 }
 
 // Delete object "entity" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Delete(tx *gorm.DB, entity *T) error {
-	err := tx.Delete(entity).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tx.Delete(entity).Error
 }
 
 // Save object "entity" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Save(tx *gorm.DB, entity *T) error {
-	err := tx.Save(entity).Error
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return tx.Save(entity).Error
 }
 
 // Get an object by "id" inside transaction "tx"
@@ -100,18 +85,17 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, er
 // in case of join "conditions" can have the format:
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
-func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[string]any) (T, error) {
+func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[string]any) (*T, error) {
 	entity, err := repository.GetOptional(tx, conditions)
-	var nilValue T
 	if err != nil {
-		return nilValue, err
+		return nil, err
 	}
 
 	if entity == nil {
-		return nilValue, ErrObjectNotFound
+		return nil, ErrObjectNotFound
 	}
 
-	return *entity, nil
+	return entity, nil
 }
 
 // Get an object or nil that matches "conditions" inside transaction "tx"
