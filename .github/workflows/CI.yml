@@ -5,8 +5,7 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
-    branches:
-      - master
+
 jobs:
   branch-naming-rules:
     name: Check branch name
