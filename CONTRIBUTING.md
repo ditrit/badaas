@@ -54,7 +54,6 @@ We use uber's [zap](https://pkg.go.dev/go.uber.org/zap) to log stuff, please tak
 
 This is the directory structure we use for the project:
 
-- `commands/` *(Go code)*: Contains all the CLI commands. This package relies heavily on github.com/ditrit/verdeter.
 - `configuration/` *(Go code)*: Contains all the configuration holders. Please only use the interfaces, they are all mocked for easy testing.
 - `controllers/` *(Go code)*: Contains all the http controllers, they handle http requests and consume services.
 - `docs/`: Contains the documentation.
@@ -63,12 +62,10 @@ This is the directory structure we use for the project:
 - `logger/` *(Go code)*: Contains the logger creation logic. Please don't call it from your own services and code, use the dependency injection system.
 - `persistance/` *(Go code)*:
   - `gormdatabase/` *(Go code)*: Contains the logic to create a <https://gorm.io> database. Also contains a go package named `gormzap`: it is a compatibility layer between *gorm.io/gorm* and *github.com/uber-go/zap*.
-  - `models/` *(Go code)*: Contains the models. (For a structure to me considered a valid model, it has to embed `badorm.UUIDModel` and satisfy the `models.Tabler` interface. This interface returns the name of the sql table.).
+  - `models/` *(Go code)*: Contains the models. (For a structure to me considered a valid model, it has to embed `badorm.UUIDModel` or `badorm.UIntModel`.).
     - `dto/` *(Go code)*: Contains the Data Transfer Objects. They are used mainly to decode json payloads.
-  - `pagination/` *(Go code)*: Contains the pagination logic.
   - `repository/` *(Go code)*: Contains the repository interfaces and implementations to manage queries to the database.
-- `resources/` *(Go code)*: Contains the resources shared with the rest of the codebase (ex: API version).
-- `router/` *(Go code)*: Contains http router of badaas.
+- `router/` *(Go code)*: Contains http router of badaas and the routes that can be added by the user.
   - `middlewares/` *(Go code)*: Contains the various http middlewares that we use.
 - `docker/` : Contains the docker, docker-compose file and configuration files for different environments.
   - `api/` : Contains the Dockerfile to build badaas with a dedicated config file.
@@ -81,6 +78,7 @@ This is the directory structure we use for the project:
   - `sessionservice/` *(Go code)*: Handle sessions and their lifecycle.
   - `userservice/` *(Go code)*: Handle users.
 - `validators/` *(Go code)*: Contains validators such as an email validator.
+- `badorm/` *(Go code)*: Contains the code of the orm used by badaas.
 
 At the root of the project, you will find:
 
