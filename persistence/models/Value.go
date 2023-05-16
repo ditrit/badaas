@@ -18,8 +18,8 @@ type Value struct {
 	RelationVal uuid.UUID `gorm:"type:uuid;foreignKey:Entity;index:fk_relation_val_entity"`
 
 	// GORM relations
-	EntityID    uuid.UUID
-	AttributeID uuid.UUID
+	EntityID    uuid.UUID `gorm:"uniqueIndex:unique_entity_attribute"`
+	AttributeID uuid.UUID `gorm:"uniqueIndex:unique_entity_attribute"`
 	Attribute   *Attribute
 }
 
