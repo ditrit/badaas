@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+	"gotest.tools/assert"
 )
 
 type Company struct {
@@ -154,6 +155,29 @@ func NewCRUDServiceIntTestSuite(
 
 func (ts *CRUDServiceIntTestSuite) SetupTest() {
 	CleanDB(ts.db)
+}
+
+// ------------------------- GetEntity --------------------------------
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated() {
+	_, err := ts.crudProductService.GetEntity(uuid.Nil)
+	ts.Error(err, gorm.ErrRecordNotFound)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityMatch() {
+	ts.createProduct("", 0, 0, false)
+
+	_, err := ts.crudProductService.GetEntity(uuid.New())
+	ts.Error(err, gorm.ErrRecordNotFound)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsTheEntityIfItIsCreate() {
+	match := ts.createProduct("", 0, 0, false)
+
+	entity, err := ts.crudProductService.GetEntity(match.ID)
+	ts.Nil(err)
+
+	assert.DeepEqual(ts.T(), match, entity)
 }
 
 // ------------------------- GetEntities --------------------------------
