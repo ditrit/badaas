@@ -250,7 +250,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	ts.createProduct("not_match", 2, 0, false)
 
 	params := map[string]any{
-		"int": 1.0,
+		"int": 1,
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
@@ -323,7 +323,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDiffer
 
 	params := map[string]any{
 		"string": "match",
-		"int":    1.0,
+		"int":    1,
 		"bool":   true,
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
@@ -341,7 +341,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsT
 
 	params := map[string]any{
 		"Product": map[string]any{
-			"int": 1.0,
+			"int": 1,
 		},
 	}
 	entities, err := ts.crudSaleService.GetEntities(params)
@@ -440,7 +440,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsReturnsErrorIfNoRelation() {
 	params := map[string]any{
 		"NotExists": map[string]any{
-			"int": 1.0,
+			"int": 1,
 		},
 	}
 	_, err := ts.crudSaleService.GetEntities(params)
@@ -499,7 +499,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffer
 
 	params := map[string]any{
 		"Product": map[string]any{
-			"int":    1.0,
+			"int":    1,
 			"string": "match",
 		},
 	}
@@ -522,9 +522,9 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFilte
 
 	params := map[string]any{
 		"Product": map[string]any{
-			"int": 1.0,
+			"int": 1,
 		},
-		"code": 1.0,
+		"code": 1,
 	}
 	entities, err := ts.crudSaleService.GetEntities(params)
 	ts.Nil(err)
@@ -546,7 +546,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferen
 
 	params := map[string]any{
 		"Product": map[string]any{
-			"int": 1.0,
+			"int": 1,
 		},
 		"Seller": map[string]any{
 			"name": "franco",
