@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -12,7 +11,6 @@ import (
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type CRUDController interface {
@@ -60,14 +58,7 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 	}
 
 	entity, err := controller.crudService.GetEntity(entityID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityNotFound
-		}
-		return nil, httperrors.NewDBError(err)
-	}
-
-	return entity, nil
+	return entity, mapServiceError(err)
 }
 
 // The handler responsible of the retrieval of multiple objects
@@ -78,12 +69,5 @@ func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *ht
 	}
 
 	entities, err := controller.crudService.GetEntities(params)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityTypeNotFound
-		}
-		return nil, httperrors.NewDBError(err)
-	}
-
-	return entities, nil
+	return entities, mapServiceError(err)
 }

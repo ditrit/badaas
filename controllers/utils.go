@@ -2,12 +2,14 @@ package controllers
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"gorm.io/gorm"
 )
 
 var (
@@ -19,6 +21,9 @@ var (
 		nil,
 		false,
 	)
+	ErrEntityNotFound     = httperrors.NewErrorNotFound("entity", "please use a valid object id")
+	ErrEntityTypeNotFound = httperrors.NewErrorNotFound("entity type", "please use a type that exists")
+	ErrIDNotAnUUID        = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
 )
 
 // Decode json present in request body
@@ -59,4 +64,15 @@ func getEntityIDFromRequest(r *http.Request) (uuid.UUID, httperrors.HTTPError) {
 	}
 
 	return uid, nil
+}
+
+func mapServiceError(err error) httperrors.HTTPError {
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return ErrEntityNotFound
+		}
+		return httperrors.NewDBError(err)
+	}
+
+	return nil
 }

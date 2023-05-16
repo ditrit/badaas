@@ -14,62 +14,6 @@ type CRUDController struct {
 	mock.Mock
 }
 
-// CreateObject provides a mock function with given fields: w, r
-func (_m *CRUDController) CreateObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
-	ret := _m.Called(w, r)
-
-	var r0 interface{}
-	var r1 httperrors.HTTPError
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) (interface{}, httperrors.HTTPError)); ok {
-		return rf(w, r)
-	}
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) interface{}); ok {
-		r0 = rf(w, r)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(http.ResponseWriter, *http.Request) httperrors.HTTPError); ok {
-		r1 = rf(w, r)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(httperrors.HTTPError)
-		}
-	}
-
-	return r0, r1
-}
-
-// DeleteObject provides a mock function with given fields: w, r
-func (_m *CRUDController) DeleteObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
-	ret := _m.Called(w, r)
-
-	var r0 interface{}
-	var r1 httperrors.HTTPError
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) (interface{}, httperrors.HTTPError)); ok {
-		return rf(w, r)
-	}
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) interface{}); ok {
-		r0 = rf(w, r)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(http.ResponseWriter, *http.Request) httperrors.HTTPError); ok {
-		r1 = rf(w, r)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(httperrors.HTTPError)
-		}
-	}
-
-	return r0, r1
-}
-
 // GetObject provides a mock function with given fields: w, r
 func (_m *CRUDController) GetObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
 	ret := _m.Called(w, r)
@@ -100,34 +44,6 @@ func (_m *CRUDController) GetObject(w http.ResponseWriter, r *http.Request) (int
 
 // GetObjects provides a mock function with given fields: w, r
 func (_m *CRUDController) GetObjects(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
-	ret := _m.Called(w, r)
-
-	var r0 interface{}
-	var r1 httperrors.HTTPError
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) (interface{}, httperrors.HTTPError)); ok {
-		return rf(w, r)
-	}
-	if rf, ok := ret.Get(0).(func(http.ResponseWriter, *http.Request) interface{}); ok {
-		r0 = rf(w, r)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(interface{})
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(http.ResponseWriter, *http.Request) httperrors.HTTPError); ok {
-		r1 = rf(w, r)
-	} else {
-		if ret.Get(1) != nil {
-			r1 = ret.Get(1).(httperrors.HTTPError)
-		}
-	}
-
-	return r0, r1
-}
-
-// UpdateObject provides a mock function with given fields: w, r
-func (_m *CRUDController) UpdateObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
 	ret := _m.Called(w, r)
 
 	var r0 interface{}

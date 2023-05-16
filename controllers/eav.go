@@ -14,12 +14,6 @@ import (
 	"gorm.io/gorm"
 )
 
-var (
-	ErrEntityNotFound     = httperrors.NewErrorNotFound("entity", "please use a valid object id")
-	ErrEntityTypeNotFound = httperrors.NewErrorNotFound("entity type", "please use a type that exists")
-	ErrIDNotAnUUID        = httperrors.NewBadRequestError("id is not an uuid", "please use an uuid for the id value")
-)
-
 type EAVController interface {
 	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 	GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
@@ -55,14 +49,7 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 	}
 
 	entity, err := controller.eavService.GetEntity(entityTypeName, entityID)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityNotFound
-		}
-		return nil, httperrors.NewDBError(err)
-	}
-
-	return entity, nil
+	return entity, mapServiceError(err)
 }
 
 // The handler responsible of the retrieval of multiple objects
@@ -78,14 +65,7 @@ func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.R
 	}
 
 	entities, err := controller.eavService.GetEntities(entityTypeName, params)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityTypeNotFound
-		}
-		return nil, httperrors.NewDBError(err)
-	}
-
-	return entities, nil
+	return entities, mapEAVServiceError(err)
 }
 
 // The handler responsible of the creation of a object
@@ -102,10 +82,7 @@ func (controller *eavControllerImpl) CreateObject(w http.ResponseWriter, r *http
 
 	entity, err := controller.eavService.CreateEntity(entityTypeName, attrs)
 	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityTypeNotFound
-		}
-		return nil, httperrors.NewDBError(err)
+		return nil, mapEAVServiceError(err)
 	}
 
 	w.Header().Add("Location", buildEAVLocationString(entity))
@@ -131,14 +108,7 @@ func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http
 	}
 
 	entity, err := controller.eavService.UpdateEntity(entityTypeName, entityID, attrs)
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityNotFound
-		}
-		return nil, httperrors.NewDBError(err)
-	}
-
-	return entity, nil
+	return entity, mapServiceError(err)
 }
 
 // The handler responsible for the deletion of a object
@@ -149,14 +119,19 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 	}
 
 	err := controller.eavService.DeleteEntity(entityTypeName, entityID)
+	return nil, mapServiceError(err)
+}
+
+func mapEAVServiceError(err error) httperrors.HTTPError {
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, ErrEntityNotFound
+			return ErrEntityTypeNotFound
 		}
-		return nil, httperrors.NewDBError(err)
+
+		return mapServiceError(err)
 	}
 
-	return nil, nil
+	return nil
 }
 
 // Extract the "type" parameter from url

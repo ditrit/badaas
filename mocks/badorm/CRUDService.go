@@ -12,46 +12,6 @@ type CRUDService[T interface{}, ID badorm.BadaasID] struct {
 	mock.Mock
 }
 
-// CreateEntity provides a mock function with given fields: attributeValues
-func (_m *CRUDService[T, ID]) CreateEntity(attributeValues map[string]interface{}) (*T, error) {
-	ret := _m.Called(attributeValues)
-
-	var r0 *T
-	var r1 error
-	if rf, ok := ret.Get(0).(func(map[string]interface{}) (*T, error)); ok {
-		return rf(attributeValues)
-	}
-	if rf, ok := ret.Get(0).(func(map[string]interface{}) *T); ok {
-		r0 = rf(attributeValues)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*T)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(map[string]interface{}) error); ok {
-		r1 = rf(attributeValues)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// DeleteEntity provides a mock function with given fields: entityID
-func (_m *CRUDService[T, ID]) DeleteEntity(entityID ID) error {
-	ret := _m.Called(entityID)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(ID) error); ok {
-		r0 = rf(entityID)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
-}
-
 // GetEntities provides a mock function with given fields: conditions
 func (_m *CRUDService[T, ID]) GetEntities(conditions map[string]interface{}) ([]*T, error) {
 	ret := _m.Called(conditions)
@@ -97,32 +57,6 @@ func (_m *CRUDService[T, ID]) GetEntity(id ID) (*T, error) {
 
 	if rf, ok := ret.Get(1).(func(ID) error); ok {
 		r1 = rf(id)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// UpdateEntity provides a mock function with given fields: entityID, newValues
-func (_m *CRUDService[T, ID]) UpdateEntity(entityID ID, newValues map[string]interface{}) (*T, error) {
-	ret := _m.Called(entityID, newValues)
-
-	var r0 *T
-	var r1 error
-	if rf, ok := ret.Get(0).(func(ID, map[string]interface{}) (*T, error)); ok {
-		return rf(entityID, newValues)
-	}
-	if rf, ok := ret.Get(0).(func(ID, map[string]interface{}) *T); ok {
-		r0 = rf(entityID, newValues)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*T)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(ID, map[string]interface{}) error); ok {
-		r1 = rf(entityID, newValues)
 	} else {
 		r1 = ret.Error(1)
 	}
