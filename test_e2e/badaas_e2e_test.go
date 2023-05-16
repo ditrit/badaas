@@ -26,6 +26,7 @@ type TestContext struct {
 	statusCode int
 	json       any
 	httpClient *http.Client
+	db         *gorm.DB
 }
 
 var opts = godog.Options{Output: colors.Colored(os.Stdout)}
@@ -77,10 +78,16 @@ var ListOfTables = []any{
 	models.Attribute{},
 	models.Entity{},
 	models.EntityType{},
+	integrationtests.Sale{},
+	integrationtests.Product{},
+	integrationtests.Seller{},
+	integrationtests.Company{},
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	t := &TestContext{}
+	t := &TestContext{
+		db: db,
+	}
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		panic(err)
@@ -166,4 +173,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I delete a "(.+)" with the object id$`, t.deleteWithObjectID)
 	ctx.Step(`^I modify a "(.+)" with attributes$`, t.modifyWithAttributes)
 	ctx.Step(`^a "(.+)" object exists with property "(.+)" related to last object and properties$`, t.objectExistsWithRelation)
+	ctx.Step(`^a sale object exists for product "(\d+)", code "(\d+)" and description "(.+)"$`, t.saleExists)
+	ctx.Step(`^I query all sale objects with conditions$`, t.querySalesWithConditions)
+	ctx.Step(`^there is a sale object with attributes$`, t.thereIsSaleWithAttributes)
 }

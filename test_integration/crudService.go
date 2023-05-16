@@ -36,7 +36,8 @@ type Seller struct {
 type Sale struct {
 	badorm.UUIDModel
 
-	Code int
+	Code        int
+	Description string
 
 	// Sale belongsTo Product (Sale 0..* -> 1 Product)
 	Product   Product

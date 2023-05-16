@@ -11,6 +11,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/messages-go/v16"
+	integrationtests "github.com/ditrit/badaas/test_integration"
 	"github.com/elliotchance/pie/v2"
 )
 
@@ -335,15 +336,7 @@ func (t *TestContext) thereIsObjectWithAttributes(expectedEntityType string, jso
 		objectAttrs := objectMap["attrs"].(map[string]any)
 
 		if objectMap["type"] == expectedEntityType {
-			allEqual := true
-			for attributeName, expectedValue := range expectedValues {
-				actualValue, isPresent := objectAttrs[attributeName]
-				if !isPresent || actualValue != expectedValue {
-					allEqual = false
-				}
-			}
-
-			if allEqual {
+			if t.areAllAttributesEqual(objectAttrs, expectedValues) {
 				return nil
 			}
 		}
@@ -398,4 +391,66 @@ func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.T
 	}
 
 	return nil
+}
+
+func (t *TestContext) saleExists(productInt int, code int, description string) {
+	product := &integrationtests.Product{
+		Int: productInt,
+	}
+
+	sale := &integrationtests.Sale{
+		Code:        code,
+		Description: description,
+		Product:     *product,
+	}
+	err := t.db.Create(sale).Error
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func (t *TestContext) querySalesWithConditions(jsonTable *godog.Table) error {
+	err := t.requestWithJson(
+		"/objects/sale",
+		http.MethodGet,
+		jsonTable,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) thereIsSaleWithAttributes(jsonTable *godog.Table) error {
+	objectList := t.json.([]any)
+	expectedValues, err := buildMapFromTable(jsonTable)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	for _, object := range objectList {
+		if t.areAllAttributesEqual(object.(map[string]any), expectedValues) {
+			return nil
+		}
+	}
+
+	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectList)
+}
+
+func (t *TestContext) areAllAttributesEqual(objectMap, expectedValues map[string]any) bool {
+	allEqual := true
+	for attributeName, expectedValue := range expectedValues {
+		actualValue, isPresent := objectMap[attributeName]
+		if !isPresent || actualValue != expectedValue {
+			allEqual = false
+		}
+	}
+
+	return allEqual
 }
