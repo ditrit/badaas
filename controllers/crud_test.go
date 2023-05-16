@@ -33,7 +33,6 @@ func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
-	request = mux.SetURLVars(request, map[string]string{})
 
 	_, err := route.Controller.GetObject(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
@@ -157,7 +156,6 @@ func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	request = mux.SetURLVars(request, map[string]string{})
 	_, err := route.Controller.GetObjects(response, request)
 	assert.ErrorContains(t, err, "db error")
 }
@@ -183,7 +181,6 @@ func TestGetEntitiesWithoutParams(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	request = mux.SetURLVars(request, map[string]string{})
 	entitiesReturned, err := route.Controller.GetObjects(response, request)
 	assert.Nil(t, err)
 	assert.Len(t, entitiesReturned, 2)
@@ -211,9 +208,26 @@ func TestGetEntitiesWithParams(t *testing.T) {
 		strings.NewReader("{\"param1\": \"something\"}"),
 	)
 
-	request = mux.SetURLVars(request, map[string]string{})
 	entitiesReturned, err := route.Controller.GetObjects(response, request)
 	assert.Nil(t, err)
 	assert.Len(t, entitiesReturned, 1)
 	assert.Contains(t, entitiesReturned, entity1)
+}
+
+func TestGetEntitiesWithParamsNotJsonReturnsError(t *testing.T) {
+	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+
+	route := controllers.NewCRUDController[Model](
+		logger,
+		crudService,
+	)
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		"GET",
+		"/objects/exists/",
+		strings.NewReader("bad json"),
+	)
+
+	_, err := route.Controller.GetObjects(response, request)
+	assert.ErrorIs(t, err, controllers.HTTPErrRequestMalformed)
 }
