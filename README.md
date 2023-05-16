@@ -2,29 +2,39 @@
 
 Badaas enables the effortless construction of ***distributed, resilient, highly available and secure applications by design***, while ensuring very simple deployment and management (NoOps).
 
-Badaas provides several key features:
-
-- **Authentication**: Badaas can authenticate users using its internal authentication scheme or externally by using protocols such as OIDC, SAML, Oauth2...
-- **Authorization**: On resource access, Badaas will check if the user is authorized using a RBAC model.
-- **Distribution**: Badaas is built to run in clusters by default. Communications between nodes are TLS encrypted using [shoset](https://github.com/ditrit/shoset).
-- **Persistence**: Applicative objects are persisted as well as user files. Those resources are shared across the clusters to increase resiliency.
-- **Querying Resources**: Resources are accessible via a REST API.
-- **Posix compliant**: Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
-- **Advanced logs management**: Badaas provides an interface to interact with the logs produced by the clusters. Logs are formatted in json by default.
+> **Warning**
+> BaDaaS is still under development. Each of its components can have a different state of evolution that you can consult in [Features and components](#features-and-components)
 
 - [BADAAS: Backend And Distribution As A Service](#badaas-backend-and-distribution-as-a-service)
+  - [Features and components](#features-and-components)
   - [Quickstart](#quickstart)
     - [Example](#example)
     - [Step-by-step instructions](#step-by-step-instructions)
-  - [Configuration](#configuration)
+    - [Provided functionalities](#provided-functionalities)
+      - [InfoControllerModule](#infocontrollermodule)
+      - [AuthControllerModule](#authcontrollermodule)
+      - [EAVControllerModule](#eavcontrollermodule)
+    - [Configuration](#configuration)
   - [Contributing](#contributing)
   - [License](#license)
+
+## Features and components
+
+Badaas provides several key features, each provided by a component that can be used independently and has a different state of evolution:
+
+- **Authentication**(unstable): Badaas can authenticate users using its internal authentication scheme or externally by using protocols such as OIDC, SAML, Oauth2...
+- **Authorization**(wip_unstable): On resource access, Badaas will check if the user is authorized using a RBAC model.
+- **Distribution**(todo): Badaas is built to run in clusters by default. Communications between nodes are TLS encrypted using [shoset](https://github.com/ditrit/shoset).
+- **Persistence**(wip_unstable): Applicative objects are persisted as well as user files. Those resources are shared across the clusters to increase resiliency. To achieve this, BaDaaS uses the [BaDorm](https://github.com/ditrit/badaas/badorm) component.
+- **Querying Resources**(unstable): Resources are accessible via a REST API.
+- **Posix compliant**(stable): Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
+- **Advanced logs management**(todo): Badaas provides an interface to interact with the logs produced by the clusters. Logs are formatted in json by default.
 
 ## Quickstart
 
 ### Example
 
-To quickly get badaas up and running, you can head to the [miniblog example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project.
+To quickly get badaas up and running, you can head to the [example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project.
 
 ### Step-by-step instructions
 
@@ -32,9 +42,7 @@ Once you have started your project with `go init`, you must add the dependency t
 
 <!-- TODO remove commit when badaas as a library has a first tagged version -->
 ```bash
-go get -u github.com/ditrit/badaas@cbd4c9e035709de25df59ec17e4b302b3a7b9931
-go get -u github.com/uber-go/fx
-go get -u github.com/ditrit/verdeter
+go get -u github.com/ditrit/badaas@83b120f0853bce9dccb32fd27e858aa0fd71d0e6 github.com/uber-go/fx github.com/ditrit/verdeter
 ```
 
 Then, your application must be defined as a `verdeter command` and you have to call the configuration of this command:
