@@ -14,6 +14,7 @@ Badaas enables the effortless construction of ***distributed, resilient, highly 
       - [InfoControllerModule](#infocontrollermodule)
       - [AuthControllerModule](#authcontrollermodule)
       - [EAVControllerModule](#eavcontrollermodule)
+      - [CRUDControllerModule](#crudcontrollermodule)
     - [Configuration](#configuration)
   - [Contributing](#contributing)
   - [License](#license)
@@ -159,15 +160,28 @@ func runCommandFunc(cmd *cobra.Command, args []string) {
 
 #### EAVControllerModule
 
-`EAVControllerModule` adds `/objects/{type}` and `/objects/{type}/{id}`, where `{type}` is any defined type and `{id}` is any uuid. These routes allow us to create, read, update and remove objects. For more information on how to use them, see the [miniblog example](https://github.com/ditrit/badaas-example).
+`EAVControllerModule` adds `/eav/objects/{type}` and `/eav/objects/{type}/{id}`, where `{type}` is any defined type and `{id}` is any uuid. These routes allow us to create, read, update and remove objects using an EAV model. For more information on how to use them, see the [example](https://github.com/ditrit/badaas-example).
 
 ```go
 func runCommandFunc(cmd *cobra.Command, args []string) {
   fx.New(
     badaas.BadaasModule,
 
-    // add /login and /logout routes provided by badaas
     badaasControllers.EAVControllerModule,
+  ).Run()
+}
+```
+
+#### CRUDControllerModule
+
+`CRUDControllerModule` adds `/objects/{type}` and `/objects/{type}/{id}`, where `{type}` is any defined type and `{id}` is any uuid. These routes allow us to read objects. For more information on how to use them, see the [example](https://github.com/ditrit/badaas-example).
+
+```go
+func runCommandFunc(cmd *cobra.Command, args []string) {
+  fx.New(
+    badaas.BadaasModule,
+
+    router.GetCRUDRoutesModule[models.Company](),
   ).Run()
 }
 ```

@@ -9,6 +9,9 @@ BaDorm can be used both within a BaDaaS application and as a stand-alone applica
     - [Stand-alone Example](#stand-alone-example)
     - [BaDaaS Example](#badaas-example)
     - [Step-by-step instructions](#step-by-step-instructions)
+  - [Provided functionalities](#provided-functionalities)
+    - [CRUDServiceModule](#crudservicemodule)
+    - [AddModel](#addmodel)
 
 ## Quickstart
 
@@ -65,3 +68,16 @@ There are some things you need to provide to the BaDorm module:
 After that, you can start the `badorm.BaDORMModule` and crete the CRUD services to your models using `badorm.GetCRUDServiceModule`.
 
 Finally, you can call your application functions as `CreateCRUDObjects` and `QueryCRUDObjects` where created  CRUDServices can be injected to create, read, update and delete your models easily.
+
+## Provided functionalities
+
+### CRUDServiceModule
+
+`CRUDServiceModule` provides you a CRUDService, a CRUDRepository for your model class and registers it. After calling it as, for example, `badorm.GetCRUDServiceModule[models.Company, uuid.UUID](),` the following can be used by dependency injection:
+
+- `crudCompanyService badorm.CRUDService[models.Company, uuid.UUID]`
+- `crudCompanyRepository badorm.CRUDRepository[models.Company, uuid.UUID]`
+
+### AddModel
+
+`AddModel` registers a class as model (it is called automatically by CRUDServiceModule). This makes `gorm` to apply the migrations required to maintain to database schema up to data with this models.
