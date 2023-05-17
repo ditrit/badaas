@@ -13,7 +13,7 @@ type User struct {
 }
 
 func UserEmailCondition(email string) badorm.Condition[User] {
-	return badorm.Condition[User]{
+	return badorm.WhereCondition[User]{
 		Field: "email",
 		Value: email,
 	}

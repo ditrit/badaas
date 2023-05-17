@@ -3,18 +3,12 @@ package badorm
 import (
 	"errors"
 	"fmt"
-	"reflect"
 	"sync"
 
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
-
-type Condition[T any] struct {
-	Field string
-	Value any
-}
 
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID
@@ -140,54 +134,37 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
-	// thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
-	// if err != nil {
-	// 	return nil, err
-	// }
+	thisEntityConditions, joinConditions := divideConditionsByEntity(conditions)
 
-	// query := tx.Where(thisEntityConditions)
+	query := tx.Where(getWhereParams(thisEntityConditions))
 
-	// entity := new(T)
-	// // only entities that match the conditions
-	// for joinAttributeName, joinConditions := range joinConditions {
-	// 	tableName, err := getTableName(tx, entity)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
+	initialTableName, err := getTableName(query, *new(T))
+	if err != nil {
+		return nil, err
+	}
 
-	// 	err = repository.addJoinToQuery(
-	// 		query,
-	// 		entity,
-	// 		tableName,
-	// 		joinAttributeName,
-	// 		joinConditions,
-	// 	)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-	// }
-
-	// query := tx.Model(*new(T))
-	// whereQuery := utils.Reduce(conditions, func(whereQuery string, condition Condition[T]) string {
-	// return whereQuery + " AND " + condition.Query
-	// })
-	// whereValues := pie.Map(conditions, func(condition Condition[T]) any {
-	// return condition.Value
-	// })
-	//
-	// query.Where(whereQuery, whereValues...)
-
-	// TODO verificar que no se repitan
-	whereParams := map[string]interface{}{}
-	for _, condition := range conditions {
-		whereParams[condition.Field] = condition.Value
+	for _, condition := range joinConditions {
+		err := condition.ApplyTo(query, initialTableName)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// execute query
 	var entities []*T
-	err := tx.Where(whereParams).Find(&entities).Error
+	err = query.Find(&entities).Error
 
 	return entities, err
+}
+
+func getWhereParams[T any](conditions []WhereCondition[T]) map[string]any {
+	// TODO verificar que no se repitan
+	whereParams := map[string]any{}
+	for _, condition := range conditions {
+		whereParams[condition.Field] = condition.Value
+	}
+
+	return whereParams
 }
 
 // Get the name of the table in "db" in which the data for "entity" is saved
@@ -207,175 +184,47 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
 	return repository.GetMultiple(tx)
 }
 
-// Adds a join to the "query" by the "joinAttributeName"
-// then, adds the verification that the joined values match "conditions"
-
-// "conditions" is in {"attributeName": expectedValue} format
-// "previousEntity" is a pointer to a object from where we navigate the relationship
-// "previousTableName" is the name of the table where the previous object is saved and from we the join will we done
-func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
-	query *gorm.DB, previousEntity any,
-	previousTableName, joinAttributeName string,
-	conditions map[string]any,
-) error {
-	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
-	if err != nil {
-		return err
-	}
-
-	relatedObject, relationIDIsInPreviousTable, err := getRelatedObject(
-		previousEntity,
-		joinAttributeName,
-	)
-	if err != nil {
-		return err
-	}
-
-	joinTableName, err := getTableName(query, relatedObject)
-	if err != nil {
-		return err
-	}
-
-	tableWithSuffix := joinTableName + "_" + previousTableName
-
-	var stringQuery string
-	if relationIDIsInPreviousTable {
-		stringQuery = fmt.Sprintf(
-			`JOIN %[1]s %[2]s ON
-				%[2]s.id = %[3]s.%[4]s_id
-				AND %[2]s.deleted_at IS NULL
-			`,
-			joinTableName,
-			tableWithSuffix,
-			previousTableName,
-			joinAttributeName,
-		)
-	} else {
-		// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-		previousAttribute := reflect.TypeOf(previousEntity).Elem().Name()
-		stringQuery = fmt.Sprintf(
-			`JOIN %[1]s %[2]s ON
-				%[2]s.%[4]s_id = %[3]s.id
-				AND %[2]s.deleted_at IS NULL
-			`,
-			joinTableName,
-			tableWithSuffix,
-			previousTableName,
-			previousAttribute,
-		)
-	}
-
-	conditionsValues := []any{}
-	for attributeName, conditionValue := range thisEntityConditions {
-		stringQuery += fmt.Sprintf(
-			`AND %[1]s.%[2]s = ?
-			`,
-			tableWithSuffix, attributeName,
-		)
-		conditionsValues = append(conditionsValues, conditionValue)
-	}
-
-	query.Joins(stringQuery, conditionsValues...)
-
-	for joinAttributeName, joinConditions := range joinConditions {
-		err := repository.addJoinToQuery(
-			query,
-			relatedObject,
-			tableWithSuffix,
-			joinAttributeName,
-			joinConditions,
-		)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-// Given a map of "conditions" that is in {"attributeName": expectedValue} format
-// and in case of join "conditions" can have the format:
-//
-//	{"relationAttributeName": {"attributeName": expectedValue}}
-//
-// it divides the map in two:
-// the conditions that will be applied to the current entity ({"attributeName": expectedValue} format)
-// the conditions that will generate a join with another entity ({"relationAttributeName": {"attributeName": expectedValue}} format)
-//
-// Returns error if any expectedValue is not of a supported type
-func divideConditionsByEntity(
-	conditions map[string]any,
-) (map[string]any, map[string]map[string]any, error) {
-	thisEntityConditions := map[string]any{}
-	joinConditions := map[string]map[string]any{}
-
-	for attributeName, expectedValue := range conditions {
-		switch typedExpectedValue := expectedValue.(type) {
-		case float64, bool, string, int:
-			thisEntityConditions[attributeName] = expectedValue
-		case map[string]any:
-			joinConditions[attributeName] = typedExpectedValue
-		default:
-			return nil, nil, fmt.Errorf("unsupported type")
-		}
-	}
-
-	return thisEntityConditions, joinConditions, nil
-}
-
 // Returns an object of the type of the "entity" attribute called "relationName"
 // and a boolean value indicating whether the id attribute that relates them
 // in the database is in the "entity"'s table.
 // Returns error if "entity" not a relation called "relationName".
-func getRelatedObject(entity any, relationName string) (any, bool, error) {
-	entityType := getEntityType(entity)
+// func getRelatedObject(entity any, relationName string) (any, bool, error) {
+// 	entityType := getEntityType(entity)
 
-	field, isPresent := entityType.FieldByName(relationName)
-	if !isPresent {
-		// some gorm relations dont have a direct relation in the model, only the id
-		relatedObject, err := getRelatedObjectByID(entityType, relationName)
-		if err != nil {
-			return nil, false, err
-		}
+// 	field, isPresent := entityType.FieldByName(relationName)
+// 	if !isPresent {
+// 		// some gorm relations dont have a direct relation in the model, only the id
+// 		relatedObject, err := getRelatedObjectByID(entityType, relationName)
+// 		if err != nil {
+// 			return nil, false, err
+// 		}
 
-		return relatedObject, true, nil
-	}
+// 		return relatedObject, true, nil
+// 	}
 
-	_, isIDPresent := entityType.FieldByName(relationName + "ID")
+// 	_, isIDPresent := entityType.FieldByName(relationName + "ID")
 
-	return createObject(field.Type), isIDPresent, nil
-}
-
-// Get the reflect.Type of any entity or pointer to entity
-func getEntityType(entity any) reflect.Type {
-	entityType := reflect.TypeOf(entity)
-
-	// entityType will be a pointer if the relation can be nullable
-	if entityType.Kind() == reflect.Pointer {
-		entityType = entityType.Elem()
-	}
-
-	return entityType
-}
+// 	return createObject(field.Type), isIDPresent, nil
+// }
 
 // Returns an object of the type of the "entity" attribute called "relationName" + "ID"
 // Returns error if "entity" not a relation called "relationName" + "ID"
-func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, error) {
-	_, isPresent := entityType.FieldByName(relationName + "ID")
-	if !isPresent {
-		return nil, ErrObjectsNotRelated(entityType.Name(), relationName)
-	}
+// func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, error) {
+// 	_, isPresent := entityType.FieldByName(relationName + "ID")
+// 	if !isPresent {
+// 		return nil, ErrObjectsNotRelated(entityType.Name(), relationName)
+// 	}
 
-	// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-	fieldType, isPresent := modelsMapping[relationName]
-	if !isPresent {
-		return nil, ErrModelNotRegistered(entityType.Name(), relationName)
-	}
+// 	// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
+// 	fieldType, isPresent := modelsMapping[relationName]
+// 	if !isPresent {
+// 		return nil, ErrModelNotRegistered(entityType.Name(), relationName)
+// 	}
 
-	return createObject(fieldType), nil
-}
+// 	return createObject(fieldType), nil
+// }
 
-// Creates an object of type reflect.Type using reflection
-func createObject(entityType reflect.Type) any {
-	return reflect.New(entityType).Elem().Interface()
-}
+// // Creates an object of type reflect.Type using reflection
+// func createObject(entityType reflect.Type) any {
+// 	return reflect.New(entityType).Elem().Interface()
+// }
