@@ -13,8 +13,8 @@ import (
 var AuthServiceModule = fx.Module(
 	"authService",
 	// models
-	fx.Provide(badorm.AddModel[models.User]),
-	fx.Provide(badorm.AddModel[models.Session]),
+	fx.Invoke(badorm.AddModel[models.User]),
+	fx.Invoke(badorm.AddModel[models.Session]),
 	// repositories
 	fx.Provide(badorm.NewCRUDRepository[models.Session, uuid.UUID]),
 	fx.Provide(badorm.NewCRUDRepository[models.User, uuid.UUID]),
@@ -27,10 +27,10 @@ var AuthServiceModule = fx.Module(
 var EAVServiceModule = fx.Module(
 	"eavService",
 	// models
-	fx.Provide(badorm.AddModel[models.EntityType]),
-	fx.Provide(badorm.AddModel[models.Entity]),
-	fx.Provide(badorm.AddModel[models.Value]),
-	fx.Provide(badorm.AddModel[models.Attribute]),
+	fx.Invoke(badorm.AddModel[models.EntityType]),
+	fx.Invoke(badorm.AddModel[models.Entity]),
+	fx.Invoke(badorm.AddModel[models.Value]),
+	fx.Invoke(badorm.AddModel[models.Attribute]),
 	// repositories
 	fx.Provide(repository.NewValueRepository),
 	fx.Provide(repository.NewEntityRepository),

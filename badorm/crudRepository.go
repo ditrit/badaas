@@ -334,6 +334,7 @@ func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, er
 		return nil, ErrObjectsNotRelated(entityType.Name(), relationName)
 	}
 
+	// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
 	fieldType, isPresent := modelsMapping[relationName]
 	if !isPresent {
 		return nil, ErrModelNotRegistered(entityType.Name(), relationName)

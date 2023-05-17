@@ -44,7 +44,7 @@ func TestAll(t *testing.T) {
 
 func injectDependencies(cmd *cobra.Command, args []string) {
 	fx.New(
-		// Modules
+		fx.Provide(GetModels),
 		badaas.BadaasModule,
 
 		// logger for fx
@@ -55,14 +55,14 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		fx.Provide(badorm.AddModel[Company]),
+		fx.Invoke(badorm.AddModel[Company]),
 		badorm.GetCRUDServiceModule[Seller, uuid.UUID](),
 		badorm.GetCRUDServiceModule[Product, uuid.UUID](),
 		badorm.GetCRUDServiceModule[Sale, uuid.UUID](),
 		badorm.GetCRUDServiceModule[City, uuid.UUID](),
 		badorm.GetCRUDServiceModule[Country, uuid.UUID](),
 		badorm.GetCRUDServiceModule[Employee, uuid.UUID](),
-		fx.Provide(badorm.AddModel[Person]),
+		fx.Invoke(badorm.AddModel[Person]),
 		badorm.GetCRUDServiceModule[Bicycle, uuid.UUID](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),

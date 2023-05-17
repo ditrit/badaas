@@ -7,12 +7,18 @@ import (
 	"go.uber.org/fx"
 )
 
+type GetModelsResult struct {
+	fx.Out
+
+	Models []any `name:"modelsTables"`
+}
+
 var BaDORMModule = fx.Module(
 	"BaDORM",
 	fx.Invoke(
 		fx.Annotate(
 			autoMigrate,
-			fx.ParamTags(`group:"modelTables"`),
+			fx.ParamTags(`name:"modelsTables"`),
 		),
 	),
 )
@@ -24,7 +30,7 @@ func GetCRUDServiceModule[T any, ID BadaasID]() fx.Option {
 			*new(T),
 		),
 		// models
-		fx.Provide(AddModel[T]),
+		fx.Invoke(AddModel[T]),
 		// repository
 		fx.Provide(NewCRUDRepository[T, ID]),
 		// service
@@ -34,18 +40,8 @@ func GetCRUDServiceModule[T any, ID BadaasID]() fx.Option {
 
 var modelsMapping = map[string]reflect.Type{}
 
-type AddModelResult struct {
-	fx.Out
-
-	Model any `group:"modelTables"`
-}
-
-func AddModel[T any]() AddModelResult {
+func AddModel[T any]() {
 	entity := *new(T)
 	entityType := reflect.TypeOf(entity)
 	modelsMapping[entityType.Name()] = entityType
-
-	return AddModelResult{
-		Model: entity,
-	}
 }

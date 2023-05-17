@@ -66,22 +66,9 @@ func TestMain(_ *testing.M) {
 	}.Run()
 
 	// let db cleaned
-	integrationtests.CleanDBTables(db, ListOfTables)
+	integrationtests.CleanDB(db)
 
 	os.Exit(status)
-}
-
-var ListOfTables = []any{
-	models.Session{},
-	models.User{},
-	models.Value{},
-	models.Attribute{},
-	models.Entity{},
-	models.EntityType{},
-	integrationtests.Sale{},
-	integrationtests.Product{},
-	integrationtests.Seller{},
-	integrationtests.Company{},
 }
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
@@ -100,7 +87,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		// clean db before each scenario
-		integrationtests.CleanDBTables(db, ListOfTables)
+		integrationtests.CleanDB(db)
 
 		adminUser := &models.User{
 			Username: "admin",

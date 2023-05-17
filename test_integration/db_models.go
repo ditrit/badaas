@@ -3,28 +3,38 @@ package integrationtests
 import (
 	"log"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
 )
 
 var ListOfTables = []any{
-	models.Value{},
-	models.Attribute{},
-	models.Entity{},
+	models.Session{},
+	models.User{},
 	models.EntityType{},
-	Sale{},
+	models.Entity{},
+	models.Attribute{},
+	models.Value{},
 	Product{},
-	Seller{},
 	Company{},
-	City{},
+	Seller{},
+	Sale{},
 	Country{},
+	City{},
 	Employee{},
-	Bicycle{},
 	Person{},
+	Bicycle{},
+}
+
+func GetModels() badorm.GetModelsResult {
+	return badorm.GetModelsResult{
+		Models: ListOfTables,
+	}
 }
 
 func CleanDB(db *gorm.DB) {
-	CleanDBTables(db, ListOfTables)
+	CleanDBTables(db, pie.Reverse(ListOfTables))
 }
 
 func CleanDBTables(db *gorm.DB, listOfTables []any) {

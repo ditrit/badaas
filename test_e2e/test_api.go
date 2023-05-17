@@ -39,7 +39,7 @@ func main() {
 // Run the http server for badaas
 func runHTTPServer(cmd *cobra.Command, args []string) {
 	fx.New(
-		// Modules
+		fx.Provide(integrationtests.GetModels),
 		badaas.BadaasModule,
 
 		// logger for fx
@@ -53,9 +53,9 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		router.AuthRoutesModule,
 		router.EAVRoutesModule,
 
-		fx.Provide(badorm.AddModel[integrationtests.Company]),
-		fx.Provide(badorm.AddModel[integrationtests.Seller]),
-		fx.Provide(badorm.AddModel[integrationtests.Product]),
+		fx.Invoke(badorm.AddModel[integrationtests.Company]),
+		fx.Invoke(badorm.AddModel[integrationtests.Seller]),
+		fx.Invoke(badorm.AddModel[integrationtests.Product]),
 		router.GetCRUDRoutesModule[integrationtests.Sale](),
 
 		// create httpServer
