@@ -8,8 +8,9 @@ import (
 	"gorm.io/gorm"
 )
 
-func autoMigrate(listOfTables []any, db *gorm.DB, logger *zap.Logger) error {
-	registeredModels := pie.Map(listOfTables, func(model any) string {
+func autoMigrate(modelsLists [][]any, db *gorm.DB, logger *zap.Logger) error {
+	allModels := pie.Flat(modelsLists)
+	registeredModels := pie.Map(allModels, func(model any) string {
 		return reflect.TypeOf(model).String()
 	})
 	logger.Sugar().Debug(
@@ -17,7 +18,7 @@ func autoMigrate(listOfTables []any, db *gorm.DB, logger *zap.Logger) error {
 		registeredModels,
 	)
 
-	err := db.AutoMigrate(listOfTables...)
+	err := db.AutoMigrate(allModels...)
 	if err != nil {
 		logger.Error("migration failed")
 		return err

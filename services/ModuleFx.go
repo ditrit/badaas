@@ -13,6 +13,7 @@ import (
 var AuthServiceModule = fx.Module(
 	"authService",
 	// models
+	fx.Provide(getAuthModels),
 	fx.Invoke(badorm.AddModel[models.User]),
 	fx.Invoke(badorm.AddModel[models.Session]),
 	// repositories
@@ -24,9 +25,19 @@ var AuthServiceModule = fx.Module(
 	fx.Provide(sessionservice.NewSessionService),
 )
 
+func getAuthModels() badorm.GetModelsResult {
+	return badorm.GetModelsResult{
+		Models: []any{
+			models.Session{},
+			models.User{},
+		},
+	}
+}
+
 var EAVServiceModule = fx.Module(
 	"eavService",
 	// models
+	fx.Provide(getEAVModels),
 	fx.Invoke(badorm.AddModel[models.EntityType]),
 	fx.Invoke(badorm.AddModel[models.Entity]),
 	fx.Invoke(badorm.AddModel[models.Value]),
@@ -39,3 +50,14 @@ var EAVServiceModule = fx.Module(
 	// service
 	fx.Provide(NewEAVService),
 )
+
+func getEAVModels() badorm.GetModelsResult {
+	return badorm.GetModelsResult{
+		Models: []any{
+			models.EntityType{},
+			models.Entity{},
+			models.Attribute{},
+			models.Value{},
+		},
+	}
+}

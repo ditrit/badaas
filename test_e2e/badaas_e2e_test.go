@@ -16,6 +16,7 @@ import (
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
 	integrationtests "github.com/ditrit/badaas/test_integration"
+	"github.com/elliotchance/pie/v2"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -66,7 +67,7 @@ func TestMain(_ *testing.M) {
 	}.Run()
 
 	// let db cleaned
-	integrationtests.CleanDB(db)
+	CleanDB(db)
 
 	os.Exit(status)
 }
@@ -87,7 +88,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		// clean db before each scenario
-		integrationtests.CleanDB(db)
+		CleanDB(db)
 
 		adminUser := &models.User{
 			Username: "admin",
@@ -163,4 +164,18 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^a sale object exists for product "(\d+)", code "(\d+)" and description "(.+)"$`, t.saleExists)
 	ctx.Step(`^I query all sale objects with conditions$`, t.querySalesWithConditions)
 	ctx.Step(`^there is a sale object with attributes$`, t.thereIsSaleWithAttributes)
+}
+
+func CleanDB(db *gorm.DB) {
+	integrationtests.CleanDBTables(db, append(
+		pie.Reverse(integrationtests.ListOfTables),
+		[]any{
+			models.Session{},
+			models.User{},
+			models.Value{},
+			models.Attribute{},
+			models.Entity{},
+			models.EntityType{},
+		}...,
+	))
 }

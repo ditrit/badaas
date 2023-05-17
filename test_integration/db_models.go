@@ -10,12 +10,6 @@ import (
 )
 
 var ListOfTables = []any{
-	models.Session{},
-	models.User{},
-	models.EntityType{},
-	models.Entity{},
-	models.Attribute{},
-	models.Value{},
 	Product{},
 	Company{},
 	Seller{},
@@ -34,7 +28,15 @@ func GetModels() badorm.GetModelsResult {
 }
 
 func CleanDB(db *gorm.DB) {
-	CleanDBTables(db, pie.Reverse(ListOfTables))
+	CleanDBTables(db, append(
+		pie.Reverse(ListOfTables),
+		[]any{
+			models.Value{},
+			models.Attribute{},
+			models.Entity{},
+			models.EntityType{},
+		}...,
+	))
 }
 
 func CleanDBTables(db *gorm.DB, listOfTables []any) {

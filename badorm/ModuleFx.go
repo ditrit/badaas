@@ -10,7 +10,7 @@ import (
 type GetModelsResult struct {
 	fx.Out
 
-	Models []any `name:"modelsTables"`
+	Models []any `group:"modelsTables"`
 }
 
 var BaDORMModule = fx.Module(
@@ -18,7 +18,7 @@ var BaDORMModule = fx.Module(
 	fx.Invoke(
 		fx.Annotate(
 			autoMigrate,
-			fx.ParamTags(`name:"modelsTables"`),
+			fx.ParamTags(`group:"modelsTables"`),
 		),
 	),
 )
