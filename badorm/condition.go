@@ -9,8 +9,13 @@ import (
 )
 
 type Condition[T any] interface {
-	// WhereCondition[T] | JoinCondition[T, any]
-	ApplyTo(query *gorm.DB, tableName string) error
+	ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error)
+
+	// this method is necessary to get the compiler to verify
+	// that an object is of type Condition[T],
+	// since if no method receives by parameter a type T,
+	// any other Condition[T2] would also be considered a Condition[T].
+	interfaceVerificationMethod(T)
 }
 
 type WhereCondition[T any] struct {
@@ -18,8 +23,13 @@ type WhereCondition[T any] struct {
 	Value any
 }
 
-func (condition WhereCondition[T1]) ApplyTo(query *gorm.DB, tableName string) error {
-	return nil
+func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {}
+
+func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	return query.Where(
+		fmt.Sprintf("%s = ?", condition.Field),
+		condition.Value,
+	), nil
 }
 
 type JoinCondition[T1 any, T2 any] struct {
@@ -27,23 +37,12 @@ type JoinCondition[T1 any, T2 any] struct {
 	Conditions []Condition[T2]
 }
 
-func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName string) error {
-	// relatedObject, relationIDIsInPreviousTable, err := getRelatedObject(
-	// 	previousEntity,
-	// 	joinAttributeName,
-	// )
-	// if err != nil {
-	// 	return err
-	// }
+func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(t T1) {}
 
-	// joinTableName, err := getTableName(query, relatedObject)
-	// if err != nil {
-	// 	return err
-	// }
-
+func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName string) (*gorm.DB, error) {
 	joinTableName, err := getTableName(query, *new(T2))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	tableWithSuffix := joinTableName + "_" + previousTableName
@@ -87,16 +86,16 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 		conditionsValues = append(conditionsValues, condition.Value)
 	}
 
-	query.Joins(stringQuery, conditionsValues...)
+	query = query.Joins(stringQuery, conditionsValues...)
 
 	for _, joinCondition := range joinConditions {
-		err := joinCondition.ApplyTo(query, tableWithSuffix)
+		query, err = joinCondition.ApplyTo(query, tableWithSuffix)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return query, nil
 }
 
 func isIDPresentInObject[T any](relationName string) bool {

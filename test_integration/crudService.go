@@ -74,7 +74,6 @@ func SellerNameCondition(name string) badorm.WhereCondition[Seller] {
 	}
 }
 
-// TODO lo que returna aca tampoco se verifica, claramente la verificacion de interfaces genericas no anda
 func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
 	return badorm.JoinCondition[Seller, Company]{
 		Field:      "company",
@@ -111,8 +110,7 @@ func SaleProductCondition(conditions ...badorm.Condition[Product]) badorm.Condit
 	}
 }
 
-// TODO como esto no se verifica seguro que tambien pueda meter cualquier mierda
-func SaleSellerCondition(conditions ...badorm.Condition[Seller]) badorm.Condition[Seller] {
+func SaleSellerCondition(conditions ...badorm.Condition[Seller]) badorm.Condition[Sale] {
 	return badorm.JoinCondition[Sale, Seller]{
 		Field:      "seller",
 		Conditions: conditions,
@@ -181,7 +179,7 @@ func CountryCapitalCondition(conditions ...badorm.Condition[City]) badorm.Condit
 	}
 }
 
-func CapitalNameCondition(name string) badorm.WhereCondition[City] {
+func CityNameCondition(name string) badorm.WhereCondition[City] {
 	return badorm.WhereCondition[City]{
 		Field: "name",
 		Value: name,
@@ -575,12 +573,8 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne
 	ts.createCountry("France", capital2)
 
 	entities, err := ts.crudCountryService.GetEntities(
-		// TODO ver porque si meto esto igual compila
-		// CityCountryCondition(
-		// CountryNameCondition("Argentina"),
-		// ),
 		CountryCapitalCondition(
-			CapitalNameCondition("Buenos Aires"),
+			CityNameCondition("Buenos Aires"),
 		),
 	)
 	ts.Nil(err)

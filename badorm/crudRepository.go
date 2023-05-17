@@ -134,17 +134,14 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
-	thisEntityConditions, joinConditions := divideConditionsByEntity(conditions)
-
-	query := tx.Where(getWhereParams(thisEntityConditions))
-
-	initialTableName, err := getTableName(query, *new(T))
+	initialTableName, err := getTableName(tx, *new(T))
 	if err != nil {
 		return nil, err
 	}
 
-	for _, condition := range joinConditions {
-		err := condition.ApplyTo(query, initialTableName)
+	query := tx
+	for _, condition := range conditions {
+		query, err = condition.ApplyTo(query, initialTableName)
 		if err != nil {
 			return nil, err
 		}
@@ -155,16 +152,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 	err = query.Find(&entities).Error
 
 	return entities, err
-}
-
-func getWhereParams[T any](conditions []WhereCondition[T]) map[string]any {
-	// TODO verificar que no se repitan
-	whereParams := map[string]any{}
-	for _, condition := range conditions {
-		whereParams[condition.Field] = condition.Value
-	}
-
-	return whereParams
 }
 
 // Get the name of the table in "db" in which the data for "entity" is saved
