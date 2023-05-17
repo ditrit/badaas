@@ -43,24 +43,31 @@ func (_m *CRUDRepository[T, ID]) Delete(tx *gorm.DB, entity *T) error {
 }
 
 // Get provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) Get(tx *gorm.DB, conditions map[string]interface{}) (*T, error) {
-	ret := _m.Called(tx, conditions)
+func (_m *CRUDRepository[T, ID]) Get(tx *gorm.DB, conditions ...badorm.Condition[T]) (*T, error) {
+	_va := make([]interface{}, len(conditions))
+	for _i := range conditions {
+		_va[_i] = conditions[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, tx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	var r0 *T
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) (*T, error)); ok {
-		return rf(tx, conditions)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) (*T, error)); ok {
+		return rf(tx, conditions...)
 	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) *T); ok {
-		r0 = rf(tx, conditions)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) *T); ok {
+		r0 = rf(tx, conditions...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*T)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*gorm.DB, map[string]interface{}) error); ok {
-		r1 = rf(tx, conditions)
+	if rf, ok := ret.Get(1).(func(*gorm.DB, ...badorm.Condition[T]) error); ok {
+		r1 = rf(tx, conditions...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -121,24 +128,31 @@ func (_m *CRUDRepository[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, error) {
 }
 
 // GetMultiple provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]interface{}) ([]*T, error) {
-	ret := _m.Called(tx, conditions)
+func (_m *CRUDRepository[T, ID]) GetMultiple(tx *gorm.DB, conditions ...badorm.Condition[T]) ([]*T, error) {
+	_va := make([]interface{}, len(conditions))
+	for _i := range conditions {
+		_va[_i] = conditions[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, tx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	var r0 []*T
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) ([]*T, error)); ok {
-		return rf(tx, conditions)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) ([]*T, error)); ok {
+		return rf(tx, conditions...)
 	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) []*T); ok {
-		r0 = rf(tx, conditions)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) []*T); ok {
+		r0 = rf(tx, conditions...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*T)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*gorm.DB, map[string]interface{}) error); ok {
-		r1 = rf(tx, conditions)
+	if rf, ok := ret.Get(1).(func(*gorm.DB, ...badorm.Condition[T]) error); ok {
+		r1 = rf(tx, conditions...)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -147,24 +161,57 @@ func (_m *CRUDRepository[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]
 }
 
 // GetOptional provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) GetOptional(tx *gorm.DB, conditions map[string]interface{}) (*T, error) {
-	ret := _m.Called(tx, conditions)
+func (_m *CRUDRepository[T, ID]) GetOptional(tx *gorm.DB, conditions ...badorm.Condition[T]) (*T, error) {
+	_va := make([]interface{}, len(conditions))
+	for _i := range conditions {
+		_va[_i] = conditions[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, tx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
 
 	var r0 *T
 	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) (*T, error)); ok {
-		return rf(tx, conditions)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) (*T, error)); ok {
+		return rf(tx, conditions...)
 	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB, map[string]interface{}) *T); ok {
-		r0 = rf(tx, conditions)
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) *T); ok {
+		r0 = rf(tx, conditions...)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*T)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(*gorm.DB, map[string]interface{}) error); ok {
-		r1 = rf(tx, conditions)
+	if rf, ok := ret.Get(1).(func(*gorm.DB, ...badorm.Condition[T]) error); ok {
+		r1 = rf(tx, conditions...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOptionalByID provides a mock function with given fields: tx, id
+func (_m *CRUDRepository[T, ID]) GetOptionalByID(tx *gorm.DB, id ID) (*T, error) {
+	ret := _m.Called(tx, id)
+
+	var r0 *T
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ID) (*T, error)); ok {
+		return rf(tx, id)
+	}
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ID) *T); ok {
+		r0 = rf(tx, id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*T)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*gorm.DB, ID) error); ok {
+		r1 = rf(tx, id)
 	} else {
 		r1 = ret.Error(1)
 	}

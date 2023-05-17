@@ -63,11 +63,12 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 
 // The handler responsible of the retrieval of multiple objects
 func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	params, herr := decodeJSONOptional(r)
-	if herr != nil {
-		return nil, herr
-	}
+	// params, herr := decodeJSONOptional(r)
+	// if herr != nil {
+	// 	return nil, herr
+	// }
 
-	entities, err := controller.crudService.GetEntities(params)
-	return entities, mapServiceError(err)
+	// entities, err := controller.crudService.GetEntities(params)
+	// return entities, mapServiceError(err)
+	return nil, nil
 }

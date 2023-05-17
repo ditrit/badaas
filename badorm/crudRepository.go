@@ -11,6 +11,11 @@ import (
 	"gorm.io/gorm/schema"
 )
 
+type Condition[T any] struct {
+	Field string
+	Value any
+}
+
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID
 type CRUDRepository[T any, ID BadaasID] interface {
@@ -18,9 +23,10 @@ type CRUDRepository[T any, ID BadaasID] interface {
 	Create(tx *gorm.DB, entity *T) error
 	// read
 	GetByID(tx *gorm.DB, id ID) (*T, error)
-	Get(tx *gorm.DB, conditions map[string]any) (*T, error)
-	GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error)
-	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
+	GetOptionalByID(tx *gorm.DB, id ID) (*T, error)
+	Get(tx *gorm.DB, conditions ...Condition[T]) (*T, error)
+	GetOptional(tx *gorm.DB, conditions ...Condition[T]) (*T, error)
+	GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error)
 	GetAll(tx *gorm.DB) ([]*T, error)
 	// update
 	Save(tx *gorm.DB, entity *T) error
@@ -80,13 +86,23 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, er
 	return &entity, nil
 }
 
+// Get an object by "id" inside transaction "tx"
+func (repository *CRUDRepositoryImpl[T, ID]) GetOptionalByID(tx *gorm.DB, id ID) (*T, error) {
+	entity, err := repository.GetByID(tx, id)
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+
+	return entity, nil
+}
+
 // Get an object that matches "conditions" inside transaction "tx"
 // "conditions" is in {"attributeName": expectedValue} format
 // in case of join "conditions" can have the format:
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
-func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[string]any) (*T, error) {
-	entity, err := repository.GetOptional(tx, conditions)
+func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Condition[T]) (*T, error) {
+	entity, err := repository.GetOptional(tx, conditions...)
 	if err != nil {
 		return nil, err
 	}
@@ -103,8 +119,8 @@ func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions map[str
 // in case of join "conditions" can have the format:
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
-func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions map[string]any) (*T, error) {
-	entities, err := repository.GetMultiple(tx, conditions)
+func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions ...Condition[T]) (*T, error) {
+	entities, err := repository.GetMultiple(tx, conditions...)
 	if err != nil {
 		return nil, err
 	}
@@ -123,37 +139,53 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions
 // in case of join "conditions" can have the format:
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
-func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
-	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
-	if err != nil {
-		return nil, err
-	}
+func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
+	// thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	query := tx.Where(thisEntityConditions)
+	// query := tx.Where(thisEntityConditions)
 
-	entity := new(T)
-	// only entities that match the conditions
-	for joinAttributeName, joinConditions := range joinConditions {
-		tableName, err := getTableName(tx, entity)
-		if err != nil {
-			return nil, err
-		}
+	// entity := new(T)
+	// // only entities that match the conditions
+	// for joinAttributeName, joinConditions := range joinConditions {
+	// 	tableName, err := getTableName(tx, entity)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
 
-		err = repository.addJoinToQuery(
-			query,
-			entity,
-			tableName,
-			joinAttributeName,
-			joinConditions,
-		)
-		if err != nil {
-			return nil, err
-		}
+	// 	err = repository.addJoinToQuery(
+	// 		query,
+	// 		entity,
+	// 		tableName,
+	// 		joinAttributeName,
+	// 		joinConditions,
+	// 	)
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+	// }
+
+	// query := tx.Model(*new(T))
+	// whereQuery := utils.Reduce(conditions, func(whereQuery string, condition Condition[T]) string {
+	// return whereQuery + " AND " + condition.Query
+	// })
+	// whereValues := pie.Map(conditions, func(condition Condition[T]) any {
+	// return condition.Value
+	// })
+	//
+	// query.Where(whereQuery, whereValues...)
+
+	// TODO verificar que no se repitan
+	whereParams := map[string]interface{}{}
+	for _, condition := range conditions {
+		whereParams[condition.Field] = condition.Value
 	}
 
 	// execute query
 	var entities []*T
-	err = query.Find(&entities).Error
+	err := tx.Where(whereParams).Find(&entities).Error
 
 	return entities, err
 }
@@ -172,7 +204,7 @@ func getTableName(db *gorm.DB, entity any) (string, error) {
 
 // Get the list of objects of type T
 func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
-	return repository.GetMultiple(tx, map[string]any{})
+	return repository.GetMultiple(tx)
 }
 
 // Adds a join to the "query" by the "joinAttributeName"

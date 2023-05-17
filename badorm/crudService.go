@@ -9,7 +9,8 @@ import (
 // T can be any model whose identifier attribute is of type ID
 type CRUDService[T any, ID BadaasID] interface {
 	GetEntity(id ID) (*T, error)
-	GetEntities(conditions map[string]any) ([]*T, error)
+	// GetEntities(conditions map[string]any) ([]*T, error)
+	GetEntities(conditions ...Condition[T]) ([]*T, error)
 }
 
 // check interface compliance
@@ -46,6 +47,9 @@ func (service *crudServiceImpl[T, ID]) GetEntity(id ID) (*T, error) {
 // in case of join "conditions" can have the format:
 //
 //	{"relationAttributeName": {"attributeName": expectedValue}}
-func (service *crudServiceImpl[T, ID]) GetEntities(conditions map[string]any) ([]*T, error) {
-	return service.repository.GetMultiple(service.db, conditions)
+//
+// TODO
+// func (service *crudServiceImpl[T, ID]) GetEntities(conditions map[string]any) ([]*T, error) {
+func (service *crudServiceImpl[T, ID]) GetEntities(conditions ...Condition[T]) ([]*T, error) {
+	return service.repository.GetMultiple(service.db, conditions...)
 }

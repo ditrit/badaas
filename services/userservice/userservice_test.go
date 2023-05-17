@@ -99,7 +99,7 @@ func TestGetUser(t *testing.T) {
 
 	require.NoError(t, err)
 	userRepositoryMock.On(
-		"Get", gormDB, map[string]any{"email": "bob@email.com"},
+		"Get", gormDB, models.UserEmailCondition("bob@email.com"),
 	).Return(
 		user,
 		nil,
@@ -127,7 +127,7 @@ func TestGetUserNoUserFound(t *testing.T) {
 	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, uuid.UUID](t)
 	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
 	userRepositoryMock.On(
-		"Get", gormDB, map[string]any{"email": "bobnotfound@email.com"},
+		"Get", gormDB, models.UserEmailCondition("bobnotfound@email.com"),
 	).Return(
 		&models.User{},
 		badorm.ErrObjectNotFound,
@@ -154,7 +154,7 @@ func TestGetUserWrongPassword(t *testing.T) {
 
 	require.NoError(t, err)
 	userRepositoryMock.On(
-		"Get", gormDB, map[string]any{"email": "bob@email.com"},
+		"Get", gormDB, models.UserEmailCondition("bob@email.com"),
 	).Return(
 		user,
 		nil,

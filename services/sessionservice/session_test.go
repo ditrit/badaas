@@ -114,7 +114,7 @@ func TestIsValid(t *testing.T) {
 func TestIsValid_SessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptional", gormDB, mock.Anything).
+		On("GetOptionalByID", gormDB, mock.Anything).
 		Return(nil, nil)
 	uuidSample := uuid.New()
 	isValid, _ := service.IsValid(uuidSample)
@@ -161,7 +161,7 @@ func TestLogOutUserDbError(t *testing.T) {
 func TestLogOutUser_SessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptional", gormDB, mock.Anything).
+		On("GetOptionalByID", gormDB, mock.Anything).
 		Return(nil, errors.New("db errors"))
 
 	uuidSample := uuid.New()
@@ -238,7 +238,7 @@ func TestRollSession_falseUUID(t *testing.T) {
 	service.cache[uuidSample] = session
 
 	repoSession.
-		On("GetOptional", gormDB, mock.Anything).
+		On("GetOptionalByID", gormDB, mock.Anything).
 		Return(nil, nil)
 
 	err := service.RollSession(uuid.New())
@@ -248,7 +248,7 @@ func TestRollSession_falseUUID(t *testing.T) {
 func TestRollSession_sessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, sessionConfigurationMock := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptional", gormDB, map[string]any{"uuid": "00000000-0000-0000-0000-000000000000"}).
+		On("GetOptionalByID", gormDB, uuid.Nil).
 		Return(nil, nil)
 
 	sessionDuration := time.Minute
@@ -340,7 +340,7 @@ func Test_get(t *testing.T) {
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
-		On("GetOptional", gormDB, mock.Anything).
+		On("GetOptionalByID", gormDB, mock.Anything).
 		Return(session, nil)
 
 	sessionFound := service.get(uuidSample)

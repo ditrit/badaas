@@ -83,9 +83,9 @@ func (sessionService *sessionServiceImpl) get(sessionUUID uuid.UUID) *models.Ses
 		return session
 	}
 
-	session, err := sessionService.sessionRepository.GetOptional(
+	session, err := sessionService.sessionRepository.GetOptionalByID(
 		sessionService.db,
-		map[string]any{"uuid": sessionUUID.String()},
+		sessionUUID,
 	)
 	if err != nil {
 		return nil

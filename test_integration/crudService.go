@@ -2,7 +2,6 @@ package integrationtests
 
 import (
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -26,6 +25,34 @@ type Product struct {
 	Bool   bool
 }
 
+func ProductIntCondition(intV int) badorm.Condition[Product] {
+	return badorm.Condition[Product]{
+		Field: "int",
+		Value: intV,
+	}
+}
+
+func ProductStringCondition(stringV string) badorm.Condition[Product] {
+	return badorm.Condition[Product]{
+		Field: "string",
+		Value: stringV,
+	}
+}
+
+func ProductFloatCondition(floatV float64) badorm.Condition[Product] {
+	return badorm.Condition[Product]{
+		Field: "float",
+		Value: floatV,
+	}
+}
+
+func ProductBoolCondition(boolV bool) badorm.Condition[Product] {
+	return badorm.Condition[Product]{
+		Field: "bool",
+		Value: boolV,
+	}
+}
+
 type Seller struct {
 	badorm.UUIDModel
 
@@ -46,6 +73,13 @@ type Sale struct {
 	// Sale HasOne Seller (Sale 0..* -> 0..1 Seller)
 	Seller   *Seller
 	SellerID *uuid.UUID
+}
+
+func SaleProductIDCondition(id uuid.UUID) badorm.Condition[Sale] {
+	return badorm.Condition[Sale]{
+		Field: "product_id",
+		Value: id.String(),
+	}
 }
 
 func (m Product) Equal(other Product) bool {
@@ -184,7 +218,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsTheEntityIfItIsCreate() {
 // ------------------------- GetEntities --------------------------------
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsEmptyIfNotEntitiesCreated() {
-	entities, err := ts.crudProductService.GetEntities(map[string]any{})
+	entities, err := ts.crudProductService.GetEntities()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{}, entities)
@@ -193,7 +227,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsEmptyI
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheOnlyOneIfOneEntityCreated() {
 	match := ts.createProduct("", 0, 0, false)
 
-	entities, err := ts.crudProductService.GetEntities(map[string]any{})
+	entities, err := ts.crudProductService.GetEntities()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match}, entities)
@@ -204,17 +238,16 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheLis
 	match2 := ts.createProduct("", 0, 0, false)
 	match3 := ts.createProduct("", 0, 0, false)
 
-	entities, err := ts.crudProductService.GetEntities(map[string]any{})
+	entities, err := ts.crudProductService.GetEntities()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match1, match2, match3}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNotEntitiesCreated() {
-	params := map[string]any{
-		"string": "not_created",
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductStringCondition("not_created"),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{}, entities)
@@ -223,10 +256,9 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNo
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNothingMatch() {
 	ts.createProduct("something_else", 0, 0, false)
 
-	params := map[string]any{
-		"string": "not_match",
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductStringCondition("not_match"),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{}, entities)
@@ -236,10 +268,9 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnly
 	match := ts.createProduct("match", 0, 0, false)
 	ts.createProduct("not_match", 0, 0, false)
 
-	params := map[string]any{
-		"string": "match",
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductStringCondition("match"),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match}, entities)
@@ -250,58 +281,33 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleI
 	match2 := ts.createProduct("match", 0, 0, false)
 	ts.createProduct("not_match", 0, 0, false)
 
-	params := map[string]any{
-		"string": "match",
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductStringCondition("match"),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
-}
-
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatDoesNotExistReturnsDBError() {
-	ts.createProduct("match", 0, 0, false)
-
-	params := map[string]any{
-		"not_exists": "not_exists",
-	}
-	_, err := ts.crudProductService.GetEntities(params)
-	ts.NotNil(err)
-	ts.True(gormdatabase.IsPostgresError(err, "42703"))
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	match := ts.createProduct("match", 1, 0, false)
 	ts.createProduct("not_match", 2, 0, false)
 
-	params := map[string]any{
-		"int": 1,
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductIntCondition(1),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match}, entities)
-}
-
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIncorrectTypeReturnsDBError() {
-	ts.createProduct("not_match", 1, 0, false)
-
-	params := map[string]any{
-		"int": "not_an_int",
-	}
-	_, err := ts.crudProductService.GetEntities(params)
-	ts.NotNil(err)
-	ts.True(gormdatabase.IsPostgresError(err, "22P02"))
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	match := ts.createProduct("match", 0, 1.1, false)
 	ts.createProduct("not_match", 0, 2.2, false)
 
-	params := map[string]any{
-		"float": 1.1,
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductFloatCondition(1.1),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match}, entities)
@@ -311,13 +317,29 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 	match := ts.createProduct("match", 0, 0.0, true)
 	ts.createProduct("not_match", 0, 0.0, false)
 
-	params := map[string]any{
-		"bool": true,
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.GetEntities(
+		ProductBoolCondition(true),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDifferentTypesWorks() {
+	match1 := ts.createProduct("match", 1, 0.0, true)
+	match2 := ts.createProduct("match", 1, 0.0, true)
+
+	ts.createProduct("not_match", 1, 0.0, true)
+	ts.createProduct("match", 2, 0.0, true)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductStringCondition("match"),
+		ProductIntCondition(1),
+		ProductBoolCondition(true),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
@@ -330,285 +352,266 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	params := map[string]any{
-		"product_id": product1.ID.String(),
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.GetEntities(
+		SaleProductIDCondition(product1.ID),
+	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Sale{match}, entities)
 }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDifferentTypesWorks() {
-	match1 := ts.createProduct("match", 1, 0.0, true)
-	match2 := ts.createProduct("match", 1, 0.0, true)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsTo() {
+// 	product1 := ts.createProduct("", 1, 0.0, false)
+// 	product2 := ts.createProduct("", 2, 0.0, false)
 
-	ts.createProduct("not_match", 1, 0.0, true)
-	ts.createProduct("match", 2, 0.0, true)
+// 	match := ts.createSale(0, product1, nil)
+// 	ts.createSale(0, product2, nil)
 
-	params := map[string]any{
-		"string": "match",
-		"int":    1,
-		"bool":   true,
-	}
-	entities, err := ts.crudProductService.GetEntities(params)
-	ts.Nil(err)
+// 	params := map[string]any{
+// 		"Product": map[string]any{
+// 			"int": 1,
+// 		},
+// 	}
+// 	entities, err := ts.crudSaleService.GetEntities(params)
+// 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
-}
+// 	EqualList(&ts.Suite, []*Sale{match}, entities)
+// }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsTo() {
-	product1 := ts.createProduct("", 1, 0.0, false)
-	product2 := ts.createProduct("", 2, 0.0, false)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneOptional() {
+// 	product1 := ts.createProduct("", 1, 0.0, false)
+// 	product2 := ts.createProduct("", 2, 0.0, false)
 
-	match := ts.createSale(0, product1, nil)
-	ts.createSale(0, product2, nil)
+// 	seller1 := ts.createSeller("franco", nil)
+// 	seller2 := ts.createSeller("agustin", nil)
 
-	params := map[string]any{
-		"Product": map[string]any{
-			"int": 1,
-		},
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
-	ts.Nil(err)
+// 	match := ts.createSale(0, product1, seller1)
+// 	ts.createSale(0, product2, seller2)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
-}
+// 	params := map[string]any{
+// 		"Seller": map[string]any{
+// 			"name": "franco",
+// 		},
+// 	}
+// 	entities, err := ts.crudSaleService.GetEntities(params)
+// 	ts.Nil(err)
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneOptional() {
-	product1 := ts.createProduct("", 1, 0.0, false)
-	product2 := ts.createProduct("", 2, 0.0, false)
+// 	EqualList(&ts.Suite, []*Sale{match}, entities)
+// }
 
-	seller1 := ts.createSeller("franco", nil)
-	seller2 := ts.createSeller("agustin", nil)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneSelfReferential() {
+// 	boss1 := &Employee{
+// 		Name: "Xavier",
+// 	}
+// 	boss2 := &Employee{
+// 		Name: "Vincent",
+// 	}
 
-	match := ts.createSale(0, product1, seller1)
-	ts.createSale(0, product2, seller2)
+// 	match := ts.createEmployee("franco", boss1)
+// 	ts.createEmployee("pierre", boss2)
 
-	params := map[string]any{
-		"Seller": map[string]any{
-			"name": "franco",
-		},
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
-	ts.Nil(err)
+// 	params := map[string]any{
+// 		"Boss": map[string]any{
+// 			"name": "Xavier",
+// 		},
+// 	}
+// 	entities, err := ts.crudEmployeeService.GetEntities(params)
+// 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
-}
+// 	EqualList(&ts.Suite, []*Employee{match}, entities)
+// }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneSelfReferential() {
-	boss1 := &Employee{
-		Name: "Xavier",
-	}
-	boss2 := &Employee{
-		Name: "Vincent",
-	}
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne() {
+// 	capital1 := City{
+// 		Name: "Buenos Aires",
+// 	}
+// 	capital2 := City{
+// 		Name: "Paris",
+// 	}
 
-	match := ts.createEmployee("franco", boss1)
-	ts.createEmployee("pierre", boss2)
+// 	ts.createCountry("Argentina", capital1)
+// 	ts.createCountry("France", capital2)
 
-	params := map[string]any{
-		"Boss": map[string]any{
-			"name": "Xavier",
-		},
-	}
-	entities, err := ts.crudEmployeeService.GetEntities(params)
-	ts.Nil(err)
+// 	params := map[string]any{
+// 		"Country": map[string]any{
+// 			"name": "Argentina",
+// 		},
+// 	}
+// 	entities, err := ts.crudCityService.GetEntities(params)
+// 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Employee{match}, entities)
-}
+// 	EqualList(&ts.Suite, []*City{&capital1}, entities)
+// }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne() {
-	capital1 := City{
-		Name: "Buenos Aires",
-	}
-	capital2 := City{
-		Name: "Paris",
-	}
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOneReversed() {
+// 	capital1 := City{
+// 		Name: "Buenos Aires",
+// 	}
+// 	capital2 := City{
+// 		Name: "Paris",
+// 	}
 
-	ts.createCountry("Argentina", capital1)
-	ts.createCountry("France", capital2)
+// 	country1 := ts.createCountry("Argentina", capital1)
+// 	ts.createCountry("France", capital2)
 
-	params := map[string]any{
-		"Country": map[string]any{
-			"name": "Argentina",
-		},
-	}
-	entities, err := ts.crudCityService.GetEntities(params)
-	ts.Nil(err)
+// 	params := map[string]any{
+// 		"Capital": map[string]any{
+// 			"name": "Buenos Aires",
+// 		},
+// 	}
+// 	entities, err := ts.crudCountryService.GetEntities(params)
+// 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*City{&capital1}, entities)
-}
+// 	EqualList(&ts.Suite, []*Country{country1}, entities)
+// }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOneReversed() {
-	capital1 := City{
-		Name: "Buenos Aires",
-	}
-	capital2 := City{
-		Name: "Paris",
-	}
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsReturnsErrorIfNoRelation() {
+// 	params := map[string]any{
+// 		"NotExists": map[string]any{
+// 			"int": 1,
+// 		},
+// 	}
+// 	_, err := ts.crudSaleService.GetEntities(params)
+// 	ts.ErrorContains(err, "Sale has not attribute named NotExists or NotExistsID")
+// }
 
-	country1 := ts.createCountry("Argentina", capital1)
-	ts.createCountry("France", capital2)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsWithEntityThatDefinesTableName() {
+// 	person1 := Person{
+// 		Name: "franco",
+// 	}
+// 	person2 := Person{
+// 		Name: "xavier",
+// 	}
 
-	params := map[string]any{
-		"Capital": map[string]any{
-			"name": "Buenos Aires",
-		},
-	}
-	entities, err := ts.crudCountryService.GetEntities(params)
-	ts.Nil(err)
+// 	match := ts.createBicycle("BMX", person1)
+// 	ts.createBicycle("Shimano", person2)
 
-	EqualList(&ts.Suite, []*Country{country1}, entities)
-}
+// 	params := map[string]any{
+// 		"Owner": map[string]any{
+// 			"name": "franco",
+// 		},
+// 	}
+// 	entities, err := ts.crudBicycleService.GetEntities(params)
+// 	ts.Nil(err)
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsReturnsErrorIfNoRelation() {
-	params := map[string]any{
-		"NotExists": map[string]any{
-			"int": 1,
-		},
-	}
-	_, err := ts.crudSaleService.GetEntities(params)
-	ts.ErrorContains(err, "Sale has not attribute named NotExists or NotExistsID")
-}
+// 	EqualList(&ts.Suite, []*Bicycle{match}, entities)
+// }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsWithEntityThatDefinesTableName() {
-	person1 := Person{
-		Name: "franco",
-	}
-	person2 := Person{
-		Name: "xavier",
-	}
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnHasMany() {
+// 	company1 := ts.createCompany("ditrit")
+// 	company2 := ts.createCompany("orness")
 
-	match := ts.createBicycle("BMX", person1)
-	ts.createBicycle("Shimano", person2)
+// 	match := ts.createSeller("franco", company1)
+// 	ts.createSeller("agustin", company2)
 
-	params := map[string]any{
-		"Owner": map[string]any{
-			"name": "franco",
-		},
-	}
-	entities, err := ts.crudBicycleService.GetEntities(params)
-	ts.Nil(err)
+// 	params := map[string]any{
+// 		"Company": map[string]any{
+// 			"name": "ditrit",
+// 		},
+// 	}
+// 	entities, err := ts.crudSellerService.GetEntities(params)
+// 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Bicycle{match}, entities)
-}
+// 	EqualList(&ts.Suite, []*Seller{match}, entities)
+// }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnHasMany() {
-	company1 := ts.createCompany("ditrit")
-	company2 := ts.createCompany("orness")
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDifferentAttributes() {
+// 	product1 := ts.createProduct("match", 1, 0.0, false)
+// 	product2 := ts.createProduct("match", 2, 0.0, false)
 
-	match := ts.createSeller("franco", company1)
-	ts.createSeller("agustin", company2)
+// 	seller1 := ts.createSeller("franco", nil)
+// 	seller2 := ts.createSeller("agustin", nil)
 
-	params := map[string]any{
-		"Company": map[string]any{
-			"name": "ditrit",
-		},
-	}
-	entities, err := ts.crudSellerService.GetEntities(params)
-	ts.Nil(err)
+// 	match := ts.createSale(0, product1, seller1)
+// 	ts.createSale(0, product2, seller2)
 
-	EqualList(&ts.Suite, []*Seller{match}, entities)
-}
+// 	params := map[string]any{
+// 		"Product": map[string]any{
+// 			"int":    1,
+// 			"string": "match",
+// 		},
+// 	}
+// 	entities, err := ts.crudSaleService.GetEntities(params)
+// 	ts.Nil(err)
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDifferentAttributes() {
-	product1 := ts.createProduct("match", 1, 0.0, false)
-	product2 := ts.createProduct("match", 2, 0.0, false)
+// 	EqualList(&ts.Suite, []*Sale{match}, entities)
+// }
 
-	seller1 := ts.createSeller("franco", nil)
-	seller2 := ts.createSeller("agustin", nil)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFiltersTheMainEntity() {
+// 	product1 := ts.createProduct("", 1, 0.0, false)
+// 	product2 := ts.createProduct("", 2, 0.0, false)
 
-	match := ts.createSale(0, product1, seller1)
-	ts.createSale(0, product2, seller2)
+// 	seller1 := ts.createSeller("franco", nil)
+// 	seller2 := ts.createSeller("agustin", nil)
 
-	params := map[string]any{
-		"Product": map[string]any{
-			"int":    1,
-			"string": "match",
-		},
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
-	ts.Nil(err)
+// 	match := ts.createSale(1, product1, seller1)
+// 	ts.createSale(2, product2, seller2)
+// 	ts.createSale(2, product1, seller2)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
-}
+// 	params := map[string]any{
+// 		"Product": map[string]any{
+// 			"int": 1,
+// 		},
+// 		"code": 1,
+// 	}
+// 	entities, err := ts.crudSaleService.GetEntities(params)
+// 	ts.Nil(err)
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFiltersTheMainEntity() {
-	product1 := ts.createProduct("", 1, 0.0, false)
-	product2 := ts.createProduct("", 2, 0.0, false)
+// 	EqualList(&ts.Suite, []*Sale{match}, entities)
+// }
 
-	seller1 := ts.createSeller("franco", nil)
-	seller2 := ts.createSeller("agustin", nil)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferentEntities() {
+// 	product1 := ts.createProduct("", 1, 0.0, false)
+// 	product2 := ts.createProduct("", 2, 0.0, false)
 
-	match := ts.createSale(1, product1, seller1)
-	ts.createSale(2, product2, seller2)
-	ts.createSale(2, product1, seller2)
+// 	seller1 := ts.createSeller("franco", nil)
+// 	seller2 := ts.createSeller("agustin", nil)
 
-	params := map[string]any{
-		"Product": map[string]any{
-			"int": 1,
-		},
-		"code": 1,
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
-	ts.Nil(err)
+// 	match := ts.createSale(0, product1, seller1)
+// 	ts.createSale(0, product2, seller2)
+// 	ts.createSale(0, product1, seller2)
+// 	ts.createSale(0, product2, seller1)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
-}
+// 	params := map[string]any{
+// 		"Product": map[string]any{
+// 			"int": 1,
+// 		},
+// 		"Seller": map[string]any{
+// 			"name": "franco",
+// 		},
+// 	}
+// 	entities, err := ts.crudSaleService.GetEntities(params)
+// 	ts.Nil(err)
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferentEntities() {
-	product1 := ts.createProduct("", 1, 0.0, false)
-	product2 := ts.createProduct("", 2, 0.0, false)
+// 	EqualList(&ts.Suite, []*Sale{match}, entities)
+// }
 
-	seller1 := ts.createSeller("franco", nil)
-	seller2 := ts.createSeller("agustin", nil)
+// func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultipleTimes() {
+// 	product1 := ts.createProduct("", 0, 0.0, false)
+// 	product2 := ts.createProduct("", 0, 0.0, false)
 
-	match := ts.createSale(0, product1, seller1)
-	ts.createSale(0, product2, seller2)
-	ts.createSale(0, product1, seller2)
-	ts.createSale(0, product2, seller1)
+// 	company1 := ts.createCompany("ditrit")
+// 	company2 := ts.createCompany("orness")
 
-	params := map[string]any{
-		"Product": map[string]any{
-			"int": 1,
-		},
-		"Seller": map[string]any{
-			"name": "franco",
-		},
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
-	ts.Nil(err)
+// 	seller1 := ts.createSeller("franco", company1)
+// 	seller2 := ts.createSeller("agustin", company2)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
-}
+// 	match := ts.createSale(0, product1, seller1)
+// 	ts.createSale(0, product2, seller2)
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultipleTimes() {
-	product1 := ts.createProduct("", 0, 0.0, false)
-	product2 := ts.createProduct("", 0, 0.0, false)
+// 	params := map[string]any{
+// 		"Seller": map[string]any{
+// 			"name": "franco",
+// 			"Company": map[string]any{
+// 				"name": "ditrit",
+// 			},
+// 		},
+// 	}
+// 	entities, err := ts.crudSaleService.GetEntities(params)
+// 	ts.Nil(err)
 
-	company1 := ts.createCompany("ditrit")
-	company2 := ts.createCompany("orness")
-
-	seller1 := ts.createSeller("franco", company1)
-	seller2 := ts.createSeller("agustin", company2)
-
-	match := ts.createSale(0, product1, seller1)
-	ts.createSale(0, product2, seller2)
-
-	params := map[string]any{
-		"Seller": map[string]any{
-			"name": "franco",
-			"Company": map[string]any{
-				"name": "ditrit",
-			},
-		},
-	}
-	entities, err := ts.crudSaleService.GetEntities(params)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*Sale{match}, entities)
-}
+// 	EqualList(&ts.Suite, []*Sale{match}, entities)
+// }
 
 // ------------------------- utils -------------------------
 

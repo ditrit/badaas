@@ -77,7 +77,7 @@ func (userService *userServiceImpl) NewUser(username, email, password string) (*
 func (userService *userServiceImpl) GetUser(userLoginDTO dto.UserLoginDTO) (*models.User, error) {
 	user, err := userService.userRepository.Get(
 		userService.db,
-		map[string]any{"email": userLoginDTO.Email},
+		models.UserEmailCondition(userLoginDTO.Email),
 	)
 	if err != nil {
 		return nil, err
