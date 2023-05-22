@@ -91,10 +91,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptionalByID(tx *gorm.DB, id ID)
 }
 
 // Get an object that matches "conditions" inside transaction "tx"
-// "conditions" is in {"attributeName": expectedValue} format
-// in case of join "conditions" can have the format:
-//
-//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Condition[T]) (*T, error) {
 	entity, err := repository.GetOptional(tx, conditions...)
 	if err != nil {
@@ -109,10 +105,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Cond
 }
 
 // Get an object or nil that matches "conditions" inside transaction "tx"
-// "conditions" is in {"attributeName": expectedValue} format
-// in case of join "conditions" can have the format:
-//
-//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions ...Condition[T]) (*T, error) {
 	entities, err := repository.GetMultiple(tx, conditions...)
 	if err != nil {
@@ -129,10 +121,6 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetOptional(tx *gorm.DB, conditions
 }
 
 // Get the list of objects that match "conditions" inside transaction "tx"
-// "conditions" is in {"attributeName": expectedValue} format
-// in case of join "conditions" can have the format:
-//
-//	{"relationAttributeName": {"attributeName": expectedValue}}
 func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
 	initialTableName, err := getTableName(tx, *new(T))
 	if err != nil {

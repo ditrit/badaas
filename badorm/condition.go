@@ -9,9 +9,12 @@ import (
 )
 
 type Condition[T any] interface {
+	// Applies the condition to the "query"
+	// using the "tableName" as name for the table holding
+	// the data for object of type T
 	ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error)
 
-	// this method is necessary to get the compiler to verify
+	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T],
 	// since if no method receives by parameter a type T,
 	// any other Condition[T2] would also be considered a Condition[T].
@@ -25,11 +28,21 @@ type WhereCondition[T any] struct {
 
 func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {}
 
+// Returns a gorm Where condition that can be used
+// to filter that the Field as a value of Value
 func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
 	return query.Where(
-		fmt.Sprintf("%s = ?", condition.Field),
+		condition.GetSQL(tableName),
 		condition.Value,
 	), nil
+}
+
+func (condition WhereCondition[T]) GetSQL(tableName string) string {
+	return fmt.Sprintf(
+		"%s.%s = ?",
+		tableName,
+		condition.Field,
+	)
 }
 
 type JoinCondition[T1 any, T2 any] struct {
@@ -39,57 +52,38 @@ type JoinCondition[T1 any, T2 any] struct {
 
 func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(t T1) {}
 
+// Applies a join between the tables of T1 and T2
+// previousTableName is the name of the table of T1
+// It also applies the nested conditions
 func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName string) (*gorm.DB, error) {
-	joinTableName, err := getTableName(query, *new(T2))
+	// get the name of the table for T2
+	toBeJoinedTableName, err := getTableName(query, *new(T2))
 	if err != nil {
 		return nil, err
 	}
 
-	tableWithSuffix := joinTableName + "_" + previousTableName
+	// add a suffix to avoid tables with the same name when joining
+	// the same table more than once
+	nextTableName := toBeJoinedTableName + "_" + previousTableName
 
-	var stringQuery string
-	if isIDPresentInObject[T1](condition.Field) {
-		stringQuery = fmt.Sprintf(
-			`JOIN %[1]s %[2]s ON
-				%[2]s.id = %[3]s.%[4]s_id
-				AND %[2]s.deleted_at IS NULL
-			`,
-			joinTableName,
-			tableWithSuffix,
-			previousTableName,
-			condition.Field,
-		)
-	} else {
-		// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-		previousAttribute := reflect.TypeOf(*new(T1)).Name()
-		stringQuery = fmt.Sprintf(
-			`JOIN %[1]s %[2]s ON
-				%[2]s.%[4]s_id = %[3]s.id
-				AND %[2]s.deleted_at IS NULL
-			`,
-			joinTableName,
-			tableWithSuffix,
-			previousTableName,
-			previousAttribute,
-		)
-	}
+	// get the sql to do the join with T2
+	joinQuery := condition.getSQLJoin(toBeJoinedTableName, nextTableName, previousTableName)
 
-	thisEntityConditions, joinConditions := divideConditionsByEntity(condition.Conditions)
+	whereConditions, joinConditions := divideConditionsByType(condition.Conditions)
 
+	// apply WhereConditions to join in "on" clause
 	conditionsValues := []any{}
-	for _, condition := range thisEntityConditions {
-		stringQuery += fmt.Sprintf(
-			`AND %[1]s.%[2]s = ?
-			`,
-			tableWithSuffix, condition.Field,
-		)
+	for _, condition := range whereConditions {
+		joinQuery += "AND " + condition.GetSQL(nextTableName)
 		conditionsValues = append(conditionsValues, condition.Value)
 	}
 
-	query = query.Joins(stringQuery, conditionsValues...)
+	// add the join to the query
+	query = query.Joins(joinQuery, conditionsValues...)
 
+	// apply nested joins
 	for _, joinCondition := range joinConditions {
-		query, err = joinCondition.ApplyTo(query, tableWithSuffix)
+		query, err = joinCondition.ApplyTo(query, nextTableName)
 		if err != nil {
 			return nil, err
 		}
@@ -98,6 +92,39 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	return query, nil
 }
 
+// Returns the SQL string to do a join between T1 and T2
+// taking into account that the ID attribute necessary to do it
+// can be either in T1's or T2's table.
+func (condition JoinCondition[T1, T2]) getSQLJoin(toBeJoinedTableName, nextTableName, previousTableName string) string {
+	if isIDPresentInObject[T1](condition.Field) {
+		// T1 has the id attribute
+		return fmt.Sprintf(
+			`JOIN %[1]s %[2]s ON
+				%[2]s.id = %[3]s.%[4]s_id
+				AND %[2]s.deleted_at IS NULL
+			`,
+			toBeJoinedTableName,
+			nextTableName,
+			previousTableName,
+			condition.Field,
+		)
+	}
+	// T2 has the id attribute
+	// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
+	previousAttribute := reflect.TypeOf(*new(T1)).Name()
+	return fmt.Sprintf(
+		`JOIN %[1]s %[2]s ON
+			%[2]s.%[4]s_id = %[3]s.id
+			AND %[2]s.deleted_at IS NULL
+		`,
+		toBeJoinedTableName,
+		nextTableName,
+		previousTableName,
+		previousAttribute,
+	)
+}
+
+// Returns true if object T has an attribute called "relationName"ID
 func isIDPresentInObject[T any](relationName string) bool {
 	entityType := getEntityType(*new(T))
 	_, isIDPresent := entityType.FieldByName(
@@ -106,30 +133,16 @@ func isIDPresentInObject[T any](relationName string) bool {
 	return isIDPresent
 }
 
-// Given a map of "conditions" that is in {"attributeName": expectedValue} format
-// and in case of join "conditions" can have the format:
-//
-//	{"relationAttributeName": {"attributeName": expectedValue}}
-//
-// it divides the map in two:
-// the conditions that will be applied to the current entity ({"attributeName": expectedValue} format)
-// the conditions that will generate a join with another entity ({"relationAttributeName": {"attributeName": expectedValue}} format)
-//
-// Returns error if any expectedValue is not of a supported type
-func divideConditionsByEntity[T any](
+// Divides a list of conditions by its type: WhereConditions and JoinConditions
+func divideConditionsByType[T any](
 	conditions []Condition[T],
 ) (thisEntityConditions []WhereCondition[T], joinConditions []Condition[T]) {
 	for _, condition := range conditions {
 		switch typedCondition := condition.(type) {
 		case WhereCondition[T]:
 			thisEntityConditions = append(thisEntityConditions, typedCondition)
-		// case JoinCondition[T, any]:
-		// joinConditions = append(joinConditions, typedCondition)
 		default:
 			joinConditions = append(joinConditions, typedCondition)
-			// log.Println(reflect.TypeOf(typedCondition))
-			// log.Println(reflect.TypeOf(any(condition)))
-			// log.Println(condition.(JoinCondition[T, any]))
 		}
 	}
 

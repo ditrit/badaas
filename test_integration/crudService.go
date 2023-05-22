@@ -290,8 +290,6 @@ func (ts *CRUDServiceIntTestSuite) SetupTest() {
 	CleanDB(ts.db)
 }
 
-// TODO nombres complejos, diferencia entre _ y mayusculas
-
 // ------------------------- GetEntity --------------------------------
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated() {
