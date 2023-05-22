@@ -1,4 +1,4 @@
-package cmd
+package gen
 
 import (
 	"embed"
@@ -18,9 +18,9 @@ import (
 //go:embed config/*
 var embedFS embed.FS
 
-var genCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-	Use:   "gen",
-	Short: "Generate files and configurations necessary to use BadAss",
+var genDockerCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
+	Use:   "docker",
+	Short: "Generate files and configurations necessary to use BadAss over Docker",
 	Long:  `gen is the command you can use to generate the files and configurations necessary for your project to use BadAss in a simple way.`,
 	Run:   generateDockerFiles,
 })
@@ -41,9 +41,7 @@ var DBPorts = map[string]int{
 }
 
 func init() {
-	rootCmd.AddSubCommand(genCmd)
-
-	err := genCmd.LKey(
+	err := genDockerCmd.LKey(
 		DBProviderKey, verdeter.IsStr, "p",
 		fmt.Sprintf(
 			"Database provider (%s), default: %s",
@@ -54,8 +52,8 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	genCmd.SetDefault(DBProviderKey, Cockroachdb)
-	genCmd.AddValidator(
+	genDockerCmd.SetDefault(DBProviderKey, Cockroachdb)
+	genDockerCmd.AddValidator(
 		DBProviderKey,
 		validators.AuthorizedValues(DBProviders...),
 	)

@@ -63,6 +63,7 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 
 // The handler responsible of the retrieval of multiple objects
 func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+	// TODO
 	// params, herr := decodeJSONOptional(r)
 	// if herr != nil {
 	// 	return nil, herr

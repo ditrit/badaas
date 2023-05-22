@@ -16,10 +16,6 @@ var runCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Run:   runApp,
 })
 
-func init() {
-	rootCmd.AddSubCommand(runCmd)
-}
-
 func runApp(cmd *cobra.Command, args []string) {
 	dockerCommand := exec.Command(
 		"docker", "compose",
