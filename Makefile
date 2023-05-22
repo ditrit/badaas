@@ -22,7 +22,7 @@ test_e2e:
 	go test ./test_e2e -v
 
 test_generate_mocks:
-	mockery --all --keeptree
+	go generate
 
 .PHONY: test_unit test_integration test_e2e
 

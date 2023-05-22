@@ -1,5 +1,7 @@
 package badaas
 
+//go:generate mockery --all --keeptree
+
 import (
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/logger"
