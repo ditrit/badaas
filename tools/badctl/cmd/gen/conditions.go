@@ -35,13 +35,12 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	pkgs := loadPackages(args)
 
 	// Get the package of the file with go:generate comment
-	destPackage := os.Getenv("GOPACKAGE")
-	if destPackage == "" {
+	destPkg := os.Getenv("GOPACKAGE")
+	if destPkg == "" {
 		// TODO que tambien se pueda usar solo
 		failErr(errors.New("this command should be called using go generate"))
 	}
-	// se puede llamar igual el package pero estar en otro path, lo que quiero comparar es el path
-	log.Println(destPackage)
+	log.Println(destPkg)
 
 	for _, pkg := range pkgs {
 		log.Println(pkg.Types.Path())
@@ -53,7 +52,10 @@ func generateConditions(cmd *cobra.Command, args []string) {
 				log.Println(name)
 
 				// Generate code using jennifer
-				err := generate(destPackage, name, structType)
+				err := generate(
+					pkg.Types, destPkg,
+					name, structType,
+				)
 				if err != nil {
 					failErr(err)
 				}
@@ -98,9 +100,9 @@ func isBadORMModel(structType *types.Struct) bool {
 
 // TODO add logs
 
-func generate(destPackage, structTypeName string, structType *types.Struct) error {
+func generate(srcPkg *types.Package, destPkg, structName string, structType *types.Struct) error {
 	// Start a new file in destination package
-	f := jen.NewFile(destPackage)
+	f := jen.NewFile(destPkg)
 
 	// Add a package comment, so IDEs detect files as generated
 	// TODO version configurable
@@ -112,38 +114,58 @@ func generate(destPackage, structTypeName string, structType *types.Struct) erro
 		// TODO tagValue := structType.Tag(i)
 
 		log.Println(field.Name())
-		generateConditionForField(f, structTypeName, field.Name(), field.Type())
+		generateConditionForField(
+			f,
+			srcPkg, destPkg,
+			structName,
+			field.Name(), field.Type(),
+		)
 	}
 
 	// Write generated file
-	return f.Save(strings.ToLower(structTypeName) + "_conditions.go")
+	return f.Save(strings.ToLower(structName) + "_conditions.go")
 }
 
-func generateConditionForField(f *jen.File, structName, fieldName string, fieldType types.Type) error {
+func generateConditionForField(f *jen.File, srcPkg *types.Package, destPkg, structName, fieldName string, fieldType types.Type) error {
 	switch v := fieldType.(type) {
 	case *types.Basic:
-		generateWhereCondition(
-			f, structName, fieldName,
-			typeKindToJenStatement[v.Kind()],
+		f.Add(
+			generateWhereCondition(
+				srcPkg, destPkg,
+				structName,
+				fieldName,
+				typeKindToJenStatement[v.Kind()],
+			),
 		)
 	case *types.Named:
 		// TODO aca tambien esta el github.com/ditrit/badaas/badorm.UUIDModel
-		generateJoinCondition(
-			f, structName, fieldName, v,
+		f.Add(
+			generateJoinCondition(
+				srcPkg, destPkg,
+				structName,
+				fieldName, v,
+			),
 		)
 	case *types.Pointer:
 		log.Println("pointer")
 		if v.String() == "*github.com/google/uuid.UUID" {
 			log.Println(v.String())
 		} else {
-			generateConditionForField(f, structName, fieldName, v.Elem())
+			generateConditionForField(
+				f,
+				srcPkg, destPkg,
+				structName,
+				fieldName, v.Elem(),
+			)
 		}
+	// TODO
 	// case *types.Slice:
 	// log.Printf("slices not supported yet: %s.%s", structTypeName, field.Name())
 	default:
 		log.Printf("struct field type not hanled: %T", v)
 	}
 
+	// TODO ver este error
 	return nil
 }
 
@@ -169,16 +191,25 @@ var typeKindToJenStatement = map[types.BasicKind]*jen.Statement{
 	types.String:     param.Clone().String(),
 }
 
-const badORMPath = "github.com/ditrit/badaas/badorm"
+const (
+	badORMPath           = "github.com/ditrit/badaas/badorm"
+	badORMCondition      = "Condition"
+	badORMWhereCondition = "WhereCondition"
+	badORMJoinCondition  = "JoinCondition"
+)
 
-func generateWhereCondition(f *jen.File, structName, fieldName string, param *jen.Statement) {
+func generateWhereCondition(srcPkg *types.Package, destPkg, structName, fieldName string, param *jen.Statement) *jen.Statement {
 	whereCondition := jen.Qual(
-		badORMPath, "WhereCondition",
-	).Types(jen.Qual("", structName))
-	// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
-	// quizas esto se puede hacer con el qual del struct directo
-	f.Func().Id(
-		strcase.ToPascal(structName) + strcase.ToPascal(fieldName) + "Condition",
+		badORMPath, badORMWhereCondition,
+	).Types(
+		jen.Qual(
+			getRelativePackagePath(srcPkg, destPkg),
+			structName,
+		),
+	)
+
+	return jen.Func().Id(
+		getConditionName(structName, fieldName),
 	).Params(
 		param,
 	).Add(
@@ -194,35 +225,38 @@ func generateWhereCondition(f *jen.File, structName, fieldName string, param *je
 	)
 }
 
-func generateJoinCondition(f *jen.File, structName, fieldName string, v *types.Named) {
+func generateJoinCondition(srcPkg *types.Package, destPkg, structName, fieldName string, v *types.Named) *jen.Statement {
 	// TODO
 	if v.String() != "github.com/ditrit/badaas/badorm.UUIDModel" && v.String() != "github.com/google/uuid.UUID" {
+		// TODO ver que nombre ponerle a este v
 		typeName := v.Obj()
 		log.Println(v.String())
 		// log.Println(typeName.String())
 
-		// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
-		t1 := jen.Qual("", structName)
-		// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
+		t1 := jen.Qual(
+			getRelativePackagePath(srcPkg, destPkg),
+			structName,
+		)
+
 		t2 := jen.Qual(
-			// typeName.Pkg().Path(),
-			"",
+			getRelativePackagePath(typeName.Pkg(), destPkg),
 			typeName.Name(),
 		)
 
 		badormT1Condition := jen.Qual(
-			badORMPath, "Condition",
+			badORMPath, badORMCondition,
 		).Types(t1)
 		badormT2Condition := jen.Qual(
-			badORMPath, "Condition",
+			badORMPath, badORMCondition,
 		).Types(t2)
 		badormJoinCondition := jen.Qual(
-			badORMPath, "JoinCondition",
+			badORMPath, badORMJoinCondition,
 		).Types(
 			t1, t2,
 		)
-		f.Func().Id(
-			strcase.ToPascal(structName) + strcase.ToPascal(fieldName) + "Condition",
+
+		return jen.Func().Id(
+			getConditionName(structName, fieldName),
 		).Params(
 			jen.Id("conditions").Op("...").Add(badormT2Condition),
 		).Add(
@@ -237,6 +271,21 @@ func generateJoinCondition(f *jen.File, structName, fieldName string, v *types.N
 			),
 		)
 	}
+
+	return nil
+}
+
+func getConditionName(structName, fieldName string) string {
+	return strcase.ToPascal(structName) + strcase.ToPascal(fieldName) + badORMCondition
+}
+
+// TODO testear esto
+func getRelativePackagePath(srcPkg *types.Package, destPkg string) string {
+	if srcPkg.Name() == destPkg {
+		return ""
+	}
+
+	return srcPkg.Path()
 }
 
 func loadPackages(paths []string) []*packages.Package {
