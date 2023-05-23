@@ -97,13 +97,6 @@ func (m City) Equal(other City) bool {
 	return m.Name == other.Name
 }
 
-func CityCountryCondition(conditions ...badorm.Condition[Country]) badorm.Condition[City] {
-	return badorm.JoinCondition[City, Country]{
-		Field:      "country",
-		Conditions: conditions,
-	}
-}
-
 type Employee struct {
 	badorm.UUIDModel
 

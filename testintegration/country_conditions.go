@@ -37,3 +37,9 @@ func CountryCapitalCondition(conditions ...badorm.Condition[City]) badorm.Condit
 		Field:      "capital",
 	}
 }
+func CityCountryCondition(conditions ...badorm.Condition[Country]) badorm.Condition[City] {
+	return badorm.JoinCondition[City, Country]{
+		Conditions: conditions,
+		Field:      "country",
+	}
+}
