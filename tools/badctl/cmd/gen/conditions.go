@@ -28,9 +28,15 @@ var genConditionsCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 // badorm/baseModels.go
 var badORMModels = []string{"UUIDModel", "UIntModel"}
 
-func generateConditions(cmd *cobra.Command, args []string) {
-	log.Println(args)
+const (
+	badORMPath = "github.com/ditrit/badaas/badorm"
+	// badorm/condition.go
+	badORMCondition      = "Condition"
+	badORMWhereCondition = "WhereCondition"
+	badORMJoinCondition  = "JoinCondition"
+)
 
+func generateConditions(cmd *cobra.Command, args []string) {
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
 
@@ -89,7 +95,6 @@ func isBadORMModel(structType *types.Struct) bool {
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
 
-		// TODO quizas se puede hacer con el type en lugar del nombre
 		if field.Embedded() && pie.Contains(badORMModels, field.Name()) {
 			return true
 		}
@@ -127,46 +132,93 @@ func generate(srcPkg *types.Package, destPkg, structName string, structType *typ
 }
 
 func generateConditionForField(f *jen.File, srcPkg *types.Package, destPkg, structName, fieldName string, fieldType types.Type) error {
-	switch v := fieldType.(type) {
+	switch fieldTypeTyped := fieldType.(type) {
 	case *types.Basic:
 		f.Add(
 			generateWhereCondition(
 				srcPkg, destPkg,
 				structName,
 				fieldName,
-				typeKindToJenStatement[v.Kind()],
+				typeKindToJenStatement[fieldTypeTyped.Kind()],
 			),
 		)
 	case *types.Named:
-		// TODO aca tambien esta el github.com/ditrit/badaas/badorm.UUIDModel
-		f.Add(
-			generateJoinCondition(
+		fieldTypeName := fieldTypeTyped.Obj()
+		if pie.Contains(badORMModels, fieldTypeName.Name()) {
+			generateBaseModelConditions(
+				f,
 				srcPkg, destPkg,
 				structName,
-				fieldName, v,
-			),
-		)
+				fieldTypeTyped,
+			)
+			// TODO
+		} else if fieldTypeName.Name() == "UUID" || fieldTypeTyped.String() == "time.Time" {
+			f.Add(
+				generateWhereCondition(
+					srcPkg, destPkg,
+					structName,
+					fieldName,
+					param.Clone().Qual(
+						getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
+						fieldTypeName.Name(),
+					),
+				),
+			)
+			// TODO DeletedAt
+		} else if fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
+			f.Add(
+				generateJoinCondition(
+					srcPkg, destPkg,
+					structName,
+					fieldName, fieldTypeName,
+				),
+			)
+		}
 	case *types.Pointer:
+		// TODO pointers deberian permitir nuallables
 		log.Println("pointer")
-		if v.String() == "*github.com/google/uuid.UUID" {
-			log.Println(v.String())
+		if fieldTypeTyped.String() == "*github.com/google/uuid.UUID" {
+			log.Println(fieldTypeTyped.String())
 		} else {
 			generateConditionForField(
 				f,
 				srcPkg, destPkg,
 				structName,
-				fieldName, v.Elem(),
+				fieldName, fieldTypeTyped.Elem(),
 			)
 		}
 	// TODO
 	// case *types.Slice:
 	// log.Printf("slices not supported yet: %s.%s", structTypeName, field.Name())
 	default:
-		log.Printf("struct field type not hanled: %T", v)
+		log.Printf("struct field type not hanled: %T", fieldTypeTyped)
 	}
 
 	// TODO ver este error
 	return nil
+}
+
+// TODO esto podria ser para cualquier embeded
+func generateBaseModelConditions(f *jen.File, srcPkg *types.Package, destPkg, structName string, fieldType *types.Named) {
+	structType, ok := fieldType.Underlying().(*types.Struct)
+	if !ok {
+		failErr(errors.New("unreacheable! base models are allways structs"))
+	}
+	log.Println(structType.String())
+
+	// Iterate over struct fields
+	// TODO codigo repetido
+	for i := 0; i < structType.NumFields(); i++ {
+		field := structType.Field(i)
+
+		log.Println(field.Name())
+		generateConditionForField(
+			f,
+			srcPkg, destPkg,
+			structName,
+			field.Name(), field.Type(),
+		)
+	}
 }
 
 var param = jen.Id("v")
@@ -190,13 +242,6 @@ var typeKindToJenStatement = map[types.BasicKind]*jen.Statement{
 	types.Complex128: param.Clone().Complex128(),
 	types.String:     param.Clone().String(),
 }
-
-const (
-	badORMPath           = "github.com/ditrit/badaas/badorm"
-	badORMCondition      = "Condition"
-	badORMWhereCondition = "WhereCondition"
-	badORMJoinCondition  = "JoinCondition"
-)
 
 func generateWhereCondition(srcPkg *types.Package, destPkg, structName, fieldName string, param *jen.Statement) *jen.Statement {
 	whereCondition := jen.Qual(
@@ -225,54 +270,46 @@ func generateWhereCondition(srcPkg *types.Package, destPkg, structName, fieldNam
 	)
 }
 
-func generateJoinCondition(srcPkg *types.Package, destPkg, structName, fieldName string, v *types.Named) *jen.Statement {
-	// TODO
-	if v.String() != "github.com/ditrit/badaas/badorm.UUIDModel" && v.String() != "github.com/google/uuid.UUID" {
-		// TODO ver que nombre ponerle a este v
-		typeName := v.Obj()
-		log.Println(v.String())
-		// log.Println(typeName.String())
+func generateJoinCondition(srcPkg *types.Package, destPkg, structName, fieldName string, fieldTypeName *types.TypeName) *jen.Statement {
+	log.Println(fieldTypeName.String())
 
-		t1 := jen.Qual(
-			getRelativePackagePath(srcPkg, destPkg),
-			structName,
-		)
+	t1 := jen.Qual(
+		getRelativePackagePath(srcPkg, destPkg),
+		structName,
+	)
 
-		t2 := jen.Qual(
-			getRelativePackagePath(typeName.Pkg(), destPkg),
-			typeName.Name(),
-		)
+	t2 := jen.Qual(
+		getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
+		fieldTypeName.Name(),
+	)
 
-		badormT1Condition := jen.Qual(
-			badORMPath, badORMCondition,
-		).Types(t1)
-		badormT2Condition := jen.Qual(
-			badORMPath, badORMCondition,
-		).Types(t2)
-		badormJoinCondition := jen.Qual(
-			badORMPath, badORMJoinCondition,
-		).Types(
-			t1, t2,
-		)
+	badormT1Condition := jen.Qual(
+		badORMPath, badORMCondition,
+	).Types(t1)
+	badormT2Condition := jen.Qual(
+		badORMPath, badORMCondition,
+	).Types(t2)
+	badormJoinCondition := jen.Qual(
+		badORMPath, badORMJoinCondition,
+	).Types(
+		t1, t2,
+	)
 
-		return jen.Func().Id(
-			getConditionName(structName, fieldName),
-		).Params(
-			jen.Id("conditions").Op("...").Add(badormT2Condition),
-		).Add(
-			badormT1Condition,
-		).Block(
-			jen.Return(
-				badormJoinCondition.Values(jen.Dict{
-					// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-					jen.Id("Field"):      jen.Lit(strcase.ToSnake(fieldName)),
-					jen.Id("Conditions"): jen.Id("conditions"),
-				}),
-			),
-		)
-	}
-
-	return nil
+	return jen.Func().Id(
+		getConditionName(structName, fieldName),
+	).Params(
+		jen.Id("conditions").Op("...").Add(badormT2Condition),
+	).Add(
+		badormT1Condition,
+	).Block(
+		jen.Return(
+			badormJoinCondition.Values(jen.Dict{
+				// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
+				jen.Id("Field"):      jen.Lit(strcase.ToSnake(fieldName)),
+				jen.Id("Conditions"): jen.Id("conditions"),
+			}),
+		),
+	)
 }
 
 func getConditionName(structName, fieldName string) string {

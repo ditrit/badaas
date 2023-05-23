@@ -55,13 +55,6 @@ type Sale struct {
 	SellerID *uuid.UUID
 }
 
-func SaleProductIDCondition(id uuid.UUID) badorm.Condition[Sale] {
-	return badorm.WhereCondition[Sale]{
-		Field: "product_id",
-		Value: id.String(),
-	}
-}
-
 func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
 	return badorm.JoinCondition[Seller, Company]{
 		Field:      "company",

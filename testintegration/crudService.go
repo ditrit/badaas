@@ -200,6 +200,30 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDiffer
 	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfId() {
+	match := ts.createProduct("", 0, 0.0, false)
+	ts.createProduct("", 0, 0.0, false)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductIdCondition(match.ID),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCreatedAt() {
+	match := ts.createProduct("", 0, 0.0, false)
+	ts.createProduct("", 0, 0.0, false)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductCreatedAtCondition(match.CreatedAt),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
 	product1 := ts.createProduct("", 0, 0.0, false)
 	product2 := ts.createProduct("", 0, 0.0, false)
@@ -211,7 +235,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleProductIDCondition(product1.ID),
+		SaleProductIdCondition(product1.ID),
 	)
 	ts.Nil(err)
 
