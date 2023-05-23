@@ -56,13 +56,6 @@ type Sale struct {
 	SellerID *uuid.UUID
 }
 
-func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
-	return badorm.JoinCondition[Seller, Company]{
-		Field:      "company",
-		Conditions: conditions,
-	}
-}
-
 func (m Product) Equal(other Product) bool {
 	return m.ID == other.ID
 }

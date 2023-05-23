@@ -31,3 +31,9 @@ func CompanyNameCondition(v string) badorm.WhereCondition[Company] {
 		Value: v,
 	}
 }
+func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
+	return badorm.JoinCondition[Seller, Company]{
+		Conditions: conditions,
+		Field:      "company",
+	}
+}

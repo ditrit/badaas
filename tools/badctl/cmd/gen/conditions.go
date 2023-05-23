@@ -238,9 +238,24 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 			},
 			param.Clone().Op("*"),
 		)
-	// TODO
-	// case *types.Slice:
-	// log.Printf("slices not supported yet: %s.%s", structTypeName, field.Name())
+	case *types.Slice:
+		elemType := fieldTypeTyped.Elem()
+		elemTypeTyped, ok := elemType.(*types.Named)
+		if !ok {
+			// TODO ver que pasa si quiero guardar una list de strings o algo asi
+			return []jen.Code{}
+		}
+
+		elemTypeName := elemTypeTyped.Obj()
+		log.Println(elemTypeName.Name())
+		return []jen.Code{
+			generateJoinCondition(
+				destPkg,
+				elemTypeName,
+				// TODO Override Foreign Key
+				structName.Name(), structName,
+			),
+		}
 	default:
 		log.Printf("struct field type not hanled: %T", fieldTypeTyped)
 	}
