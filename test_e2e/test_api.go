@@ -10,7 +10,7 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/router"
-	integrationtests "github.com/ditrit/badaas/test_integration"
+	"github.com/ditrit/badaas/testintegration"
 	"github.com/ditrit/verdeter"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -39,7 +39,7 @@ func main() {
 // Run the http server for badaas
 func runHTTPServer(cmd *cobra.Command, args []string) {
 	fx.New(
-		fx.Provide(integrationtests.GetModels),
+		fx.Provide(testintegration.GetModels),
 		badaas.BadaasModule,
 
 		// logger for fx
@@ -53,10 +53,10 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		router.AuthRoutesModule,
 		router.EAVRoutesModule,
 
-		fx.Invoke(badorm.AddModel[integrationtests.Company]),
-		fx.Invoke(badorm.AddModel[integrationtests.Seller]),
-		fx.Invoke(badorm.AddModel[integrationtests.Product]),
-		router.GetCRUDRoutesModule[integrationtests.Sale](),
+		fx.Invoke(badorm.AddModel[testintegration.Company]),
+		fx.Invoke(badorm.AddModel[testintegration.Seller]),
+		fx.Invoke(badorm.AddModel[testintegration.Product]),
+		router.GetCRUDRoutesModule[testintegration.Sale](),
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),

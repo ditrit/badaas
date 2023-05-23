@@ -15,7 +15,7 @@ import (
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
-	integrationtests "github.com/ditrit/badaas/test_integration"
+	"github.com/ditrit/badaas/testintegration"
 	"github.com/elliotchance/pie/v2"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -167,8 +167,8 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 }
 
 func CleanDB(db *gorm.DB) {
-	integrationtests.CleanDBTables(db, append(
-		pie.Reverse(integrationtests.ListOfTables),
+	testintegration.CleanDBTables(db, append(
+		pie.Reverse(testintegration.ListOfTables),
 		[]any{
 			models.Session{},
 			models.User{},

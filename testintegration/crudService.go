@@ -1,4 +1,4 @@
-package integrationtests
+package testintegration
 
 import (
 	"github.com/ditrit/badaas/badorm"

@@ -1,4 +1,4 @@
-package integrationtests
+package testintegration
 
 import (
 	"github.com/ditrit/badaas/badorm"
@@ -21,7 +21,7 @@ type Company struct {
 	badorm.UUIDModel
 
 	Name    string
-	Sellers []Seller // Company HasMany Sellers (Company 1 -> 0..* Seller)
+	Sellers []Seller // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
 type Product struct {
@@ -37,14 +37,7 @@ type Seller struct {
 	badorm.UUIDModel
 
 	Name      string
-	CompanyID *uuid.UUID // Company HasMany Sellers (Company 1 -> 0..* Seller)
-}
-
-func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
-	return badorm.JoinCondition[Seller, Company]{
-		Field:      "company",
-		Conditions: conditions,
-	}
+	CompanyID *uuid.UUID // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
 type Sale struct {
@@ -69,16 +62,9 @@ func SaleProductIDCondition(id uuid.UUID) badorm.Condition[Sale] {
 	}
 }
 
-func SaleProductCondition(conditions ...badorm.Condition[Product]) badorm.Condition[Sale] {
-	return badorm.JoinCondition[Sale, Product]{
-		Field:      "product",
-		Conditions: conditions,
-	}
-}
-
-func SaleSellerCondition(conditions ...badorm.Condition[Seller]) badorm.Condition[Sale] {
-	return badorm.JoinCondition[Sale, Seller]{
-		Field:      "seller",
+func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
+	return badorm.JoinCondition[Seller, Company]{
+		Field:      "company",
 		Conditions: conditions,
 	}
 }
@@ -124,26 +110,12 @@ func CityCountryCondition(conditions ...badorm.Condition[Country]) badorm.Condit
 	}
 }
 
-func CountryCapitalCondition(conditions ...badorm.Condition[City]) badorm.Condition[Country] {
-	return badorm.JoinCondition[Country, City]{
-		Field:      "capital",
-		Conditions: conditions,
-	}
-}
-
 type Employee struct {
 	badorm.UUIDModel
 
 	Name   string
 	Boss   *Employee // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
 	BossID *uuid.UUID
-}
-
-func EmployeeBossCondition(conditions ...badorm.Condition[Employee]) badorm.Condition[Employee] {
-	return badorm.JoinCondition[Employee, Employee]{
-		Field:      "boss",
-		Conditions: conditions,
-	}
 }
 
 func (m Employee) Equal(other Employee) bool {
@@ -167,13 +139,6 @@ type Bicycle struct {
 	// Bicycle BelongsTo Person (Bicycle 0..* -> 1 Person)
 	Owner   Person
 	OwnerID uuid.UUID
-}
-
-func BicycleOwnerCondition(conditions ...badorm.Condition[Person]) badorm.Condition[Bicycle] {
-	return badorm.JoinCondition[Bicycle, Person]{
-		Field:      "owner",
-		Conditions: conditions,
-	}
 }
 
 func (m Bicycle) Equal(other Bicycle) bool {

@@ -129,15 +129,10 @@ func generateConditionForField(f *jen.File, structName, fieldName string, fieldT
 			typeKindToJenStatement[v.Kind()],
 		)
 	case *types.Named:
-		// typeName := v.Obj()
-		log.Println("named")
-		log.Println(v.String())
-		// log.Println(typeName.String())
-	// Qual automatically imports packages
-	// code.Op("*").Qual(
-	// typeName.Pkg().Path(),
-	// typeName.Name(),
-	// )
+		// TODO aca tambien esta el github.com/ditrit/badaas/badorm.UUIDModel
+		generateJoinCondition(
+			f, structName, fieldName, v,
+		)
 	case *types.Pointer:
 		log.Println("pointer")
 		if v.String() == "*github.com/google/uuid.UUID" {
@@ -176,11 +171,14 @@ var typeKindToJenStatement = map[types.BasicKind]*jen.Statement{
 	types.String:     param.Clone().String(),
 }
 
+const badORMPath = "github.com/ditrit/badaas/badorm"
+
 func generateWhereCondition(f *jen.File, structName, fieldName string, param *jen.Statement) {
 	whereCondition := jen.Qual(
-		// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
-		"github.com/ditrit/badaas/badorm", "WhereCondition["+strcase.ToPascal(structName)+"]",
-	)
+		badORMPath, "WhereCondition",
+	).Types(jen.Qual("", structName))
+	// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
+	// quizas esto se puede hacer con el qual del struct directo
 	f.Func().Id(
 		strcase.ToPascal(structName) + strcase.ToPascal(fieldName) + "Condition",
 	).Params(
@@ -196,6 +194,51 @@ func generateWhereCondition(f *jen.File, structName, fieldName string, param *je
 			}),
 		),
 	)
+}
+
+func generateJoinCondition(f *jen.File, structName, fieldName string, v *types.Named) {
+	// TODO
+	if v.String() != "github.com/ditrit/badaas/badorm.UUIDModel" && v.String() != "github.com/google/uuid.UUID" {
+		typeName := v.Obj()
+		log.Println(v.String())
+		// log.Println(typeName.String())
+
+		// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
+		t1 := jen.Qual("", structName)
+		// TODO deberia tener el paquete pero solo si es el destino es un paquete distinto
+		t2 := jen.Qual(
+			// typeName.Pkg().Path(),
+			"",
+			typeName.Name(),
+		)
+
+		badormT1Condition := jen.Qual(
+			badORMPath, "Condition",
+		).Types(t1)
+		badormT2Condition := jen.Qual(
+			badORMPath, "Condition",
+		).Types(t2)
+		badormJoinCondition := jen.Qual(
+			badORMPath, "JoinCondition",
+		).Types(
+			t1, t2,
+		)
+		f.Func().Id(
+			strcase.ToPascal(structName) + strcase.ToPascal(fieldName) + "Condition",
+		).Params(
+			jen.Id("conditions").Op("...").Add(badormT2Condition),
+		).Add(
+			badormT1Condition,
+		).Block(
+			jen.Return(
+				badormJoinCondition.Values(jen.Dict{
+					// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
+					jen.Id("Field"):      jen.Lit(strcase.ToSnake(fieldName)),
+					jen.Id("Conditions"): jen.Id("conditions"),
+				}),
+			),
+		)
+	}
 }
 
 func loadPackages(paths []string) []*packages.Package {

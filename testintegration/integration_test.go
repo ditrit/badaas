@@ -1,4 +1,4 @@
-package integrationtests
+package testintegration
 
 import (
 	"path"
