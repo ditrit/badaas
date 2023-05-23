@@ -6,7 +6,6 @@ import (
 	"go/types"
 	"log"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/dave/jennifer/jen"
@@ -35,6 +34,15 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
 
+	// Get the package of the file with go:generate comment
+	destPackage := os.Getenv("GOPACKAGE")
+	if destPackage == "" {
+		// TODO que tambien se pueda usar solo
+		failErr(errors.New("this command should be called using go generate"))
+	}
+	// se puede llamar igual el package pero estar en otro path, lo que quiero comparar es el path
+	log.Println(destPackage)
+
 	for _, pkg := range pkgs {
 		log.Println(pkg.Types.Path())
 		log.Println(pkg.Types.Name())
@@ -45,7 +53,7 @@ func generateConditions(cmd *cobra.Command, args []string) {
 				log.Println(name)
 
 				// Generate code using jennifer
-				err := generate(name, structType)
+				err := generate(destPackage, name, structType)
 				if err != nil {
 					failErr(err)
 				}
@@ -88,15 +96,11 @@ func isBadORMModel(structType *types.Struct) bool {
 	return false
 }
 
-func generate(structTypeName string, structType *types.Struct) error {
-	// Get the package of the file with go:generate comment
-	goPackage := os.Getenv("GOPACKAGE")
-	if goPackage == "" {
-		failErr(errors.New("this command should be called using go generate"))
-	}
+// TODO add logs
 
-	// Start a new file in this package
-	f := jen.NewFile(goPackage)
+func generate(destPackage, structTypeName string, structType *types.Struct) error {
+	// Start a new file in destination package
+	f := jen.NewFile(destPackage)
 
 	// Add a package comment, so IDEs detect files as generated
 	// TODO version configurable
@@ -111,14 +115,8 @@ func generate(structTypeName string, structType *types.Struct) error {
 		generateConditionForField(f, structTypeName, field.Name(), field.Type())
 	}
 
-	// Build the target file name
-	goFile := os.Getenv("GOFILE")
-	ext := filepath.Ext(goFile)
-	baseFilename := goFile[0 : len(goFile)-len(ext)]
-	targetFilename := baseFilename + "_" + strings.ToLower(structTypeName) + "_gen.go"
-
 	// Write generated file
-	return f.Save(targetFilename)
+	return f.Save(strings.ToLower(structTypeName) + "_conditions.go")
 }
 
 func generateConditionForField(f *jen.File, structName, fieldName string, fieldType types.Type) error {
@@ -247,9 +245,9 @@ func loadPackages(paths []string) []*packages.Package {
 	if err != nil {
 		failErr(fmt.Errorf("loading packages for inspection: %v", err))
 	}
-	if packages.PrintErrors(pkgs) > 0 {
-		os.Exit(1)
-	}
+
+	// print compilation errors of source packages
+	packages.PrintErrors(pkgs)
 
 	return pkgs
 }
