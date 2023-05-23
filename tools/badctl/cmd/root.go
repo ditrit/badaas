@@ -2,14 +2,16 @@ package cmd
 
 import (
 	"github.com/ditrit/badaas/tools/badctl/cmd/gen"
+	"github.com/ditrit/badaas/tools/badctl/cmd/version"
 	"github.com/ditrit/verdeter"
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-	Use:   "badctl",
-	Short: "the BadAas controller",
-	Long:  `badctl is the command line tool that makes it possible to configure and run your BadAas applications easily.`,
+	Use:     "badctl",
+	Short:   "the BadAas controller",
+	Long:    `badctl is the command line tool that makes it possible to configure and run your BadAas applications easily.`,
+	Version: version.Version,
 })
 
 // Execute adds all child commands to the root command and sets flags appropriately.

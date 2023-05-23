@@ -8,6 +8,7 @@ require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/ditrit/verdeter v0.4.0
 	github.com/elliotchance/pie/v2 v2.5.2
+	github.com/ettle/strcase v0.1.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.13.0
@@ -26,7 +27,6 @@ require (
 
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/ettle/strcase v0.1.1
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
