@@ -119,7 +119,7 @@ func generate(srcPkg *types.Package, destPkg, structName string, structType *typ
 		// TODO tagValue := structType.Tag(i)
 
 		log.Println(field.Name())
-		generateConditionForField(
+		addConditionForField(
 			f,
 			srcPkg, destPkg,
 			structName,
@@ -131,62 +131,63 @@ func generate(srcPkg *types.Package, destPkg, structName string, structType *typ
 	return f.Save(strings.ToLower(structName) + "_conditions.go")
 }
 
-func generateConditionForField(f *jen.File, srcPkg *types.Package, destPkg, structName, fieldName string, fieldType types.Type) error {
+var basicParam = jen.Id("v")
+
+func addConditionForField(f *jen.File, srcPkg *types.Package, destPkg, structName, fieldName string, fieldType types.Type) {
+	conditions := generateConditionForField(
+		srcPkg, destPkg,
+		structName, fieldName, fieldType,
+		basicParam.Clone(),
+	)
+
+	for _, condition := range conditions {
+		f.Add(condition)
+	}
+}
+
+func generateConditionForField(srcPkg *types.Package, destPkg, structName, fieldName string, fieldType types.Type, param *jen.Statement) []jen.Code {
 	switch fieldTypeTyped := fieldType.(type) {
 	case *types.Basic:
-		f.Add(
-			generateWhereCondition(
-				srcPkg, destPkg,
-				structName,
-				fieldName,
-				typeKindToJenStatement[fieldTypeTyped.Kind()],
-			),
-		)
+		return []jen.Code{generateWhereCondition(
+			srcPkg, destPkg,
+			structName,
+			fieldName,
+			typeKindToJenStatement[fieldTypeTyped.Kind()](param),
+		)}
 	case *types.Named:
 		fieldTypeName := fieldTypeTyped.Obj()
 		if pie.Contains(badORMModels, fieldTypeName.Name()) {
-			generateBaseModelConditions(
-				f,
+			return generateBaseModelConditions(
 				srcPkg, destPkg,
 				structName,
 				fieldTypeTyped,
 			)
-			// TODO
+			// TODO UUID tambien tiene que generar el join si otro no lo genera
 		} else if fieldTypeName.Name() == "UUID" || fieldTypeTyped.String() == "time.Time" {
-			f.Add(
-				generateWhereCondition(
-					srcPkg, destPkg,
-					structName,
-					fieldName,
-					param.Clone().Qual(
-						getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
-						fieldTypeName.Name(),
-					),
-				),
-			)
-			// TODO DeletedAt
-		} else if fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
-			f.Add(
-				generateJoinCondition(
-					srcPkg, destPkg,
-					structName,
-					fieldName, fieldTypeName,
-				),
-			)
-		}
-	case *types.Pointer:
-		// TODO pointers deberian permitir nuallables
-		log.Println("pointer")
-		if fieldTypeTyped.String() == "*github.com/google/uuid.UUID" {
-			log.Println(fieldTypeTyped.String())
-		} else {
-			generateConditionForField(
-				f,
+			return []jen.Code{generateWhereCondition(
 				srcPkg, destPkg,
 				structName,
-				fieldName, fieldTypeTyped.Elem(),
-			)
+				fieldName,
+				param.Clone().Qual(
+					getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
+					fieldTypeName.Name(),
+				),
+			)}
+			// TODO DeletedAt
+		} else if fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
+			return []jen.Code{generateJoinCondition(
+				srcPkg, destPkg,
+				structName,
+				fieldName, fieldTypeName,
+			)}
 		}
+	case *types.Pointer:
+		return generateConditionForField(
+			srcPkg, destPkg,
+			structName,
+			fieldName, fieldTypeTyped.Elem(),
+			param.Clone().Op("*"),
+		)
 	// TODO
 	// case *types.Slice:
 	// log.Printf("slices not supported yet: %s.%s", structTypeName, field.Name())
@@ -195,16 +196,19 @@ func generateConditionForField(f *jen.File, srcPkg *types.Package, destPkg, stru
 	}
 
 	// TODO ver este error
-	return nil
+	return []jen.Code{}
 }
 
 // TODO esto podria ser para cualquier embeded
-func generateBaseModelConditions(f *jen.File, srcPkg *types.Package, destPkg, structName string, fieldType *types.Named) {
+// TODO ver diferencia entre embeded de go y embeded de gorm
+func generateBaseModelConditions(srcPkg *types.Package, destPkg, structName string, fieldType *types.Named) []jen.Code {
 	structType, ok := fieldType.Underlying().(*types.Struct)
 	if !ok {
 		failErr(errors.New("unreacheable! base models are allways structs"))
 	}
 	log.Println(structType.String())
+
+	conditions := []jen.Code{}
 
 	// Iterate over struct fields
 	// TODO codigo repetido
@@ -212,35 +216,35 @@ func generateBaseModelConditions(f *jen.File, srcPkg *types.Package, destPkg, st
 		field := structType.Field(i)
 
 		log.Println(field.Name())
-		generateConditionForField(
-			f,
+		conditions = append(conditions, generateConditionForField(
 			srcPkg, destPkg,
 			structName,
 			field.Name(), field.Type(),
-		)
+			basicParam,
+		)...)
 	}
+
+	return conditions
 }
 
-var param = jen.Id("v")
-
-var typeKindToJenStatement = map[types.BasicKind]*jen.Statement{
-	types.Bool:       param.Clone().Bool(),
-	types.Int:        param.Clone().Int(),
-	types.Int8:       param.Clone().Int8(),
-	types.Int16:      param.Clone().Int16(),
-	types.Int32:      param.Clone().Int32(),
-	types.Int64:      param.Clone().Int64(),
-	types.Uint:       param.Clone().Uint(),
-	types.Uint8:      param.Clone().Uint8(),
-	types.Uint16:     param.Clone().Uint16(),
-	types.Uint32:     param.Clone().Uint32(),
-	types.Uint64:     param.Clone().Uint64(),
-	types.Uintptr:    param.Clone().Uintptr(),
-	types.Float32:    param.Clone().Float32(),
-	types.Float64:    param.Clone().Float64(),
-	types.Complex64:  param.Clone().Complex64(),
-	types.Complex128: param.Clone().Complex128(),
-	types.String:     param.Clone().String(),
+var typeKindToJenStatement = map[types.BasicKind]func(*jen.Statement) *jen.Statement{
+	types.Bool:       func(param *jen.Statement) *jen.Statement { return param.Bool() },
+	types.Int:        func(param *jen.Statement) *jen.Statement { return param.Int() },
+	types.Int8:       func(param *jen.Statement) *jen.Statement { return param.Int8() },
+	types.Int16:      func(param *jen.Statement) *jen.Statement { return param.Int16() },
+	types.Int32:      func(param *jen.Statement) *jen.Statement { return param.Int32() },
+	types.Int64:      func(param *jen.Statement) *jen.Statement { return param.Int64() },
+	types.Uint:       func(param *jen.Statement) *jen.Statement { return param.Uint() },
+	types.Uint8:      func(param *jen.Statement) *jen.Statement { return param.Uint8() },
+	types.Uint16:     func(param *jen.Statement) *jen.Statement { return param.Uint16() },
+	types.Uint32:     func(param *jen.Statement) *jen.Statement { return param.Uint32() },
+	types.Uint64:     func(param *jen.Statement) *jen.Statement { return param.Uint64() },
+	types.Uintptr:    func(param *jen.Statement) *jen.Statement { return param.Uintptr() },
+	types.Float32:    func(param *jen.Statement) *jen.Statement { return param.Float32() },
+	types.Float64:    func(param *jen.Statement) *jen.Statement { return param.Float64() },
+	types.Complex64:  func(param *jen.Statement) *jen.Statement { return param.Complex64() },
+	types.Complex128: func(param *jen.Statement) *jen.Statement { return param.Complex128() },
+	types.String:     func(param *jen.Statement) *jen.Statement { return param.String() },
 }
 
 func generateWhereCondition(srcPkg *types.Package, destPkg, structName, fieldName string, param *jen.Statement) *jen.Statement {

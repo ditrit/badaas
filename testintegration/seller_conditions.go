@@ -31,3 +31,9 @@ func SellerNameCondition(v string) badorm.WhereCondition[Seller] {
 		Value: v,
 	}
 }
+func SellerCompanyIdCondition(v *uuid.UUID) badorm.WhereCondition[Seller] {
+	return badorm.WhereCondition[Seller]{
+		Field: "company_id",
+		Value: v,
+	}
+}

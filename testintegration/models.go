@@ -27,10 +27,11 @@ type Company struct {
 type Product struct {
 	badorm.UUIDModel
 
-	String string
-	Int    int
-	Float  float64
-	Bool   bool
+	String     string
+	Int        int
+	IntPointer *int
+	Float      float64
+	Bool       bool
 }
 
 type Seller struct {

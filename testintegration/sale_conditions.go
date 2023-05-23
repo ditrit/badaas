@@ -55,3 +55,9 @@ func SaleSellerCondition(conditions ...badorm.Condition[Seller]) badorm.Conditio
 		Field:      "seller",
 	}
 }
+func SaleSellerIdCondition(v *uuid.UUID) badorm.WhereCondition[Sale] {
+	return badorm.WhereCondition[Sale]{
+		Field: "seller_id",
+		Value: v,
+	}
+}

@@ -37,3 +37,9 @@ func EmployeeBossCondition(conditions ...badorm.Condition[Employee]) badorm.Cond
 		Field:      "boss",
 	}
 }
+func EmployeeBossIdCondition(v *uuid.UUID) badorm.WhereCondition[Employee] {
+	return badorm.WhereCondition[Employee]{
+		Field: "boss_id",
+		Value: v,
+	}
+}

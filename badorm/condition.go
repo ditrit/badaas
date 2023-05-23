@@ -31,18 +31,29 @@ func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {}
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
 func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	sql, values := condition.GetSQL(tableName)
 	return query.Where(
-		condition.GetSQL(tableName),
-		condition.Value,
+		sql,
+		values...,
 	), nil
 }
 
-func (condition WhereCondition[T]) GetSQL(tableName string) string {
+func (condition WhereCondition[T]) GetSQL(tableName string) (string, []any) {
+	val := condition.Value
+	// avoid nil is not nil behavior of go
+	if val == nil || (reflect.ValueOf(val).Kind() == reflect.Ptr && reflect.ValueOf(val).IsNil()) {
+		return fmt.Sprintf(
+			"%s.%s IS NULL",
+			tableName,
+			condition.Field,
+		), []any{}
+	}
+
 	return fmt.Sprintf(
 		"%s.%s = ?",
 		tableName,
 		condition.Field,
-	)
+	), []any{val}
 }
 
 type JoinCondition[T1 any, T2 any] struct {
@@ -74,8 +85,9 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	// apply WhereConditions to join in "on" clause
 	conditionsValues := []any{}
 	for _, condition := range whereConditions {
-		joinQuery += "AND " + condition.GetSQL(nextTableName)
-		conditionsValues = append(conditionsValues, condition.Value)
+		sql, values := condition.GetSQL(nextTableName)
+		joinQuery += "AND " + sql
+		conditionsValues = append(conditionsValues, values...)
 	}
 
 	// add the join to the query

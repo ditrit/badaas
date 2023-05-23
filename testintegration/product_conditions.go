@@ -37,6 +37,12 @@ func ProductIntCondition(v int) badorm.WhereCondition[Product] {
 		Value: v,
 	}
 }
+func ProductIntPointerCondition(v *int) badorm.WhereCondition[Product] {
+	return badorm.WhereCondition[Product]{
+		Field: "int_pointer",
+		Value: v,
+	}
+}
 func ProductFloatCondition(v float64) badorm.WhereCondition[Product] {
 	return badorm.WhereCondition[Product]{
 		Field: "float",
