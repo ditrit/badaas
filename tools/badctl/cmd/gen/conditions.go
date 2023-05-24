@@ -200,19 +200,6 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 				structName,
 				fieldTypeTyped,
 			)
-			// TODO UUID tambien tiene que generar el join si otro no lo genera
-		} else if fieldTypeName.Name() == "UUID" || fieldTypeTyped.String() == "time.Time" {
-			return []jen.Code{
-				generateWhereCondition(
-					destPkg,
-					structName,
-					field.Name,
-					param.Clone().Qual(
-						getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
-						fieldTypeName.Name(),
-					),
-				),
-			}
 		} else if getBadORMModelStruct(fieldTypeName) != nil {
 			// TODO que pasa si esta en otro package? se importa solo?
 			joinCondition := generateJoinCondition(
@@ -239,14 +226,14 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 
 			return []jen.Code{joinCondition}
 			// TODO DeletedAt
-		} else if isGormCustomType(fieldTypeTyped) && fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
+		} else if (isGormCustomType(fieldTypeTyped) || fieldTypeTyped.String() == "time.Time") && fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
 			return []jen.Code{
 				generateWhereCondition(
 					destPkg,
 					structName,
 					field.Name,
-					param.Qual(
-						getRelativePackagePath(structName.Pkg(), destPkg),
+					param.Clone().Qual(
+						getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
 						fieldTypeName.Name(),
 					),
 				),
