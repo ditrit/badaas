@@ -14,7 +14,6 @@ import (
 	"github.com/ditrit/verdeter"
 	"github.com/elliotchance/pie/v2"
 	"github.com/ettle/strcase"
-	"github.com/fatih/structtag"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/tools/go/packages"
@@ -91,46 +90,6 @@ func getTypeName(pkg *packages.Package, name string) *types.TypeName {
 
 // TODO add logs
 
-type GormTag string
-
-const (
-	embeddedTag       GormTag = "embedded"
-	embeddedPrefixTag GormTag = "embeddedPrefix"
-	columnTag         GormTag = "column"
-)
-
-type GormTags map[GormTag]string
-
-func (tags GormTags) getEmbeddedPrefix() string {
-	embeddedPrefix, isPresent := tags[embeddedPrefixTag]
-	if !isPresent {
-		return ""
-	}
-
-	return embeddedPrefix
-}
-
-func (tags GormTags) hasEmbedded() bool {
-	_, isPresent := tags[embeddedTag]
-	return isPresent
-}
-
-type Field struct {
-	Name     string
-	Type     types.Type
-	Embedded bool
-	Tags     GormTags
-}
-
-func (field Field) getColumnName() string {
-	columnTag, isPresent := field.Tags[columnTag]
-	if isPresent {
-		return columnTag
-	}
-
-	return strcase.ToSnake(field.Name)
-}
-
 func generateConditionsFile(destPkg string, structName *types.TypeName) error {
 	// Generate only when underlying type is a struct
 	// (ignore const, var, func, etc.)
@@ -175,51 +134,6 @@ func isBadORMModel(structType *types.Struct) bool {
 	}
 
 	return false
-}
-
-func getFields(structType *types.Struct, prefix string) []Field {
-	fields := []Field{}
-
-	// Iterate over struct fields
-	for i := 0; i < structType.NumFields(); i++ {
-		field := structType.Field(i)
-		gormTags := getGormTags(structType.Tag(i))
-		fields = append(fields, Field{
-			Name:     prefix + field.Name(),
-			Type:     field.Type(),
-			Embedded: field.Embedded() || gormTags.hasEmbedded(),
-			Tags:     gormTags,
-		})
-	}
-
-	return fields
-}
-
-func getGormTags(tag string) GormTags {
-	tagMap := GormTags{}
-
-	allTags, err := structtag.Parse(tag)
-	if err != nil {
-		return tagMap
-	}
-
-	gormTag, err := allTags.Get("gorm")
-	if err != nil {
-		return tagMap
-	}
-
-	gormTags := strings.Split(gormTag.Name, ";")
-	for _, tag := range gormTags {
-		splitted := strings.Split(tag, ":")
-		tagName := GormTag(splitted[0])
-		if len(splitted) == 1 {
-			tagMap[tagName] = ""
-		} else {
-			tagMap[tagName] = splitted[1]
-		}
-	}
-
-	return tagMap
 }
 
 func addConditionForEachField(f *jen.File, fields []Field, destPkg string, structName *types.TypeName) {
