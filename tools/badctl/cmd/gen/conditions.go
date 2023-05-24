@@ -6,6 +6,7 @@ import (
 	"go/types"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/dave/jennifer/jen"
@@ -183,12 +184,14 @@ func addConditionForField(f *jen.File, destPkg string, structName *types.TypeNam
 func generateConditionForField(destPkg string, structName *types.TypeName, field Field, param *jen.Statement) []jen.Code {
 	switch fieldTypeTyped := field.Type.(type) {
 	case *types.Basic:
-		return []jen.Code{generateWhereCondition(
-			destPkg,
-			structName,
-			field.Name,
-			typeKindToJenStatement[fieldTypeTyped.Kind()](param),
-		)}
+		return []jen.Code{
+			generateWhereCondition(
+				destPkg,
+				structName,
+				field.Name,
+				typeKindToJenStatement[fieldTypeTyped.Kind()](param),
+			),
+		}
 	case *types.Named:
 		fieldTypeName := fieldTypeTyped.Obj()
 		if pie.Contains(badORMModels, fieldTypeName.Name()) {
@@ -210,7 +213,6 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 					),
 				),
 			}
-			// TODO DeletedAt fieldTypeTyped.String() == "gorm.io/gorm.DeletedAt"
 		} else if getBadORMModelStruct(fieldTypeName) != nil {
 			// TODO que pasa si esta en otro package? se importa solo?
 			joinCondition := generateJoinCondition(
@@ -236,6 +238,21 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 			}
 
 			return []jen.Code{joinCondition}
+			// TODO DeletedAt
+		} else if isGormCustomType(fieldTypeTyped) && fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
+			return []jen.Code{
+				generateWhereCondition(
+					destPkg,
+					structName,
+					field.Name,
+					param.Qual(
+						getRelativePackagePath(structName.Pkg(), destPkg),
+						fieldTypeName.Name(),
+					),
+				),
+			}
+		} else {
+			log.Printf("struct field type not handled: %s", fieldTypeTyped.String())
 		}
 	case *types.Pointer:
 		return generateConditionForField(
@@ -278,14 +295,33 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 			}
 			// TODO tambien pueden ser pointers
 		default:
-			log.Printf("struct field list elem type not hanled: %T", elemTypeTyped)
+			log.Printf("struct field list elem type not handled: %T", elemTypeTyped)
 		}
 	default:
-		log.Printf("struct field type not hanled: %T", fieldTypeTyped)
+		log.Printf("struct field type not handled: %T", fieldTypeTyped)
 	}
 
 	// TODO ver este error
 	return []jen.Code{}
+}
+
+var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
+var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
+
+func isGormCustomType(typeNamed *types.Named) bool {
+	hasScanMethod := false
+	hasValueMethod := false
+	for i := 0; i < typeNamed.NumMethods(); i++ {
+		methodSignature := typeNamed.Method(i).String()
+
+		if !hasScanMethod && scanMethod.MatchString(methodSignature) {
+			hasScanMethod = true
+		} else if !hasValueMethod && valueMethod.MatchString(methodSignature) {
+			hasValueMethod = true
+		}
+	}
+
+	return hasScanMethod && hasValueMethod
 }
 
 // TODO esto podria ser para cualquier embeded

@@ -61,3 +61,9 @@ func ProductByteArrayCondition(v []uint8) badorm.WhereCondition[Product] {
 		Value: v,
 	}
 }
+func ProductMultiStringCondition(v MultiString) badorm.WhereCondition[Product] {
+	return badorm.WhereCondition[Product]{
+		Field: "multi_string",
+		Value: v,
+	}
+}

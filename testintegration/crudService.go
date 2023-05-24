@@ -310,6 +310,27 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() 
 	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCustomType() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+	match.MultiString = MultiString{"salut", "hola"}
+	notMatch1.MultiString = MultiString{"salut", "hola", "hello"}
+
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	err = ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductMultiStringCondition(MultiString{"salut", "hola"}),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)

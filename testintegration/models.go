@@ -1,6 +1,10 @@
 package testintegration
 
 import (
+	"database/sql/driver"
+	"errors"
+	"strings"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 )
@@ -24,15 +28,38 @@ type Company struct {
 	Sellers []Seller // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
+type MultiString []string
+
+func (s *MultiString) Scan(src interface{}) error {
+	str, ok := src.(string)
+	if !ok {
+		return errors.New("failed to scan multistring field - source is not a string")
+	}
+	*s = strings.Split(str, ",")
+	return nil
+}
+
+func (s MultiString) Value() (driver.Value, error) {
+	if len(s) == 0 {
+		return nil, nil
+	}
+	return strings.Join(s, ","), nil
+}
+
+func (MultiString) GormDataType() string {
+	return "text"
+}
+
 type Product struct {
 	badorm.UUIDModel
 
-	String     string
-	Int        int
-	IntPointer *int
-	Float      float64
-	Bool       bool
-	ByteArray  []byte
+	String      string
+	Int         int
+	IntPointer  *int
+	Float       float64
+	Bool        bool
+	ByteArray   []byte
+	MultiString MultiString
 }
 
 func (m Product) Equal(other Product) bool {
