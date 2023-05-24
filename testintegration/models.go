@@ -10,14 +10,11 @@ import (
 	"github.com/lib/pq"
 )
 
+// TODO testear tambien en otras bases de datos
+
 // TODO gorm
 // column
-// embedded
-// embeddedPrefix
-// todas las clases tienen sus conditions, repository and service menos las que esten embeded en otras
-// aunque tambien podria ser que:
-// haya embeded que tambien tengan su propia tabla
-// haya cosas en el modelo que no van a terminar en una tabla, que son solo clases para llamar a metodos y eso
+// todas las clases badorm tienen sus conditions, repository and service
 
 type Company struct {
 	badorm.UUIDModel
@@ -52,6 +49,10 @@ type ToBeEmbedded struct {
 	EmbeddedInt int
 }
 
+type ToBeGormEmbedded struct {
+	Int int
+}
+
 type Product struct {
 	badorm.UUIDModel
 
@@ -64,6 +65,7 @@ type Product struct {
 	MultiString MultiString
 	StringArray pq.StringArray `gorm:"type:text[]"`
 	ToBeEmbedded
+	GormEmbedded ToBeGormEmbedded `gorm:"embedded;embeddedPrefix:gorm_embedded_"`
 }
 
 func (m Product) Equal(other Product) bool {

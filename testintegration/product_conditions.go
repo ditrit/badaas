@@ -80,3 +80,9 @@ func ProductEmbeddedIntCondition(v int) badorm.WhereCondition[Product] {
 		Value: v,
 	}
 }
+func ProductGormEmbeddedIntCondition(v int) badorm.WhereCondition[Product] {
+	return badorm.WhereCondition[Product]{
+		Field: "gorm_embedded_int",
+		Value: v,
+	}
+}

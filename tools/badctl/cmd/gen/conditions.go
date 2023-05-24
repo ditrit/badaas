@@ -14,6 +14,7 @@ import (
 	"github.com/ditrit/verdeter"
 	"github.com/elliotchance/pie/v2"
 	"github.com/ettle/strcase"
+	"github.com/fatih/structtag"
 	"github.com/spf13/cobra"
 
 	"golang.org/x/tools/go/packages"
@@ -90,11 +91,27 @@ func getTypeName(pkg *packages.Package, name string) *types.TypeName {
 
 // TODO add logs
 
+type GormTags map[string]string
+
+func (tags GormTags) getEmbeddedPrefix() string {
+	embeddedPrefix, isPresent := tags["embeddedPrefix"]
+	if !isPresent {
+		return ""
+	}
+
+	return embeddedPrefix
+}
+
+func (tags GormTags) hasEmbedded() bool {
+	_, isPresent := tags["embedded"]
+	return isPresent
+}
+
 type Field struct {
 	Name     string
 	Type     types.Type
-	Tag      string
 	Embedded bool
+	Tags     GormTags
 }
 
 func generateConditionsFile(destPkg string, structName *types.TypeName) error {
@@ -105,7 +122,7 @@ func generateConditionsFile(destPkg string, structName *types.TypeName) error {
 		return nil
 	}
 
-	fields := getFields(structType)
+	fields := getFields(structType, "")
 	if len(fields) == 0 {
 		return nil
 	}
@@ -143,22 +160,48 @@ func isBadORMModel(structType *types.Struct) bool {
 	return false
 }
 
-func getFields(structType *types.Struct) []Field {
+func getFields(structType *types.Struct, prefix string) []Field {
 	fields := []Field{}
 
 	// Iterate over struct fields
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
+		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
-			Name: field.Name(),
-			Type: field.Type(),
-			// TODO verificar que pasa si hay menos tags, osea que algunos atributos no tienen tags
-			Tag:      structType.Tag(i),
-			Embedded: field.Embedded(),
+			Name:     prefix + field.Name(),
+			Type:     field.Type(),
+			Embedded: field.Embedded() || gormTags.hasEmbedded(),
+			Tags:     gormTags,
 		})
 	}
 
 	return fields
+}
+
+func getGormTags(tag string) GormTags {
+	tagMap := GormTags{}
+
+	allTags, err := structtag.Parse(tag)
+	if err != nil {
+		return tagMap
+	}
+
+	gormTag, err := allTags.Get("gorm")
+	if err != nil {
+		return tagMap
+	}
+
+	gormTags := strings.Split(gormTag.Name, ";")
+	for _, tag := range gormTags {
+		spplited := strings.Split(tag, ":")
+		if len(spplited) == 1 {
+			tagMap[spplited[0]] = ""
+		} else {
+			tagMap[spplited[0]] = spplited[1]
+		}
+	}
+
+	return tagMap
 }
 
 func addConditionForEachField(f *jen.File, fields []Field, destPkg string, structName *types.TypeName) {
@@ -182,7 +225,6 @@ func addConditionForEachField(f *jen.File, fields []Field, destPkg string, struc
 	}
 }
 
-// TODO ver diferencia entre embeded de go y embeded de gorm
 func addEmbeddedConditions(f *jen.File, destPkg string, structName *types.TypeName, field Field) {
 	embededFieldType, ok := field.Type.(*types.Named)
 	if !ok {
@@ -195,7 +237,7 @@ func addEmbeddedConditions(f *jen.File, destPkg string, structName *types.TypeNa
 
 	addConditionForEachField(
 		f,
-		getFields(embededStructType),
+		getFields(embededStructType, field.Tags.getEmbeddedPrefix()),
 		destPkg,
 		structName,
 	)
@@ -240,7 +282,11 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 			)
 
 			// inversed join condition
-			fields := getFields(getBadORMModelStruct(structName))
+			fields := getFields(
+				getBadORMModelStruct(structName),
+				// TODO testear esto
+				field.Tags.getEmbeddedPrefix(),
+			)
 			if !pie.Any(fields, func(otherField Field) bool {
 				// TODO posible override?
 				return otherField.Name == field.Name+"ID"
@@ -280,7 +326,7 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 			Field{
 				Name: field.Name,
 				Type: fieldTypeTyped.Elem(),
-				Tag:  field.Tag,
+				Tags: field.Tags,
 			},
 			param.Clone().Op("*"),
 		)
@@ -309,7 +355,7 @@ func generateConditionForSlice(destPkg string, structName *types.TypeName, field
 			Field{
 				Name: field.Name,
 				Type: elemTypeTyped,
-				Tag:  field.Tag,
+				Tags: field.Tags,
 			},
 			param,
 		)

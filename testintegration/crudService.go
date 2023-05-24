@@ -241,6 +241,22 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfEmbedded() {
 	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfGormEmbedded() {
+	match := ts.createProduct("", 0, 0.0, false, nil)
+	ts.createProduct("", 0, 0.0, false, nil)
+	match.GormEmbedded.Int = 1
+
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductGormEmbeddedIntCondition(1),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeWithValue() {
 	intMatch := 1
 	match := ts.createProduct("match", 1, 0, false, &intMatch)
