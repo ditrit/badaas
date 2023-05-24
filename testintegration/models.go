@@ -19,9 +19,6 @@ import (
 // haya embeded que tambien tengan su propia tabla
 // haya cosas en el modelo que no van a terminar en una tabla, que son solo clases para llamar a metodos y eso
 
-// podria meter alguna anotacion para que esa si vaya a modelos?
-// directamente las clases que tienen un base model metido adentro son las que quiero
-
 type Company struct {
 	badorm.UUIDModel
 
@@ -51,6 +48,10 @@ func (MultiString) GormDataType() string {
 	return "text"
 }
 
+type ToBeEmbedded struct {
+	EmbeddedInt int
+}
+
 type Product struct {
 	badorm.UUIDModel
 
@@ -62,6 +63,7 @@ type Product struct {
 	ByteArray   []byte
 	MultiString MultiString
 	StringArray pq.StringArray `gorm:"type:text[]"`
+	ToBeEmbedded
 }
 
 func (m Product) Equal(other Product) bool {

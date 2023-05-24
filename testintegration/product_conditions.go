@@ -74,3 +74,9 @@ func ProductStringArrayCondition(v pq.StringArray) badorm.WhereCondition[Product
 		Value: v,
 	}
 }
+func ProductEmbeddedIntCondition(v int) badorm.WhereCondition[Product] {
+	return badorm.WhereCondition[Product]{
+		Field: "embedded_int",
+		Value: v,
+	}
+}
