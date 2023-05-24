@@ -12,9 +12,7 @@ import (
 
 // TODO testear tambien en otras bases de datos
 
-// TODO gorm
-// column
-// todas las clases badorm tienen sus conditions, repository and service
+// TODO todas las clases badorm tienen sus conditions, repository and service
 
 type Company struct {
 	badorm.UUIDModel
@@ -56,7 +54,7 @@ type ToBeGormEmbedded struct {
 type Product struct {
 	badorm.UUIDModel
 
-	String      string
+	String      string `gorm:"column:string_something_else"`
 	Int         int
 	IntPointer  *int
 	Float       float64

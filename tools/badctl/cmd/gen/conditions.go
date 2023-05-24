@@ -91,10 +91,18 @@ func getTypeName(pkg *packages.Package, name string) *types.TypeName {
 
 // TODO add logs
 
-type GormTags map[string]string
+type GormTag string
+
+const (
+	embeddedTag       GormTag = "embedded"
+	embeddedPrefixTag GormTag = "embeddedPrefix"
+	columnTag         GormTag = "column"
+)
+
+type GormTags map[GormTag]string
 
 func (tags GormTags) getEmbeddedPrefix() string {
-	embeddedPrefix, isPresent := tags["embeddedPrefix"]
+	embeddedPrefix, isPresent := tags[embeddedPrefixTag]
 	if !isPresent {
 		return ""
 	}
@@ -103,7 +111,7 @@ func (tags GormTags) getEmbeddedPrefix() string {
 }
 
 func (tags GormTags) hasEmbedded() bool {
-	_, isPresent := tags["embedded"]
+	_, isPresent := tags[embeddedTag]
 	return isPresent
 }
 
@@ -112,6 +120,15 @@ type Field struct {
 	Type     types.Type
 	Embedded bool
 	Tags     GormTags
+}
+
+func (field Field) getColumnName() string {
+	columnTag, isPresent := field.Tags[columnTag]
+	if isPresent {
+		return columnTag
+	}
+
+	return strcase.ToSnake(field.Name)
 }
 
 func generateConditionsFile(destPkg string, structName *types.TypeName) error {
@@ -193,11 +210,12 @@ func getGormTags(tag string) GormTags {
 
 	gormTags := strings.Split(gormTag.Name, ";")
 	for _, tag := range gormTags {
-		spplited := strings.Split(tag, ":")
-		if len(spplited) == 1 {
-			tagMap[spplited[0]] = ""
+		splitted := strings.Split(tag, ":")
+		tagName := GormTag(splitted[0])
+		if len(splitted) == 1 {
+			tagMap[tagName] = ""
 		} else {
-			tagMap[spplited[0]] = spplited[1]
+			tagMap[tagName] = splitted[1]
 		}
 	}
 
@@ -266,7 +284,7 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 			generateWhereCondition(
 				destPkg,
 				structName,
-				field.Name,
+				field,
 				typeKindToJenStatement[fieldTypeTyped.Kind()](param),
 			),
 		}
@@ -309,7 +327,7 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 				generateWhereCondition(
 					destPkg,
 					structName,
-					field.Name,
+					field,
 					param.Clone().Qual(
 						getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
 						fieldTypeName.Name(),
@@ -426,7 +444,7 @@ var typeKindToJenStatement = map[types.BasicKind]func(*jen.Statement) *jen.State
 	types.String:     func(param *jen.Statement) *jen.Statement { return param.String() },
 }
 
-func generateWhereCondition(destPkg string, structName *types.TypeName, fieldName string, param *jen.Statement) *jen.Statement {
+func generateWhereCondition(destPkg string, structName *types.TypeName, field Field, param *jen.Statement) *jen.Statement {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
 	).Types(
@@ -437,7 +455,7 @@ func generateWhereCondition(destPkg string, structName *types.TypeName, fieldNam
 	)
 
 	return jen.Func().Id(
-		getConditionName(structName, fieldName),
+		getConditionName(structName, field.Name),
 	).Params(
 		param,
 	).Add(
@@ -445,8 +463,7 @@ func generateWhereCondition(destPkg string, structName *types.TypeName, fieldNam
 	).Block(
 		jen.Return(
 			whereCondition.Clone().Values(jen.Dict{
-				// TODO gorm column redefinition
-				jen.Id("Field"): jen.Lit(strcase.ToSnake(fieldName)),
+				jen.Id("Field"): jen.Lit(field.getColumnName()),
 				jen.Id("Value"): jen.Id("v"),
 			}),
 		),

@@ -28,7 +28,7 @@ func ProductUpdatedAtCondition(v time.Time) badorm.WhereCondition[Product] {
 }
 func ProductStringCondition(v string) badorm.WhereCondition[Product] {
 	return badorm.WhereCondition[Product]{
-		Field: "string",
+		Field: "string_something_else",
 		Value: v,
 	}
 }
