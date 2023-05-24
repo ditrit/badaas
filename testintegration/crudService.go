@@ -3,6 +3,7 @@ package testintegration
 import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -304,6 +305,27 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() 
 
 	entities, err := ts.crudProductService.GetEntities(
 		ProductByteArrayCondition(nil),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPQArray() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+	match.StringArray = pq.StringArray{"salut", "hola"}
+	notMatch1.StringArray = pq.StringArray{"salut", "hola", "hello"}
+
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	err = ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductStringArrayCondition(pq.StringArray{"salut", "hola"}),
 	)
 	ts.Nil(err)
 

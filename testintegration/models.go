@@ -7,6 +7,7 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
+	"github.com/lib/pq"
 )
 
 // TODO gorm
@@ -60,6 +61,7 @@ type Product struct {
 	Bool        bool
 	ByteArray   []byte
 	MultiString MultiString
+	StringArray pq.StringArray `gorm:"type:text[]"`
 }
 
 func (m Product) Equal(other Product) bool {

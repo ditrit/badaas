@@ -4,6 +4,7 @@ package testintegration
 import (
 	badorm "github.com/ditrit/badaas/badorm"
 	uuid "github.com/google/uuid"
+	pq "github.com/lib/pq"
 	"time"
 )
 
@@ -64,6 +65,12 @@ func ProductByteArrayCondition(v []uint8) badorm.WhereCondition[Product] {
 func ProductMultiStringCondition(v MultiString) badorm.WhereCondition[Product] {
 	return badorm.WhereCondition[Product]{
 		Field: "multi_string",
+		Value: v,
+	}
+}
+func ProductStringArrayCondition(v pq.StringArray) badorm.WhereCondition[Product] {
+	return badorm.WhereCondition[Product]{
+		Field: "string_array",
 		Value: v,
 	}
 }

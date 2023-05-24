@@ -12,6 +12,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.13.0
+	github.com/lib/pq v1.10.2
 	github.com/magiconair/properties v1.8.6
 	github.com/noirbizarre/gonja v0.0.0-20200629003239-4d051fd0be61
 	github.com/spf13/cobra v1.5.0
