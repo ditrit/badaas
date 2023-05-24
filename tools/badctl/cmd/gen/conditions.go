@@ -124,27 +124,34 @@ func generate(destPkg string, structName *types.TypeName) error {
 }
 
 func getFields(structName *types.TypeName) []Field {
+	fields := []Field{}
+
 	// Generate only when underlying type is a struct
 	// (ignore const, var, func, etc.)
+	structType := getBadORMModelStruct(structName)
+	if structType != nil {
+		// Iterate over struct fields
+		for i := 0; i < structType.NumFields(); i++ {
+			field := structType.Field(i)
+			fields = append(fields, Field{
+				Name: field.Name(),
+				Type: field.Type(),
+				// TODO verificar que pasa si hay menos tags, osea que algunos atributos no tienen tags
+				Tag: structType.Tag(i),
+			})
+		}
+	}
+
+	return fields
+}
+
+func getBadORMModelStruct(structName *types.TypeName) *types.Struct {
 	structType, ok := structName.Type().Underlying().(*types.Struct)
 	if !ok || !isBadORMModel(structType) {
 		return nil
 	}
 
-	fields := []Field{}
-
-	// Iterate over struct fields
-	for i := 0; i < structType.NumFields(); i++ {
-		field := structType.Field(i)
-		fields = append(fields, Field{
-			Name: field.Name(),
-			Type: field.Type(),
-			// TODO verificar que pasa si hay menos tags, osea que algunos atributos no tienen tags
-			Tag: structType.Tag(i),
-		})
-	}
-
-	return fields
+	return structType
 }
 
 func isBadORMModel(structType *types.Struct) bool {
@@ -201,8 +208,9 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 					fieldTypeName.Name(),
 				),
 			)}
-			// TODO DeletedAt
-		} else if fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
+			// TODO DeletedAt fieldTypeTyped.String() == "gorm.io/gorm.DeletedAt"
+		} else if getBadORMModelStruct(fieldTypeName) != nil {
+			// TODO que pasa si esta en otro package? se importa solo?
 			joinCondition := generateJoinCondition(
 				destPkg,
 				structName,
