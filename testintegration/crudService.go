@@ -252,6 +252,64 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeByNi
 	EqualList(&ts.Suite, []*Product{match}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayWithContent() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+	match.ByteArray = []byte{1, 2}
+	notMatch1.ByteArray = []byte{2, 3}
+
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	err = ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductByteArrayCondition([]byte{1, 2}),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayEmpty() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+	match.ByteArray = []byte{}
+	notMatch1.ByteArray = []byte{2, 3}
+
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	err = ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductByteArrayCondition([]byte{}),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
+	notMatch1.ByteArray = []byte{2, 3}
+
+	err := ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		ProductByteArrayCondition(nil),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)

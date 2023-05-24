@@ -250,23 +250,35 @@ func generateConditionForField(destPkg string, structName *types.TypeName, field
 		)
 	case *types.Slice:
 		elemType := fieldTypeTyped.Elem()
-		elemTypeTyped, ok := elemType.(*types.Named)
-		if !ok {
-			// TODO ver que pasa si quiero guardar una list de strings o algo asi
-			return []jen.Code{}
-		}
-
-		elemTypeName := elemTypeTyped.Obj()
-		if getBadORMModelStruct(elemTypeName) != nil {
-			log.Println(elemTypeName.Name())
-			return []jen.Code{
-				generateJoinCondition(
-					destPkg,
-					elemTypeName,
-					// TODO Override Foreign Key
-					structName.Name(), structName,
-				),
+		switch elemTypeTyped := elemType.(type) {
+		case *types.Basic:
+			// una list de strings o algo asi
+			return generateConditionForField(
+				destPkg,
+				structName,
+				Field{
+					Name: field.Name,
+					Type: elemTypeTyped,
+					Tag:  field.Tag,
+				},
+				param.Clone().Index(),
+			)
+		case *types.Named:
+			elemTypeName := elemTypeTyped.Obj()
+			if getBadORMModelStruct(elemTypeName) != nil {
+				log.Println(elemTypeName.Name())
+				return []jen.Code{
+					generateJoinCondition(
+						destPkg,
+						elemTypeName,
+						// TODO Override Foreign Key
+						structName.Name(), structName,
+					),
+				}
 			}
+			// TODO tambien pueden ser pointers
+		default:
+			log.Printf("struct field list elem type not hanled: %T", elemTypeTyped)
 		}
 	default:
 		log.Printf("struct field type not hanled: %T", fieldTypeTyped)

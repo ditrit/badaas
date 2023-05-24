@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 
+	"github.com/elliotchance/pie/v2"
 	"github.com/ettle/strcase"
 	"gorm.io/gorm"
 )
@@ -38,10 +39,19 @@ func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*g
 	), nil
 }
 
+var nullableKinds = []reflect.Kind{
+	reflect.Chan, reflect.Func,
+	reflect.Map, reflect.Pointer,
+	reflect.UnsafePointer, reflect.Interface,
+	reflect.Slice,
+}
+
 func (condition WhereCondition[T]) GetSQL(tableName string) (string, []any) {
 	val := condition.Value
+	reflectVal := reflect.ValueOf(val)
+	isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
 	// avoid nil is not nil behavior of go
-	if val == nil || (reflect.ValueOf(val).Kind() == reflect.Ptr && reflect.ValueOf(val).IsNil()) {
+	if val == nil || (isNullableKind && reflectVal.IsNil()) {
 		return fmt.Sprintf(
 			"%s.%s IS NULL",
 			tableName,

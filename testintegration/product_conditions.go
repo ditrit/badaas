@@ -55,3 +55,9 @@ func ProductBoolCondition(v bool) badorm.WhereCondition[Product] {
 		Value: v,
 	}
 }
+func ProductByteArrayCondition(v []uint8) badorm.WhereCondition[Product] {
+	return badorm.WhereCondition[Product]{
+		Field: "byte_array",
+		Value: v,
+	}
+}

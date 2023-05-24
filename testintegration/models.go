@@ -32,6 +32,11 @@ type Product struct {
 	IntPointer *int
 	Float      float64
 	Bool       bool
+	ByteArray  []byte
+}
+
+func (m Product) Equal(other Product) bool {
+	return m.ID == other.ID
 }
 
 type Seller struct {
@@ -54,10 +59,6 @@ type Sale struct {
 	// Sale HasOne Seller (Sale 0..* -> 0..1 Seller)
 	Seller   *Seller
 	SellerID *uuid.UUID
-}
-
-func (m Product) Equal(other Product) bool {
-	return m.ID == other.ID
 }
 
 func (m Sale) Equal(other Sale) bool {
