@@ -126,7 +126,7 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 			// hasOne or hasMany relation
 			condition.generateInverseJoinCondition(
 				object,
-				field, fieldObject,
+				field,
 			)
 
 			condition.generateOppositeJoinCondition(
@@ -231,6 +231,24 @@ func (condition *Condition) generateOppositeJoinCondition(object types.Object, f
 }
 
 func (condition *Condition) generateJoinCondition(object types.Object, field Field) {
+	condition.generateJoinFromAndTo(
+		object,
+		field,
+		field.getJoinFromColumn(),
+		field.getJoinToColumn(),
+	)
+}
+
+func (condition *Condition) generateInverseJoinCondition(object types.Object, field Field) {
+	condition.generateJoinFromAndTo(
+		object,
+		field,
+		field.getJoinToColumn(),
+		field.NoSePonerNombre(object.Name()),
+	)
+}
+
+func (condition *Condition) generateJoinFromAndTo(object types.Object, field Field, from, to string) {
 	log.Println(field.Object.Name())
 
 	t1 := jen.Qual(
@@ -266,55 +284,8 @@ func (condition *Condition) generateJoinCondition(object types.Object, field Fie
 		).Block(
 			jen.Return(
 				badormJoinCondition.Values(jen.Dict{
-					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinFromColumn())),
-					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
-					jen.Id("Conditions"): jen.Id("conditions"),
-				}),
-			),
-		),
-	)
-}
-
-// TODO codigo duplicado
-// TODO probablemente se puede hacer con el mismo metodo pero con el orden inverso
-func (condition *Condition) generateInverseJoinCondition(object types.Object, field Field, fieldObject types.Object) {
-	log.Println(fieldObject.String())
-
-	t1 := jen.Qual(
-		getRelativePackagePath(object.Pkg()),
-		object.Name(),
-	)
-
-	t2 := jen.Qual(
-		getRelativePackagePath(fieldObject.Pkg()),
-		fieldObject.Name(),
-	)
-
-	badormT1Condition := jen.Qual(
-		badORMPath, badORMCondition,
-	).Types(t1)
-	badormT2Condition := jen.Qual(
-		badORMPath, badORMCondition,
-	).Types(t2)
-	badormJoinCondition := jen.Qual(
-		badORMPath, badORMJoinCondition,
-	).Types(
-		t1, t2,
-	)
-
-	condition.codes = append(
-		condition.codes,
-		jen.Func().Id(
-			getConditionName(object, field.Name),
-		).Params(
-			jen.Id("conditions").Op("...").Add(badormT2Condition),
-		).Add(
-			badormT1Condition,
-		).Block(
-			jen.Return(
-				badormJoinCondition.Values(jen.Dict{
-					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
-					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.NoSePonerNombre(object.Name()))),
+					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(from)),
+					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(to)),
 					jen.Id("Conditions"): jen.Id("conditions"),
 				}),
 			),
