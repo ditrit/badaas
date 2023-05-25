@@ -34,7 +34,8 @@ func EmployeeNameCondition(v string) badorm.WhereCondition[Employee] {
 func EmployeeBossCondition(conditions ...badorm.Condition[Employee]) badorm.Condition[Employee] {
 	return badorm.JoinCondition[Employee, Employee]{
 		Conditions: conditions,
-		Field:      "boss",
+		T1Field:    "boss_id",
+		T2Field:    "id",
 	}
 }
 func EmployeeBossIdCondition(v *uuid.UUID) badorm.WhereCondition[Employee] {

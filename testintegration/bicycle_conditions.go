@@ -34,12 +34,13 @@ func BicycleNameCondition(v string) badorm.WhereCondition[Bicycle] {
 func BicycleOwnerCondition(conditions ...badorm.Condition[Person]) badorm.Condition[Bicycle] {
 	return badorm.JoinCondition[Bicycle, Person]{
 		Conditions: conditions,
-		Field:      "owner",
+		T1Field:    "owner_name",
+		T2Field:    "name",
 	}
 }
-func BicycleOwnerIdCondition(v uuid.UUID) badorm.WhereCondition[Bicycle] {
+func BicycleOwnerNameCondition(v string) badorm.WhereCondition[Bicycle] {
 	return badorm.WhereCondition[Bicycle]{
-		Field: "owner_id",
+		Field: "owner_name",
 		Value: v,
 	}
 }

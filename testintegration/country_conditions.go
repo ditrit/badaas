@@ -34,12 +34,14 @@ func CountryNameCondition(v string) badorm.WhereCondition[Country] {
 func CountryCapitalCondition(conditions ...badorm.Condition[City]) badorm.Condition[Country] {
 	return badorm.JoinCondition[Country, City]{
 		Conditions: conditions,
-		Field:      "capital",
+		T1Field:    "id",
+		T2Field:    "country_id",
 	}
 }
 func CityCountryCondition(conditions ...badorm.Condition[Country]) badorm.Condition[City] {
 	return badorm.JoinCondition[City, Country]{
 		Conditions: conditions,
-		Field:      "country",
+		T1Field:    "country_id",
+		T2Field:    "id",
 	}
 }

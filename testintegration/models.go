@@ -149,8 +149,8 @@ type Bicycle struct {
 
 	Name string
 	// Bicycle BelongsTo Person (Bicycle 0..* -> 1 Person)
-	Owner   Person
-	OwnerID uuid.UUID
+	Owner     Person `gorm:"references:Name;foreignKey:OwnerName"`
+	OwnerName string
 }
 
 func (m Bicycle) Equal(other Bicycle) bool {

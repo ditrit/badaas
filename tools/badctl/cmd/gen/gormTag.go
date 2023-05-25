@@ -12,6 +12,8 @@ const (
 	embeddedTagName       GormTag = "embedded"
 	embeddedPrefixTagName GormTag = "embeddedPrefix"
 	columnTagName         GormTag = "column"
+	foreignKeyTagName     GormTag = "foreignKey"
+	referencesTagName     GormTag = "references"
 )
 
 type GormTags map[GormTag]string

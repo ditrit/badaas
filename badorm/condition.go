@@ -5,7 +5,6 @@ import (
 	"reflect"
 
 	"github.com/elliotchance/pie/v2"
-	"github.com/ettle/strcase"
 	"gorm.io/gorm"
 )
 
@@ -67,7 +66,8 @@ func (condition WhereCondition[T]) GetSQL(tableName string) (string, []any) {
 }
 
 type JoinCondition[T1 any, T2 any] struct {
-	Field      string
+	T1Field    string
+	T2Field    string
 	Conditions []Condition[T2]
 }
 
@@ -118,41 +118,17 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
 func (condition JoinCondition[T1, T2]) getSQLJoin(toBeJoinedTableName, nextTableName, previousTableName string) string {
-	if isIDPresentInObject[T1](condition.Field) {
-		// T1 has the id attribute
-		return fmt.Sprintf(
-			`JOIN %[1]s %[2]s ON
-				%[2]s.id = %[3]s.%[4]s_id
-				AND %[2]s.deleted_at IS NULL
-			`,
-			toBeJoinedTableName,
-			nextTableName,
-			previousTableName,
-			condition.Field,
-		)
-	}
-	// T2 has the id attribute
-	// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-	previousAttribute := reflect.TypeOf(*new(T1)).Name()
 	return fmt.Sprintf(
 		`JOIN %[1]s %[2]s ON
-			%[2]s.%[4]s_id = %[3]s.id
-			AND %[2]s.deleted_at IS NULL
+			%[2]s.deleted_at IS NULL
+			AND %[2]s.%[3]s = %[4]s.%[5]s
 		`,
 		toBeJoinedTableName,
 		nextTableName,
+		condition.T2Field,
 		previousTableName,
-		previousAttribute,
+		condition.T1Field,
 	)
-}
-
-// Returns true if object T has an attribute called "relationName"ID
-func isIDPresentInObject[T any](relationName string) bool {
-	entityType := getEntityType(*new(T))
-	_, isIDPresent := entityType.FieldByName(
-		strcase.ToPascal(relationName) + "ID",
-	)
-	return isIDPresent
 }
 
 // Divides a list of conditions by its type: WhereConditions and JoinConditions
@@ -169,16 +145,4 @@ func divideConditionsByType[T any](
 	}
 
 	return
-}
-
-// Get the reflect.Type of any entity or pointer to entity
-func getEntityType(entity any) reflect.Type {
-	entityType := reflect.TypeOf(entity)
-
-	// entityType will be a pointer if the relation can be nullable
-	if entityType.Kind() == reflect.Pointer {
-		entityType = entityType.Elem()
-	}
-
-	return entityType
 }

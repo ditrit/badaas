@@ -40,7 +40,8 @@ func SaleDescriptionCondition(v string) badorm.WhereCondition[Sale] {
 func SaleProductCondition(conditions ...badorm.Condition[Product]) badorm.Condition[Sale] {
 	return badorm.JoinCondition[Sale, Product]{
 		Conditions: conditions,
-		Field:      "product",
+		T1Field:    "product_id",
+		T2Field:    "id",
 	}
 }
 func SaleProductIdCondition(v uuid.UUID) badorm.WhereCondition[Sale] {
@@ -52,7 +53,8 @@ func SaleProductIdCondition(v uuid.UUID) badorm.WhereCondition[Sale] {
 func SaleSellerCondition(conditions ...badorm.Condition[Seller]) badorm.Condition[Sale] {
 	return badorm.JoinCondition[Sale, Seller]{
 		Conditions: conditions,
-		Field:      "seller",
+		T1Field:    "seller_id",
+		T2Field:    "id",
 	}
 }
 func SaleSellerIdCondition(v *uuid.UUID) badorm.WhereCondition[Sale] {

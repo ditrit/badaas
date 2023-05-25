@@ -34,6 +34,7 @@ func CompanyNameCondition(v string) badorm.WhereCondition[Company] {
 func SellerCompanyCondition(conditions ...badorm.Condition[Company]) badorm.Condition[Seller] {
 	return badorm.JoinCondition[Seller, Company]{
 		Conditions: conditions,
-		Field:      "company",
+		T1Field:    "company_id",
+		T2Field:    "id",
 	}
 }

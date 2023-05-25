@@ -203,54 +203,11 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 			),
 		}
 	case *types.Named:
-		fieldTypeName := fieldTypeTyped.Obj()
-		fieldModelStruct := getBadORMModelStruct(fieldTypeName)
-		if fieldModelStruct != nil {
-			// TODO que pasa si esta en otro package? se importa solo?
-			joinCondition := generateJoinCondition(
-				destPkg,
-				structName,
-				field.Name, fieldTypeName,
-			)
-
-			// inversed join condition
-			fields := getFields(
-				getBadORMModelStruct(structName),
-				// TODO testear esto
-				field.Tags.getEmbeddedPrefix(),
-			)
-			if !pie.Any(fields, func(otherField Field) bool {
-				// TODO posible override?
-				return otherField.Name == field.Name+"ID"
-			}) {
-				return []jen.Code{
-					joinCondition,
-					generateJoinCondition(
-						destPkg,
-						fieldTypeName,
-						// TODO Override Foreign Key
-						structName.Name(), structName,
-					),
-				}
-			}
-
-			return []jen.Code{joinCondition}
-			// TODO DeletedAt
-		} else if (isGormCustomType(fieldTypeTyped) || fieldTypeTyped.String() == "time.Time") && fieldTypeTyped.String() != "gorm.io/gorm.DeletedAt" {
-			return []jen.Code{
-				generateWhereCondition(
-					destPkg,
-					structName,
-					field,
-					param.Clone().Qual(
-						getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
-						fieldTypeName.Name(),
-					),
-				),
-			}
-		} else {
-			log.Printf("struct field type not handled: %s", fieldTypeTyped.String())
-		}
+		return generateConditionsForNamedType(
+			destPkg, structName,
+			field, fieldTypeTyped,
+			param,
+		)
 	case *types.Pointer:
 		return generateConditionsForField(
 			destPkg,
@@ -276,6 +233,70 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 	return []jen.Code{}
 }
 
+func generateConditionsForNamedType(destPkg string, structName *types.TypeName, field Field, fieldType *types.Named, param *jen.Statement) []jen.Code {
+	fieldTypeName := fieldType.Obj()
+	fieldModelStruct := getBadORMModelStruct(fieldTypeName)
+	if fieldModelStruct != nil {
+		// TODO que pasa si esta en otro package? se importa solo?
+		fields := getFields(
+			getBadORMModelStruct(structName),
+			// TODO testear esto
+			field.Tags.getEmbeddedPrefix(),
+		)
+		thisEntityHasTheFK := pie.Any(fields, func(otherField Field) bool {
+			return otherField.Name == field.getJoinFromColumn()
+		})
+
+		log.Println(field.getJoinFromColumn())
+		log.Println(thisEntityHasTheFK)
+
+		if thisEntityHasTheFK {
+			// belongsTo relation
+			return []jen.Code{
+				generateJoinCondition(
+					destPkg,
+					structName,
+					field, fieldTypeName,
+				),
+			}
+		}
+
+		// hasOne or hasMany relation
+		inverseJoinCondition := generateInverseJoinCondition(
+			destPkg,
+			structName,
+			field, fieldTypeName,
+		)
+
+		return []jen.Code{
+			inverseJoinCondition,
+			generateOppositeJoinCondition(
+				destPkg,
+				structName,
+				field,
+				fieldTypeName,
+			),
+		}
+
+		// TODO DeletedAt
+	} else if (isGormCustomType(fieldType) || fieldType.String() == "time.Time") && fieldType.String() != "gorm.io/gorm.DeletedAt" {
+		return []jen.Code{
+			generateWhereCondition(
+				destPkg,
+				structName,
+				field,
+				param.Clone().Qual(
+					getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
+					fieldTypeName.Name(),
+				),
+			),
+		}
+	}
+
+	log.Printf("struct field type not handled: %s", fieldType.String())
+	return []jen.Code{}
+}
+
 func generateConditionForSlice(destPkg string, structName *types.TypeName, field Field, elemType types.Type, param *jen.Statement) []jen.Code {
 	switch elemTypeTyped := elemType.(type) {
 	case *types.Basic:
@@ -297,11 +318,11 @@ func generateConditionForSlice(destPkg string, structName *types.TypeName, field
 		if getBadORMModelStruct(elemTypeName) != nil {
 			log.Println(elemTypeName.Name())
 			return []jen.Code{
-				generateJoinCondition(
+				generateOppositeJoinCondition(
 					destPkg,
+					structName,
+					field,
 					elemTypeName,
-					// TODO Override Foreign Key
-					structName.Name(), structName,
 				),
 			}
 		}
@@ -384,7 +405,21 @@ func generateWhereCondition(destPkg string, structName *types.TypeName, field Fi
 	)
 }
 
-func generateJoinCondition(destPkg string, structName *types.TypeName, fieldName string, fieldTypeName *types.TypeName) *jen.Statement {
+func generateOppositeJoinCondition(destPkg string, structTypeName *types.TypeName, field Field, fieldTypeName *types.TypeName) *jen.Statement {
+	return generateJoinCondition(
+		destPkg,
+		fieldTypeName,
+		// TODO testear los Override Foreign Key
+		Field{
+			Name: structTypeName.Name(),
+			Type: structTypeName.Type(),
+			Tags: field.Tags,
+		},
+		structTypeName,
+	)
+}
+
+func generateJoinCondition(destPkg string, structName *types.TypeName, field Field, fieldTypeName *types.TypeName) *jen.Statement {
 	log.Println(fieldTypeName.String())
 
 	t1 := jen.Qual(
@@ -410,7 +445,7 @@ func generateJoinCondition(destPkg string, structName *types.TypeName, fieldName
 	)
 
 	return jen.Func().Id(
-		getConditionName(structName, fieldName),
+		getConditionName(structName, field.Name),
 	).Params(
 		jen.Id("conditions").Op("...").Add(badormT2Condition),
 	).Add(
@@ -418,8 +453,52 @@ func generateJoinCondition(destPkg string, structName *types.TypeName, fieldName
 	).Block(
 		jen.Return(
 			badormJoinCondition.Values(jen.Dict{
-				// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-				jen.Id("Field"):      jen.Lit(strcase.ToSnake(fieldName)),
+				jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinFromColumn())),
+				jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
+				jen.Id("Conditions"): jen.Id("conditions"),
+			}),
+		),
+	)
+}
+
+// TODO codigo duplicado
+// TODO probablemente se puede hacer con el mismo metodo pero con el orden inverso
+func generateInverseJoinCondition(destPkg string, structName *types.TypeName, field Field, fieldTypeName *types.TypeName) *jen.Statement {
+	log.Println(fieldTypeName.String())
+
+	t1 := jen.Qual(
+		getRelativePackagePath(structName.Pkg(), destPkg),
+		structName.Name(),
+	)
+
+	t2 := jen.Qual(
+		getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
+		fieldTypeName.Name(),
+	)
+
+	badormT1Condition := jen.Qual(
+		badORMPath, badORMCondition,
+	).Types(t1)
+	badormT2Condition := jen.Qual(
+		badORMPath, badORMCondition,
+	).Types(t2)
+	badormJoinCondition := jen.Qual(
+		badORMPath, badORMJoinCondition,
+	).Types(
+		t1, t2,
+	)
+
+	return jen.Func().Id(
+		getConditionName(structName, field.Name),
+	).Params(
+		jen.Id("conditions").Op("...").Add(badormT2Condition),
+	).Add(
+		badormT1Condition,
+	).Block(
+		jen.Return(
+			badormJoinCondition.Values(jen.Dict{
+				jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
+				jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.NoSePonerNombre(structName.Name()))),
 				jen.Id("Conditions"): jen.Id("conditions"),
 			}),
 		),
