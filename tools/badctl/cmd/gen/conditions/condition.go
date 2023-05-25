@@ -26,16 +26,15 @@ func NewCondition(object types.Object, field Field) *Condition {
 func (condition *Condition) generateCode(object types.Object, field Field) {
 	switch fieldType := field.Object.Type().(type) {
 	case *types.Basic:
-		condition.codes = []jen.Code{generateWhereCondition(
+		condition.param = typeKindToJenStatement[fieldType.Kind()](condition.param)
+		condition.generateWhereCondition(
 			object,
 			field,
-			typeKindToJenStatement[fieldType.Kind()](condition.param),
-		)}
+		)
 	case *types.Named:
-		condition.codes = generateConditionsForNamedType(
+		condition.generateCodeForNamedType(
 			object,
 			field, fieldType,
-			condition.param,
 		)
 	case *types.Pointer:
 		condition.param = condition.param.Op("*")
@@ -89,7 +88,7 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 	}
 }
 
-func generateConditionsForNamedType(object types.Object, field Field, fieldType *types.Named, param *jen.Statement) []jen.Code {
+func (condition *Condition) generateCodeForNamedType(object types.Object, field Field, fieldType *types.Named) {
 	// TODO quizas aca se puede eliminar el fieldType
 	fieldObject := fieldType.Obj()
 	// TODO esta linea de aca quedo rara
@@ -100,7 +99,7 @@ func generateConditionsForNamedType(object types.Object, field Field, fieldType 
 		objectStruct, err := getBadORMModelStruct(object)
 		if err != nil {
 			// TODO ver esto
-			return []jen.Code{}
+			return
 		}
 		// TODO que pasa si esta en otro package? se importa solo?
 		fields, err := getFields(
@@ -110,7 +109,7 @@ func generateConditionsForNamedType(object types.Object, field Field, fieldType 
 		)
 		if err != nil {
 			// TODO ver esto
-			return []jen.Code{}
+			return
 		}
 		thisEntityHasTheFK := pie.Any(fields, func(otherField Field) bool {
 			return otherField.Name == field.getJoinFromColumn()
@@ -121,45 +120,41 @@ func generateConditionsForNamedType(object types.Object, field Field, fieldType 
 
 		if thisEntityHasTheFK {
 			// belongsTo relation
-			return []jen.Code{
+			condition.codes = []jen.Code{
 				generateJoinCondition(
 					object,
 					field,
 				),
 			}
-		}
-
-		// hasOne or hasMany relation
-		inverseJoinCondition := generateInverseJoinCondition(
-			object,
-			field, fieldObject,
-		)
-
-		return []jen.Code{
-			inverseJoinCondition,
-			generateOppositeJoinCondition(
+		} else {
+			// hasOne or hasMany relation
+			inverseJoinCondition := generateInverseJoinCondition(
 				object,
-				field,
-				fieldObject,
-			),
-		}
+				field, fieldObject,
+			)
 
-		// TODO DeletedAt
-	} else if (isGormCustomType(fieldType) || fieldType.String() == "time.Time") && fieldType.String() != "gorm.io/gorm.DeletedAt" {
-		return []jen.Code{
-			generateWhereCondition(
-				object,
-				field,
-				param.Clone().Qual(
-					getRelativePackagePath(fieldObject.Pkg()),
-					fieldObject.Name(),
+			condition.codes = []jen.Code{
+				inverseJoinCondition,
+				generateOppositeJoinCondition(
+					object,
+					field,
+					fieldObject,
 				),
-			),
+			}
 		}
+	} else if (isGormCustomType(fieldType) || fieldType.String() == "time.Time") && fieldType.String() != "gorm.io/gorm.DeletedAt" {
+		// TODO DeletedAt
+		condition.param = condition.param.Qual(
+			getRelativePackagePath(fieldObject.Pkg()),
+			fieldObject.Name(),
+		)
+		condition.generateWhereCondition(
+			object,
+			field,
+		)
+	} else {
+		log.Printf("struct field type not handled: %s", fieldType.String())
 	}
-
-	log.Printf("struct field type not handled: %s", fieldType.String())
-	return []jen.Code{}
 }
 
 var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
@@ -201,7 +196,7 @@ var typeKindToJenStatement = map[types.BasicKind]func(*jen.Statement) *jen.State
 	types.String:     func(param *jen.Statement) *jen.Statement { return param.String() },
 }
 
-func generateWhereCondition(object types.Object, field Field, param *jen.Statement) *jen.Statement {
+func (condition *Condition) generateWhereCondition(object types.Object, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
 	).Types(
@@ -211,18 +206,21 @@ func generateWhereCondition(object types.Object, field Field, param *jen.Stateme
 		),
 	)
 
-	return jen.Func().Id(
-		getConditionName(object, field.Name),
-	).Params(
-		param,
-	).Add(
-		whereCondition.Clone(),
-	).Block(
-		jen.Return(
-			whereCondition.Clone().Values(jen.Dict{
-				jen.Id("Field"): jen.Lit(field.getColumnName()),
-				jen.Id("Value"): jen.Id("v"),
-			}),
+	condition.codes = append(
+		condition.codes,
+		jen.Func().Id(
+			getConditionName(object, field.Name),
+		).Params(
+			condition.param,
+		).Add(
+			whereCondition.Clone(),
+		).Block(
+			jen.Return(
+				whereCondition.Clone().Values(jen.Dict{
+					jen.Id("Field"): jen.Lit(field.getColumnName()),
+					jen.Id("Value"): jen.Id("v"),
+				}),
+			),
 		),
 	)
 }
