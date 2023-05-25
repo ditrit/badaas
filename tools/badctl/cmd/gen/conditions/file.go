@@ -115,7 +115,7 @@ func isBadORMModel(structType *types.Struct) bool {
 }
 
 func generateEmbeddedConditions(object types.Object, field Field) []*Condition {
-	embeddedFieldType, ok := field.Type.Type().(*types.Named)
+	embeddedFieldType, ok := field.Object.Type().(*types.Named)
 	if !ok {
 		failErr(errors.New("unreachable! embedded objects are always of type Named"))
 	}

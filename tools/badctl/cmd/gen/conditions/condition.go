@@ -24,33 +24,33 @@ func NewCondition(object types.Object, field Field) *Condition {
 }
 
 func (condition *Condition) generateCode(object types.Object, field Field) {
-	switch fieldTypeTyped := field.Type.Type().(type) {
+	switch fieldType := field.Object.Type().(type) {
 	case *types.Basic:
 		condition.codes = []jen.Code{generateWhereCondition(
 			object,
 			field,
-			typeKindToJenStatement[fieldTypeTyped.Kind()](condition.param),
+			typeKindToJenStatement[fieldType.Kind()](condition.param),
 		)}
 	case *types.Named:
 		condition.codes = generateConditionsForNamedType(
 			object,
-			field, fieldTypeTyped,
+			field, fieldType,
 			condition.param,
 		)
 	case *types.Pointer:
 		condition.param = condition.param.Op("*")
 		condition.generateCode(
 			object,
-			field.ChangeType(fieldTypeTyped.Elem()),
+			field.ChangeType(fieldType.Elem()),
 		)
 	case *types.Slice:
 		condition.param = condition.param.Index()
 		condition.generateCodeForSlice(
 			object,
-			field, fieldTypeTyped.Elem(),
+			field, fieldType.Elem(),
 		)
 	default:
-		log.Printf("struct field type not handled: %T", fieldTypeTyped)
+		log.Printf("struct field type not handled: %T", fieldType)
 	}
 }
 
@@ -232,15 +232,15 @@ func generateOppositeJoinCondition(object types.Object, field Field, fieldObject
 		fieldObject,
 		// TODO testear los Override Foreign Key
 		Field{
-			Name: object.Name(),
-			Type: object,
-			Tags: field.Tags,
+			Name:   object.Name(),
+			Object: object,
+			Tags:   field.Tags,
 		},
 	)
 }
 
 func generateJoinCondition(object types.Object, field Field) *jen.Statement {
-	log.Println(field.Type.Name())
+	log.Println(field.Object.Name())
 
 	t1 := jen.Qual(
 		getRelativePackagePath(object.Pkg()),
@@ -249,7 +249,7 @@ func generateJoinCondition(object types.Object, field Field) *jen.Statement {
 
 	// TODO field.Type.Name me da lo mismo que field.Name
 	t2 := jen.Qual(
-		getRelativePackagePath(field.Type.Pkg()),
+		getRelativePackagePath(field.Object.Pkg()),
 		field.TypeName(),
 	)
 

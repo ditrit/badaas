@@ -11,7 +11,7 @@ import (
 
 type Field struct {
 	Name     string
-	Type     types.Object
+	Object   types.Object
 	Embedded bool
 	Tags     GormTags
 }
@@ -56,16 +56,16 @@ func (field Field) NoSePonerNombre(structName string) string {
 }
 
 func (field Field) TypeName() string {
-	return pie.Last(strings.Split(field.Type.Type().String(), "."))
+	return pie.Last(strings.Split(field.Object.Type().String(), "."))
 }
 
 func (field Field) ChangeType(newType types.Type) Field {
 	return Field{
 		Name: field.Name,
-		Type: types.NewTypeName(
-			field.Type.Pos(),
-			field.Type.Pkg(),
-			field.Type.Name(),
+		Object: types.NewTypeName(
+			field.Object.Pos(),
+			field.Object.Pkg(),
+			field.Object.Name(),
 			newType,
 		),
 		Tags: field.Tags,
@@ -87,7 +87,7 @@ func getFields(structType *types.Struct, prefix string) ([]Field, error) {
 		fields = append(fields, Field{
 			// TODO el Name se podria sacar si meto este prefix adentro del tipo
 			Name:     prefix + fieldType.Name(),
-			Type:     fieldType,
+			Object:   fieldType,
 			Embedded: fieldType.Embedded() || gormTags.hasEmbedded(),
 			Tags:     gormTags,
 		})
