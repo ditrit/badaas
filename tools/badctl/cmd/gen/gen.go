@@ -1,6 +1,7 @@
 package gen
 
 import (
+	"github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions"
 	"github.com/ditrit/verdeter"
 )
 
@@ -12,5 +13,5 @@ var GenCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 
 func init() {
 	GenCmd.AddSubCommand(genDockerCmd)
-	GenCmd.AddSubCommand(genConditionsCmd)
+	GenCmd.AddSubCommand(conditions.GenConditionsCmd)
 }

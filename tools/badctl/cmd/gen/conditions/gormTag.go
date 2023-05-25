@@ -1,4 +1,4 @@
-package gen
+package conditions
 
 import (
 	"strings"

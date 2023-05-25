@@ -1,6 +1,7 @@
-package gen
+package conditions
 
 import (
+	"errors"
 	"go/types"
 	"strings"
 
@@ -71,11 +72,16 @@ func (field Field) ChangeType(newType types.Type) Field {
 	}
 }
 
-func getFields(structType *types.Struct, prefix string) []Field {
+func getFields(structType *types.Struct, prefix string) ([]Field, error) {
+	numFields := structType.NumFields()
+	if numFields == 0 {
+		return nil, errors.New("Struct has 0 fields")
+	}
+
 	fields := []Field{}
 
 	// Iterate over struct fields
-	for i := 0; i < structType.NumFields(); i++ {
+	for i := 0; i < numFields; i++ {
 		fieldType := structType.Field(i)
 		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
@@ -87,5 +93,5 @@ func getFields(structType *types.Struct, prefix string) []Field {
 		})
 	}
 
-	return fields
+	return fields, nil
 }
