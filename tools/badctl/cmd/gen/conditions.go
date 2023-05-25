@@ -158,7 +158,7 @@ func addConditionForEachField(f *jen.File, fields []Field, destPkg string, struc
 }
 
 func addEmbeddedConditions(f *jen.File, destPkg string, structName *types.TypeName, field Field) {
-	embededFieldType, ok := field.Type.(*types.Named)
+	embededFieldType, ok := field.Type.Type().(*types.Named)
 	if !ok {
 		failErr(errors.New("unreacheable! embeddeds are allways of type Named"))
 	}
@@ -192,7 +192,7 @@ func addConditionsForField(f *jen.File, destPkg string, structName *types.TypeNa
 }
 
 func generateConditionsForField(destPkg string, structName *types.TypeName, field Field, param *jen.Statement) []jen.Code {
-	switch fieldTypeTyped := field.Type.(type) {
+	switch fieldTypeTyped := field.Type.Type().(type) {
 	case *types.Basic:
 		return []jen.Code{
 			generateWhereCondition(
@@ -212,11 +212,7 @@ func generateConditionsForField(destPkg string, structName *types.TypeName, fiel
 		return generateConditionsForField(
 			destPkg,
 			structName,
-			Field{
-				Name: field.Name,
-				Type: fieldTypeTyped.Elem(),
-				Tags: field.Tags,
-			},
+			field.ChangeType(fieldTypeTyped.Elem()),
 			param.Clone().Op("*"),
 		)
 	case *types.Slice:
@@ -256,7 +252,7 @@ func generateConditionsForNamedType(destPkg string, structName *types.TypeName, 
 				generateJoinCondition(
 					destPkg,
 					structName,
-					field, fieldTypeName,
+					field,
 				),
 			}
 		}
@@ -305,11 +301,7 @@ func generateConditionForSlice(destPkg string, structName *types.TypeName, field
 		return generateConditionsForField(
 			destPkg,
 			structName,
-			Field{
-				Name: field.Name,
-				Type: elemTypeTyped,
-				Tags: field.Tags,
-			},
+			field.ChangeType(elemTypeTyped),
 			param,
 		)
 	case *types.Named:
@@ -412,24 +404,24 @@ func generateOppositeJoinCondition(destPkg string, structTypeName *types.TypeNam
 		// TODO testear los Override Foreign Key
 		Field{
 			Name: structTypeName.Name(),
-			Type: structTypeName.Type(),
+			Type: structTypeName,
 			Tags: field.Tags,
 		},
-		structTypeName,
 	)
 }
 
-func generateJoinCondition(destPkg string, structName *types.TypeName, field Field, fieldTypeName *types.TypeName) *jen.Statement {
-	log.Println(fieldTypeName.String())
+func generateJoinCondition(destPkg string, structName *types.TypeName, field Field) *jen.Statement {
+	log.Println(field.Type.Name())
 
 	t1 := jen.Qual(
 		getRelativePackagePath(structName.Pkg(), destPkg),
 		structName.Name(),
 	)
 
+	// TODO field.Type.Name me da lo mismo que field.Name
 	t2 := jen.Qual(
-		getRelativePackagePath(fieldTypeName.Pkg(), destPkg),
-		fieldTypeName.Name(),
+		getRelativePackagePath(field.Type.Pkg(), destPkg),
+		field.TypeName(),
 	)
 
 	badormT1Condition := jen.Qual(

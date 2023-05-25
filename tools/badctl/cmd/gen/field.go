@@ -2,13 +2,15 @@ package gen
 
 import (
 	"go/types"
+	"strings"
 
+	"github.com/elliotchance/pie/v2"
 	"github.com/ettle/strcase"
 )
 
 type Field struct {
 	Name     string
-	Type     types.Type
+	Type     types.Object
 	Embedded bool
 	Tags     GormTags
 }
@@ -52,17 +54,35 @@ func (field Field) NoSePonerNombre(structName string) string {
 	return structName + "ID"
 }
 
+func (field Field) TypeName() string {
+	return pie.Last(strings.Split(field.Type.Type().String(), "."))
+}
+
+func (field Field) ChangeType(newType types.Type) Field {
+	return Field{
+		Name: field.Name,
+		Type: types.NewTypeName(
+			field.Type.Pos(),
+			field.Type.Pkg(),
+			field.Type.Name(),
+			newType,
+		),
+		Tags: field.Tags,
+	}
+}
+
 func getFields(structType *types.Struct, prefix string) []Field {
 	fields := []Field{}
 
 	// Iterate over struct fields
 	for i := 0; i < structType.NumFields(); i++ {
-		field := structType.Field(i)
+		fieldType := structType.Field(i)
 		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
-			Name:     prefix + field.Name(),
-			Type:     field.Type(),
-			Embedded: field.Embedded() || gormTags.hasEmbedded(),
+			// TODO el Name se podria sacar si meto este prefix adentro del tipo
+			Name:     prefix + fieldType.Name(),
+			Type:     fieldType,
+			Embedded: fieldType.Embedded() || gormTags.hasEmbedded(),
 			Tags:     gormTags,
 		})
 	}
