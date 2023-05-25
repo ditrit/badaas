@@ -68,13 +68,11 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 		_, err := getBadORMModelStruct(elemObject)
 		if err == nil {
 			log.Println(elemObject.Name())
-			condition.codes = []jen.Code{
-				generateOppositeJoinCondition(
-					object,
-					field,
-					elemObject,
-				),
-			}
+			condition.generateOppositeJoinCondition(
+				object,
+				field,
+				elemObject,
+			)
 		}
 	case *types.Pointer:
 		condition.param = condition.param.Op("*")
@@ -120,27 +118,22 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 
 		if thisEntityHasTheFK {
 			// belongsTo relation
-			condition.codes = []jen.Code{
-				generateJoinCondition(
-					object,
-					field,
-				),
-			}
+			condition.generateJoinCondition(
+				object,
+				field,
+			)
 		} else {
 			// hasOne or hasMany relation
-			inverseJoinCondition := generateInverseJoinCondition(
+			condition.generateInverseJoinCondition(
 				object,
 				field, fieldObject,
 			)
 
-			condition.codes = []jen.Code{
-				inverseJoinCondition,
-				generateOppositeJoinCondition(
-					object,
-					field,
-					fieldObject,
-				),
-			}
+			condition.generateOppositeJoinCondition(
+				object,
+				field,
+				fieldObject,
+			)
 		}
 	} else if (isGormCustomType(fieldType) || fieldType.String() == "time.Time") && fieldType.String() != "gorm.io/gorm.DeletedAt" {
 		// TODO DeletedAt
@@ -225,8 +218,8 @@ func (condition *Condition) generateWhereCondition(object types.Object, field Fi
 	)
 }
 
-func generateOppositeJoinCondition(object types.Object, field Field, fieldObject types.Object) *jen.Statement {
-	return generateJoinCondition(
+func (condition *Condition) generateOppositeJoinCondition(object types.Object, field Field, fieldObject types.Object) {
+	condition.generateJoinCondition(
 		fieldObject,
 		// TODO testear los Override Foreign Key
 		Field{
@@ -237,7 +230,7 @@ func generateOppositeJoinCondition(object types.Object, field Field, fieldObject
 	)
 }
 
-func generateJoinCondition(object types.Object, field Field) *jen.Statement {
+func (condition *Condition) generateJoinCondition(object types.Object, field Field) {
 	log.Println(field.Object.Name())
 
 	t1 := jen.Qual(
@@ -245,7 +238,6 @@ func generateJoinCondition(object types.Object, field Field) *jen.Statement {
 		object.Name(),
 	)
 
-	// TODO field.Type.Name me da lo mismo que field.Name
 	t2 := jen.Qual(
 		getRelativePackagePath(field.Object.Pkg()),
 		field.TypeName(),
@@ -263,26 +255,29 @@ func generateJoinCondition(object types.Object, field Field) *jen.Statement {
 		t1, t2,
 	)
 
-	return jen.Func().Id(
-		getConditionName(object, field.Name),
-	).Params(
-		jen.Id("conditions").Op("...").Add(badormT2Condition),
-	).Add(
-		badormT1Condition,
-	).Block(
-		jen.Return(
-			badormJoinCondition.Values(jen.Dict{
-				jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinFromColumn())),
-				jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
-				jen.Id("Conditions"): jen.Id("conditions"),
-			}),
+	condition.codes = append(
+		condition.codes,
+		jen.Func().Id(
+			getConditionName(object, field.Name),
+		).Params(
+			jen.Id("conditions").Op("...").Add(badormT2Condition),
+		).Add(
+			badormT1Condition,
+		).Block(
+			jen.Return(
+				badormJoinCondition.Values(jen.Dict{
+					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinFromColumn())),
+					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
+					jen.Id("Conditions"): jen.Id("conditions"),
+				}),
+			),
 		),
 	)
 }
 
 // TODO codigo duplicado
 // TODO probablemente se puede hacer con el mismo metodo pero con el orden inverso
-func generateInverseJoinCondition(object types.Object, field Field, fieldObject types.Object) *jen.Statement {
+func (condition *Condition) generateInverseJoinCondition(object types.Object, field Field, fieldObject types.Object) {
 	log.Println(fieldObject.String())
 
 	t1 := jen.Qual(
@@ -307,19 +302,22 @@ func generateInverseJoinCondition(object types.Object, field Field, fieldObject 
 		t1, t2,
 	)
 
-	return jen.Func().Id(
-		getConditionName(object, field.Name),
-	).Params(
-		jen.Id("conditions").Op("...").Add(badormT2Condition),
-	).Add(
-		badormT1Condition,
-	).Block(
-		jen.Return(
-			badormJoinCondition.Values(jen.Dict{
-				jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
-				jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.NoSePonerNombre(object.Name()))),
-				jen.Id("Conditions"): jen.Id("conditions"),
-			}),
+	condition.codes = append(
+		condition.codes,
+		jen.Func().Id(
+			getConditionName(object, field.Name),
+		).Params(
+			jen.Id("conditions").Op("...").Add(badormT2Condition),
+		).Add(
+			badormT1Condition,
+		).Block(
+			jen.Return(
+				badormJoinCondition.Values(jen.Dict{
+					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(field.getJoinToColumn())),
+					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(field.NoSePonerNombre(object.Name()))),
+					jen.Id("Conditions"): jen.Id("conditions"),
+				}),
+			),
 		),
 	)
 }

@@ -75,7 +75,7 @@ func (field Field) ChangeType(newType types.Type) Field {
 func getFields(structType *types.Struct, prefix string) ([]Field, error) {
 	numFields := structType.NumFields()
 	if numFields == 0 {
-		return nil, errors.New("Struct has 0 fields")
+		return nil, errors.New("struct has 0 fields")
 	}
 
 	fields := []Field{}
