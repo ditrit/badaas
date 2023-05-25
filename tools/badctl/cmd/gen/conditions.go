@@ -70,6 +70,26 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	}
 }
 
+func loadPackages(paths []string) []*packages.Package {
+	cfg := &packages.Config{Mode: packages.NeedTypes}
+	pkgs, err := packages.Load(cfg, paths...)
+	if err != nil {
+		failErr(fmt.Errorf("loading packages for inspection: %v", err))
+	}
+
+	// print compilation errors of source packages
+	packages.PrintErrors(pkgs)
+
+	return pkgs
+}
+
+func failErr(err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
 func getObject(pkg *packages.Package, name string) types.Object {
 	obj := pkg.Types.Scope().Lookup(name)
 	if obj == nil {
@@ -156,11 +176,11 @@ func addConditionForEachField(f *jen.File, object types.Object, fields []Field) 
 func addEmbeddedConditions(f *jen.File, object types.Object, field Field) {
 	embeddedFieldType, ok := field.Type.Type().(*types.Named)
 	if !ok {
-		failErr(errors.New("unreacheable! embeddeds are allways of type Named"))
+		failErr(errors.New("unreachable! embedded objects are always of type Named"))
 	}
 	embeddedStructType, ok := embeddedFieldType.Underlying().(*types.Struct)
 	if !ok {
-		failErr(errors.New("unreacheable! embeddeds are allways structs"))
+		failErr(errors.New("unreachable! embedded objects are always structs"))
 	}
 
 	addConditionForEachField(
@@ -492,24 +512,4 @@ func getRelativePackagePath(srcPkg *types.Package) string {
 	}
 
 	return srcPkg.Path()
-}
-
-func loadPackages(paths []string) []*packages.Package {
-	cfg := &packages.Config{Mode: packages.NeedTypes}
-	pkgs, err := packages.Load(cfg, paths...)
-	if err != nil {
-		failErr(fmt.Errorf("loading packages for inspection: %v", err))
-	}
-
-	// print compilation errors of source packages
-	packages.PrintErrors(pkgs)
-
-	return pkgs
-}
-
-func failErr(err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
 }
