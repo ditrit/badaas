@@ -26,7 +26,7 @@ func NewCondition(object types.Object, field Field) *Condition {
 func (condition *Condition) generateCode(object types.Object, field Field) {
 	switch fieldType := field.Object.Type().(type) {
 	case *types.Basic:
-		condition.param = typeKindToJenStatement[fieldType.Kind()](condition.param)
+		condition.adaptParamByKind(fieldType)
 		condition.generateWhereCondition(
 			object,
 			field,
@@ -169,26 +169,46 @@ func isGormCustomType(typeNamed *types.Named) bool {
 	return hasScanMethod && hasValueMethod
 }
 
-var typeKindToJenStatement = map[types.BasicKind]func(*jen.Statement) *jen.Statement{
-	types.Bool:       func(param *jen.Statement) *jen.Statement { return param.Bool() },
-	types.Int:        func(param *jen.Statement) *jen.Statement { return param.Int() },
-	types.Int8:       func(param *jen.Statement) *jen.Statement { return param.Int8() },
-	types.Int16:      func(param *jen.Statement) *jen.Statement { return param.Int16() },
-	types.Int32:      func(param *jen.Statement) *jen.Statement { return param.Int32() },
-	types.Int64:      func(param *jen.Statement) *jen.Statement { return param.Int64() },
-	types.Uint:       func(param *jen.Statement) *jen.Statement { return param.Uint() },
-	types.Uint8:      func(param *jen.Statement) *jen.Statement { return param.Uint8() },
-	types.Uint16:     func(param *jen.Statement) *jen.Statement { return param.Uint16() },
-	types.Uint32:     func(param *jen.Statement) *jen.Statement { return param.Uint32() },
-	types.Uint64:     func(param *jen.Statement) *jen.Statement { return param.Uint64() },
-	types.Uintptr:    func(param *jen.Statement) *jen.Statement { return param.Uintptr() },
-	types.Float32:    func(param *jen.Statement) *jen.Statement { return param.Float32() },
-	types.Float64:    func(param *jen.Statement) *jen.Statement { return param.Float64() },
-	types.Complex64:  func(param *jen.Statement) *jen.Statement { return param.Complex64() },
-	types.Complex128: func(param *jen.Statement) *jen.Statement { return param.Complex128() },
-	types.String:     func(param *jen.Statement) *jen.Statement { return param.String() },
+func (condition *Condition) adaptParamByKind(basicType *types.Basic) {
+	switch basicType.Kind() {
+	case types.Bool:
+		condition.param = condition.param.Bool()
+	case types.Int:
+		condition.param = condition.param.Int()
+	case types.Int8:
+		condition.param = condition.param.Int8()
+	case types.Int16:
+		condition.param = condition.param.Int16()
+	case types.Int32:
+		condition.param = condition.param.Int32()
+	case types.Int64:
+		condition.param = condition.param.Int64()
+	case types.Uint:
+		condition.param = condition.param.Uint()
+	case types.Uint8:
+		condition.param = condition.param.Uint8()
+	case types.Uint16:
+		condition.param = condition.param.Uint16()
+	case types.Uint32:
+		condition.param = condition.param.Uint32()
+	case types.Uint64:
+		condition.param = condition.param.Uint64()
+	case types.Uintptr:
+		condition.param = condition.param.Uintptr()
+	case types.Float32:
+		condition.param = condition.param.Float32()
+	case types.Float64:
+		condition.param = condition.param.Float64()
+	case types.Complex64:
+		condition.param = condition.param.Complex64()
+	case types.Complex128:
+		condition.param = condition.param.Complex128()
+	case types.String:
+		condition.param = condition.param.String()
+	}
 }
 
+// TODO sacar condition del nombre
 func (condition *Condition) generateWhereCondition(object types.Object, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
