@@ -3,14 +3,13 @@ package conditions
 import (
 	"errors"
 	"go/types"
-	"regexp"
 
 	"github.com/ettle/strcase"
 )
 
 type Field struct {
 	Name     string
-	Type     types.Type
+	Type     Type
 	Embedded bool
 	Tags     GormTags
 }
@@ -58,45 +57,21 @@ func (field Field) TypeString() string {
 }
 
 func (field Field) TypeName() string {
-	return getTypeName(field.Type)
+	return field.Type.Name()
 }
 
 func (field Field) ChangeType(newType types.Type) Field {
 	return Field{
 		Name: field.Name,
-		Type: newType,
+		Type: Type{newType},
 		Tags: field.Tags,
 	}
 }
 
-var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
-var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
-
-func (field Field) IsGormCustomType() bool {
-	typeNamed, isNamedType := field.Type.(*types.Named)
-	if !isNamedType {
-		return false
-	}
-
-	hasScanMethod := false
-	hasValueMethod := false
-	for i := 0; i < typeNamed.NumMethods(); i++ {
-		methodSignature := typeNamed.Method(i).String()
-
-		if !hasScanMethod && scanMethod.MatchString(methodSignature) {
-			hasScanMethod = true
-		} else if !hasValueMethod && valueMethod.MatchString(methodSignature) {
-			hasValueMethod = true
-		}
-	}
-
-	return hasScanMethod && hasValueMethod
-}
-
-func getFields(objectType types.Type, prefix string) ([]Field, error) {
+func getFields(objectType Type, prefix string) ([]Field, error) {
 	// The underlying type has to be a struct and a BaDORM Model
 	// (ignore const, var, func, etc.)
-	structType, err := getBadORMModelStruct(objectType)
+	structType, err := objectType.BadORMModelStruct()
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +93,7 @@ func getStructFields(structType *types.Struct, prefix string) ([]Field, error) {
 		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
 			Name:     prefix + fieldObject.Name(),
-			Type:     fieldObject.Type(),
+			Type:     Type{fieldObject.Type()},
 			Embedded: fieldObject.Embedded() || gormTags.hasEmbedded(),
 			Tags:     gormTags,
 		})

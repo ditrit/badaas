@@ -14,7 +14,7 @@ type Condition struct {
 	destPkg string
 }
 
-func NewCondition(destPkg string, objectType types.Type, field Field) (*Condition, error) {
+func NewCondition(destPkg string, objectType Type, field Field) (*Condition, error) {
 	condition := &Condition{
 		param:   NewJenParam(),
 		destPkg: destPkg,
@@ -27,8 +27,8 @@ func NewCondition(destPkg string, objectType types.Type, field Field) (*Conditio
 	return condition, nil
 }
 
-func (condition *Condition) generate(objectType types.Type, field Field) error {
-	switch fieldType := field.Type.(type) {
+func (condition *Condition) generate(objectType Type, field Field) error {
+	switch fieldType := field.Type.Type.(type) {
 	case *types.Basic:
 		// the field is a basic type (string, int, etc)
 		// adapt param to that type and generate a WhereCondition
@@ -67,8 +67,8 @@ func (condition *Condition) generate(objectType types.Type, field Field) error {
 	return nil
 }
 
-func (condition *Condition) generateForSlice(objectType types.Type, field Field) {
-	switch elemType := field.Type.(type) {
+func (condition *Condition) generateForSlice(objectType Type, field Field) {
+	switch elemType := field.Type.Type.(type) {
 	case *types.Basic:
 		// slice of basic types ([]string, []int, etc.)
 		// the only one supported directly by gorm is []byte
@@ -79,7 +79,7 @@ func (condition *Condition) generateForSlice(objectType types.Type, field Field)
 		)
 	case *types.Named:
 		// slice of named types (user defined types)
-		_, err := getBadORMModelStruct(field.Type)
+		_, err := field.Type.BadORMModelStruct()
 		if err == nil {
 			// slice of BadORM models -> hasMany relation
 			log.Println(field.TypeName())
@@ -102,14 +102,14 @@ func (condition *Condition) generateForSlice(objectType types.Type, field Field)
 	}
 }
 
-func (condition *Condition) generateForNamedType(objectType types.Type, field Field) error {
-	_, err := getBadORMModelStruct(field.Type)
+func (condition *Condition) generateForNamedType(objectType Type, field Field) error {
+	_, err := field.Type.BadORMModelStruct()
 
 	if err == nil {
 		// field is a BaDORM Model
 		// TODO que pasa si esta en otro package? se importa solo?
 
-		hasFK, err := hasFK(objectType, field)
+		hasFK, err := objectType.HasFK(field)
 		if err != nil {
 			return err
 		}
@@ -134,7 +134,7 @@ func (condition *Condition) generateForNamedType(objectType types.Type, field Fi
 		}
 	} else {
 		// field is not a BaDORM Model
-		if (field.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
+		if (field.Type.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
 			// TODO DeletedAt
 			// field is a Gorm Custom type (implements Scanner and Valuer interfaces)
 			// or a named type supported by gorm (time.Time, gorm.DeletedAt)
@@ -151,13 +151,13 @@ func (condition *Condition) generateForNamedType(objectType types.Type, field Fi
 	return nil
 }
 
-func (condition *Condition) generateWhere(objectType types.Type, field Field) {
+func (condition *Condition) generateWhere(objectType Type, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
 	).Types(
 		jen.Qual(
 			getRelativePackagePath(condition.destPkg, objectType),
-			getTypeName(objectType),
+			objectType.Name(),
 		),
 	)
 
@@ -180,19 +180,19 @@ func (condition *Condition) generateWhere(objectType types.Type, field Field) {
 	)
 }
 
-func (condition *Condition) generateInverseJoin(objectType types.Type, field Field) {
+func (condition *Condition) generateInverseJoin(objectType Type, field Field) {
 	condition.generateJoinWithFK(
 		field.Type,
 		// TODO testear los Override Foreign Key
 		Field{
-			Name: getTypeName(objectType),
+			Name: objectType.Name(),
 			Type: objectType,
 			Tags: field.Tags,
 		},
 	)
 }
 
-func (condition *Condition) generateJoinWithFK(objectType types.Type, field Field) {
+func (condition *Condition) generateJoinWithFK(objectType Type, field Field) {
 	condition.generateJoin(
 		objectType,
 		field,
@@ -201,21 +201,21 @@ func (condition *Condition) generateJoinWithFK(objectType types.Type, field Fiel
 	)
 }
 
-func (condition *Condition) generateJoinWithoutFK(objectType types.Type, field Field) {
+func (condition *Condition) generateJoinWithoutFK(objectType Type, field Field) {
 	condition.generateJoin(
 		objectType,
 		field,
 		field.getFKReferencesAttribute(),
-		field.getRelatedTypeFKAttribute(getTypeName(objectType)),
+		field.getRelatedTypeFKAttribute(objectType.Name()),
 	)
 }
 
-func (condition *Condition) generateJoin(objectType types.Type, field Field, t1Field, t2Field string) {
+func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, t2Field string) {
 	log.Println(field.Name)
 
 	t1 := jen.Qual(
 		getRelativePackagePath(condition.destPkg, objectType),
-		getTypeName(objectType),
+		objectType.Name(),
 	)
 
 	t2 := jen.Qual(
@@ -255,14 +255,14 @@ func (condition *Condition) generateJoin(objectType types.Type, field Field, t1F
 	)
 }
 
-func getConditionName(typeV types.Type, fieldName string) string {
-	return getTypeName(typeV) + strcase.ToPascal(fieldName) + badORMCondition
+func getConditionName(typeV Type, fieldName string) string {
+	return typeV.Name() + strcase.ToPascal(fieldName) + badORMCondition
 }
 
 // TODO testear esto
 // avoid importing the same package as the destination one
-func getRelativePackagePath(destPkg string, typeV types.Type) string {
-	srcPkg := getTypePkg(typeV)
+func getRelativePackagePath(destPkg string, typeV Type) string {
+	srcPkg := typeV.Pkg()
 	if srcPkg.Name() == destPkg {
 		return ""
 	}

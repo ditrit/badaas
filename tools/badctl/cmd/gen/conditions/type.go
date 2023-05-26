@@ -3,23 +3,27 @@ package conditions
 import (
 	"fmt"
 	"go/types"
+	"regexp"
 	"strings"
 
 	"github.com/elliotchance/pie/v2"
 )
 
-// TODO me gustaria que esten en una clase
-func getTypeName(typeV types.Type) string {
-	switch typeTyped := typeV.(type) {
+type Type struct {
+	types.Type
+}
+
+func (t Type) Name() string {
+	switch typeTyped := t.Type.(type) {
 	case *types.Named:
 		return typeTyped.Obj().Name()
 	default:
-		return pie.Last(strings.Split(typeV.String(), "."))
+		return pie.Last(strings.Split(t.String(), "."))
 	}
 }
 
-func getTypePkg(typeV types.Type) *types.Package {
-	switch typeTyped := typeV.(type) {
+func (t Type) Pkg() *types.Package {
+	switch typeTyped := t.Type.(type) {
 	case *types.Named:
 		return typeTyped.Obj().Pkg()
 	default:
@@ -27,10 +31,10 @@ func getTypePkg(typeV types.Type) *types.Package {
 	}
 }
 
-func getBadORMModelStruct(typeV types.Type) (*types.Struct, error) {
-	structType, ok := typeV.Underlying().(*types.Struct)
+func (t Type) BadORMModelStruct() (*types.Struct, error) {
+	structType, ok := t.Underlying().(*types.Struct)
 	if !ok || !isBadORMModel(structType) {
-		return nil, fmt.Errorf("type %s is not a BaDORM Model", typeV.String())
+		return nil, fmt.Errorf("type %s is not a BaDORM Model", t.String())
 	}
 
 	return structType, nil
@@ -48,9 +52,9 @@ func isBadORMModel(structType *types.Struct) bool {
 	return false
 }
 
-func hasFK(typeV types.Type, field Field) (bool, error) {
+func (t Type) HasFK(field Field) (bool, error) {
 	objectFields, err := getFields(
-		typeV,
+		t,
 		// TODO testear esto si esta bien aca
 		field.Tags.getEmbeddedPrefix(),
 	)
@@ -60,4 +64,28 @@ func hasFK(typeV types.Type, field Field) (bool, error) {
 	return pie.Any(objectFields, func(otherField Field) bool {
 		return otherField.Name == field.getFKAttribute()
 	}), nil
+}
+
+var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
+var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
+
+func (t Type) IsGormCustomType() bool {
+	typeNamed, isNamedType := t.Type.(*types.Named)
+	if !isNamedType {
+		return false
+	}
+
+	hasScanMethod := false
+	hasValueMethod := false
+	for i := 0; i < typeNamed.NumMethods(); i++ {
+		methodSignature := typeNamed.Method(i).String()
+
+		if !hasScanMethod && scanMethod.MatchString(methodSignature) {
+			hasScanMethod = true
+		} else if !hasValueMethod && valueMethod.MatchString(methodSignature) {
+			hasValueMethod = true
+		}
+	}
+
+	return hasScanMethod && hasValueMethod
 }

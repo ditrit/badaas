@@ -67,9 +67,9 @@ func (param JenParam) ToSlice() {
 	param.statement.Index()
 }
 
-func (param JenParam) ToCustomType(destPkg string, typeV types.Type) {
+func (param JenParam) ToCustomType(destPkg string, typeV Type) {
 	param.statement.Qual(
 		getRelativePackagePath(destPkg, typeV),
-		getTypeName(typeV),
+		typeV.Name(),
 	)
 }

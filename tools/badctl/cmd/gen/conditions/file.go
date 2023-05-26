@@ -30,7 +30,7 @@ func NewConditionsFile(destPkg string, name string) *File {
 }
 
 func (file File) AddConditionsFor(object types.Object) error {
-	fields, err := getFields(object.Type(), "")
+	fields, err := getFields(Type{object.Type()}, "")
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (file File) generateConditionsForEachField(object types.Object, fields []Fi
 			)...)
 		} else {
 			newCondition, err := NewCondition(
-				file.destPkg, object.Type(), field,
+				file.destPkg, Type{object.Type()}, field,
 			)
 			if err != nil {
 				failErr(err)
