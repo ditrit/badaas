@@ -33,7 +33,7 @@ func NewConditionsFile(destPkg string, name string) *File {
 func (file File) AddConditionsFor(object types.Object) error {
 	// Generate only when underlying type is a struct
 	// (ignore const, var, func, etc.)
-	structType, err := getBadORMModelStruct(object)
+	structType, err := getBadORMModelStruct(object.Type())
 	if err != nil {
 		return err
 	}
@@ -93,8 +93,8 @@ func generateConditionsForEachField(object types.Object, fields []Field) []*Cond
 	return conditions
 }
 
-func getBadORMModelStruct(object types.Object) (*types.Struct, error) {
-	structType, ok := object.Type().Underlying().(*types.Struct)
+func getBadORMModelStruct(typeV types.Type) (*types.Struct, error) {
+	structType, ok := typeV.Underlying().(*types.Struct)
 	if !ok || !isBadORMModel(structType) {
 		return nil, errors.New("object is not a BaDORM model")
 	}
@@ -114,8 +114,9 @@ func isBadORMModel(structType *types.Struct) bool {
 	return false
 }
 
+// TODO quizas esto no deberia estar aca
 func generateEmbeddedConditions(object types.Object, field Field) []*Condition {
-	embeddedFieldType, ok := field.Object.Type().(*types.Named)
+	embeddedFieldType, ok := field.Type.(*types.Named)
 	if !ok {
 		failErr(errors.New("unreachable! embedded objects are always of type Named"))
 	}

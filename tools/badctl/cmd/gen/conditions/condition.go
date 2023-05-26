@@ -24,7 +24,7 @@ func NewCondition(object types.Object, field Field) *Condition {
 }
 
 func (condition *Condition) generateCode(object types.Object, field Field) {
-	switch fieldType := field.Type().(type) {
+	switch fieldType := field.Type.(type) {
 	case *types.Basic:
 		condition.adaptParamByKind(fieldType)
 		condition.generateWhereCondition(
@@ -54,7 +54,7 @@ func (condition *Condition) generateCode(object types.Object, field Field) {
 }
 
 func (condition *Condition) generateCodeForSlice(object types.Object, field Field) {
-	switch elemType := field.Type().(type) {
+	switch elemType := field.Type.(type) {
 	case *types.Basic:
 		// una list de strings o algo asi,
 		// por el momento solo anda con []byte porque el resto gorm no lo sabe encodear
@@ -64,10 +64,10 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 		)
 	case *types.Named:
 		// inverse relation condition
-		_, err := getBadORMModelStruct(field.Object)
+		_, err := getBadORMModelStruct(field.Type)
 		if err == nil {
 			// slice of BadORM models
-			log.Println(field.Object.Name())
+			log.Println(field.TypeName())
 			condition.generateOppositeJoinCondition(
 				object,
 				field,
@@ -87,11 +87,11 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 
 func (condition *Condition) generateCodeForNamedType(object types.Object, field Field) {
 	// TODO esta linea de aca quedo rara
-	_, err := getBadORMModelStruct(field.Object)
+	_, err := getBadORMModelStruct(field.Type)
 	log.Println(err)
 
 	if err == nil {
-		objectStruct, err := getBadORMModelStruct(object)
+		objectStruct, err := getBadORMModelStruct(object.Type())
 		if err != nil {
 			// TODO ver esto
 			return
@@ -116,13 +116,13 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 		if thisEntityHasTheFK {
 			// belongsTo relation
 			condition.generateJoinCondition(
-				object,
+				object.Type(),
 				field,
 			)
 		} else {
 			// hasOne or hasMany relation
 			condition.generateInverseJoinCondition(
-				object,
+				object.Type(),
 				field,
 			)
 
@@ -201,7 +201,7 @@ func (condition *Condition) generateWhereCondition(object types.Object, field Fi
 	condition.codes = append(
 		condition.codes,
 		jen.Func().Id(
-			getConditionName(object, field.Name),
+			getConditionName(object.Type(), field.Name),
 		).Params(
 			condition.param,
 		).Add(
@@ -219,40 +219,40 @@ func (condition *Condition) generateWhereCondition(object types.Object, field Fi
 
 func (condition *Condition) generateOppositeJoinCondition(object types.Object, field Field) {
 	condition.generateJoinCondition(
-		field.Object,
+		field.Type,
 		// TODO testear los Override Foreign Key
 		Field{
-			Name:   object.Name(),
-			Object: object,
-			Tags:   field.Tags,
+			Name: object.Name(),
+			Type: object.Type(),
+			Tags: field.Tags,
 		},
 	)
 }
 
-func (condition *Condition) generateJoinCondition(object types.Object, field Field) {
+func (condition *Condition) generateJoinCondition(objectType types.Type, field Field) {
 	condition.generateJoinFromAndTo(
-		object,
+		objectType,
 		field,
 		field.getJoinFromColumn(),
 		field.getJoinToColumn(),
 	)
 }
 
-func (condition *Condition) generateInverseJoinCondition(object types.Object, field Field) {
+func (condition *Condition) generateInverseJoinCondition(objectType types.Type, field Field) {
 	condition.generateJoinFromAndTo(
-		object,
+		objectType,
 		field,
 		field.getJoinToColumn(),
-		field.NoSePonerNombre(object.Name()),
+		field.NoSePonerNombre(getTypeName(objectType)),
 	)
 }
 
-func (condition *Condition) generateJoinFromAndTo(object types.Object, field Field, from, to string) {
-	log.Println(field.Object.Name())
+func (condition *Condition) generateJoinFromAndTo(objectType types.Type, field Field, from, to string) {
+	log.Println(field.Name)
 
 	t1 := jen.Qual(
-		getRelativePackagePath(object.Pkg()),
-		getObjectTypeName(object),
+		getRelativePackagePath(getTypePkg(objectType)),
+		getTypeName(objectType),
 	)
 
 	t2 := jen.Qual(
@@ -275,7 +275,7 @@ func (condition *Condition) generateJoinFromAndTo(object types.Object, field Fie
 	condition.codes = append(
 		condition.codes,
 		jen.Func().Id(
-			getConditionName(object, field.Name),
+			getConditionName(objectType, field.Name),
 		).Params(
 			jen.Id("conditions").Op("...").Add(badormT2Condition),
 		).Add(
@@ -293,18 +293,31 @@ func (condition *Condition) generateJoinFromAndTo(object types.Object, field Fie
 }
 
 func getObjectTypeName(object types.Object) string {
-	fieldType := object.Type()
-	switch fieldTypeTyped := fieldType.(type) {
+	return getTypeName(object.Type())
+}
+
+func getTypeName(typeV types.Type) string {
+	switch typeTyped := typeV.(type) {
 	case *types.Named:
-		return fieldTypeTyped.Obj().Name()
+		return typeTyped.Obj().Name()
 	// TODO ver el resto si al hacerlo me simplificaria algo
 	default:
-		return pie.Last(strings.Split(object.Type().String(), "."))
+		return pie.Last(strings.Split(typeV.String(), "."))
 	}
 }
 
-func getConditionName(object types.Object, fieldName string) string {
-	return getObjectTypeName(object) + strcase.ToPascal(fieldName) + badORMCondition
+func getTypePkg(typeV types.Type) *types.Package {
+	switch typeTyped := typeV.(type) {
+	case *types.Named:
+		return typeTyped.Obj().Pkg()
+	// TODO ver el resto si al hacerlo me simplificaria algo
+	default:
+		return nil
+	}
+}
+
+func getConditionName(typeV types.Type, fieldName string) string {
+	return getTypeName(typeV) + strcase.ToPascal(fieldName) + badORMCondition
 }
 
 // TODO testear esto

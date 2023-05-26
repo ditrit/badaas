@@ -10,7 +10,7 @@ import (
 
 type Field struct {
 	Name     string
-	Object   types.Object
+	Type     types.Type
 	Embedded bool
 	Tags     GormTags
 }
@@ -54,38 +54,22 @@ func (field Field) NoSePonerNombre(structName string) string {
 	return structName + "ID"
 }
 
-func (field Field) Type() types.Type {
-	return field.Object.Type()
-}
-
 func (field Field) TypeString() string {
-	return field.Type().String()
+	return field.Type.String()
 }
 
 func (field Field) TypeName() string {
-	return getObjectTypeName(field.Object)
+	return getTypeName(field.Type)
 }
 
 func (field Field) TypePkg() *types.Package {
-	fieldType := field.Type()
-	switch fieldTypeTyped := fieldType.(type) {
-	case *types.Named:
-		return fieldTypeTyped.Obj().Pkg()
-	// TODO ver el resto si al hacerlo me simplificaria algo
-	default:
-		return nil
-	}
+	return getTypePkg(field.Type)
 }
 
 func (field Field) ChangeType(newType types.Type) Field {
 	return Field{
 		Name: field.Name,
-		Object: types.NewTypeName(
-			field.Object.Pos(),
-			field.Object.Pkg(),
-			field.Object.Name(),
-			newType,
-		),
+		Type: newType,
 		Tags: field.Tags,
 	}
 }
@@ -94,7 +78,7 @@ var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interfa
 var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
 
 func (field Field) IsGormCustomType() bool {
-	typeNamed, isNamedType := field.Object.Type().(*types.Named)
+	typeNamed, isNamedType := field.Type.(*types.Named)
 	if !isNamedType {
 		return false
 	}
@@ -124,13 +108,13 @@ func getFields(structType *types.Struct, prefix string) ([]Field, error) {
 
 	// Iterate over struct fields
 	for i := 0; i < numFields; i++ {
-		fieldType := structType.Field(i)
+		fieldObject := structType.Field(i)
 		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
 			// TODO el Name se podria sacar si meto este prefix adentro del tipo
-			Name:     prefix + fieldType.Name(),
-			Object:   fieldType,
-			Embedded: fieldType.Embedded() || gormTags.hasEmbedded(),
+			Name:     prefix + fieldObject.Name(),
+			Type:     fieldObject.Type(),
+			Embedded: fieldObject.Embedded() || gormTags.hasEmbedded(),
 			Tags:     gormTags,
 		})
 	}
