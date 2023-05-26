@@ -4,11 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"go/types"
-	"log"
 	"os"
 	"strings"
 
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
+	. "github.com/ditrit/badaas/tools/badctl/cmd/logger"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,6 +37,7 @@ func init() {
 }
 
 func generateConditions(cmd *cobra.Command, args []string) {
+	SetLogLevel()
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
 
@@ -50,14 +51,11 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	}
 
 	for _, pkg := range pkgs {
-		log.Println(pkg.Types.Path())
-		log.Println(pkg.Types.Name())
+		Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())
 
 		for _, name := range pkg.Types.Scope().Names() {
 			object := getObject(pkg, name)
 			if object != nil {
-				log.Println(name)
-
 				file := NewConditionsFile(
 					destPkg,
 					strings.ToLower(object.Name())+"_conditions.go",

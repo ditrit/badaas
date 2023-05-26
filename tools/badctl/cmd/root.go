@@ -1,7 +1,9 @@
 package cmd
 
 import (
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/gen"
+	"github.com/ditrit/badaas/tools/badctl/cmd/logger"
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
 	"github.com/ditrit/verdeter"
 )
@@ -23,4 +25,13 @@ func Execute() {
 func init() {
 	rootCmd.AddSubCommand(runCmd)
 	rootCmd.AddSubCommand(gen.GenCmd)
+
+	err := rootCmd.GKey(
+		logger.VerboseKey, verdeter.IsBool, "v",
+		"Verbose logging",
+	)
+	if err != nil {
+		cmderrors.FailErr(err)
+	}
+	rootCmd.SetDefault(logger.VerboseKey, false)
 }

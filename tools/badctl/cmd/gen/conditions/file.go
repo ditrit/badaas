@@ -3,10 +3,10 @@ package conditions
 import (
 	"errors"
 	"go/types"
-	"log"
 
 	"github.com/dave/jennifer/jen"
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
+	. "github.com/ditrit/badaas/tools/badctl/cmd/logger"
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
 )
 
@@ -35,6 +35,8 @@ func (file File) AddConditionsFor(object types.Object) error {
 	if err != nil {
 		return err
 	}
+
+	Logger.Infof("Generating conditions for type %q in %s", object.Name(), file.name)
 
 	file.addConditionsForEachField(object, fields)
 	return nil
@@ -70,7 +72,7 @@ const (
 func (file File) generateConditionsForEachField(object types.Object, fields []Field) []*Condition {
 	conditions := []*Condition{}
 	for _, field := range fields {
-		log.Println(field.Name)
+		Logger.Debugf("Generating condition for field %q", field.Name)
 		if field.Embedded {
 			conditions = append(conditions, file.generateEmbeddedConditions(
 				object,

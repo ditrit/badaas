@@ -2,9 +2,9 @@ package conditions
 
 import (
 	"go/types"
-	"log"
 
 	"github.com/dave/jennifer/jen"
+	. "github.com/ditrit/badaas/tools/badctl/cmd/logger"
 	"github.com/ettle/strcase"
 )
 
@@ -61,7 +61,7 @@ func (condition *Condition) generate(objectType Type, field Field) error {
 			field.ChangeType(fieldType.Elem()),
 		)
 	default:
-		log.Printf("struct field type not handled: %T", fieldType)
+		Logger.Debugf("struct field type not handled: %T", fieldType)
 	}
 
 	return nil
@@ -82,7 +82,6 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 		_, err := field.Type.BadORMModelStruct()
 		if err == nil {
 			// slice of BadORM models -> hasMany relation
-			log.Println(field.TypeName())
 			condition.generateInverseJoin(
 				objectType,
 				field,
@@ -98,7 +97,7 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 			field.ChangeType(elemType.Elem()),
 		)
 	default:
-		log.Printf("struct field list elem type not handled: %T", elemType)
+		Logger.Debugf("struct field list elem type not handled: %T", elemType)
 	}
 }
 
@@ -144,7 +143,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) e
 				field,
 			)
 		} else {
-			log.Printf("struct field type not handled: %s", field.TypeString())
+			Logger.Debugf("struct field type not handled: %s", field.TypeString())
 		}
 	}
 
@@ -161,10 +160,13 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		),
 	)
 
+	conditionName := getConditionName(objectType, field.Name)
+	Logger.Debugf("Generated %q", conditionName)
+
 	condition.codes = append(
 		condition.codes,
 		jen.Func().Id(
-			getConditionName(objectType, field.Name),
+			conditionName,
 		).Params(
 			condition.param.Statement(),
 		).Add(
@@ -211,8 +213,6 @@ func (condition *Condition) generateJoinWithoutFK(objectType Type, field Field) 
 }
 
 func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, t2Field string) {
-	log.Println(field.Name)
-
 	t1 := jen.Qual(
 		getRelativePackagePath(condition.destPkg, objectType),
 		objectType.Name(),
@@ -222,6 +222,9 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 		getRelativePackagePath(condition.destPkg, field.Type),
 		field.TypeName(),
 	)
+
+	conditionName := getConditionName(objectType, field.Name)
+	Logger.Debugf("Generated %q", conditionName)
 
 	badormT1Condition := jen.Qual(
 		badORMPath, badORMCondition,
@@ -238,7 +241,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 	condition.codes = append(
 		condition.codes,
 		jen.Func().Id(
-			getConditionName(objectType, field.Name),
+			conditionName,
 		).Params(
 			jen.Id("conditions").Op("...").Add(badormT2Condition),
 		).Add(
