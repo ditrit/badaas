@@ -3,7 +3,7 @@ package conditions
 import (
 	"go/types"
 	"log"
-	"regexp"
+	"strings"
 
 	"github.com/dave/jennifer/jen"
 	"github.com/elliotchance/pie/v2"
@@ -34,7 +34,7 @@ func (condition *Condition) generateCode(object types.Object, field Field) {
 	case *types.Named:
 		condition.generateCodeForNamedType(
 			object,
-			field, fieldType,
+			field,
 		)
 	case *types.Pointer:
 		condition.param = condition.param.Op("*")
@@ -67,11 +67,11 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 		// inverse relation condition
 		_, err := getBadORMModelStruct(elemObject)
 		if err == nil {
+			// slice of BadORM models
 			log.Println(elemObject.Name())
 			condition.generateOppositeJoinCondition(
 				object,
-				field,
-				elemObject,
+				field.ChangeType(elemObject.Type()),
 			)
 		}
 	case *types.Pointer:
@@ -86,11 +86,9 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 	}
 }
 
-func (condition *Condition) generateCodeForNamedType(object types.Object, field Field, fieldType *types.Named) {
-	// TODO quizas aca se puede eliminar el fieldType
-	fieldObject := fieldType.Obj()
+func (condition *Condition) generateCodeForNamedType(object types.Object, field Field) {
 	// TODO esta linea de aca quedo rara
-	_, err := getBadORMModelStruct(fieldObject)
+	_, err := getBadORMModelStruct(field.Object)
 	log.Println(err)
 
 	if err == nil {
@@ -132,41 +130,23 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 			condition.generateOppositeJoinCondition(
 				object,
 				field,
-				fieldObject,
 			)
 		}
-	} else if (isGormCustomType(fieldType) || fieldType.String() == "time.Time") && fieldType.String() != "gorm.io/gorm.DeletedAt" {
-		// TODO DeletedAt
-		condition.param = condition.param.Qual(
-			getRelativePackagePath(fieldObject.Pkg()),
-			fieldObject.Name(),
-		)
-		condition.generateWhereCondition(
-			object,
-			field,
-		)
 	} else {
-		log.Printf("struct field type not handled: %s", fieldType.String())
-	}
-}
-
-var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
-var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
-
-func isGormCustomType(typeNamed *types.Named) bool {
-	hasScanMethod := false
-	hasValueMethod := false
-	for i := 0; i < typeNamed.NumMethods(); i++ {
-		methodSignature := typeNamed.Method(i).String()
-
-		if !hasScanMethod && scanMethod.MatchString(methodSignature) {
-			hasScanMethod = true
-		} else if !hasValueMethod && valueMethod.MatchString(methodSignature) {
-			hasValueMethod = true
+		if (field.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
+			// TODO DeletedAt
+			condition.param = condition.param.Qual(
+				getRelativePackagePath(field.TypePkg()),
+				field.TypeName(),
+			)
+			condition.generateWhereCondition(
+				object,
+				field,
+			)
+		} else {
+			log.Printf("struct field type not handled: %s", field.TypeString())
 		}
 	}
-
-	return hasScanMethod && hasValueMethod
 }
 
 func (condition *Condition) adaptParamByKind(basicType *types.Basic) {
@@ -238,9 +218,9 @@ func (condition *Condition) generateWhereCondition(object types.Object, field Fi
 	)
 }
 
-func (condition *Condition) generateOppositeJoinCondition(object types.Object, field Field, fieldObject types.Object) {
+func (condition *Condition) generateOppositeJoinCondition(object types.Object, field Field) {
 	condition.generateJoinCondition(
-		fieldObject,
+		field.Object,
 		// TODO testear los Override Foreign Key
 		Field{
 			Name:   object.Name(),
@@ -273,7 +253,7 @@ func (condition *Condition) generateJoinFromAndTo(object types.Object, field Fie
 
 	t1 := jen.Qual(
 		getRelativePackagePath(object.Pkg()),
-		object.Name(),
+		getObjectTypeName(object),
 	)
 
 	t2 := jen.Qual(
@@ -313,8 +293,19 @@ func (condition *Condition) generateJoinFromAndTo(object types.Object, field Fie
 	)
 }
 
+func getObjectTypeName(object types.Object) string {
+	fieldType := object.Type()
+	switch fieldTypeTyped := fieldType.(type) {
+	case *types.Named:
+		return fieldTypeTyped.Obj().Name()
+	// TODO ver el resto si al hacerlo me simplificaria algo
+	default:
+		return pie.Last(strings.Split(object.Type().String(), "."))
+	}
+}
+
 func getConditionName(object types.Object, fieldName string) string {
-	return strcase.ToPascal(object.Name()) + strcase.ToPascal(fieldName) + badORMCondition
+	return getObjectTypeName(object) + strcase.ToPascal(fieldName) + badORMCondition
 }
 
 // TODO testear esto
