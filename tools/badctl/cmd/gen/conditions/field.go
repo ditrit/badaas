@@ -54,8 +54,12 @@ func (field Field) NoSePonerNombre(structName string) string {
 	return structName + "ID"
 }
 
+func (field Field) Type() types.Type {
+	return field.Object.Type()
+}
+
 func (field Field) TypeString() string {
-	return field.Object.Type().String()
+	return field.Type().String()
 }
 
 func (field Field) TypeName() string {
@@ -63,7 +67,7 @@ func (field Field) TypeName() string {
 }
 
 func (field Field) TypePkg() *types.Package {
-	fieldType := field.Object.Type()
+	fieldType := field.Type()
 	switch fieldTypeTyped := fieldType.(type) {
 	case *types.Named:
 		return fieldTypeTyped.Obj().Pkg()

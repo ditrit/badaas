@@ -46,32 +46,33 @@ func (condition *Condition) generateCode(object types.Object, field Field) {
 		condition.param = condition.param.Index()
 		condition.generateCodeForSlice(
 			object,
-			field, fieldType.Elem(),
+			field.ChangeType(fieldType.Elem()),
 		)
 	default:
 		log.Printf("struct field type not handled: %T", fieldType)
 	}
 }
 
-func (condition *Condition) generateCodeForSlice(object types.Object, field Field, elemType types.Type) {
-	switch elemTypeTyped := elemType.(type) {
+func (condition *Condition) generateCodeForSlice(object types.Object, field Field) {
+	switch elemType := field.Type().(type) {
 	case *types.Basic:
 		// una list de strings o algo asi,
 		// por el momento solo anda con []byte porque el resto gorm no lo sabe encodear
 		condition.generateCode(
 			object,
-			field.ChangeType(elemTypeTyped),
+			field,
 		)
 	case *types.Named:
-		elemObject := elemTypeTyped.Obj()
+		elemObject := elemType.Obj()
 		// inverse relation condition
+		// TODO muchas veces los usos de esto se pueden hacer directo sobre el field.Object
 		_, err := getBadORMModelStruct(elemObject)
 		if err == nil {
 			// slice of BadORM models
 			log.Println(elemObject.Name())
 			condition.generateOppositeJoinCondition(
 				object,
-				field.ChangeType(elemObject.Type()),
+				field,
 			)
 		}
 	case *types.Pointer:
@@ -79,10 +80,10 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 		// slice de pointers, solo testeado temporalmente porque despues gorm no lo soporta
 		condition.generateCodeForSlice(
 			object,
-			field, elemTypeTyped.Elem(),
+			field.ChangeType(elemType.Elem()),
 		)
 	default:
-		log.Printf("struct field list elem type not handled: %T", elemTypeTyped)
+		log.Printf("struct field list elem type not handled: %T", elemType)
 	}
 }
 
