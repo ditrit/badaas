@@ -3,7 +3,6 @@ package conditions
 import (
 	"go/types"
 	"log"
-	"strings"
 
 	"github.com/dave/jennifer/jen"
 	"github.com/elliotchance/pie/v2"
@@ -290,26 +289,6 @@ func (condition *Condition) generateJoinFromAndTo(objectType types.Type, field F
 			),
 		),
 	)
-}
-
-func getTypeName(typeV types.Type) string {
-	switch typeTyped := typeV.(type) {
-	case *types.Named:
-		return typeTyped.Obj().Name()
-	// TODO ver el resto si al hacerlo me simplificaria algo
-	default:
-		return pie.Last(strings.Split(typeV.String(), "."))
-	}
-}
-
-func getTypePkg(typeV types.Type) *types.Package {
-	switch typeTyped := typeV.(type) {
-	case *types.Named:
-		return typeTyped.Obj().Pkg()
-	// TODO ver el resto si al hacerlo me simplificaria algo
-	default:
-		return nil
-	}
 }
 
 func getConditionName(typeV types.Type, fieldName string) string {
