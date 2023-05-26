@@ -13,6 +13,7 @@ type Type struct {
 	types.Type
 }
 
+// Get the name of the type depending of the internal type
 func (t Type) Name() string {
 	switch typeTyped := t.Type.(type) {
 	case *types.Named:
@@ -22,6 +23,7 @@ func (t Type) Name() string {
 	}
 }
 
+// Get the package of the type depending of the internal type
 func (t Type) Pkg() *types.Package {
 	switch typeTyped := t.Type.(type) {
 	case *types.Named:
@@ -31,6 +33,8 @@ func (t Type) Pkg() *types.Package {
 	}
 }
 
+// Get the struct under type if it is a BaDORM model
+// Returns error if the type is not a BaDORM model
 func (t Type) BadORMModelStruct() (*types.Struct, error) {
 	structType, ok := t.Underlying().(*types.Struct)
 	if !ok || !isBadORMModel(structType) {
@@ -40,6 +44,7 @@ func (t Type) BadORMModelStruct() (*types.Struct, error) {
 	return structType, nil
 }
 
+// Returns true if the type is a BaDORM model
 func isBadORMModel(structType *types.Struct) bool {
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
@@ -52,6 +57,8 @@ func isBadORMModel(structType *types.Struct) bool {
 	return false
 }
 
+// Returns true is the type has a foreign key to the field's object
+// (another field that references that object)
 func (t Type) HasFK(field Field) (bool, error) {
 	objectFields, err := getFields(
 		t,
@@ -69,6 +76,7 @@ func (t Type) HasFK(field Field) (bool, error) {
 var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
 var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
 
+// Returns true if the type is a Gorm Custom type (https://gorm.io/docs/data_types.html)
 func (t Type) IsGormCustomType() bool {
 	typeNamed, isNamedType := t.Type.(*types.Named)
 	if !isNamedType {

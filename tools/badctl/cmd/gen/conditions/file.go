@@ -30,6 +30,7 @@ func NewConditionsFile(destPkg string, name string) *File {
 	}
 }
 
+// Add conditions for an object in the file
 func (file File) AddConditionsFor(object types.Object) error {
 	fields, err := getFields(Type{object.Type()}, "")
 	if err != nil {
@@ -42,11 +43,11 @@ func (file File) AddConditionsFor(object types.Object) error {
 	return nil
 }
 
+// Add one condition for each field of the object
 func (file File) addConditionsForEachField(object types.Object, fields []Field) {
 	conditions := file.generateConditionsForEachField(object, fields)
 
 	for _, condition := range conditions {
-		// TODO esto no me gusta mucho que este aca
 		for _, code := range condition.codes {
 			file.jenFile.Add(code)
 		}
@@ -69,6 +70,7 @@ const (
 	badORMJoinCondition  = "JoinCondition"
 )
 
+// Generate the conditions for each of the object's fields
 func (file File) generateConditionsForEachField(object types.Object, fields []Field) []*Condition {
 	conditions := []*Condition{}
 	for _, field := range fields {
@@ -93,7 +95,8 @@ func (file File) generateConditionsForEachField(object types.Object, fields []Fi
 	return conditions
 }
 
-// TODO quizas esto no deberia estar aca
+// Generate conditions for a embedded field
+// it will generate a condition for each of the field of the embedded field's type
 func (file File) generateEmbeddedConditions(object types.Object, field Field) []*Condition {
 	embeddedStructType, ok := field.Type.Underlying().(*types.Struct)
 	if !ok {
@@ -102,7 +105,7 @@ func (file File) generateEmbeddedConditions(object types.Object, field Field) []
 
 	fields, err := getStructFields(embeddedStructType, field.Tags.getEmbeddedPrefix())
 	if err != nil {
-		// TODO ver esto
+		// embedded field's type has not fields
 		return []*Condition{}
 	}
 

@@ -36,12 +36,13 @@ func init() {
 	}
 }
 
+// GenConditionsCmd Run func
 func generateConditions(cmd *cobra.Command, args []string) {
 	log.SetLevel()
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
 
-	// Get the package of the file with go:generate comment
+	// Get the package of the file with go:generate comment or in command params
 	destPkg := os.Getenv("GOPACKAGE")
 	if destPkg == "" {
 		destPkg = viper.GetString(DestPackageKey)
@@ -50,9 +51,11 @@ func generateConditions(cmd *cobra.Command, args []string) {
 		}
 	}
 
+	// Generate conditions for each package
 	for _, pkg := range pkgs {
 		log.Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())
 
+		// Generate a file with conditions for each BaDORM model in the package
 		for _, name := range pkg.Types.Scope().Names() {
 			object := getObject(pkg, name)
 			if object != nil {
@@ -63,6 +66,7 @@ func generateConditions(cmd *cobra.Command, args []string) {
 
 				err := file.AddConditionsFor(object)
 				if err != nil {
+					// object is not a BaDORM model, do not generate conditions
 					continue
 				}
 
@@ -75,6 +79,7 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	}
 }
 
+// Load package information from paths
 func loadPackages(paths []string) []*packages.Package {
 	cfg := &packages.Config{Mode: packages.NeedTypes}
 	pkgs, err := packages.Load(cfg, paths...)
@@ -88,6 +93,7 @@ func loadPackages(paths []string) []*packages.Package {
 	return pkgs
 }
 
+// Get object by name in the package
 func getObject(pkg *packages.Package, name string) types.Object {
 	obj := pkg.Types.Scope().Lookup(name)
 	if obj == nil {

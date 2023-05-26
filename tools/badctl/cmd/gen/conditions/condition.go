@@ -27,6 +27,7 @@ func NewCondition(destPkg string, objectType Type, field Field) (*Condition, err
 	return condition, nil
 }
 
+// Generate the condition between the object and the field
 func (condition *Condition) generate(objectType Type, field Field) error {
 	switch fieldType := field.Type.Type.(type) {
 	case *types.Basic:
@@ -67,6 +68,7 @@ func (condition *Condition) generate(objectType Type, field Field) error {
 	return nil
 }
 
+// Generate condition between the object and the field when the field is a slice
 func (condition *Condition) generateForSlice(objectType Type, field Field) {
 	switch elemType := field.Type.Type.(type) {
 	case *types.Basic:
@@ -101,13 +103,13 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 	}
 }
 
+// Generate condition between object and field when the field is a named type (user defined struct)
 func (condition *Condition) generateForNamedType(objectType Type, field Field) error {
 	_, err := field.Type.BadORMModelStruct()
 
 	if err == nil {
 		// field is a BaDORM Model
 		// TODO que pasa si esta en otro package? se importa solo?
-
 		hasFK, err := objectType.HasFK(field)
 		if err != nil {
 			return err
@@ -150,6 +152,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) e
 	return nil
 }
 
+// Generate a WhereCondition between object and field
 func (condition *Condition) generateWhere(objectType Type, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
@@ -182,6 +185,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 	)
 }
 
+// Generate a inverse JoinCondition, so from the field's object to the object
 func (condition *Condition) generateInverseJoin(objectType Type, field Field) {
 	condition.generateJoinWithFK(
 		field.Type,
@@ -194,6 +198,8 @@ func (condition *Condition) generateInverseJoin(objectType Type, field Field) {
 	)
 }
 
+// Generate a JoinCondition between the object and field's object
+// when object has a foreign key to the field's object
 func (condition *Condition) generateJoinWithFK(objectType Type, field Field) {
 	condition.generateJoin(
 		objectType,
@@ -203,6 +209,9 @@ func (condition *Condition) generateJoinWithFK(objectType Type, field Field) {
 	)
 }
 
+// Generate a JoinCondition between the object and field's object
+// when object has not a foreign key to the field's object
+// (so the field's object has it)
 func (condition *Condition) generateJoinWithoutFK(objectType Type, field Field) {
 	condition.generateJoin(
 		objectType,
@@ -212,6 +221,7 @@ func (condition *Condition) generateJoinWithoutFK(objectType Type, field Field) 
 	)
 }
 
+// Generate a JoinCondition
 func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, t2Field string) {
 	t1 := jen.Qual(
 		getRelativePackagePath(condition.destPkg, objectType),
@@ -258,12 +268,13 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 	)
 }
 
+// Generate condition names
 func getConditionName(typeV Type, fieldName string) string {
 	return typeV.Name() + strcase.ToPascal(fieldName) + badORMCondition
 }
 
 // TODO testear esto
-// avoid importing the same package as the destination one
+// Avoid importing the same package as the destination one
 func getRelativePackagePath(destPkg string, typeV Type) string {
 	srcPkg := typeV.Pkg()
 	if srcPkg.Name() == destPkg {
