@@ -10,12 +10,12 @@ import (
 
 type Condition struct {
 	codes []jen.Code
-	param *jen.Statement
+	param *JenParam
 }
 
 func NewCondition(objectType types.Type, field Field) (*Condition, error) {
 	condition := &Condition{
-		param: jen.Id("v"),
+		param: NewJenParam(),
 	}
 	err := condition.generateCode(objectType, field)
 	if err != nil {
@@ -28,7 +28,7 @@ func NewCondition(objectType types.Type, field Field) (*Condition, error) {
 func (condition *Condition) generateCode(objectType types.Type, field Field) error {
 	switch fieldType := field.Type.(type) {
 	case *types.Basic:
-		condition.adaptParamByKind(fieldType)
+		condition.param.ToBasicKind(fieldType)
 		condition.generateWhereCondition(
 			objectType,
 			field,
@@ -39,13 +39,13 @@ func (condition *Condition) generateCode(objectType types.Type, field Field) err
 			field,
 		)
 	case *types.Pointer:
-		condition.param = condition.param.Op("*")
+		condition.param.ToPointer()
 		condition.generateCode(
 			objectType,
 			field.ChangeType(fieldType.Elem()),
 		)
 	case *types.Slice:
-		condition.param = condition.param.Index()
+		condition.param.ToList()
 		condition.generateCodeForSlice(
 			objectType,
 			field.ChangeType(fieldType.Elem()),
@@ -77,8 +77,8 @@ func (condition *Condition) generateCodeForSlice(objectType types.Type, field Fi
 			)
 		}
 	case *types.Pointer:
-		condition.param = condition.param.Op("*")
 		// slice de pointers, solo testeado temporalmente porque despues gorm no lo soporta
+		condition.param.ToPointer()
 		condition.generateCodeForSlice(
 			objectType,
 			field.ChangeType(elemType.Elem()),
@@ -122,10 +122,7 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 		// field is not a BaDORM Model
 		if (field.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
 			// TODO DeletedAt
-			condition.param = condition.param.Qual(
-				getRelativePackagePath(field.TypePkg()),
-				field.TypeName(),
-			)
+			condition.param.ToCustomType(field.Type)
 			condition.generateWhereCondition(
 				objectType,
 				field,
@@ -136,45 +133,6 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 	}
 
 	return nil
-}
-
-func (condition *Condition) adaptParamByKind(basicType *types.Basic) {
-	switch basicType.Kind() {
-	case types.Bool:
-		condition.param = condition.param.Bool()
-	case types.Int:
-		condition.param = condition.param.Int()
-	case types.Int8:
-		condition.param = condition.param.Int8()
-	case types.Int16:
-		condition.param = condition.param.Int16()
-	case types.Int32:
-		condition.param = condition.param.Int32()
-	case types.Int64:
-		condition.param = condition.param.Int64()
-	case types.Uint:
-		condition.param = condition.param.Uint()
-	case types.Uint8:
-		condition.param = condition.param.Uint8()
-	case types.Uint16:
-		condition.param = condition.param.Uint16()
-	case types.Uint32:
-		condition.param = condition.param.Uint32()
-	case types.Uint64:
-		condition.param = condition.param.Uint64()
-	case types.Uintptr:
-		condition.param = condition.param.Uintptr()
-	case types.Float32:
-		condition.param = condition.param.Float32()
-	case types.Float64:
-		condition.param = condition.param.Float64()
-	case types.Complex64:
-		condition.param = condition.param.Complex64()
-	case types.Complex128:
-		condition.param = condition.param.Complex128()
-	case types.String:
-		condition.param = condition.param.String()
-	}
 }
 
 func (condition *Condition) generateWhereCondition(objectType types.Type, field Field) {
@@ -192,7 +150,7 @@ func (condition *Condition) generateWhereCondition(objectType types.Type, field 
 		jen.Func().Id(
 			getConditionName(objectType, field.Name),
 		).Params(
-			condition.param,
+			condition.param.Statement(),
 		).Add(
 			whereCondition.Clone(),
 		).Block(
