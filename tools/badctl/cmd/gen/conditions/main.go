@@ -11,6 +11,7 @@ import (
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
 	"golang.org/x/tools/go/packages"
 )
@@ -23,6 +24,18 @@ var GenConditionsCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Args:  cobra.MinimumNArgs(1),
 })
 
+const DestPackageKey = "dest_package"
+
+func init() {
+	err := GenConditionsCmd.LKey(
+		DestPackageKey, verdeter.IsStr, "d",
+		"Destination package (not used if ran with go generate)",
+	)
+	if err != nil {
+		cmderrors.FailErr(err)
+	}
+}
+
 func generateConditions(cmd *cobra.Command, args []string) {
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
@@ -30,8 +43,10 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	// Get the package of the file with go:generate comment
 	destPkg := os.Getenv("GOPACKAGE")
 	if destPkg == "" {
-		// TODO que tambien se pueda usar solo
-		cmderrors.FailErr(errors.New("this command should be called using go generate"))
+		destPkg = viper.GetString(DestPackageKey)
+		if destPkg == "" {
+			cmderrors.FailErr(errors.New("config --dest_package or use go generate"))
+		}
 	}
 
 	for _, pkg := range pkgs {
