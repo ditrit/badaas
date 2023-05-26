@@ -24,7 +24,7 @@ func NewCondition(object types.Object, field Field) *Condition {
 }
 
 func (condition *Condition) generateCode(object types.Object, field Field) {
-	switch fieldType := field.Object.Type().(type) {
+	switch fieldType := field.Type().(type) {
 	case *types.Basic:
 		condition.adaptParamByKind(fieldType)
 		condition.generateWhereCondition(
@@ -258,7 +258,7 @@ func (condition *Condition) generateJoinFromAndTo(object types.Object, field Fie
 	)
 
 	t2 := jen.Qual(
-		getRelativePackagePath(field.Object.Pkg()),
+		getRelativePackagePath(field.TypePkg()),
 		field.TypeName(),
 	)
 
