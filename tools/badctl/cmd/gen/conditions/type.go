@@ -58,6 +58,6 @@ func hasFK(typeV types.Type, field Field) (bool, error) {
 		return false, err
 	}
 	return pie.Any(objectFields, func(otherField Field) bool {
-		return otherField.Name == field.getJoinFromColumn()
+		return otherField.Name == field.getFKAttribute()
 	}), nil
 }

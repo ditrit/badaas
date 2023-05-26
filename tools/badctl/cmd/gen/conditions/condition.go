@@ -67,12 +67,11 @@ func (condition *Condition) generateCodeForSlice(objectType types.Type, field Fi
 			field,
 		)
 	case *types.Named:
-		// inverse relation condition
 		_, err := getBadORMModelStruct(field.Type)
 		if err == nil {
-			// slice of BadORM models
+			// slice of BadORM models -> hasMany relation
 			log.Println(field.TypeName())
-			condition.generateOppositeJoinCondition(
+			condition.generateInverseJoin(
 				objectType,
 				field,
 			)
@@ -103,18 +102,18 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 
 		if hasFK {
 			// belongsTo relation
-			condition.generateJoinCondition(
+			condition.generateJoinWithFK(
 				objectType,
 				field,
 			)
 		} else {
-			// hasOne or hasMany relation
-			condition.generateInverseJoinCondition(
+			// hasOne relation
+			condition.generateJoinWithoutFK(
 				objectType,
 				field,
 			)
 
-			condition.generateOppositeJoinCondition(
+			condition.generateInverseJoin(
 				objectType,
 				field,
 			)
@@ -178,7 +177,6 @@ func (condition *Condition) adaptParamByKind(basicType *types.Basic) {
 	}
 }
 
-// TODO sacar condition del nombre
 func (condition *Condition) generateWhereCondition(objectType types.Type, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
@@ -208,8 +206,8 @@ func (condition *Condition) generateWhereCondition(objectType types.Type, field 
 	)
 }
 
-func (condition *Condition) generateOppositeJoinCondition(objectType types.Type, field Field) {
-	condition.generateJoinCondition(
+func (condition *Condition) generateInverseJoin(objectType types.Type, field Field) {
+	condition.generateJoinWithFK(
 		field.Type,
 		// TODO testear los Override Foreign Key
 		Field{
@@ -220,25 +218,25 @@ func (condition *Condition) generateOppositeJoinCondition(objectType types.Type,
 	)
 }
 
-func (condition *Condition) generateJoinCondition(objectType types.Type, field Field) {
-	condition.generateJoinFromAndTo(
+func (condition *Condition) generateJoinWithFK(objectType types.Type, field Field) {
+	condition.generateJoin(
 		objectType,
 		field,
-		field.getJoinFromColumn(),
-		field.getJoinToColumn(),
+		field.getFKAttribute(),
+		field.getFKReferencesAttribute(),
 	)
 }
 
-func (condition *Condition) generateInverseJoinCondition(objectType types.Type, field Field) {
-	condition.generateJoinFromAndTo(
+func (condition *Condition) generateJoinWithoutFK(objectType types.Type, field Field) {
+	condition.generateJoin(
 		objectType,
 		field,
-		field.getJoinToColumn(),
-		field.NoSePonerNombre(getTypeName(objectType)),
+		field.getFKReferencesAttribute(),
+		field.getRelatedTypeFKAttribute(getTypeName(objectType)),
 	)
 }
 
-func (condition *Condition) generateJoinFromAndTo(objectType types.Type, field Field, from, to string) {
+func (condition *Condition) generateJoin(objectType types.Type, field Field, t1Field, t2Field string) {
 	log.Println(field.Name)
 
 	t1 := jen.Qual(
@@ -274,8 +272,8 @@ func (condition *Condition) generateJoinFromAndTo(objectType types.Type, field F
 		).Block(
 			jen.Return(
 				badormJoinCondition.Values(jen.Dict{
-					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(from)),
-					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(to)),
+					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(t1Field)),
+					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(t2Field)),
 					jen.Id("Conditions"): jen.Id("conditions"),
 				}),
 			),
