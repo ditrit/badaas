@@ -7,7 +7,6 @@ import (
 
 	"github.com/dave/jennifer/jen"
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
-	"github.com/elliotchance/pie/v2"
 )
 
 type File struct {
@@ -31,14 +30,7 @@ func NewConditionsFile(destPkg string, name string) *File {
 }
 
 func (file File) AddConditionsFor(object types.Object) error {
-	// Generate only when underlying type is a struct
-	// (ignore const, var, func, etc.)
-	structType, err := getBadORMModelStruct(object.Type())
-	if err != nil {
-		return err
-	}
-
-	fields, err := getFields(structType, "")
+	fields, err := getFields(object.Type(), "")
 	if err != nil {
 		return err
 	}
@@ -84,48 +76,28 @@ func generateConditionsForEachField(object types.Object, fields []Field) []*Cond
 				field,
 			)...)
 		} else {
-			conditions = append(conditions, NewCondition(
+			newCondition, err := NewCondition(
 				object.Type(), field,
-			))
+			)
+			if err != nil {
+				failErr(err)
+			}
+
+			conditions = append(conditions, newCondition)
 		}
 	}
 
 	return conditions
 }
 
-func getBadORMModelStruct(typeV types.Type) (*types.Struct, error) {
-	structType, ok := typeV.Underlying().(*types.Struct)
-	if !ok || !isBadORMModel(structType) {
-		return nil, errors.New("object is not a BaDORM model")
-	}
-
-	return structType, nil
-}
-
-func isBadORMModel(structType *types.Struct) bool {
-	for i := 0; i < structType.NumFields(); i++ {
-		field := structType.Field(i)
-
-		if field.Embedded() && pie.Contains(badORMModels, field.Name()) {
-			return true
-		}
-	}
-
-	return false
-}
-
 // TODO quizas esto no deberia estar aca
 func generateEmbeddedConditions(object types.Object, field Field) []*Condition {
-	embeddedFieldType, ok := field.Type.(*types.Named)
-	if !ok {
-		failErr(errors.New("unreachable! embedded objects are always of type Named"))
-	}
-	embeddedStructType, ok := embeddedFieldType.Underlying().(*types.Struct)
+	embeddedStructType, ok := field.Type.Underlying().(*types.Struct)
 	if !ok {
 		failErr(errors.New("unreachable! embedded objects are always structs"))
 	}
 
-	fields, err := getFields(embeddedStructType, field.Tags.getEmbeddedPrefix())
+	fields, err := getStructFields(embeddedStructType, field.Tags.getEmbeddedPrefix())
 	if err != nil {
 		// TODO ver esto
 		return []*Condition{}

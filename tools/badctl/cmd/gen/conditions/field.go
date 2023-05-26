@@ -98,7 +98,18 @@ func (field Field) IsGormCustomType() bool {
 	return hasScanMethod && hasValueMethod
 }
 
-func getFields(structType *types.Struct, prefix string) ([]Field, error) {
+func getFields(objectType types.Type, prefix string) ([]Field, error) {
+	// The underlying type has to be a struct and a BaDORM Model
+	// (ignore const, var, func, etc.)
+	structType, err := getBadORMModelStruct(objectType)
+	if err != nil {
+		return nil, err
+	}
+
+	return getStructFields(structType, prefix)
+}
+
+func getStructFields(structType *types.Struct, prefix string) ([]Field, error) {
 	numFields := structType.NumFields()
 	if numFields == 0 {
 		return nil, errors.New("struct has 0 fields")
@@ -111,7 +122,6 @@ func getFields(structType *types.Struct, prefix string) ([]Field, error) {
 		fieldObject := structType.Field(i)
 		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
-			// TODO el Name se podria sacar si meto este prefix adentro del tipo
 			Name:     prefix + fieldObject.Name(),
 			Type:     fieldObject.Type(),
 			Embedded: fieldObject.Embedded() || gormTags.hasEmbedded(),

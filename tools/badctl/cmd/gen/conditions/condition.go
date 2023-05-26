@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/dave/jennifer/jen"
-	"github.com/elliotchance/pie/v2"
 	"github.com/ettle/strcase"
 )
 
@@ -14,15 +13,19 @@ type Condition struct {
 	param *jen.Statement
 }
 
-func NewCondition(objectType types.Type, field Field) *Condition {
+func NewCondition(objectType types.Type, field Field) (*Condition, error) {
 	condition := &Condition{
 		param: jen.Id("v"),
 	}
-	condition.generateCode(objectType, field)
-	return condition
+	err := condition.generateCode(objectType, field)
+	if err != nil {
+		return nil, err
+	}
+
+	return condition, nil
 }
 
-func (condition *Condition) generateCode(objectType types.Type, field Field) {
+func (condition *Condition) generateCode(objectType types.Type, field Field) error {
 	switch fieldType := field.Type.(type) {
 	case *types.Basic:
 		condition.adaptParamByKind(fieldType)
@@ -31,7 +34,7 @@ func (condition *Condition) generateCode(objectType types.Type, field Field) {
 			field,
 		)
 	case *types.Named:
-		condition.generateCodeForNamedType(
+		return condition.generateCodeForNamedType(
 			objectType,
 			field,
 		)
@@ -50,6 +53,8 @@ func (condition *Condition) generateCode(objectType types.Type, field Field) {
 	default:
 		log.Printf("struct field type not handled: %T", fieldType)
 	}
+
+	return nil
 }
 
 func (condition *Condition) generateCodeForSlice(objectType types.Type, field Field) {
@@ -84,35 +89,19 @@ func (condition *Condition) generateCodeForSlice(objectType types.Type, field Fi
 	}
 }
 
-func (condition *Condition) generateCodeForNamedType(objectType types.Type, field Field) {
-	// TODO esta linea de aca quedo rara
+func (condition *Condition) generateCodeForNamedType(objectType types.Type, field Field) error {
 	_, err := getBadORMModelStruct(field.Type)
-	log.Println(err)
 
 	if err == nil {
-		objectStruct, err := getBadORMModelStruct(objectType)
-		if err != nil {
-			// TODO ver esto
-			return
-		}
+		// field is a BaDORM Model
 		// TODO que pasa si esta en otro package? se importa solo?
-		fields, err := getFields(
-			objectStruct,
-			// TODO testear esto si esta bien aca
-			field.Tags.getEmbeddedPrefix(),
-		)
+
+		hasFK, err := hasFK(objectType, field)
 		if err != nil {
-			// TODO ver esto
-			return
+			return err
 		}
-		thisEntityHasTheFK := pie.Any(fields, func(otherField Field) bool {
-			return otherField.Name == field.getJoinFromColumn()
-		})
 
-		log.Println(field.getJoinFromColumn())
-		log.Println(thisEntityHasTheFK)
-
-		if thisEntityHasTheFK {
+		if hasFK {
 			// belongsTo relation
 			condition.generateJoinCondition(
 				objectType,
@@ -131,6 +120,7 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 			)
 		}
 	} else {
+		// field is not a BaDORM Model
 		if (field.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
 			// TODO DeletedAt
 			condition.param = condition.param.Qual(
@@ -145,6 +135,8 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 			log.Printf("struct field type not handled: %s", field.TypeString())
 		}
 	}
+
+	return nil
 }
 
 func (condition *Condition) adaptParamByKind(basicType *types.Basic) {
