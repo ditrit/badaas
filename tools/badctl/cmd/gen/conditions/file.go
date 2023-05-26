@@ -6,6 +6,7 @@ import (
 	"log"
 
 	"github.com/dave/jennifer/jen"
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
 )
 
@@ -80,7 +81,7 @@ func (file File) generateConditionsForEachField(object types.Object, fields []Fi
 				file.destPkg, Type{object.Type()}, field,
 			)
 			if err != nil {
-				failErr(err)
+				cmderrors.FailErr(err)
 			}
 
 			conditions = append(conditions, newCondition)
@@ -94,7 +95,7 @@ func (file File) generateConditionsForEachField(object types.Object, fields []Fi
 func (file File) generateEmbeddedConditions(object types.Object, field Field) []*Condition {
 	embeddedStructType, ok := field.Type.Underlying().(*types.Struct)
 	if !ok {
-		failErr(errors.New("unreachable! embedded objects are always structs"))
+		cmderrors.FailErr(errors.New("unreachable! embedded objects are always structs"))
 	}
 
 	fields, err := getStructFields(embeddedStructType, field.Tags.getEmbeddedPrefix())

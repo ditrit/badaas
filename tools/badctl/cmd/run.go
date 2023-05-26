@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 )
@@ -28,7 +29,7 @@ func runApp(cmd *cobra.Command, args []string) {
 
 	err := dockerCommand.Run()
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	// TODO add wait for api

@@ -8,6 +8,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 
@@ -30,7 +31,7 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	destPkg := os.Getenv("GOPACKAGE")
 	if destPkg == "" {
 		// TODO que tambien se pueda usar solo
-		failErr(errors.New("this command should be called using go generate"))
+		cmderrors.FailErr(errors.New("this command should be called using go generate"))
 	}
 
 	for _, pkg := range pkgs {
@@ -54,7 +55,7 @@ func generateConditions(cmd *cobra.Command, args []string) {
 
 				err = file.Save()
 				if err != nil {
-					failErr(err)
+					cmderrors.FailErr(err)
 				}
 			}
 		}
@@ -65,7 +66,7 @@ func loadPackages(paths []string) []*packages.Package {
 	cfg := &packages.Config{Mode: packages.NeedTypes}
 	pkgs, err := packages.Load(cfg, paths...)
 	if err != nil {
-		failErr(fmt.Errorf("loading packages for inspection: %v", err))
+		cmderrors.FailErr(fmt.Errorf("loading packages for inspection: %v", err))
 	}
 
 	// print compilation errors of source packages
@@ -74,17 +75,10 @@ func loadPackages(paths []string) []*packages.Package {
 	return pkgs
 }
 
-func failErr(err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-		os.Exit(1)
-	}
-}
-
 func getObject(pkg *packages.Package, name string) types.Object {
 	obj := pkg.Types.Scope().Lookup(name)
 	if obj == nil {
-		failErr(fmt.Errorf("%s not found in declared types of %s",
+		cmderrors.FailErr(fmt.Errorf("%s not found in declared types of %s",
 			name, pkg))
 	}
 

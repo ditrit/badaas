@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
 	"github.com/spf13/cobra"
@@ -50,7 +51,7 @@ func init() {
 		),
 	)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 	genDockerCmd.SetDefault(DBProviderKey, Cockroachdb)
 	genDockerCmd.AddValidator(
@@ -87,26 +88,26 @@ func copyBadaasConfig(dbProvider string) {
 		filepath.Join("config", "badaas.yml"),
 	)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	configData := map[string]any{}
 	err = yaml.Unmarshal(configFile, &configData)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	configData["database"].(map[string]any)["port"] = DBPorts[dbProvider]
 
 	configBytes, err := yaml.Marshal(&configData)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	destConfigDir := filepath.Join(destBadaasDir, "config")
 	err = os.MkdirAll(destConfigDir, os.ModePerm)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	err = os.WriteFile(
@@ -114,36 +115,36 @@ func copyBadaasConfig(dbProvider string) {
 		configBytes, 0o0600,
 	)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 }
 
 func copyFile(sourcePath, destPath string) {
 	fileContent, err := embedFS.ReadFile(sourcePath)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	if err := os.WriteFile(destPath, fileContent, 0o0600); err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 }
 
 func copyDir(sourceDir, destDir string) {
 	files, err := embedFS.ReadDir(sourceDir)
 	if err != nil {
-		panic(err)
+		cmderrors.FailErr(err)
 	}
 
 	_, err = os.Stat(destDir)
 	if err != nil {
 		if !os.IsNotExist(err) {
-			panic(err)
+			cmderrors.FailErr(err)
 		}
 
 		err = os.MkdirAll(destDir, os.ModePerm)
 		if err != nil {
-			panic(err)
+			cmderrors.FailErr(err)
 		}
 	}
 
