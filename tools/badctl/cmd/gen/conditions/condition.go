@@ -69,7 +69,7 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 			// slice of BadORM models
 			log.Println(field.TypeName())
 			condition.generateOppositeJoinCondition(
-				object,
+				object.Type(),
 				field,
 			)
 		}
@@ -127,7 +127,7 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 			)
 
 			condition.generateOppositeJoinCondition(
-				object,
+				object.Type(),
 				field,
 			)
 		}
@@ -217,13 +217,13 @@ func (condition *Condition) generateWhereCondition(object types.Object, field Fi
 	)
 }
 
-func (condition *Condition) generateOppositeJoinCondition(object types.Object, field Field) {
+func (condition *Condition) generateOppositeJoinCondition(objectType types.Type, field Field) {
 	condition.generateJoinCondition(
 		field.Type,
 		// TODO testear los Override Foreign Key
 		Field{
-			Name: object.Name(),
-			Type: object.Type(),
+			Name: getTypeName(objectType),
+			Type: objectType,
 			Tags: field.Tags,
 		},
 	)
@@ -290,10 +290,6 @@ func (condition *Condition) generateJoinFromAndTo(objectType types.Type, field F
 			),
 		),
 	)
-}
-
-func getObjectTypeName(object types.Object) string {
-	return getTypeName(object.Type())
 }
 
 func getTypeName(typeV types.Type) string {
