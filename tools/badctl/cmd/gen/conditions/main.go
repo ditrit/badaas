@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
-	. "github.com/ditrit/badaas/tools/badctl/cmd/logger"
+	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -37,7 +37,7 @@ func init() {
 }
 
 func generateConditions(cmd *cobra.Command, args []string) {
-	SetLogLevel()
+	log.SetLevel()
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
 
@@ -51,7 +51,7 @@ func generateConditions(cmd *cobra.Command, args []string) {
 	}
 
 	for _, pkg := range pkgs {
-		Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())
+		log.Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())
 
 		for _, name := range pkg.Types.Scope().Names() {
 			object := getObject(pkg, name)
@@ -103,5 +103,3 @@ func getObject(pkg *packages.Package, name string) types.Object {
 
 	return object
 }
-
-// TODO add logs

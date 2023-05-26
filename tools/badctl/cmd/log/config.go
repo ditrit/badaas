@@ -1,4 +1,4 @@
-package logger
+package log
 
 import (
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
@@ -15,7 +15,7 @@ func init() {
 	log.SetLevel(log.InfoLevel)
 }
 
-func SetLogLevel() {
+func SetLevel() {
 	verbose := viper.GetBool(VerboseKey)
 	if verbose {
 		log.SetLevel(log.DebugLevel)

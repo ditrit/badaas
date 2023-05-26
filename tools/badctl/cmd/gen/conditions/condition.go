@@ -4,7 +4,7 @@ import (
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
-	. "github.com/ditrit/badaas/tools/badctl/cmd/logger"
+	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 	"github.com/ettle/strcase"
 )
 
@@ -61,7 +61,7 @@ func (condition *Condition) generate(objectType Type, field Field) error {
 			field.ChangeType(fieldType.Elem()),
 		)
 	default:
-		Logger.Debugf("struct field type not handled: %T", fieldType)
+		log.Logger.Debugf("struct field type not handled: %T", fieldType)
 	}
 
 	return nil
@@ -97,7 +97,7 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 			field.ChangeType(elemType.Elem()),
 		)
 	default:
-		Logger.Debugf("struct field list elem type not handled: %T", elemType)
+		log.Logger.Debugf("struct field list elem type not handled: %T", elemType)
 	}
 }
 
@@ -143,7 +143,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) e
 				field,
 			)
 		} else {
-			Logger.Debugf("struct field type not handled: %s", field.TypeString())
+			log.Logger.Debugf("struct field type not handled: %s", field.TypeString())
 		}
 	}
 
@@ -161,7 +161,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 	)
 
 	conditionName := getConditionName(objectType, field.Name)
-	Logger.Debugf("Generated %q", conditionName)
+	log.Logger.Debugf("Generated %q", conditionName)
 
 	condition.codes = append(
 		condition.codes,
@@ -224,7 +224,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 	)
 
 	conditionName := getConditionName(objectType, field.Name)
-	Logger.Debugf("Generated %q", conditionName)
+	log.Logger.Debugf("Generated %q", conditionName)
 
 	badormT1Condition := jen.Qual(
 		badORMPath, badORMCondition,
