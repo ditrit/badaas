@@ -28,7 +28,7 @@ func (condition *Condition) generateCode(object types.Object, field Field) {
 	case *types.Basic:
 		condition.adaptParamByKind(fieldType)
 		condition.generateWhereCondition(
-			object,
+			object.Type(),
 			field,
 		)
 	case *types.Named:
@@ -139,7 +139,7 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 				field.TypeName(),
 			)
 			condition.generateWhereCondition(
-				object,
+				object.Type(),
 				field,
 			)
 		} else {
@@ -188,20 +188,20 @@ func (condition *Condition) adaptParamByKind(basicType *types.Basic) {
 }
 
 // TODO sacar condition del nombre
-func (condition *Condition) generateWhereCondition(object types.Object, field Field) {
+func (condition *Condition) generateWhereCondition(objectType types.Type, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
 	).Types(
 		jen.Qual(
-			getRelativePackagePath(object.Pkg()),
-			object.Name(),
+			getRelativePackagePath(getTypePkg(objectType)),
+			getTypeName(objectType),
 		),
 	)
 
 	condition.codes = append(
 		condition.codes,
 		jen.Func().Id(
-			getConditionName(object.Type(), field.Name),
+			getConditionName(objectType, field.Name),
 		).Params(
 			condition.param,
 		).Add(
