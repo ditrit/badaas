@@ -15,37 +15,37 @@ type Condition struct {
 	param *jen.Statement
 }
 
-func NewCondition(object types.Object, field Field) *Condition {
+func NewCondition(objectType types.Type, field Field) *Condition {
 	condition := &Condition{
 		param: jen.Id("v"),
 	}
-	condition.generateCode(object, field)
+	condition.generateCode(objectType, field)
 	return condition
 }
 
-func (condition *Condition) generateCode(object types.Object, field Field) {
+func (condition *Condition) generateCode(objectType types.Type, field Field) {
 	switch fieldType := field.Type.(type) {
 	case *types.Basic:
 		condition.adaptParamByKind(fieldType)
 		condition.generateWhereCondition(
-			object.Type(),
+			objectType,
 			field,
 		)
 	case *types.Named:
 		condition.generateCodeForNamedType(
-			object,
+			objectType,
 			field,
 		)
 	case *types.Pointer:
 		condition.param = condition.param.Op("*")
 		condition.generateCode(
-			object,
+			objectType,
 			field.ChangeType(fieldType.Elem()),
 		)
 	case *types.Slice:
 		condition.param = condition.param.Index()
 		condition.generateCodeForSlice(
-			object,
+			objectType,
 			field.ChangeType(fieldType.Elem()),
 		)
 	default:
@@ -53,13 +53,13 @@ func (condition *Condition) generateCode(object types.Object, field Field) {
 	}
 }
 
-func (condition *Condition) generateCodeForSlice(object types.Object, field Field) {
+func (condition *Condition) generateCodeForSlice(objectType types.Type, field Field) {
 	switch elemType := field.Type.(type) {
 	case *types.Basic:
 		// una list de strings o algo asi,
 		// por el momento solo anda con []byte porque el resto gorm no lo sabe encodear
 		condition.generateCode(
-			object,
+			objectType,
 			field,
 		)
 	case *types.Named:
@@ -69,7 +69,7 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 			// slice of BadORM models
 			log.Println(field.TypeName())
 			condition.generateOppositeJoinCondition(
-				object.Type(),
+				objectType,
 				field,
 			)
 		}
@@ -77,7 +77,7 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 		condition.param = condition.param.Op("*")
 		// slice de pointers, solo testeado temporalmente porque despues gorm no lo soporta
 		condition.generateCodeForSlice(
-			object,
+			objectType,
 			field.ChangeType(elemType.Elem()),
 		)
 	default:
@@ -85,13 +85,13 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 	}
 }
 
-func (condition *Condition) generateCodeForNamedType(object types.Object, field Field) {
+func (condition *Condition) generateCodeForNamedType(objectType types.Type, field Field) {
 	// TODO esta linea de aca quedo rara
 	_, err := getBadORMModelStruct(field.Type)
 	log.Println(err)
 
 	if err == nil {
-		objectStruct, err := getBadORMModelStruct(object.Type())
+		objectStruct, err := getBadORMModelStruct(objectType)
 		if err != nil {
 			// TODO ver esto
 			return
@@ -116,18 +116,18 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 		if thisEntityHasTheFK {
 			// belongsTo relation
 			condition.generateJoinCondition(
-				object.Type(),
+				objectType,
 				field,
 			)
 		} else {
 			// hasOne or hasMany relation
 			condition.generateInverseJoinCondition(
-				object.Type(),
+				objectType,
 				field,
 			)
 
 			condition.generateOppositeJoinCondition(
-				object.Type(),
+				objectType,
 				field,
 			)
 		}
@@ -139,7 +139,7 @@ func (condition *Condition) generateCodeForNamedType(object types.Object, field 
 				field.TypeName(),
 			)
 			condition.generateWhereCondition(
-				object.Type(),
+				objectType,
 				field,
 			)
 		} else {

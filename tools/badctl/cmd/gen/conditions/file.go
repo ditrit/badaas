@@ -85,7 +85,7 @@ func generateConditionsForEachField(object types.Object, fields []Field) []*Cond
 			)...)
 		} else {
 			conditions = append(conditions, NewCondition(
-				object, field,
+				object.Type(), field,
 			))
 		}
 	}
