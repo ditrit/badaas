@@ -31,5 +31,7 @@ func runApp(cmd *cobra.Command, args []string) {
 		panic(err)
 	}
 
+	// TODO add wait for api
+
 	log.Println("Your api is available at http://localhost:8000")
 }

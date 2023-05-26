@@ -63,13 +63,11 @@ func (condition *Condition) generateCodeForSlice(object types.Object, field Fiel
 			field,
 		)
 	case *types.Named:
-		elemObject := elemType.Obj()
 		// inverse relation condition
-		// TODO muchas veces los usos de esto se pueden hacer directo sobre el field.Object
-		_, err := getBadORMModelStruct(elemObject)
+		_, err := getBadORMModelStruct(field.Object)
 		if err == nil {
 			// slice of BadORM models
-			log.Println(elemObject.Name())
+			log.Println(field.Object.Name())
 			condition.generateOppositeJoinCondition(
 				object,
 				field,
