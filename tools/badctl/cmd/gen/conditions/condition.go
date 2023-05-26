@@ -9,15 +9,17 @@ import (
 )
 
 type Condition struct {
-	codes []jen.Code
-	param *JenParam
+	codes   []jen.Code
+	param   *JenParam
+	destPkg string
 }
 
-func NewCondition(objectType types.Type, field Field) (*Condition, error) {
+func NewCondition(destPkg string, objectType types.Type, field Field) (*Condition, error) {
 	condition := &Condition{
-		param: NewJenParam(),
+		param:   NewJenParam(),
+		destPkg: destPkg,
 	}
-	err := condition.generateCode(objectType, field)
+	err := condition.generate(objectType, field)
 	if err != nil {
 		return nil, err
 	}
@@ -25,28 +27,36 @@ func NewCondition(objectType types.Type, field Field) (*Condition, error) {
 	return condition, nil
 }
 
-func (condition *Condition) generateCode(objectType types.Type, field Field) error {
+func (condition *Condition) generate(objectType types.Type, field Field) error {
 	switch fieldType := field.Type.(type) {
 	case *types.Basic:
+		// the field is a basic type (string, int, etc)
+		// adapt param to that type and generate a WhereCondition
 		condition.param.ToBasicKind(fieldType)
-		condition.generateWhereCondition(
+		condition.generateWhere(
 			objectType,
 			field,
 		)
 	case *types.Named:
-		return condition.generateCodeForNamedType(
+		// the field is a named type (user defined structs)
+		return condition.generateForNamedType(
 			objectType,
 			field,
 		)
 	case *types.Pointer:
+		// the field is a pointer
+		// adapt param to pointer and generate code for the pointed type
 		condition.param.ToPointer()
-		condition.generateCode(
+		condition.generate(
 			objectType,
 			field.ChangeType(fieldType.Elem()),
 		)
 	case *types.Slice:
-		condition.param.ToList()
-		condition.generateCodeForSlice(
+		// the field is a slice
+		// adapt param to slice and
+		// generate code for the type of the elements of the slice
+		condition.param.ToSlice()
+		condition.generateForSlice(
 			objectType,
 			field.ChangeType(fieldType.Elem()),
 		)
@@ -57,16 +67,18 @@ func (condition *Condition) generateCode(objectType types.Type, field Field) err
 	return nil
 }
 
-func (condition *Condition) generateCodeForSlice(objectType types.Type, field Field) {
+func (condition *Condition) generateForSlice(objectType types.Type, field Field) {
 	switch elemType := field.Type.(type) {
 	case *types.Basic:
-		// una list de strings o algo asi,
-		// por el momento solo anda con []byte porque el resto gorm no lo sabe encodear
-		condition.generateCode(
+		// slice of basic types ([]string, []int, etc.)
+		// the only one supported directly by gorm is []byte
+		// but the others can be used after configuration in some dbs
+		condition.generate(
 			objectType,
 			field,
 		)
 	case *types.Named:
+		// slice of named types (user defined types)
 		_, err := getBadORMModelStruct(field.Type)
 		if err == nil {
 			// slice of BadORM models -> hasMany relation
@@ -77,9 +89,11 @@ func (condition *Condition) generateCodeForSlice(objectType types.Type, field Fi
 			)
 		}
 	case *types.Pointer:
-		// slice de pointers, solo testeado temporalmente porque despues gorm no lo soporta
+		// TODO pointer solo testeado temporalmente porque despues gorm no lo soporta
+		// slice of pointers, generate code for a slice of the pointed type
+		// after changing the param
 		condition.param.ToPointer()
-		condition.generateCodeForSlice(
+		condition.generateForSlice(
 			objectType,
 			field.ChangeType(elemType.Elem()),
 		)
@@ -88,7 +102,7 @@ func (condition *Condition) generateCodeForSlice(objectType types.Type, field Fi
 	}
 }
 
-func (condition *Condition) generateCodeForNamedType(objectType types.Type, field Field) error {
+func (condition *Condition) generateForNamedType(objectType types.Type, field Field) error {
 	_, err := getBadORMModelStruct(field.Type)
 
 	if err == nil {
@@ -122,8 +136,10 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 		// field is not a BaDORM Model
 		if (field.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
 			// TODO DeletedAt
-			condition.param.ToCustomType(field.Type)
-			condition.generateWhereCondition(
+			// field is a Gorm Custom type (implements Scanner and Valuer interfaces)
+			// or a named type supported by gorm (time.Time, gorm.DeletedAt)
+			condition.param.ToCustomType(condition.destPkg, field.Type)
+			condition.generateWhere(
 				objectType,
 				field,
 			)
@@ -135,12 +151,12 @@ func (condition *Condition) generateCodeForNamedType(objectType types.Type, fiel
 	return nil
 }
 
-func (condition *Condition) generateWhereCondition(objectType types.Type, field Field) {
+func (condition *Condition) generateWhere(objectType types.Type, field Field) {
 	whereCondition := jen.Qual(
 		badORMPath, badORMWhereCondition,
 	).Types(
 		jen.Qual(
-			getRelativePackagePath(getTypePkg(objectType)),
+			getRelativePackagePath(condition.destPkg, objectType),
 			getTypeName(objectType),
 		),
 	)
@@ -198,12 +214,12 @@ func (condition *Condition) generateJoin(objectType types.Type, field Field, t1F
 	log.Println(field.Name)
 
 	t1 := jen.Qual(
-		getRelativePackagePath(getTypePkg(objectType)),
+		getRelativePackagePath(condition.destPkg, objectType),
 		getTypeName(objectType),
 	)
 
 	t2 := jen.Qual(
-		getRelativePackagePath(field.TypePkg()),
+		getRelativePackagePath(condition.destPkg, field.Type),
 		field.TypeName(),
 	)
 
@@ -244,7 +260,9 @@ func getConditionName(typeV types.Type, fieldName string) string {
 }
 
 // TODO testear esto
-func getRelativePackagePath(srcPkg *types.Package) string {
+// avoid importing the same package as the destination one
+func getRelativePackagePath(destPkg string, typeV types.Type) string {
+	srcPkg := getTypePkg(typeV)
 	if srcPkg.Name() == destPkg {
 		return ""
 	}

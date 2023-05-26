@@ -63,13 +63,13 @@ func (param JenParam) ToPointer() {
 	param.statement.Op("*")
 }
 
-func (param JenParam) ToList() {
+func (param JenParam) ToSlice() {
 	param.statement.Index()
 }
 
-func (param JenParam) ToCustomType(typeV types.Type) {
+func (param JenParam) ToCustomType(destPkg string, typeV types.Type) {
 	param.statement.Qual(
-		getRelativePackagePath(getTypePkg(typeV)),
+		getRelativePackagePath(destPkg, typeV),
 		getTypeName(typeV),
 	)
 }

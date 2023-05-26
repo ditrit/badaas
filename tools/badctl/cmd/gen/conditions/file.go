@@ -40,7 +40,7 @@ func (file File) AddConditionsFor(object types.Object) error {
 }
 
 func (file File) addConditionsForEachField(object types.Object, fields []Field) {
-	conditions := generateConditionsForEachField(object, fields)
+	conditions := file.generateConditionsForEachField(object, fields)
 
 	for _, condition := range conditions {
 		// TODO esto no me gusta mucho que este aca
@@ -66,18 +66,18 @@ const (
 	badORMJoinCondition  = "JoinCondition"
 )
 
-func generateConditionsForEachField(object types.Object, fields []Field) []*Condition {
+func (file File) generateConditionsForEachField(object types.Object, fields []Field) []*Condition {
 	conditions := []*Condition{}
 	for _, field := range fields {
 		log.Println(field.Name)
 		if field.Embedded {
-			conditions = append(conditions, generateEmbeddedConditions(
+			conditions = append(conditions, file.generateEmbeddedConditions(
 				object,
 				field,
 			)...)
 		} else {
 			newCondition, err := NewCondition(
-				object.Type(), field,
+				file.destPkg, object.Type(), field,
 			)
 			if err != nil {
 				failErr(err)
@@ -91,7 +91,7 @@ func generateConditionsForEachField(object types.Object, fields []Field) []*Cond
 }
 
 // TODO quizas esto no deberia estar aca
-func generateEmbeddedConditions(object types.Object, field Field) []*Condition {
+func (file File) generateEmbeddedConditions(object types.Object, field Field) []*Condition {
 	embeddedStructType, ok := field.Type.Underlying().(*types.Struct)
 	if !ok {
 		failErr(errors.New("unreachable! embedded objects are always structs"))
@@ -103,5 +103,5 @@ func generateEmbeddedConditions(object types.Object, field Field) []*Condition {
 		return []*Condition{}
 	}
 
-	return generateConditionsForEachField(object, fields)
+	return file.generateConditionsForEachField(object, fields)
 }

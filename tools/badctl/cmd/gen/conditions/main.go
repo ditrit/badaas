@@ -22,14 +22,12 @@ var GenConditionsCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Args:  cobra.MinimumNArgs(1),
 })
 
-var destPkg string
-
 func generateConditions(cmd *cobra.Command, args []string) {
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
 
 	// Get the package of the file with go:generate comment
-	destPkg = os.Getenv("GOPACKAGE")
+	destPkg := os.Getenv("GOPACKAGE")
 	if destPkg == "" {
 		// TODO que tambien se pueda usar solo
 		failErr(errors.New("this command should be called using go generate"))

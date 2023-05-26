@@ -61,10 +61,6 @@ func (field Field) TypeName() string {
 	return getTypeName(field.Type)
 }
 
-func (field Field) TypePkg() *types.Package {
-	return getTypePkg(field.Type)
-}
-
 func (field Field) ChangeType(newType types.Type) Field {
 	return Field{
 		Name: field.Name,
