@@ -3,12 +3,13 @@
 This repository is a sandbox for the RBAC model. I am using the [Casbin package](https://casbin.org/docs/en/overview) for Golang.
 
 ## Structure
-RBAC stands for Role-Based Access Control. But in my architecture I have extended the notion of role to the notion of team. Users belong to teams and 
-each team is given a set of roles on domains. A domain is a set of resources.
+
+RBAC stands for Role-Based Access Control. But in my architecture I have extended the notion of role to the notion of team. Users belong to teams and each team is given a set of roles on domains. A domain is a set of resources.
 
 A role indicates which actions can be performed on a type of resources (for example a type of resources can be ```application``` or ```database```).
 
 ## Example
+
 The graph below shows a generic example of the structure that I wanted to build.
 
 ![rbac_graph](https://user-images.githubusercontent.com/102538155/180420826-0304c288-949e-4286-a19d-3cf37bf285c1.jpg)
@@ -33,24 +34,32 @@ All the requests that can be performed on this example are listed below :
 In this configuration, every user has just the bare necessary permissions, which is what we want for security purposes.
 
 ## How to store our RBAC configuration
-The simplest way to store the configuration is to seperate it into two files : ```model.conf``` and ```policy.csv```.
+
+The simplest way to store the configuration is to separate it into two files : ```model.conf``` and ```policy.csv```.
 This is the easiest way of testing a configuration but this is not really suited for production.
 
 Another way of storing the configuration is by leveraging on a database. You can keep the ```model.conf``` file as it will not scale.
 But the ```policy.csv``` file will turn into a table. You can for example create a table ```policy``` in a database named ```rbac```.
-For my tests I have used **CockroachDB**. You can create a cluster using this command :
-```
+For my tests I have used **CockroachDB**. You can create a cluster using this command:
+
+```bash
 cockroach start --insecure --store=node1 --listen-addr=localhost:26257 --http-addr=localhost:8080 --join=localhost:26257,localhost:26258,localhost:26259 --accept-sql-without-tls
 ```
-Then initialize the cluster :
-```
+
+Then initialize the cluster:
+
+```bash
 cockroach init --insecure
 ```
-Enter the CLI of your cluster :
-```
+
+Enter the CLI of your cluster:
+
+```bash
 cockroach sql --host=localhost:26257 --insecure
 ```
-Be careful when creating the table, you have to use these commands :
+
+Be careful when creating the table, you have to use these commands:
+
 ```sql
 CREATE DATABASE rbac;
 use rbac;
@@ -66,12 +75,15 @@ CREATE TABLE public.policy (
   FAMILY "primary" (p_type, v0, v1, v2, v3, v4, v5, rowid)
 );
 ```
-Then, you can insert the lines of the ```policy.csv``` one by one :
+
+Then, you can insert the lines of the ```policy.csv``` one by one:
+
 ```sql
 INSERT INTO policy (p_type, v0, v1, v2, v3) VALUES ('p', 'admin', 'domain1', 'type1', 'admin_action');
 ...
 ```
 
-For more information on how to store the configuration, please refer to the official documentation :
+For more information on how to store the configuration, please refer to the official documentation:
+
 - [Model storage](https://casbin.org/docs/en/model-storage)
 - [Policy storage](https://casbin.org/docs/en/policy-storage)
