@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/casbin/casbin/util"
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/util"
 	_ "github.com/lib/pq"
 )
 
@@ -15,6 +15,8 @@ func Authorized(w http.ResponseWriter, r *http.Request) {
 	dom := r.URL.Query().Get("dom")
 	obj := r.URL.Query().Get("obj")
 	act := r.URL.Query().Get("act")
+
+	fmt.Printf("%v, %v, %v, %v ", sub, dom, obj, act)
 
 	if res, _ := e.Enforce(sub, dom, obj, act); res {
 		response := "Access authorized"
@@ -49,10 +51,9 @@ func main() {
 		e, err = casbin.NewEnforcer("rbac_with_domains_model.conf", a)
 	*/
 
-	// If you want to load the policy from a Cockroach database, decomment the above code and comment the two lines below
-	err := *new(error)
+	// If you want to load the policy from a Cockroach database, uncomment the above code and comment the two lines below
+	var err error
 	e, err = casbin.NewEnforcer("rbac_with_domains_model.conf", "rbac_with_domains_policy.csv")
-
 	if err != nil {
 		panic(err)
 	}
