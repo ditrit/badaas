@@ -9,6 +9,9 @@ import (
 	"github.com/elliotchance/pie/v2"
 )
 
+// badorm/baseModels.go
+var badORMModels = []string{"UUIDModel", "UIntModel"}
+
 type Type struct {
 	types.Type
 }

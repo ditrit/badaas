@@ -8,6 +8,13 @@ import (
 	"github.com/ettle/strcase"
 )
 
+const (
+	// badorm/condition.go
+	badORMCondition      = "Condition"
+	badORMWhereCondition = "WhereCondition"
+	badORMJoinCondition  = "JoinCondition"
+)
+
 type Condition struct {
 	codes   []jen.Code
 	param   *JenParam

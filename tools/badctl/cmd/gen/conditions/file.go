@@ -10,6 +10,8 @@ import (
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
 )
 
+const badORMPath = "github.com/ditrit/badaas/badorm"
+
 type File struct {
 	destPkg string
 	jenFile *jen.File
@@ -58,17 +60,6 @@ func (file File) addConditionsForEachField(object types.Object, fields []Field) 
 func (file File) Save() error {
 	return file.jenFile.Save(file.name)
 }
-
-// badorm/baseModels.go
-var badORMModels = []string{"UUIDModel", "UIntModel"}
-
-const (
-	badORMPath = "github.com/ditrit/badaas/badorm"
-	// badorm/condition.go
-	badORMCondition      = "Condition"
-	badORMWhereCondition = "WhereCondition"
-	badORMJoinCondition  = "JoinCondition"
-)
 
 // Generate the conditions for each of the object's fields
 func (file File) generateConditionsForEachField(object types.Object, fields []Field) []*Condition {
