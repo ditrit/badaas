@@ -3,7 +3,7 @@ package cmd
 import (
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/gen"
-	"github.com/ditrit/badaas/tools/badctl/cmd/logger"
+	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
 	"github.com/ditrit/verdeter"
 )
@@ -27,11 +27,11 @@ func init() {
 	rootCmd.AddSubCommand(gen.GenCmd)
 
 	err := rootCmd.GKey(
-		logger.VerboseKey, verdeter.IsBool, "v",
+		log.VerboseKey, verdeter.IsBool, "v",
 		"Verbose logging",
 	)
 	if err != nil {
 		cmderrors.FailErr(err)
 	}
-	rootCmd.SetDefault(logger.VerboseKey, false)
+	rootCmd.SetDefault(log.VerboseKey, false)
 }
