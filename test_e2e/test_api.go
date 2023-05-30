@@ -11,6 +11,7 @@ import (
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/testintegration"
+	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/ditrit/verdeter"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
@@ -53,10 +54,10 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		router.AuthRoutesModule,
 		router.EAVRoutesModule,
 
-		fx.Invoke(badorm.AddModel[testintegration.Company]),
-		fx.Invoke(badorm.AddModel[testintegration.Seller]),
-		fx.Invoke(badorm.AddModel[testintegration.Product]),
-		router.GetCRUDRoutesModule[testintegration.Sale](),
+		fx.Invoke(badorm.AddModel[models.Company]),
+		fx.Invoke(badorm.AddModel[models.Seller]),
+		fx.Invoke(badorm.AddModel[models.Product]),
+		router.GetCRUDRoutesModule[models.Sale](),
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),

@@ -11,7 +11,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/messages-go/v16"
-	"github.com/ditrit/badaas/testintegration"
+	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/elliotchance/pie/v2"
 )
 
@@ -394,11 +394,11 @@ func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.T
 }
 
 func (t *TestContext) saleExists(productInt int, code int, description string) {
-	product := &testintegration.Product{
+	product := &models.Product{
 		Int: productInt,
 	}
 
-	sale := &testintegration.Sale{
+	sale := &models.Sale{
 		Code:        code,
 		Description: description,
 		Product:     *product,
