@@ -142,8 +142,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) e
 		}
 	} else {
 		// field is not a BaDORM Model
-		if (field.Type.IsGormCustomType() || field.TypeString() == "time.Time") && field.TypeString() != "gorm.io/gorm.DeletedAt" {
-			// TODO DeletedAt
+		if field.Type.IsGormCustomType() || field.TypeString() == "time.Time" {
 			// field is a Gorm Custom type (implements Scanner and Valuer interfaces)
 			// or a named type supported by gorm (time.Time, gorm.DeletedAt)
 			condition.param.ToCustomType(condition.destPkg, field.Type)

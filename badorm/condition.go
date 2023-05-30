@@ -8,6 +8,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const DeletedAtField = "deleted_at"
+
 type Condition[T any] interface {
 	// Applies the condition to the "query"
 	// using the "tableName" as name for the table holding
@@ -32,6 +34,11 @@ func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {}
 // to filter that the Field as a value of Value
 func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
 	sql, values := condition.GetSQL(tableName)
+
+	if condition.Field == DeletedAtField {
+		query = query.Unscoped()
+	}
+
 	return query.Where(
 		sql,
 		values...,
@@ -94,10 +101,21 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 
 	// apply WhereConditions to join in "on" clause
 	conditionsValues := []any{}
+	isDeletedAtConditionPresent := false
 	for _, condition := range whereConditions {
+		if condition.Field == DeletedAtField {
+			isDeletedAtConditionPresent = true
+		}
 		sql, values := condition.GetSQL(nextTableName)
-		joinQuery += "AND " + sql
+		joinQuery += " AND " + sql
 		conditionsValues = append(conditionsValues, values...)
+	}
+
+	if !isDeletedAtConditionPresent {
+		joinQuery += fmt.Sprintf(
+			" AND %s.deleted_at IS NULL",
+			nextTableName,
+		)
 	}
 
 	// add the join to the query
@@ -119,9 +137,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 // can be either in T1's or T2's table.
 func (condition JoinCondition[T1, T2]) getSQLJoin(toBeJoinedTableName, nextTableName, previousTableName string) string {
 	return fmt.Sprintf(
-		`JOIN %[1]s %[2]s ON
-			%[2]s.deleted_at IS NULL
-			AND %[2]s.%[3]s = %[4]s.%[5]s
+		`JOIN %[1]s %[2]s ON %[2]s.%[3]s = %[4]s.%[5]s
 		`,
 		toBeJoinedTableName,
 		nextTableName,

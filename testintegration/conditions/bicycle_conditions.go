@@ -5,6 +5,7 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	uuid "github.com/google/uuid"
+	gorm "gorm.io/gorm"
 	"time"
 )
 
@@ -23,6 +24,12 @@ func BicycleCreatedAt(v time.Time) badorm.WhereCondition[models.Bicycle] {
 func BicycleUpdatedAt(v time.Time) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
 		Field: "updated_at",
+		Value: v,
+	}
+}
+func BicycleDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Bicycle] {
+	return badorm.WhereCondition[models.Bicycle]{
+		Field: "deleted_at",
 		Value: v,
 	}
 }

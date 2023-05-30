@@ -227,6 +227,34 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCreatedAt() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesDeletedAtConditionIsAddedAutomatically() {
+	match := ts.createProduct("", 0, 0.0, false, nil)
+	deleted := ts.createProduct("", 0, 0.0, false, nil)
+
+	ts.Nil(ts.db.Delete(deleted).Error)
+
+	entities, err := ts.crudProductService.GetEntities()
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+// TODO DeletedAt with nil value but not automatic
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfDeletedAtNotNil() {
+	match := ts.createProduct("", 0, 0.0, false, nil)
+	ts.createProduct("", 0, 0.0, false, nil)
+
+	ts.Nil(ts.db.Delete(match).Error)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductDeletedAt(match.DeletedAt),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfEmbedded() {
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
@@ -614,6 +642,50 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffer
 		conditions.SaleProduct(
 			conditions.ProductInt(1),
 			conditions.ProductString("match"),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAddsDeletedAtAutomatically() {
+	product1 := ts.createProduct("match", 1, 0.0, false, nil)
+	product2 := ts.createProduct("match", 2, 0.0, false, nil)
+
+	seller1 := ts.createSeller("franco", nil)
+	seller2 := ts.createSeller("agustin", nil)
+
+	ts.Nil(ts.db.Delete(product2).Error)
+
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleProduct(
+			conditions.ProductString("match"),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDeletedAt() {
+	product1 := ts.createProduct("match", 1, 0.0, false, nil)
+	product2 := ts.createProduct("match", 2, 0.0, false, nil)
+
+	seller1 := ts.createSeller("franco", nil)
+	seller2 := ts.createSeller("agustin", nil)
+
+	ts.Nil(ts.db.Delete(product1).Error)
+
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleProduct(
+			conditions.ProductDeletedAt(product1.DeletedAt),
 		),
 	)
 	ts.Nil(err)

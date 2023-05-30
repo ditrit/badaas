@@ -8,7 +8,6 @@ require (
 	github.com/Masterminds/squirrel v1.5.3
 	github.com/ditrit/verdeter v0.4.0
 	github.com/elliotchance/pie/v2 v2.5.2
-	github.com/ettle/strcase v0.1.1
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.13.0
@@ -22,7 +21,7 @@ require (
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.1.0
 	gorm.io/driver/postgres v1.4.5
-	gorm.io/gorm v1.24.1
+	gorm.io/gorm v1.25.1
 	gotest.tools v2.2.0+incompatible
 )
 
