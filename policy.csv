@@ -1,0 +1,42 @@
+# role assignment
+p, Orness,devops_evangelist, data1, exec
+p, Orness, automation_architect, data2, exec
+p, Orness, release_manager, data3, exec
+p, domain1.sub1,devops_evangelist, data1, exec
+p, domain1.sub2, automation_architect, data2, exec
+p, domain2.sub1, release_manager, data3, exec
+p, Ditrit,devops_evangelist, data1, exec
+p, Ditrit, automation_architect, data2, exec
+p, Ditrit, release_manager, data3, exec
+p, Orness, software_developer, data4, write
+#p, experience_assurance, data2, domain2.sub1, read
+#p, security_engineer, data3, domain2.sub2, write
+#p, utility_technology_player, data1, domain2.sub3, write
+p, Orness, super, Ditrit, exec
+
+# group-role assignment for a specific domain
+g, devops_evangelists, devops_evangelist
+g, automation_architects, automation_architect
+g, release_managers, release_manager
+g, supers, super
+
+# domain resource hierarchy (working well)
+g2, Ditrit, domain1
+g2, Ditrit, domain2
+g2, domain1, domain1.sub1
+g2, domain1, domain1.sub2
+g2, domain2, domain2.sub1
+g2, domain2, domain2.sub2
+g2, domain1.sub1, data1/*
+g2, domain1.sub2, data2/*
+g2, domain2.sub1, data3/*
+g2, domain2.sub2, data4/*
+g2, Orness, Ditrit
+
+#p, Xavier, Ditrit, view, Orness
+# user-group assignment
+g3, Xavier, devops_evangelists, domain1.sub1
+g3, Xavier, release_managers, domain2.sub1
+g3, Vincent, automation_architects, domain1.sub2
+g3, devaut, devops_evangelists, domain1.sub1
+g3, devaut, automation_architect, domain1.sub2

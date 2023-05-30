@@ -51,12 +51,8 @@ func main() {
 		e, err = casbin.NewEnforcer("rbac_with_domains_model.conf", a)
 	*/
 
-	// If you want to load the policy from a Cockroach database, uncomment the above code and comment the two lines below
-	var err error
-	e, err = casbin.NewEnforcer("rbac_with_domains_model.conf", "rbac_with_domains_policy.csv")
-	if err != nil {
-		panic(err)
-	}
+	// If you want to load the policy from a Cockroach database, uncomment the above code and comment the line below
+	e = GetEnforcerFromFiles()
 
 	e.AddNamedDomainMatchingFunc("g", "KeyMatch2", util.KeyMatch2)
 
@@ -65,4 +61,13 @@ func main() {
 	fmt.Println("Ready")
 
 	log.Fatal(http.ListenAndServe("127.0.0.1:5556", nil))
+}
+
+func GetEnforcerFromFiles() *casbin.Enforcer {
+	e, err := casbin.NewEnforcer("model.conf", "policy.csv")
+	if err != nil {
+		panic(err)
+	}
+
+	return e
 }
