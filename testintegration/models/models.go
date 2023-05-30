@@ -1,4 +1,4 @@
-package testintegration
+package models
 
 import (
 	"database/sql/driver"

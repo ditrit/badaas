@@ -2,6 +2,8 @@ package testintegration
 
 import (
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/testintegration/conditions"
+	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"github.com/stretchr/testify/suite"
@@ -14,25 +16,25 @@ type CRUDServiceIntTestSuite struct {
 	suite.Suite
 	logger              *zap.Logger
 	db                  *gorm.DB
-	crudProductService  badorm.CRUDService[Product, uuid.UUID]
-	crudSaleService     badorm.CRUDService[Sale, uuid.UUID]
-	crudSellerService   badorm.CRUDService[Seller, uuid.UUID]
-	crudCountryService  badorm.CRUDService[Country, uuid.UUID]
-	crudCityService     badorm.CRUDService[City, uuid.UUID]
-	crudEmployeeService badorm.CRUDService[Employee, uuid.UUID]
-	crudBicycleService  badorm.CRUDService[Bicycle, uuid.UUID]
+	crudProductService  badorm.CRUDService[models.Product, uuid.UUID]
+	crudSaleService     badorm.CRUDService[models.Sale, uuid.UUID]
+	crudSellerService   badorm.CRUDService[models.Seller, uuid.UUID]
+	crudCountryService  badorm.CRUDService[models.Country, uuid.UUID]
+	crudCityService     badorm.CRUDService[models.City, uuid.UUID]
+	crudEmployeeService badorm.CRUDService[models.Employee, uuid.UUID]
+	crudBicycleService  badorm.CRUDService[models.Bicycle, uuid.UUID]
 }
 
 func NewCRUDServiceIntTestSuite(
 	logger *zap.Logger,
 	db *gorm.DB,
-	crudProductService badorm.CRUDService[Product, uuid.UUID],
-	crudSaleService badorm.CRUDService[Sale, uuid.UUID],
-	crudSellerService badorm.CRUDService[Seller, uuid.UUID],
-	crudCountryService badorm.CRUDService[Country, uuid.UUID],
-	crudCityService badorm.CRUDService[City, uuid.UUID],
-	crudEmployeeService badorm.CRUDService[Employee, uuid.UUID],
-	crudBicycleService badorm.CRUDService[Bicycle, uuid.UUID],
+	crudProductService badorm.CRUDService[models.Product, uuid.UUID],
+	crudSaleService badorm.CRUDService[models.Sale, uuid.UUID],
+	crudSellerService badorm.CRUDService[models.Seller, uuid.UUID],
+	crudCountryService badorm.CRUDService[models.Country, uuid.UUID],
+	crudCityService badorm.CRUDService[models.City, uuid.UUID],
+	crudEmployeeService badorm.CRUDService[models.Employee, uuid.UUID],
+	crudBicycleService badorm.CRUDService[models.Bicycle, uuid.UUID],
 ) *CRUDServiceIntTestSuite {
 	return &CRUDServiceIntTestSuite{
 		logger:              logger,
@@ -80,7 +82,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsEmptyI
 	entities, err := ts.crudProductService.GetEntities()
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{}, entities)
+	EqualList(&ts.Suite, []*models.Product{}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheOnlyOneIfOneEntityCreated() {
@@ -89,7 +91,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheOnl
 	entities, err := ts.crudProductService.GetEntities()
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheListWhenMultipleCreated() {
@@ -100,27 +102,27 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithoutConditionsReturnsTheLis
 	entities, err := ts.crudProductService.GetEntities()
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match1, match2, match3}, entities)
+	EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNotEntitiesCreated() {
 	entities, err := ts.crudProductService.GetEntities(
-		ProductStringCondition("not_created"),
+		conditions.ProductString("not_created"),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{}, entities)
+	EqualList(&ts.Suite, []*models.Product{}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsEmptyIfNothingMatch() {
 	ts.createProduct("something_else", 0, 0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductStringCondition("not_match"),
+		conditions.ProductString("not_match"),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{}, entities)
+	EqualList(&ts.Suite, []*models.Product{}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnlyOneMatch() {
@@ -128,11 +130,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnly
 	ts.createProduct("not_match", 0, 0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductStringCondition("match"),
+		conditions.ProductString("match"),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleIfMultipleMatch() {
@@ -141,11 +143,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleI
 	ts.createProduct("not_match", 0, 0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductStringCondition("match"),
+		conditions.ProductString("match"),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
@@ -153,11 +155,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	ts.createProduct("not_match", 2, 0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductIntCondition(1),
+		conditions.ProductInt(1),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
@@ -165,11 +167,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	ts.createProduct("not_match", 0, 2.2, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductFloatCondition(1.1),
+		conditions.ProductFloat(1.1),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
@@ -177,11 +179,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 	ts.createProduct("not_match", 0, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductBoolCondition(true),
+		conditions.ProductBool(true),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDifferentTypesWorks() {
@@ -192,13 +194,13 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithMultipleConditionsOfDiffer
 	ts.createProduct("match", 2, 0.0, true, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductStringCondition("match"),
-		ProductIntCondition(1),
-		ProductBoolCondition(true),
+		conditions.ProductString("match"),
+		conditions.ProductInt(1),
+		conditions.ProductBool(true),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfID() {
@@ -206,11 +208,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfID() {
 	ts.createProduct("", 0, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductIdCondition(match.ID),
+		conditions.ProductId(match.ID),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCreatedAt() {
@@ -218,11 +220,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCreatedAt() {
 	ts.createProduct("", 0, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductCreatedAtCondition(match.CreatedAt),
+		conditions.ProductCreatedAt(match.CreatedAt),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfEmbedded() {
@@ -234,11 +236,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfEmbedded() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductEmbeddedIntCondition(1),
+		conditions.ProductEmbeddedInt(1),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfGormEmbedded() {
@@ -250,11 +252,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfGormEmbedded() 
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductGormEmbeddedIntCondition(1),
+		conditions.ProductGormEmbeddedInt(1),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeWithValue() {
@@ -265,11 +267,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeWith
 	ts.createProduct("not_match", 2, 0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductIntPointerCondition(&intMatch),
+		conditions.ProductIntPointer(&intMatch),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeByNil() {
@@ -278,11 +280,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeByNi
 	ts.createProduct("not_match", 2, 0, false, &intNotMatch)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductIntPointerCondition(nil),
+		conditions.ProductIntPointer(nil),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayWithContent() {
@@ -299,11 +301,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayWithCo
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductByteArrayCondition([]byte{1, 2}),
+		conditions.ProductByteArray([]byte{1, 2}),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayEmpty() {
@@ -320,11 +322,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayEmpty(
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductByteArrayCondition([]byte{}),
+		conditions.ProductByteArray([]byte{}),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() {
@@ -336,11 +338,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() 
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductByteArrayCondition(nil),
+		conditions.ProductByteArray(nil),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPQArray() {
@@ -357,19 +359,19 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPQArray() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductStringArrayCondition(pq.StringArray{"salut", "hola"}),
+		conditions.ProductStringArray(pq.StringArray{"salut", "hola"}),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCustomType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
-	match.MultiString = MultiString{"salut", "hola"}
-	notMatch1.MultiString = MultiString{"salut", "hola", "hello"}
+	match.MultiString = models.MultiString{"salut", "hola"}
+	notMatch1.MultiString = models.MultiString{"salut", "hola", "hello"}
 
 	err := ts.db.Save(match).Error
 	ts.Nil(err)
@@ -378,11 +380,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCustomType() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
-		ProductMultiStringCondition(MultiString{"salut", "hola"}),
+		conditions.ProductMultiString(models.MultiString{"salut", "hola"}),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Product{match}, entities)
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
@@ -396,11 +398,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() 
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleProductIdCondition(product1.ID),
+		conditions.SaleProductId(product1.ID),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOptionalWithValue() {
@@ -414,11 +416,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOpt
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleSellerIdCondition(&seller1.ID),
+		conditions.SaleSellerId(&seller1.ID),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOptionalByNil() {
@@ -431,11 +433,11 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOpt
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleSellerIdCondition(nil),
+		conditions.SaleSellerId(nil),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsTo() {
@@ -446,13 +448,13 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsT
 	ts.createSale(0, product2, nil)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleProductCondition(
-			ProductIntCondition(1),
+		conditions.SaleProduct(
+			conditions.ProductInt(1),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFiltersTheMainEntity() {
@@ -467,14 +469,14 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFilte
 	ts.createSale(2, product1, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleCodeCondition(1),
-		SaleProductCondition(
-			ProductIntCondition(1),
+		conditions.SaleCode(1),
+		conditions.SaleProduct(
+			conditions.ProductInt(1),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneOptional() {
@@ -488,20 +490,20 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneOp
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleSellerCondition(
-			SellerNameCondition("franco"),
+		conditions.SaleSeller(
+			conditions.SellerName("franco"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneSelfReferential() {
-	boss1 := &Employee{
+	boss1 := &models.Employee{
 		Name: "Xavier",
 	}
-	boss2 := &Employee{
+	boss2 := &models.Employee{
 		Name: "Vincent",
 	}
 
@@ -509,20 +511,20 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsHasOneSe
 	ts.createEmployee("pierre", boss2)
 
 	entities, err := ts.crudEmployeeService.GetEntities(
-		EmployeeBossCondition(
-			EmployeeNameCondition("Xavier"),
+		conditions.EmployeeBoss(
+			conditions.EmployeeName("Xavier"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Employee{match}, entities)
+	EqualList(&ts.Suite, []*models.Employee{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne() {
-	capital1 := City{
+	capital1 := models.City{
 		Name: "Buenos Aires",
 	}
-	capital2 := City{
+	capital2 := models.City{
 		Name: "Paris",
 	}
 
@@ -530,20 +532,20 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne
 	ts.createCountry("France", capital2)
 
 	entities, err := ts.crudCityService.GetEntities(
-		CityCountryCondition(
-			CountryNameCondition("Argentina"),
+		conditions.CityCountry(
+			conditions.CountryName("Argentina"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*City{&capital1}, entities)
+	EqualList(&ts.Suite, []*models.City{&capital1}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOneReversed() {
-	capital1 := City{
+	capital1 := models.City{
 		Name: "Buenos Aires",
 	}
-	capital2 := City{
+	capital2 := models.City{
 		Name: "Paris",
 	}
 
@@ -551,20 +553,20 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOneToOne
 	ts.createCountry("France", capital2)
 
 	entities, err := ts.crudCountryService.GetEntities(
-		CountryCapitalCondition(
-			CityNameCondition("Buenos Aires"),
+		conditions.CountryCapital(
+			conditions.CityName("Buenos Aires"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Country{country1}, entities)
+	EqualList(&ts.Suite, []*models.Country{country1}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsWithEntityThatDefinesTableName() {
-	person1 := Person{
+	person1 := models.Person{
 		Name: "franco",
 	}
-	person2 := Person{
+	person2 := models.Person{
 		Name: "xavier",
 	}
 
@@ -572,13 +574,13 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsWithEnti
 	ts.createBicycle("Shimano", person2)
 
 	entities, err := ts.crudBicycleService.GetEntities(
-		BicycleOwnerCondition(
-			PersonNameCondition("franco"),
+		conditions.BicycleOwner(
+			conditions.PersonName("franco"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Bicycle{match}, entities)
+	EqualList(&ts.Suite, []*models.Bicycle{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnHasMany() {
@@ -589,13 +591,13 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnHasMan
 	ts.createSeller("agustin", company2)
 
 	entities, err := ts.crudSellerService.GetEntities(
-		SellerCompanyCondition(
-			CompanyNameCondition("ditrit"),
+		conditions.SellerCompany(
+			conditions.CompanyName("ditrit"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Seller{match}, entities)
+	EqualList(&ts.Suite, []*models.Seller{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDifferentAttributes() {
@@ -609,14 +611,14 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffer
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleProductCondition(
-			ProductIntCondition(1),
-			ProductStringCondition("match"),
+		conditions.SaleProduct(
+			conditions.ProductInt(1),
+			conditions.ProductString("match"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFiltersByNil() {
@@ -628,13 +630,13 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFilte
 	ts.createSale(0, product2, nil)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleProductCondition(
-			ProductIntPointerCondition(nil),
+		conditions.SaleProduct(
+			conditions.ProductIntPointer(nil),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferentEntities() {
@@ -650,16 +652,16 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferen
 	ts.createSale(0, product2, seller1)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleProductCondition(
-			ProductIntCondition(1),
+		conditions.SaleProduct(
+			conditions.ProductInt(1),
 		),
-		SaleSellerCondition(
-			SellerNameCondition("franco"),
+		conditions.SaleSeller(
+			conditions.SellerName("franco"),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultipleTimes() {
@@ -676,22 +678,22 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultiple
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		SaleSellerCondition(
-			SellerNameCondition("franco"),
-			SellerCompanyCondition(
-				CompanyNameCondition("ditrit"),
+		conditions.SaleSeller(
+			conditions.SellerName("franco"),
+			conditions.SellerCompany(
+				conditions.CompanyName("ditrit"),
 			),
 		),
 	)
 	ts.Nil(err)
 
-	EqualList(&ts.Suite, []*Sale{match}, entities)
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
 // ------------------------- utils -------------------------
 
-func (ts *CRUDServiceIntTestSuite) createProduct(stringV string, intV int, floatV float64, boolV bool, intP *int) *Product {
-	entity := &Product{
+func (ts *CRUDServiceIntTestSuite) createProduct(stringV string, intV int, floatV float64, boolV bool, intP *int) *models.Product {
+	entity := &models.Product{
 		String:     stringV,
 		Int:        intV,
 		Float:      floatV,
@@ -704,8 +706,8 @@ func (ts *CRUDServiceIntTestSuite) createProduct(stringV string, intV int, float
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createSale(code int, product *Product, seller *Seller) *Sale {
-	entity := &Sale{
+func (ts *CRUDServiceIntTestSuite) createSale(code int, product *models.Product, seller *models.Seller) *models.Sale {
+	entity := &models.Sale{
 		Code:    code,
 		Product: *product,
 		Seller:  seller,
@@ -716,12 +718,12 @@ func (ts *CRUDServiceIntTestSuite) createSale(code int, product *Product, seller
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *Company) *Seller {
+func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *models.Company) *models.Seller {
 	var companyID *uuid.UUID
 	if company != nil {
 		companyID = &company.ID
 	}
-	entity := &Seller{
+	entity := &models.Seller{
 		Name:      name,
 		CompanyID: companyID,
 	}
@@ -731,8 +733,8 @@ func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *Company) *
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createCompany(name string) *Company {
-	entity := &Company{
+func (ts *CRUDServiceIntTestSuite) createCompany(name string) *models.Company {
+	entity := &models.Company{
 		Name: name,
 	}
 	err := ts.db.Create(entity).Error
@@ -741,8 +743,8 @@ func (ts *CRUDServiceIntTestSuite) createCompany(name string) *Company {
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createCountry(name string, capital City) *Country {
-	entity := &Country{
+func (ts *CRUDServiceIntTestSuite) createCountry(name string, capital models.City) *models.Country {
+	entity := &models.Country{
 		Name:    name,
 		Capital: capital,
 	}
@@ -752,8 +754,8 @@ func (ts *CRUDServiceIntTestSuite) createCountry(name string, capital City) *Cou
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createEmployee(name string, boss *Employee) *Employee {
-	entity := &Employee{
+func (ts *CRUDServiceIntTestSuite) createEmployee(name string, boss *models.Employee) *models.Employee {
+	entity := &models.Employee{
 		Name: name,
 		Boss: boss,
 	}
@@ -763,8 +765,8 @@ func (ts *CRUDServiceIntTestSuite) createEmployee(name string, boss *Employee) *
 	return entity
 }
 
-func (ts *CRUDServiceIntTestSuite) createBicycle(name string, owner Person) *Bicycle {
-	entity := &Bicycle{
+func (ts *CRUDServiceIntTestSuite) createBicycle(name string, owner models.Person) *models.Bicycle {
+	entity := &models.Bicycle{
 		Name:  name,
 		Owner: owner,
 	}

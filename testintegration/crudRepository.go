@@ -2,6 +2,8 @@ package testintegration
 
 import (
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/testintegration/conditions"
+	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -13,13 +15,13 @@ type CRUDRepositoryIntTestSuite struct {
 	suite.Suite
 	logger                *zap.Logger
 	db                    *gorm.DB
-	crudProductRepository badorm.CRUDRepository[Product, uuid.UUID]
+	crudProductRepository badorm.CRUDRepository[models.Product, uuid.UUID]
 }
 
 func NewCRUDRepositoryIntTestSuite(
 	logger *zap.Logger,
 	db *gorm.DB,
-	crudProductRepository badorm.CRUDRepository[Product, uuid.UUID],
+	crudProductRepository badorm.CRUDRepository[models.Product, uuid.UUID],
 ) *CRUDRepositoryIntTestSuite {
 	return &CRUDRepositoryIntTestSuite{
 		logger:                logger,
@@ -53,13 +55,13 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch() {
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.Get(ts.db, ProductIntCondition(1))
+	_, err := ts.crudProductRepository.Get(ts.db, conditions.ProductInt(1))
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 	product := ts.createProduct(1)
-	productReturned, err := ts.crudProductRepository.Get(ts.db, ProductIntCondition(1))
+	productReturned, err := ts.crudProductRepository.Get(ts.db, conditions.ProductInt(1))
 	ts.Nil(err)
 
 	assert.DeepEqual(ts.T(), product, productReturned)
@@ -69,14 +71,14 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsNilIfConditionsDontMatch() {
 	ts.createProduct(0)
-	productReturned, err := ts.crudProductRepository.GetOptional(ts.db, ProductIntCondition(1))
+	productReturned, err := ts.crudProductRepository.GetOptional(ts.db, conditions.ProductInt(1))
 	ts.Nil(err)
 	ts.Nil(productReturned)
 }
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsEntityIfConditionsMatch() {
 	product := ts.createProduct(0)
-	productReturned, err := ts.crudProductRepository.GetOptional(ts.db, ProductIntCondition(0))
+	productReturned, err := ts.crudProductRepository.GetOptional(ts.db, conditions.ProductInt(0))
 	ts.Nil(err)
 
 	assert.DeepEqual(ts.T(), product, productReturned)
@@ -85,7 +87,7 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsEntityIfConditionsMa
 func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsErrorIfMoreThanOneMatchConditions() {
 	ts.createProduct(0)
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.GetOptional(ts.db, ProductIntCondition(0))
+	_, err := ts.crudProductRepository.GetOptional(ts.db, conditions.ProductInt(0))
 	ts.Error(err, badorm.ErrMoreThanOneObjectFound)
 }
 
@@ -94,7 +96,7 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsErrorIfMoreThanOneMa
 func (ts *CRUDRepositoryIntTestSuite) TestGetAllReturnsEmptyIfNotEntitiesCreated() {
 	productsReturned, err := ts.crudProductRepository.GetAll(ts.db)
 	ts.Nil(err)
-	EqualList(&ts.Suite, []*Product{}, productsReturned)
+	EqualList(&ts.Suite, []*models.Product{}, productsReturned)
 }
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetAllReturnsAllEntityIfConditionsMatch() {
@@ -102,13 +104,13 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetAllReturnsAllEntityIfConditionsMatc
 	product2 := ts.createProduct(0)
 	productsReturned, err := ts.crudProductRepository.GetAll(ts.db)
 	ts.Nil(err)
-	EqualList(&ts.Suite, []*Product{product1, product2}, productsReturned)
+	EqualList(&ts.Suite, []*models.Product{product1, product2}, productsReturned)
 }
 
 // ------------------------- utils -------------------------
 
-func (ts *CRUDRepositoryIntTestSuite) createProduct(intV int) *Product {
-	entity := &Product{
+func (ts *CRUDRepositoryIntTestSuite) createProduct(intV int) *models.Product {
+	entity := &models.Product{
 		Int: intV,
 	}
 	err := ts.db.Create(entity).Error

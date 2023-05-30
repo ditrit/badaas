@@ -9,6 +9,7 @@ import (
 	"github.com/ditrit/badaas"
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/services"
+	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/ditrit/verdeter"
 	"github.com/google/uuid"
 	"github.com/spf13/cobra"
@@ -55,15 +56,15 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		fx.Invoke(badorm.AddModel[Company]),
-		badorm.GetCRUDServiceModule[Seller, uuid.UUID](),
-		badorm.GetCRUDServiceModule[Product, uuid.UUID](),
-		badorm.GetCRUDServiceModule[Sale, uuid.UUID](),
-		badorm.GetCRUDServiceModule[City, uuid.UUID](),
-		badorm.GetCRUDServiceModule[Country, uuid.UUID](),
-		badorm.GetCRUDServiceModule[Employee, uuid.UUID](),
-		fx.Invoke(badorm.AddModel[Person]),
-		badorm.GetCRUDServiceModule[Bicycle, uuid.UUID](),
+		fx.Invoke(badorm.AddModel[models.Company]),
+		badorm.GetCRUDServiceModule[models.Seller, uuid.UUID](),
+		badorm.GetCRUDServiceModule[models.Product, uuid.UUID](),
+		badorm.GetCRUDServiceModule[models.Sale, uuid.UUID](),
+		badorm.GetCRUDServiceModule[models.City, uuid.UUID](),
+		badorm.GetCRUDServiceModule[models.Country, uuid.UUID](),
+		badorm.GetCRUDServiceModule[models.Employee, uuid.UUID](),
+		fx.Invoke(badorm.AddModel[models.Person]),
+		badorm.GetCRUDServiceModule[models.Bicycle, uuid.UUID](),
 		fx.Provide(NewCRUDServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
 

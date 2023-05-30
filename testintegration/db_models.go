@@ -4,21 +4,22 @@ import (
 	"log"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/models"
+	badaasModels "github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
 )
 
 var ListOfTables = []any{
-	Product{},
-	Company{},
-	Seller{},
-	Sale{},
-	Country{},
-	City{},
-	Employee{},
-	Person{},
-	Bicycle{},
+	models.Product{},
+	models.Company{},
+	models.Seller{},
+	models.Sale{},
+	models.Country{},
+	models.City{},
+	models.Employee{},
+	models.Person{},
+	models.Bicycle{},
 }
 
 func GetModels() badorm.GetModelsResult {
@@ -31,10 +32,10 @@ func CleanDB(db *gorm.DB) {
 	CleanDBTables(db, append(
 		pie.Reverse(ListOfTables),
 		[]any{
-			models.Value{},
-			models.Attribute{},
-			models.Entity{},
-			models.EntityType{},
+			badaasModels.Value{},
+			badaasModels.Attribute{},
+			badaasModels.Entity{},
+			badaasModels.EntityType{},
 		}...,
 	))
 }

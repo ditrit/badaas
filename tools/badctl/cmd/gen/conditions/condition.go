@@ -270,7 +270,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 
 // Generate condition names
 func getConditionName(typeV Type, fieldName string) string {
-	return typeV.Name() + strcase.ToPascal(fieldName) + badORMCondition
+	return typeV.Name() + strcase.ToPascal(fieldName)
 }
 
 // TODO testear esto
