@@ -2,7 +2,6 @@ package badorm
 
 import (
 	"github.com/google/uuid"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
@@ -19,18 +18,15 @@ var _ CRUDService[UUIDModel, uuid.UUID] = (*crudServiceImpl[UUIDModel, uuid.UUID
 // Implementation of the CRUD Service
 type crudServiceImpl[T any, ID BadaasID] struct {
 	CRUDService[T, ID]
-	logger     *zap.Logger
 	db         *gorm.DB
 	repository CRUDRepository[T, ID]
 }
 
 func NewCRUDService[T any, ID BadaasID](
-	logger *zap.Logger,
 	db *gorm.DB,
 	repository CRUDRepository[T, ID],
 ) CRUDService[T, ID] {
 	return &crudServiceImpl[T, ID]{
-		logger:     logger,
 		db:         db,
 		repository: repository,
 	}

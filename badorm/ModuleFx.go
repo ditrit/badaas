@@ -2,7 +2,6 @@ package badorm
 
 import (
 	"fmt"
-	"reflect"
 
 	"go.uber.org/fx"
 )
@@ -36,12 +35,4 @@ func GetCRUDServiceModule[T any, ID BadaasID]() fx.Option {
 		// service
 		fx.Provide(NewCRUDService[T, ID]),
 	)
-}
-
-var modelsMapping = map[string]reflect.Type{}
-
-func AddModel[T any]() {
-	entity := *new(T)
-	entityType := reflect.TypeOf(entity)
-	modelsMapping[entityType.Name()] = entityType
 }

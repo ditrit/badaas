@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"sync"
 
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/schema"
 )
@@ -42,16 +41,11 @@ var (
 // Implementation of the Generic CRUD Repository
 type CRUDRepositoryImpl[T any, ID BadaasID] struct {
 	CRUDRepository[T, ID]
-	logger *zap.Logger
 }
 
 // Constructor of the Generic CRUD Repository
-func NewCRUDRepository[T any, ID BadaasID](
-	logger *zap.Logger,
-) CRUDRepository[T, ID] {
-	return &CRUDRepositoryImpl[T, ID]{
-		logger: logger,
-	}
+func NewCRUDRepository[T any, ID BadaasID]() CRUDRepository[T, ID] {
+	return &CRUDRepositoryImpl[T, ID]{}
 }
 
 // Create object "entity" inside transaction "tx"
