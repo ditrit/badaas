@@ -85,7 +85,6 @@ func TestCasbin(t *testing.T) {
 			Act:    "write",
 			Expect: false,
 		},
-		// ESTE no anda
 		{
 			Dom:    "domain1.sub2",
 			Sub:    "Vincent",
@@ -107,7 +106,6 @@ func TestCasbin(t *testing.T) {
 			Act:    "exec",
 			Expect: false,
 		},
-		// ESTE no anda
 		{
 			Dom:    "domain1.sub1",
 			Sub:    "devaut",
@@ -115,7 +113,6 @@ func TestCasbin(t *testing.T) {
 			Act:    "exec",
 			Expect: true,
 		},
-		// ESTE no anda
 		{
 			Dom:    "domain1.sub2",
 			Sub:    "devaut",
@@ -123,7 +120,6 @@ func TestCasbin(t *testing.T) {
 			Act:    "exec",
 			Expect: true,
 		},
-		// ESTE no anda
 		{
 			Dom:    "Orness",
 			Sub:    "super",
