@@ -2,8 +2,10 @@ package badorm
 
 import (
 	"fmt"
+	"log"
 	"reflect"
 
+	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
@@ -23,36 +25,100 @@ var BaDORMModule = fx.Module(
 	),
 )
 
-func GetCRUDServiceModule[T any, ID BadaasID]() fx.Option {
-	// TODO verificar que sea un badorm module?
-	// TODO sacar solo cual es el id?
-	return fx.Module(
-		fmt.Sprintf(
-			"%TCRUDServiceModule",
-			*new(T),
-		),
-		// repository
-		fx.Provide(NewCRUDRepository[T, ID]),
-		// service
-		fx.Provide(NewCRUDService[T, ID]),
+func GetCRUDServiceModule[T any]() fx.Option {
+	entity := *new(T)
+
+	moduleName := fmt.Sprintf(
+		"%TCRUDServiceModule",
+		entity,
 	)
+
+	kind := getBaDORMModelKind(entity)
+	switch kind {
+	case KindUUIDModel:
+		return fx.Module(
+			moduleName,
+			// repository
+			fx.Provide(NewCRUDRepository[T, uuid.UUID]),
+			// service
+			fx.Provide(NewCRUDService[T, uuid.UUID]),
+		)
+	case KindUIntModel:
+		return fx.Module(
+			moduleName,
+			// repository
+			fx.Provide(NewCRUDRepository[T, uint]),
+			// service
+			fx.Provide(NewCRUDService[T, uint]),
+		)
+	default:
+		log.Printf("type %T is not a BaDORM Module\n", entity)
+		return fx.Invoke(failNotBadORMModule())
+	}
 }
 
-func GetCRUDUnsafeServiceModule[T any, ID BadaasID]() fx.Option {
-	// TODO verificar que sea un badorm module?
-	// TODO sacar solo cual es el id?
-	return fx.Module(
-		fmt.Sprintf(
-			"%TCRUDUnsafeServiceModule",
-			*new(T),
-		),
-		// models
-		fx.Invoke(AddUnsafeModel[T]),
-		// repository
-		fx.Provide(NewCRUDUnsafeRepository[T, ID]),
-		// service
-		fx.Provide(NewCRUDUnsafeService[T, ID]),
+func failNotBadORMModule() error {
+	return fmt.Errorf("type is not a BaDORM Module")
+}
+
+func GetCRUDUnsafeServiceModule[T any]() fx.Option {
+	entity := *new(T)
+
+	moduleName := fmt.Sprintf(
+		"%TCRUDUnsafeServiceModule",
+		entity,
 	)
+
+	kind := getBaDORMModelKind(entity)
+	switch kind {
+	case KindUUIDModel:
+		return fx.Module(
+			moduleName,
+			// models
+			fx.Invoke(AddUnsafeModel[T]),
+			// repository
+			fx.Provide(NewCRUDUnsafeRepository[T, uuid.UUID]),
+			// service
+			fx.Provide(NewCRUDUnsafeService[T, uuid.UUID]),
+		)
+	case KindUIntModel:
+		return fx.Module(
+			moduleName,
+			// models
+			fx.Invoke(AddUnsafeModel[T]),
+			// repository
+			fx.Provide(NewCRUDUnsafeRepository[T, uint]),
+			// service
+			fx.Provide(NewCRUDUnsafeService[T, uint]),
+		)
+	default:
+		log.Printf("type %T is not a BaDORM Module\n", entity)
+		return fx.Invoke(failNotBadORMModule())
+	}
+}
+
+type BadORMModelKind uint
+
+const (
+	KindUUIDModel BadORMModelKind = iota
+	KindUIntModel
+	KindNotBaDORMModel
+)
+
+func getBaDORMModelKind(entity any) BadORMModelKind {
+	entityType := getEntityType(entity)
+
+	_, isUUIDModel := entityType.FieldByName("UUIDModel")
+	if isUUIDModel {
+		return KindUUIDModel
+	}
+
+	_, isUIntModel := entityType.FieldByName("UIntModel")
+	if isUIntModel {
+		return KindUIntModel
+	}
+
+	return KindNotBaDORMModel
 }
 
 var modelsMapping = map[string]reflect.Type{}

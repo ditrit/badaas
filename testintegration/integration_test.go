@@ -11,7 +11,6 @@ import (
 	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/ditrit/verdeter"
-	"github.com/google/uuid"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -56,23 +55,23 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		badorm.GetCRUDServiceModule[models.Seller, uuid.UUID](),
-		badorm.GetCRUDServiceModule[models.Product, uuid.UUID](),
-		badorm.GetCRUDServiceModule[models.Sale, uuid.UUID](),
-		badorm.GetCRUDServiceModule[models.City, uuid.UUID](),
-		badorm.GetCRUDServiceModule[models.Country, uuid.UUID](),
-		badorm.GetCRUDServiceModule[models.Employee, uuid.UUID](),
-		badorm.GetCRUDServiceModule[models.Bicycle, uuid.UUID](),
+		badorm.GetCRUDServiceModule[models.Seller](),
+		badorm.GetCRUDServiceModule[models.Product](),
+		badorm.GetCRUDServiceModule[models.Sale](),
+		badorm.GetCRUDServiceModule[models.City](),
+		badorm.GetCRUDServiceModule[models.Country](),
+		badorm.GetCRUDServiceModule[models.Employee](),
+		badorm.GetCRUDServiceModule[models.Bicycle](),
 
-		badorm.GetCRUDUnsafeServiceModule[models.Company, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Seller, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Product, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Sale, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.City, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Country, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Employee, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Person, uuid.UUID](),
-		badorm.GetCRUDUnsafeServiceModule[models.Bicycle, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Company](),
+		badorm.GetCRUDUnsafeServiceModule[models.Seller](),
+		badorm.GetCRUDUnsafeServiceModule[models.Product](),
+		badorm.GetCRUDUnsafeServiceModule[models.Sale](),
+		badorm.GetCRUDUnsafeServiceModule[models.City](),
+		badorm.GetCRUDUnsafeServiceModule[models.Country](),
+		badorm.GetCRUDUnsafeServiceModule[models.Employee](),
+		badorm.GetCRUDUnsafeServiceModule[models.Person](),
+		badorm.GetCRUDUnsafeServiceModule[models.Bicycle](),
 
 		fx.Provide(NewCRUDServiceIntTestSuite),
 		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
