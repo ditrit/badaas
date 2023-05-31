@@ -38,14 +38,6 @@ func (service *crudServiceImpl[T, ID]) GetEntity(id ID) (*T, error) {
 }
 
 // Get entities of type T that match all "conditions"
-//
-// "conditions" is in {"attributeName": expectedValue} format
-// in case of join "conditions" can have the format:
-//
-//	{"relationAttributeName": {"attributeName": expectedValue}}
-//
-// TODO
-// func (service *crudServiceImpl[T, ID]) GetEntities(conditions map[string]any) ([]*T, error) {
 func (service *crudServiceImpl[T, ID]) GetEntities(conditions ...Condition[T]) ([]*T, error) {
 	return service.repository.GetMultiple(service.db, conditions...)
 }

@@ -1,4 +1,4 @@
-PATHS = $(shell go list ./... | tail -n +2 | grep -v test_integration | grep -v test_e2e)
+PATHS = $(shell go list ./... | tail -n +2 | grep -v testintegration | grep -v test_e2e)
 
 test_unit:
 	go test $(PATHS) -v

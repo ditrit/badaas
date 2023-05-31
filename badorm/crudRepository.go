@@ -2,7 +2,6 @@ package badorm
 
 import (
 	"errors"
-	"fmt"
 	"sync"
 
 	"gorm.io/gorm"
@@ -30,12 +29,6 @@ type CRUDRepository[T any, ID BadaasID] interface {
 var (
 	ErrMoreThanOneObjectFound = errors.New("found more that one object that meet the requested conditions")
 	ErrObjectNotFound         = errors.New("no object exists that meets the requested conditions")
-	ErrObjectsNotRelated      = func(typeName, attributeName string) error {
-		return fmt.Errorf("%[1]s has not attribute named %[2]s or %[2]sID", typeName, attributeName)
-	}
-	ErrModelNotRegistered = func(typeName, attributeName string) error {
-		return fmt.Errorf("%[1]s has an attribute named %[2]s or %[2]sID but %[2]s is not registered as model (use AddModel)", typeName, attributeName)
-	}
 )
 
 // Implementation of the Generic CRUD Repository
@@ -152,48 +145,3 @@ func getTableName(db *gorm.DB, entity any) (string, error) {
 func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
 	return repository.GetMultiple(tx)
 }
-
-// Returns an object of the type of the "entity" attribute called "relationName"
-// and a boolean value indicating whether the id attribute that relates them
-// in the database is in the "entity"'s table.
-// Returns error if "entity" not a relation called "relationName".
-// func getRelatedObject(entity any, relationName string) (any, bool, error) {
-// 	entityType := getEntityType(entity)
-
-// 	field, isPresent := entityType.FieldByName(relationName)
-// 	if !isPresent {
-// 		// some gorm relations dont have a direct relation in the model, only the id
-// 		relatedObject, err := getRelatedObjectByID(entityType, relationName)
-// 		if err != nil {
-// 			return nil, false, err
-// 		}
-
-// 		return relatedObject, true, nil
-// 	}
-
-// 	_, isIDPresent := entityType.FieldByName(relationName + "ID")
-
-// 	return createObject(field.Type), isIDPresent, nil
-// }
-
-// Returns an object of the type of the "entity" attribute called "relationName" + "ID"
-// Returns error if "entity" not a relation called "relationName" + "ID"
-// func getRelatedObjectByID(entityType reflect.Type, relationName string) (any, error) {
-// 	_, isPresent := entityType.FieldByName(relationName + "ID")
-// 	if !isPresent {
-// 		return nil, ErrObjectsNotRelated(entityType.Name(), relationName)
-// 	}
-
-// 	// TODO foreignKey can be redefined (https://gorm.io/docs/has_one.html#Override-References)
-// 	fieldType, isPresent := modelsMapping[relationName]
-// 	if !isPresent {
-// 		return nil, ErrModelNotRegistered(entityType.Name(), relationName)
-// 	}
-
-// 	return createObject(fieldType), nil
-// }
-
-// // Creates an object of type reflect.Type using reflection
-// func createObject(entityType reflect.Type) any {
-// 	return reflect.New(entityType).Elem().Interface()
-// }

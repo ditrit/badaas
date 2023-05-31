@@ -75,7 +75,9 @@ func GetCRUDRoutesModule[T any]() fx.Option {
 	return fx.Module(
 		typeName+"CRUDRoutesModule",
 		// service
+		// TODO ver este uuid
 		badorm.GetCRUDServiceModule[T, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[T, uuid.UUID](),
 
 		// controller
 		fx.Provide(

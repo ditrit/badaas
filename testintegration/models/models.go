@@ -137,7 +137,7 @@ func (m Employee) Equal(other Employee) bool {
 type Person struct {
 	badorm.UUIDModel
 
-	Name string
+	Name string `gorm:"unique"`
 }
 
 func (m Person) TableName() string {

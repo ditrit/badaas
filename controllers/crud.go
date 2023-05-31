@@ -29,6 +29,7 @@ type CRUDRoute struct {
 func NewCRUDController[T any](
 	logger *zap.Logger,
 	crudService badorm.CRUDService[T, uuid.UUID],
+	crudUnsafeService badorm.CRUDUnsafeService[T, uuid.UUID],
 ) CRUDRoute {
 	fullTypeName := strings.ToLower(fmt.Sprintf("%T", *new(T)))
 	// remove the package name of the type
@@ -37,8 +38,9 @@ func NewCRUDController[T any](
 	return CRUDRoute{
 		TypeName: typeName,
 		Controller: &crudControllerImpl[T]{
-			logger:      logger,
-			crudService: crudService,
+			logger:            logger,
+			crudService:       crudService,
+			crudUnsafeService: crudUnsafeService,
 		},
 	}
 
@@ -46,8 +48,9 @@ func NewCRUDController[T any](
 
 // The concrete implementation of the CRUDController
 type crudControllerImpl[T any] struct {
-	logger      *zap.Logger
-	crudService badorm.CRUDService[T, uuid.UUID]
+	logger            *zap.Logger
+	crudService       badorm.CRUDService[T, uuid.UUID]
+	crudUnsafeService badorm.CRUDUnsafeService[T, uuid.UUID]
 }
 
 // The handler responsible of the retrieval of one object
@@ -63,13 +66,11 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 
 // The handler responsible of the retrieval of multiple objects
 func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	// TODO
-	// params, herr := decodeJSONOptional(r)
-	// if herr != nil {
-	// 	return nil, herr
-	// }
+	params, herr := decodeJSONOptional(r)
+	if herr != nil {
+		return nil, herr
+	}
 
-	// entities, err := controller.crudService.GetEntities(params)
-	// return entities, mapServiceError(err)
-	return nil, nil
+	entities, err := controller.crudUnsafeService.GetEntities(params)
+	return entities, mapServiceError(err)
 }

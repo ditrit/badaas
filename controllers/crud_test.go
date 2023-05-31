@@ -22,10 +22,12 @@ type Model struct {
 
 func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -40,10 +42,12 @@ func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
 
 func TestCRUDGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -59,6 +63,7 @@ func TestCRUDGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 
 func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	uuid := uuid.New()
 
@@ -69,6 +74,7 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -85,6 +91,7 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 
 func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	uuid := uuid.New()
 
@@ -95,6 +102,7 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -111,6 +119,7 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 
 func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	uuid := uuid.New()
 	entity := Model{}
@@ -122,6 +131,7 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -140,14 +150,16 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 
 func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
-	crudService.
+	crudUnsafeService.
 		On("GetEntities", map[string]any{}).
 		Return(nil, errors.New("db error"))
 
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -162,17 +174,19 @@ func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
 
 func TestGetEntitiesWithoutParams(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	entity1 := &Model{}
 	entity2 := &Model{}
 
-	crudService.
+	crudUnsafeService.
 		On("GetEntities", map[string]any{}).
 		Return([]*Model{entity1, entity2}, nil)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -190,16 +204,18 @@ func TestGetEntitiesWithoutParams(t *testing.T) {
 
 func TestGetEntitiesWithParams(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	entity1 := &Model{}
 
-	crudService.
+	crudUnsafeService.
 		On("GetEntities", map[string]any{"param1": "something"}).
 		Return([]*Model{entity1}, nil)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
@@ -216,10 +232,12 @@ func TestGetEntitiesWithParams(t *testing.T) {
 
 func TestGetEntitiesWithParamsNotJsonReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
 		crudService,
+		crudUnsafeService,
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(

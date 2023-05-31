@@ -56,16 +56,26 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		services.EAVServiceModule,
 		fx.Provide(NewEAVServiceIntTestSuite),
 
-		fx.Invoke(badorm.AddModel[models.Company]),
 		badorm.GetCRUDServiceModule[models.Seller, uuid.UUID](),
 		badorm.GetCRUDServiceModule[models.Product, uuid.UUID](),
 		badorm.GetCRUDServiceModule[models.Sale, uuid.UUID](),
 		badorm.GetCRUDServiceModule[models.City, uuid.UUID](),
 		badorm.GetCRUDServiceModule[models.Country, uuid.UUID](),
 		badorm.GetCRUDServiceModule[models.Employee, uuid.UUID](),
-		fx.Invoke(badorm.AddModel[models.Person]),
 		badorm.GetCRUDServiceModule[models.Bicycle, uuid.UUID](),
+
+		badorm.GetCRUDUnsafeServiceModule[models.Company, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Seller, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Product, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Sale, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.City, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Country, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Employee, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Person, uuid.UUID](),
+		badorm.GetCRUDUnsafeServiceModule[models.Bicycle, uuid.UUID](),
+
 		fx.Provide(NewCRUDServiceIntTestSuite),
+		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
 
 		fx.Invoke(runTestSuites),
@@ -73,15 +83,17 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 }
 
 func runTestSuites(
-	tsEAV *EAVServiceIntTestSuite,
-	tsCRUD *CRUDServiceIntTestSuite,
+	tsEAVService *EAVServiceIntTestSuite,
+	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
+	tsCRUDUnsafeService *CRUDRepositoryIntTestSuite,
 	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, tsEAV)
-	suite.Run(tGlobal, tsCRUD)
+	suite.Run(tGlobal, tsEAVService)
+	suite.Run(tGlobal, tsCRUDService)
 	suite.Run(tGlobal, tsCRUDRepository)
+	suite.Run(tGlobal, tsCRUDUnsafeService)
 
 	// let db cleaned
 	CleanDB(db)

@@ -7,7 +7,6 @@ import (
 
 	"github.com/Masterminds/semver/v3"
 	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/testintegration"
@@ -54,9 +53,6 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		router.AuthRoutesModule,
 		router.EAVRoutesModule,
 
-		fx.Invoke(badorm.AddModel[models.Company]),
-		fx.Invoke(badorm.AddModel[models.Seller]),
-		fx.Invoke(badorm.AddModel[models.Product]),
 		router.GetCRUDRoutesModule[models.Sale](),
 
 		// create httpServer

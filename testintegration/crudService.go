@@ -6,16 +6,12 @@ import (
 	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 )
 
 type CRUDServiceIntTestSuite struct {
-	suite.Suite
-	logger              *zap.Logger
-	db                  *gorm.DB
+	CRUDServiceCommonIntTestSuite
 	crudProductService  badorm.CRUDService[models.Product, uuid.UUID]
 	crudSaleService     badorm.CRUDService[models.Sale, uuid.UUID]
 	crudSellerService   badorm.CRUDService[models.Seller, uuid.UUID]
@@ -26,7 +22,6 @@ type CRUDServiceIntTestSuite struct {
 }
 
 func NewCRUDServiceIntTestSuite(
-	logger *zap.Logger,
 	db *gorm.DB,
 	crudProductService badorm.CRUDService[models.Product, uuid.UUID],
 	crudSaleService badorm.CRUDService[models.Sale, uuid.UUID],
@@ -37,8 +32,9 @@ func NewCRUDServiceIntTestSuite(
 	crudBicycleService badorm.CRUDService[models.Bicycle, uuid.UUID],
 ) *CRUDServiceIntTestSuite {
 	return &CRUDServiceIntTestSuite{
-		logger:              logger,
-		db:                  db,
+		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
+			db: db,
+		},
 		crudProductService:  crudProductService,
 		crudSaleService:     crudSaleService,
 		crudSellerService:   crudSellerService,
@@ -47,10 +43,6 @@ func NewCRUDServiceIntTestSuite(
 		crudEmployeeService: crudEmployeeService,
 		crudBicycleService:  crudBicycleService,
 	}
-}
-
-func (ts *CRUDServiceIntTestSuite) SetupTest() {
-	CleanDB(ts.db)
 }
 
 // ------------------------- GetEntity --------------------------------
@@ -760,90 +752,4 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultiple
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
-}
-
-// ------------------------- utils -------------------------
-
-func (ts *CRUDServiceIntTestSuite) createProduct(stringV string, intV int, floatV float64, boolV bool, intP *int) *models.Product {
-	entity := &models.Product{
-		String:     stringV,
-		Int:        intV,
-		Float:      floatV,
-		Bool:       boolV,
-		IntPointer: intP,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
-}
-
-func (ts *CRUDServiceIntTestSuite) createSale(code int, product *models.Product, seller *models.Seller) *models.Sale {
-	entity := &models.Sale{
-		Code:    code,
-		Product: *product,
-		Seller:  seller,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
-}
-
-func (ts *CRUDServiceIntTestSuite) createSeller(name string, company *models.Company) *models.Seller {
-	var companyID *uuid.UUID
-	if company != nil {
-		companyID = &company.ID
-	}
-	entity := &models.Seller{
-		Name:      name,
-		CompanyID: companyID,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
-}
-
-func (ts *CRUDServiceIntTestSuite) createCompany(name string) *models.Company {
-	entity := &models.Company{
-		Name: name,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
-}
-
-func (ts *CRUDServiceIntTestSuite) createCountry(name string, capital models.City) *models.Country {
-	entity := &models.Country{
-		Name:    name,
-		Capital: capital,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
-}
-
-func (ts *CRUDServiceIntTestSuite) createEmployee(name string, boss *models.Employee) *models.Employee {
-	entity := &models.Employee{
-		Name: name,
-		Boss: boss,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
-}
-
-func (ts *CRUDServiceIntTestSuite) createBicycle(name string, owner models.Person) *models.Bicycle {
-	entity := &models.Bicycle{
-		Name:  name,
-		Owner: owner,
-	}
-	err := ts.db.Create(entity).Error
-	ts.Nil(err)
-
-	return entity
 }
