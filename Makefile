@@ -7,8 +7,8 @@ test_unit_and_cover:
 	go test $(PATHS) -coverpkg=./... -coverprofile=coverage_unit.out -v
 
 test_db:
-	docker compose -f "docker/test_db/docker-compose.yml" up -d
-	./docker/wait_for_api.sh 8080/health
+	docker compose -f "docker/postgresql/docker-compose.yml" up -d
+	./docker/wait_for_db.sh
 
 test_integration: test_db
 	go test ./testintegration -v
@@ -17,7 +17,7 @@ test_integration_and_cover: test_db
 	go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
 
 test_e2e:
-	docker compose -f "docker/test_db/docker-compose.yml" -f "docker/test_api/docker-compose.yml" up -d
+	docker compose -f "docker/cockroachdb/docker-compose.yml" -f "docker/test_api/docker-compose.yml" up -d
 	./docker/wait_for_api.sh 8000/info
 	go test ./test_e2e -v
 

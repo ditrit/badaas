@@ -2,12 +2,10 @@ package gormdatabase
 
 import (
 	"fmt"
-	"time"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
 	"go.uber.org/zap"
-	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -37,41 +35,10 @@ func SetupDatabaseConnection(
 	databaseConfiguration configuration.DatabaseConfiguration,
 ) (*gorm.DB, error) {
 	dsn := createDsnFromConf(databaseConfiguration)
-	var err error
-	var database *gorm.DB
-	for numberRetry := uint(0); numberRetry < databaseConfiguration.GetRetry(); numberRetry++ {
-		database, err = initializeDBFromDsn(dsn, logger)
-		if err == nil {
-			logger.Sugar().Debugf("Database connection is active")
-			return database, nil
-		}
-		logger.Sugar().Debugf("Database connection failed with error %q", err.Error())
-		logger.Sugar().Debugf("Retrying database connection %d/%d in %s",
-			numberRetry+1, databaseConfiguration.GetRetry(), databaseConfiguration.GetRetryTime().String())
-		time.Sleep(databaseConfiguration.GetRetryTime())
-	}
-
-	return nil, err
-}
-
-// Initialize the database with the dsn string
-func initializeDBFromDsn(dsn string, logger *zap.Logger) (*gorm.DB, error) {
-	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: gormzap.New(logger),
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	rawDatabase, err := database.DB()
-	if err != nil {
-		return nil, err
-	}
-	// ping the underlying database
-	err = rawDatabase.Ping()
-	if err != nil {
-		return nil, err
-	}
-	return database, nil
+	return badorm.ConnectToDSN(
+		logger,
+		dsn,
+		databaseConfiguration.GetRetry(),
+		databaseConfiguration.GetRetryTime(),
+	)
 }

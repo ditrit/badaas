@@ -1,17 +1,13 @@
 package testintegration
 
 import (
-	"path"
-	"path/filepath"
-	"runtime"
 	"testing"
+	"time"
 
-	"github.com/ditrit/badaas"
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/services"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/logger"
 	"github.com/ditrit/badaas/testintegration/models"
-	"github.com/ditrit/verdeter"
-	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
@@ -20,40 +16,18 @@ import (
 	"gorm.io/gorm"
 )
 
-var tGlobal *testing.T
-
-var testsCommand = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-	Run: injectDependencies,
-})
-
-// In order for 'go test' to run this suite, we need to create
-// a normal test function and pass our suite to suite.Run
-func TestAll(t *testing.T) {
-	_, b, _, _ := runtime.Caller(0)
-	basePath := filepath.Dir(b)
-	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
-	err := badaas.ConfigCommandParameters(testsCommand)
-	if err != nil {
-		panic(err)
-	}
-
-	tGlobal = t
-
-	testsCommand.Execute()
-}
-
-func injectDependencies(cmd *cobra.Command, args []string) {
+func TestBaDORM(t *testing.T) {
 	fx.New(
+		fx.Provide(NewLoggerConfiguration),
+		logger.LoggerModule,
+		fx.Provide(NewGormDBConnection),
 		fx.Provide(GetModels),
-		badaas.BadaasModule,
+		badorm.BaDORMModule,
 
 		// logger for fx
 		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
-
-		services.EAVServiceModule,
-		fx.Provide(NewEAVServiceIntTestSuite),
 
 		badorm.GetCRUDServiceModule[models.Seller](),
 		badorm.GetCRUDServiceModule[models.Product](),
@@ -77,19 +51,17 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
 
-		fx.Invoke(runTestSuites),
+		fx.Invoke(runBaDORMTestSuites),
 	).Run()
 }
 
-func runTestSuites(
-	tsEAVService *EAVServiceIntTestSuite,
+func runBaDORMTestSuites(
 	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
 	tsCRUDUnsafeService *CRUDRepositoryIntTestSuite,
 	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, tsEAVService)
 	suite.Run(tGlobal, tsCRUDService)
 	suite.Run(tGlobal, tsCRUDRepository)
 	suite.Run(tGlobal, tsCRUDUnsafeService)
@@ -97,4 +69,15 @@ func runTestSuites(
 	// let db cleaned
 	CleanDB(db)
 	shutdowner.Shutdown()
+}
+
+func NewLoggerConfiguration() configuration.LoggerConfiguration {
+	viper.Set(configuration.LoggerModeKey, "dev")
+	return configuration.NewLoggerConfiguration()
+}
+
+func NewGormDBConnection(logger *zap.Logger) (*gorm.DB, error) {
+	dsn := "user=badaas password=badaas host=localhost port=5000 sslmode=disable dbname=badaas_db"
+	// TODO codigo repetido en el ejemplo pero sin el logger
+	return badorm.ConnectToDSN(logger, dsn, 10, time.Duration(5)*time.Second)
 }

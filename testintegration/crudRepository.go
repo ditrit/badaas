@@ -6,25 +6,21 @@ import (
 	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 )
 
 type CRUDRepositoryIntTestSuite struct {
 	suite.Suite
-	logger                *zap.Logger
 	db                    *gorm.DB
 	crudProductRepository badorm.CRUDRepository[models.Product, uuid.UUID]
 }
 
 func NewCRUDRepositoryIntTestSuite(
-	logger *zap.Logger,
 	db *gorm.DB,
 	crudProductRepository badorm.CRUDRepository[models.Product, uuid.UUID],
 ) *CRUDRepositoryIntTestSuite {
 	return &CRUDRepositoryIntTestSuite{
-		logger:                logger,
 		db:                    db,
 		crudProductRepository: crudProductRepository,
 	}

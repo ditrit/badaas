@@ -68,9 +68,6 @@ This is the directory structure we use for the project:
 - `router/` *(Go code)*: Contains http router of badaas and the routes that can be added by the user.
   - `middlewares/` *(Go code)*: Contains the various http middlewares that we use.
 - `docker/` : Contains the docker, docker-compose file and configuration files for different environments.
-  - `api/` : Contains the Dockerfile to build badaas with a dedicated config file.
-  - `test_db/` : Contains the Dockerfile to build a development/test version of CockroachDB.
-  - `test_api/` : Contains files to build a development/test version of the api.
 - `services/` *(Go code)*: Contains services.
   - `auth/protocols/`: Contains the implementations of authentication clients for different protocols.
     - `basicauth/` *(Go code)*: Handle the authentication using email/password.

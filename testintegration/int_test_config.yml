@@ -1,11 +1,9 @@
 database:
   host: localhost
-  port: 26257 # cockroach
-  # port: 5432 # postgree
+  port: 5000
   sslmode: disable
-  username: root # cockroach
-  # username: postgres # postgree
-  password: postgres
+  username: badaas
+  password: badaas
   name: badaas_db
   init:
     retry: 10
