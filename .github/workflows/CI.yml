@@ -107,7 +107,7 @@ jobs:
             }
           export_to: env
       - name: Run test
-        run:  DB=${{ env.dialector }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
+        run:  DB=${{ env.dialector }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int_${{ matrix.db }}.out -v
       - uses: actions/upload-artifact@v3
         with:
           name: coverage_int_${{ matrix.db }}
