@@ -90,7 +90,7 @@ jobs:
       - name: Start containers
         run: docker compose -f "docker/${{ matrix.db }}/docker-compose.yml" up -d
       - name: Run test
-        run:  DB=${{ matrix.db }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
+        run:  DB=${{ fromJson('{ "postgresql": "postgresql", "cockroachdb": "postgresql", "mysql": "mysql" }')[matrix.db] }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
       - uses: actions/upload-artifact@v3
         with:
           name: coverage_int_${{ matrix.db }}
