@@ -76,6 +76,9 @@ jobs:
     name: Integration tests
     needs: [unit-tests]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        db: [postgresql, cockroachdb, mysql]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -84,12 +87,14 @@ jobs:
         with:
           go-version: '^1.18'
           cache: true
+      - name: Start containers
+        run: docker compose -f "docker/${{ matrix.db }}/docker-compose.yml" up -d
       - name: Run test
-        run:  make test_integration_and_cover
+        run:  DB=${{ matrix.db }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
       - uses: actions/upload-artifact@v3
         with:
-          name: coverage_int
-          path: coverage_int.out
+          name: coverage_int_${{ matrix.db }}
+          path: coverage_int_${{ matrix.db }}.out
       - name: Stop containers
         if: always()
         run: docker stop badaas-test-db
@@ -139,11 +144,16 @@ jobs:
         with:
           name: coverage_unit
           path: coverage_unit.out
-      - name: Download int tests line coverage report
+      - name: Download postgresql int tests line coverage report
         uses: actions/download-artifact@v3
         with:
-          name: coverage_int
-          path: coverage_int.out
+          name: coverage_int_postgresql
+          path: coverage_int_postgresql.out
+      - name: Download mysql int tests line coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage_int_mysql
+          path: coverage_int_mysql.out
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:

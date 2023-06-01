@@ -93,7 +93,6 @@ func NewGormDBConnection(logger *zap.Logger) (*gorm.DB, error) {
 	dbType := configuration.DBDialector(os.Getenv(dbTypeEnvKey))
 	switch dbType {
 	case configuration.PostgreSQL:
-		// TODO codigo repetido en el ejemplo pero sin el logger
 		return badorm.ConnectToDialector(
 			logger,
 			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
