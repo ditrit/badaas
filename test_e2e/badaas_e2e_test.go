@@ -41,17 +41,20 @@ func TestMain(_ *testing.M) {
 	pflag.Parse()
 	opts.Paths = pflag.Args()
 
-	logger, _ := zap.NewDevelopment()
-	var err error
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		panic(err)
+	}
 
-	viper.Set(configuration.DatabasePortKey, 26257)
+	viper.Set(configuration.DatabasePortKey, 5000)
 	viper.Set(configuration.DatabaseHostKey, "localhost")
 	viper.Set(configuration.DatabaseNameKey, "badaas_db")
-	viper.Set(configuration.DatabaseUsernameKey, "root")
-	viper.Set(configuration.DatabasePasswordKey, "postgres")
+	viper.Set(configuration.DatabaseUsernameKey, "badaas")
+	viper.Set(configuration.DatabasePasswordKey, "badaas")
 	viper.Set(configuration.DatabaseSslmodeKey, "disable")
 	viper.Set(configuration.DatabaseRetryKey, 10)
 	viper.Set(configuration.DatabaseRetryDurationKey, 5)
+	viper.Set(configuration.DatabaseDialectorKey, string(configuration.PostgreSQL))
 	db, err = gormdatabase.SetupDatabaseConnection(
 		logger,
 		configuration.NewDatabaseConfiguration(),

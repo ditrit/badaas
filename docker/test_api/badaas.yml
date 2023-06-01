@@ -10,12 +10,13 @@ database:
   host: badaas-test-db
   port: 26257
   sslmode: disable
-  username: root
-  password: postgres
+  username: badaas
+  password: badaas
   name: badaas_db
   init:
     retry: 10
     retryTime: 5
+  dialector: postgresql
 
 logger:
   mode: dev

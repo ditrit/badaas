@@ -1,7 +1,6 @@
 package testintegration
 
 import (
-	"fmt"
 	"log"
 
 	"github.com/ditrit/badaas/badorm"
@@ -35,20 +34,9 @@ func CleanDB(db *gorm.DB) {
 func CleanDBTables(db *gorm.DB, listOfTables []any) {
 	// clean database to ensure independency between tests
 	for _, table := range listOfTables {
-		err := db.Exec(
-			fmt.Sprintf(
-				"DELETE FROM %s",
-				getTableName(db, table),
-			),
-		).Error
+		err := db.Unscoped().Where("1 = 1").Delete(table).Error
 		if err != nil {
 			log.Fatalln("could not clean database: ", err)
 		}
 	}
-}
-
-func getTableName(db *gorm.DB, entity any) string {
-	stmt := &gorm.Statement{DB: db}
-	_ = stmt.Parse(entity)
-	return stmt.Schema.Table
 }

@@ -1,6 +1,8 @@
 package gormdatabase
 
 import (
+	"fmt"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
 	"go.uber.org/zap"
@@ -8,7 +10,7 @@ import (
 )
 
 // Create the dsn string from the configuration
-func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfiguration) gorm.Dialector {
+func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfiguration) (gorm.Dialector, error) {
 	switch databaseConfiguration.GetDialector() {
 	case configuration.PostgreSQL:
 		return badorm.CreatePostgreSQLDialector(
@@ -18,7 +20,7 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 			databaseConfiguration.GetSSLMode(),
 			databaseConfiguration.GetDBName(),
 			databaseConfiguration.GetPort(),
-		)
+		), nil
 	case configuration.MySQL:
 		return badorm.CreateMySQLDialector(
 			databaseConfiguration.GetHost(),
@@ -27,10 +29,10 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 			databaseConfiguration.GetSSLMode(),
 			databaseConfiguration.GetDBName(),
 			databaseConfiguration.GetPort(),
-		)
+		), nil
+	default:
+		return nil, fmt.Errorf("unknown dialector: %s", databaseConfiguration.GetDialector())
 	}
-
-	return nil
 }
 
 // Creates the database object with using the database configuration and exec the setup
@@ -38,9 +40,13 @@ func SetupDatabaseConnection(
 	logger *zap.Logger,
 	databaseConfiguration configuration.DatabaseConfiguration,
 ) (*gorm.DB, error) {
+	dialector, err := createDialectorFromConf(databaseConfiguration)
+	if err != nil {
+		return nil, err
+	}
 	return badorm.ConnectToDialector(
 		logger,
-		createDialectorFromConf(databaseConfiguration),
+		dialector,
 		databaseConfiguration.GetRetry(),
 		databaseConfiguration.GetRetryTime(),
 	)
