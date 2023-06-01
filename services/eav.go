@@ -236,7 +236,7 @@ func (eavService *eavServiceImpl) DeleteEntity(entityTypeName string, entityID b
 			return err
 		}
 
-		err = tx.Where("entity_id = ?", entityID.String()).Delete(&models.Value{}).Error
+		err = tx.Where("entity_id = ?", entityID).Delete(&models.Value{}).Error
 		if err != nil {
 			return err
 		}

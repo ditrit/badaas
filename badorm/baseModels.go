@@ -1,12 +1,14 @@
 package badorm
 
 import (
+	"context"
 	"database/sql/driver"
 	"time"
 
 	"github.com/google/uuid"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/gorm/schema"
 )
 
@@ -40,8 +42,7 @@ type UUID uuid.UUID
 func (id UUID) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "mysql":
-		return "varchar(36)"
-		// return "binary(16)"
+		return "binary(16)"
 	case "postgres":
 		return "uuid"
 	}
@@ -82,6 +83,20 @@ func (id *UUID) UnmarshalBinary(data []byte) error {
 
 func (id *UUID) Scan(src interface{}) error {
 	return (*uuid.UUID)(id).Scan(src)
+}
+
+func (id UUID) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
+	if len(id) == 0 {
+		return gorm.Expr("NULL")
+	}
+
+	switch db.Dialector.Name() {
+	case "mysql":
+		binary, _ := id.MarshalBinary()
+		return gorm.Expr("?", binary)
+	}
+
+	return gorm.Expr("?", id.String())
 }
 
 func (id UUID) Value() (driver.Value, error) {
