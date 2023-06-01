@@ -1,0 +1,13 @@
+version: '3.5'
+
+services:
+  db:
+    image: mysql:latest
+    container_name: badaas-db
+    environment:
+      MYSQL_DATABASE: 'badaas_db'
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-badaas}
+      MYSQL_USER: ${MYSQL_USER:-badaas}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-badaas}
+    volumes:
+      - "${PWD}/badaas/docker/db/.mysql-data:/var/lib/mysql"

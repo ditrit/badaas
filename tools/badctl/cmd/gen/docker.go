@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
@@ -32,13 +33,21 @@ const (
 	DBProviderKey = "db_provider"
 	Cockroachdb   = "cockroachdb"
 	Postgres      = "postgres"
+	MySQL         = "mysql"
 )
 
-var DBProviders = []string{Cockroachdb, Postgres}
+var DBProviders = []string{Cockroachdb, Postgres, MySQL}
 
 var DBPorts = map[string]int{
 	Cockroachdb: 26257,
 	Postgres:    5432,
+	MySQL:       3306,
+}
+
+var DBDialectors = map[string]configuration.DBDialector{
+	Cockroachdb: configuration.PostgreSQL,
+	Postgres:    configuration.PostgreSQL,
+	MySQL:       configuration.MySQL,
 }
 
 func init() {
@@ -98,6 +107,7 @@ func copyBadaasConfig(dbProvider string) {
 	}
 
 	configData["database"].(map[string]any)["port"] = DBPorts[dbProvider]
+	configData["database"].(map[string]any)["dialector"] = string(DBDialectors[dbProvider])
 
 	configBytes, err := yaml.Marshal(&configData)
 	if err != nil {

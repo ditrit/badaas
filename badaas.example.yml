@@ -1,18 +1,18 @@
 # The settings for the database.
 database:
-  # The host of the database server. 
+  # The host of the database server.
   # (mandatory)
   host: e2e-db-1
 
-  # The port of the database server. 
+  # The port of the database server.
   # (mandatory)
   port: 26257
 
-  # The sslmode of the connection to the database server. 
+  # The sslmode of the connection to the database server.
   # (mandatory)
   sslmode: disable
 
-  # The username of the account on the database server. 
+  # The username of the account on the database server.
   # (mandatory)
   username: root
 
@@ -20,7 +20,7 @@ database:
   # (mandatory)
   password: postgres
 
-  # The settings for the initialization of the database server. 
+  # The settings for the initialization of the database server.
   init:
     # Number of time badaas will try to establish a connection to the database server.
     # default (10)
@@ -29,6 +29,10 @@ database:
     # Waiting time between connection, in seconds.
     # default (5)
     retryTime: 5
+
+  # dialector to use in communication with database (postgresql | mysql)
+  # (mandatory)
+  dialector: postgresql
 
 # The settings for the http server.
 server:
@@ -47,7 +51,7 @@ server:
   # The settings for the pagination.
   pagination:
     page:
-      # The maximum number of record per page 
+      # The maximum number of record per page.
       # default (100)
       max: 100
 

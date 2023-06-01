@@ -5,10 +5,10 @@ services:
     image: postgres:latest
     container_name: badaas-db
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-badaas}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-badaas}
       POSTGRES_DB: badaas_db
       PGDATA: /data/postgres
     volumes:
       - .:/docker-entrypoint-initdb.d/
-    restart: unless-stopped
+      - "${PWD}/badaas/docker/db/.postgres-data:/data/postgres"

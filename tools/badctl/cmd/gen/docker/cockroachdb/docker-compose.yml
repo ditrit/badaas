@@ -5,11 +5,10 @@ services:
     image: cockroachdb/cockroach:latest
     container_name: badaas-db
     ports:
-      - "26257:26257"
       - "8080:8080" # Web based dashboard
+    # TODO make this container secure
     command: start-single-node --insecure
     volumes:
       - "${PWD}/badaas/docker/db/.cockroach-data:/cockroach/cockroach-data"
     environment:
-      - COCKROACH_USER=root
       - COCKROACH_DATABASE=badaas_db

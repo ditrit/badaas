@@ -1,9 +1,9 @@
 database:
   host: badaas-db
   name: badaas_db
-  password: postgres
+  password: badaas
   sslmode: disable
-  username: root
+  username: badaas
   init:
     retry: 10
     retryTime: 5
