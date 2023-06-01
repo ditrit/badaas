@@ -89,8 +89,25 @@ jobs:
           cache: true
       - name: Start containers
         run: docker compose -f "docker/${{ matrix.db }}/docker-compose.yml" up -d
+      - uses: kanga333/variable-mapper@master
+        id: export
+        with:
+          key: ${{ [matrix.db] }}
+          map: |
+            {
+              "postgresql": {
+                "dialector": "postgresql"
+              },
+              "cockroachdb": {
+                "dialector": "postgresql"
+              },
+              "mysql": {
+                "dialector": "mysql"
+              }
+            }
+          export_to: env
       - name: Run test
-        run:  DB=${{ fromJson('{ \"postgresql\": \"postgresql\", \"cockroachdb\": \"postgresql\", \"mysql\": \"mysql\" }')[matrix.db] }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
+        run:  DB=${{ env.dialector }} go test ./testintegration -coverpkg=./... -coverprofile=coverage_int.out -v
       - uses: actions/upload-artifact@v3
         with:
           name: coverage_int_${{ matrix.db }}
