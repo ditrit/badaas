@@ -10,6 +10,7 @@ import (
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
@@ -47,11 +48,18 @@ func (r *EntityRepository) Get(tx *gorm.DB, entityTypeName string, id badorm.UUI
 	return &entity, nil
 }
 
+var postgresDialectorName string = postgres.Dialector{}.Name()
+
 // Creates an entity and its values in the database
 // must be used in place of gorm's db.Save(entity) because of the bug
 // when using gorm with cockroachDB. For more info refer to:
 // https://github.com/FrancoLiberali/cockroachdb_gorm_bug
 func (r *EntityRepository) Create(tx *gorm.DB, entity *models.Entity) error {
+	if tx.Dialector.Name() != postgresDialectorName {
+		// in other than cockroachDB gorm's Save can be used normally
+		return tx.Save(entity).Error
+	}
+
 	now := time.Now()
 
 	entity.ID = badorm.UUID(uuid.New())
