@@ -92,7 +92,7 @@ jobs:
       - uses: kanga333/variable-mapper@master
         id: export
         with:
-          key: ${{ [matrix.db] }}
+          key: ${{ matrix.db }}
           map: |
             {
               "postgresql": {
