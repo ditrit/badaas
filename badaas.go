@@ -104,6 +104,17 @@ func configDatabaseParameters(cfg *verdeter.VerdeterCommand) error {
 	}
 	cfg.SetDefault(configuration.DatabaseRetryDurationKey, uint(5))
 
+	err = cfg.GKey(configuration.DatabaseDialectorKey, verdeter.IsStr, "", "The dialector to use to connect with the database server")
+	if err != nil {
+		return err
+	}
+	cfg.SetRequired(configuration.DatabaseDialectorKey)
+	// TODO
+	// cfg.AddValidator(
+	// configuration.DatabaseDialectorKey,
+	// validators.AuthorizedValues(configuration.DBDialectors...),
+	// )
+
 	return nil
 }
 

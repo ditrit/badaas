@@ -6,7 +6,6 @@ import (
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
-	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
@@ -15,8 +14,8 @@ var AuthServiceModule = fx.Module(
 	// models
 	fx.Provide(getAuthModels),
 	// repositories
-	fx.Provide(badorm.NewCRUDRepository[models.Session, uuid.UUID]),
-	fx.Provide(badorm.NewCRUDRepository[models.User, uuid.UUID]),
+	fx.Provide(badorm.NewCRUDRepository[models.Session, badorm.UUID]),
+	fx.Provide(badorm.NewCRUDRepository[models.User, badorm.UUID]),
 
 	// services
 	fx.Provide(userservice.NewUserService),

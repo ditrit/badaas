@@ -1,6 +1,8 @@
 package testintegration
 
 import (
+	"fmt"
+	"os"
 	"testing"
 	"time"
 
@@ -16,7 +18,20 @@ import (
 	"gorm.io/gorm"
 )
 
+const dbTypeEnvKey = "DB"
+
+const (
+	username = "badaas"
+	password = "badaas"
+	host     = "localhost"
+	port     = 5000
+	sslMode  = "disable"
+	dbName   = "badaas_db"
+)
+
 func TestBaDORM(t *testing.T) {
+	tGlobal = t
+
 	fx.New(
 		fx.Provide(NewLoggerConfiguration),
 		logger.LoggerModule,
@@ -66,8 +81,6 @@ func runBaDORMTestSuites(
 	suite.Run(tGlobal, tsCRUDRepository)
 	suite.Run(tGlobal, tsCRUDUnsafeService)
 
-	// let db cleaned
-	CleanDB(db)
 	shutdowner.Shutdown()
 }
 
@@ -77,7 +90,22 @@ func NewLoggerConfiguration() configuration.LoggerConfiguration {
 }
 
 func NewGormDBConnection(logger *zap.Logger) (*gorm.DB, error) {
-	dsn := "user=badaas password=badaas host=localhost port=5000 sslmode=disable dbname=badaas_db"
-	// TODO codigo repetido en el ejemplo pero sin el logger
-	return badorm.ConnectToDSN(logger, dsn, 10, time.Duration(5)*time.Second)
+	dbType := configuration.DBDialector(os.Getenv(dbTypeEnvKey))
+	switch dbType {
+	case configuration.PostgreSQL:
+		// TODO codigo repetido en el ejemplo pero sin el logger
+		return badorm.ConnectToDialector(
+			logger,
+			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
+			10, time.Duration(5)*time.Second,
+		)
+	case configuration.MySQL:
+		return badorm.ConnectToDialector(
+			logger,
+			badorm.CreateMySQLDialector(host, username, password, sslMode, dbName, port),
+			10, time.Duration(5)*time.Second,
+		)
+	default:
+		return nil, fmt.Errorf("unknown db %s", dbType)
+	}
 }

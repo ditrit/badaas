@@ -2,12 +2,10 @@ package models
 
 import (
 	"database/sql/driver"
-	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/google/uuid"
-	"github.com/lib/pq"
 )
 
 // TODO testear tambien en otras bases de datos
@@ -24,12 +22,17 @@ type Company struct {
 type MultiString []string
 
 func (s *MultiString) Scan(src interface{}) error {
-	str, ok := src.(string)
-	if !ok {
-		return errors.New("failed to scan multistring field - source is not a string")
+	switch typedSrc := src.(type) {
+	case string:
+		*s = strings.Split(typedSrc, ",")
+		return nil
+	case []byte:
+		str := string(typedSrc)
+		*s = strings.Split(str, ",")
+		return nil
+	default:
+		return fmt.Errorf("failed to scan multistring field - source is not a string, is %T", src)
 	}
-	*s = strings.Split(str, ",")
-	return nil
 }
 
 func (s MultiString) Value() (driver.Value, error) {
@@ -61,7 +64,6 @@ type Product struct {
 	Bool        bool
 	ByteArray   []byte
 	MultiString MultiString
-	StringArray pq.StringArray `gorm:"type:text[]"`
 	ToBeEmbedded
 	GormEmbedded ToBeGormEmbedded `gorm:"embedded;embeddedPrefix:gorm_embedded_"`
 }
@@ -74,7 +76,7 @@ type Seller struct {
 	badorm.UUIDModel
 
 	Name      string
-	CompanyID *uuid.UUID // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
+	CompanyID *badorm.UUID // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
 type Sale struct {
@@ -85,11 +87,11 @@ type Sale struct {
 
 	// Sale belongsTo Product (Sale 0..* -> 1 Product)
 	Product   Product
-	ProductID uuid.UUID
+	ProductID badorm.UUID
 
 	// Sale HasOne Seller (Sale 0..* -> 0..1 Seller)
 	Seller   *Seller
-	SellerID *uuid.UUID
+	SellerID *badorm.UUID
 }
 
 func (m Sale) Equal(other Sale) bool {
@@ -111,7 +113,7 @@ type City struct {
 	badorm.UUIDModel
 
 	Name      string
-	CountryID uuid.UUID // Country HasOne City (Country 1 -> 1 City)
+	CountryID badorm.UUID // Country HasOne City (Country 1 -> 1 City)
 }
 
 func (m Country) Equal(other Country) bool {
@@ -126,8 +128,8 @@ type Employee struct {
 	badorm.UUIDModel
 
 	Name   string
-	Boss   *Employee // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
-	BossID *uuid.UUID
+	Boss   *Employee    `gorm:"constraint:OnDelete:SET NULL;"` // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
+	BossID *badorm.UUID `gorm:"type:varchar(36)"`
 }
 
 func (m Employee) Equal(other Employee) bool {
@@ -137,7 +139,7 @@ func (m Employee) Equal(other Employee) bool {
 type Person struct {
 	badorm.UUIDModel
 
-	Name string `gorm:"unique"`
+	Name string `gorm:"unique;type:VARCHAR(255)"`
 }
 
 func (m Person) TableName() string {

@@ -5,31 +5,30 @@ import (
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/google/uuid"
-	"github.com/lib/pq"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 )
 
 type CRUDServiceIntTestSuite struct {
 	CRUDServiceCommonIntTestSuite
-	crudProductService  badorm.CRUDService[models.Product, uuid.UUID]
-	crudSaleService     badorm.CRUDService[models.Sale, uuid.UUID]
-	crudSellerService   badorm.CRUDService[models.Seller, uuid.UUID]
-	crudCountryService  badorm.CRUDService[models.Country, uuid.UUID]
-	crudCityService     badorm.CRUDService[models.City, uuid.UUID]
-	crudEmployeeService badorm.CRUDService[models.Employee, uuid.UUID]
-	crudBicycleService  badorm.CRUDService[models.Bicycle, uuid.UUID]
+	crudProductService  badorm.CRUDService[models.Product, badorm.UUID]
+	crudSaleService     badorm.CRUDService[models.Sale, badorm.UUID]
+	crudSellerService   badorm.CRUDService[models.Seller, badorm.UUID]
+	crudCountryService  badorm.CRUDService[models.Country, badorm.UUID]
+	crudCityService     badorm.CRUDService[models.City, badorm.UUID]
+	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID]
+	crudBicycleService  badorm.CRUDService[models.Bicycle, badorm.UUID]
 }
 
 func NewCRUDServiceIntTestSuite(
 	db *gorm.DB,
-	crudProductService badorm.CRUDService[models.Product, uuid.UUID],
-	crudSaleService badorm.CRUDService[models.Sale, uuid.UUID],
-	crudSellerService badorm.CRUDService[models.Seller, uuid.UUID],
-	crudCountryService badorm.CRUDService[models.Country, uuid.UUID],
-	crudCityService badorm.CRUDService[models.City, uuid.UUID],
-	crudEmployeeService badorm.CRUDService[models.Employee, uuid.UUID],
-	crudBicycleService badorm.CRUDService[models.Bicycle, uuid.UUID],
+	crudProductService badorm.CRUDService[models.Product, badorm.UUID],
+	crudSaleService badorm.CRUDService[models.Sale, badorm.UUID],
+	crudSellerService badorm.CRUDService[models.Seller, badorm.UUID],
+	crudCountryService badorm.CRUDService[models.Country, badorm.UUID],
+	crudCityService badorm.CRUDService[models.City, badorm.UUID],
+	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID],
+	crudBicycleService badorm.CRUDService[models.Bicycle, badorm.UUID],
 ) *CRUDServiceIntTestSuite {
 	return &CRUDServiceIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
@@ -48,14 +47,14 @@ func NewCRUDServiceIntTestSuite(
 // ------------------------- GetEntity --------------------------------
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated() {
-	_, err := ts.crudProductService.GetEntity(uuid.Nil)
+	_, err := ts.crudProductService.GetEntity(badorm.UUID(uuid.Nil))
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityMatch() {
 	ts.createProduct("", 0, 0, false, nil)
 
-	_, err := ts.crudProductService.GetEntity(uuid.New())
+	_, err := ts.crudProductService.GetEntity(badorm.UUID(uuid.New()))
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
@@ -359,27 +358,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() 
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductByteArray(nil),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPQArray() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
-	ts.createProduct("not_match", 2, 0, false, nil)
-	match.StringArray = pq.StringArray{"salut", "hola"}
-	notMatch1.StringArray = pq.StringArray{"salut", "hola", "hello"}
-
-	err := ts.db.Save(match).Error
-	ts.Nil(err)
-
-	err = ts.db.Save(notMatch1).Error
-	ts.Nil(err)
-
-	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductStringArray(pq.StringArray{"salut", "hola"}),
 	)
 	ts.Nil(err)
 

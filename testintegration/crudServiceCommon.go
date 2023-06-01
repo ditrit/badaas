@@ -1,8 +1,8 @@
 package testintegration
 
 import (
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/models"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 )
@@ -13,6 +13,10 @@ type CRUDServiceCommonIntTestSuite struct {
 }
 
 func (ts *CRUDServiceCommonIntTestSuite) SetupTest() {
+	CleanDB(ts.db)
+}
+
+func (ts *CRUDServiceCommonIntTestSuite) TearDownSuite() {
 	CleanDB(ts.db)
 }
 
@@ -43,7 +47,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createSale(code int, product *models.Pr
 }
 
 func (ts *CRUDServiceCommonIntTestSuite) createSeller(name string, company *models.Company) *models.Seller {
-	var companyID *uuid.UUID
+	var companyID *badorm.UUID
 	if company != nil {
 		companyID = &company.ID
 	}

@@ -5,7 +5,6 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/google/uuid"
 	"go.uber.org/fx"
 )
 
@@ -39,9 +38,9 @@ func GetCRUDServiceModule[T any]() fx.Option {
 		return fx.Module(
 			moduleName,
 			// repository
-			fx.Provide(NewCRUDRepository[T, uuid.UUID]),
+			fx.Provide(NewCRUDRepository[T, UUID]),
 			// service
-			fx.Provide(NewCRUDService[T, uuid.UUID]),
+			fx.Provide(NewCRUDService[T, UUID]),
 		)
 	case KindUIntModel:
 		return fx.Module(
@@ -77,9 +76,9 @@ func GetCRUDUnsafeServiceModule[T any]() fx.Option {
 			// models
 			fx.Invoke(AddUnsafeModel[T]),
 			// repository
-			fx.Provide(NewCRUDUnsafeRepository[T, uuid.UUID]),
+			fx.Provide(NewCRUDUnsafeRepository[T, UUID]),
 			// service
-			fx.Provide(NewCRUDUnsafeService[T, uuid.UUID]),
+			fx.Provide(NewCRUDUnsafeService[T, UUID]),
 		)
 	case KindUIntModel:
 		return fx.Module(

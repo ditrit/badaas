@@ -4,12 +4,11 @@ package conditions
 import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
-	uuid "github.com/google/uuid"
 	gorm "gorm.io/gorm"
 	"time"
 )
 
-func CityId(v uuid.UUID) badorm.WhereCondition[models.City] {
+func CityId(v badorm.UUID) badorm.WhereCondition[models.City] {
 	return badorm.WhereCondition[models.City]{
 		Field: "id",
 		Value: v,
@@ -39,7 +38,7 @@ func CityName(v string) badorm.WhereCondition[models.City] {
 		Value: v,
 	}
 }
-func CityCountryId(v uuid.UUID) badorm.WhereCondition[models.City] {
+func CityCountryId(v badorm.UUID) badorm.WhereCondition[models.City] {
 	return badorm.WhereCondition[models.City]{
 		Field: "country_id",
 		Value: v,

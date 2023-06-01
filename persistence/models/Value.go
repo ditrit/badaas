@@ -16,12 +16,17 @@ type Value struct {
 	FloatVal    float64
 	IntVal      int
 	BoolVal     bool
-	RelationVal uuid.UUID `gorm:"type:uuid;foreignKey:Entity;index:fk_relation_val_entity"`
+	RelationVal badorm.UUID `gorm:"foreignKey:Entity;index:fk_relation_val_entity"`
 
 	// GORM relations
-	EntityID    uuid.UUID `gorm:"uniqueIndex:unique_entity_attribute"`
-	AttributeID uuid.UUID `gorm:"uniqueIndex:unique_entity_attribute"`
+	EntityID    badorm.UUID `gorm:"uniqueIndex:unique_entity_attribute"`
+	AttributeID badorm.UUID `gorm:"uniqueIndex:unique_entity_attribute"`
 	Attribute   *Attribute
+}
+
+func (Value) TableName() string {
+	// rename table as values can be a keyword (in MySQL for example)
+	return "values_"
 }
 
 var ErrAskingForWrongType = errors.New("attribute type doesn't match")
@@ -96,7 +101,7 @@ func (v *Value) SetNull() error {
 	v.FloatVal = 0.0
 	v.StringVal = ""
 	v.BoolVal = false
-	v.RelationVal = uuid.Nil
+	v.RelationVal = badorm.UUID(uuid.Nil)
 
 	return nil
 }

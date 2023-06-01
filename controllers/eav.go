@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services"
@@ -145,15 +146,15 @@ func (controller *eavControllerImpl) getEntityTypeNameFromRequest(r *http.Reques
 }
 
 // Extract the "type" and "id" parameters from url
-func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Request) (string, uuid.UUID, httperrors.HTTPError) {
+func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Request) (string, badorm.UUID, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
 	if herr != nil {
-		return "", uuid.Nil, herr
+		return "", badorm.UUID(uuid.Nil), herr
 	}
 
 	entityID, herr := getEntityIDFromRequest(r)
 	if herr != nil {
-		return "", uuid.Nil, herr
+		return "", badorm.UUID(uuid.Nil), herr
 	}
 
 	return entityTypeName, entityID, nil

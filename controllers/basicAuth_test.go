@@ -140,7 +140,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	userService := mocksUserService.NewUserService(t)
 	user := &models.User{
 		UUIDModel: badorm.UUIDModel{
-			ID: uuid.Nil,
+			ID: badorm.UUID(uuid.Nil),
 		},
 		Username: "bob",
 		Email:    "bob@email.com",

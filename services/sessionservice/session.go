@@ -9,7 +9,6 @@ import (
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -24,9 +23,9 @@ var (
 
 // SessionService handle sessions
 type SessionService interface {
-	IsValid(sessionUUID uuid.UUID) (bool, *SessionClaims)
+	IsValid(sessionUUID badorm.UUID) (bool, *SessionClaims)
 	// TODO services should not work with httperrors
-	RollSession(uuid.UUID) httperrors.HTTPError
+	RollSession(badorm.UUID) httperrors.HTTPError
 	LogUserIn(user *models.User) (*models.Session, error)
 	LogUserOut(sessionClaims *SessionClaims) httperrors.HTTPError
 }
@@ -36,8 +35,8 @@ var _ SessionService = (*sessionServiceImpl)(nil)
 
 // The SessionService concrete interface
 type sessionServiceImpl struct {
-	sessionRepository    badorm.CRUDRepository[models.Session, uuid.UUID]
-	cache                map[uuid.UUID]*models.Session
+	sessionRepository    badorm.CRUDRepository[models.Session, badorm.UUID]
+	cache                map[badorm.UUID]*models.Session
 	mutex                sync.Mutex
 	logger               *zap.Logger
 	sessionConfiguration configuration.SessionConfiguration
@@ -47,12 +46,12 @@ type sessionServiceImpl struct {
 // The SessionService constructor
 func NewSessionService(
 	logger *zap.Logger,
-	sessionRepository badorm.CRUDRepository[models.Session, uuid.UUID],
+	sessionRepository badorm.CRUDRepository[models.Session, badorm.UUID],
 	sessionConfiguration configuration.SessionConfiguration,
 	db *gorm.DB,
 ) SessionService {
 	sessionService := &sessionServiceImpl{
-		cache:                make(map[uuid.UUID]*models.Session),
+		cache:                make(map[badorm.UUID]*models.Session),
 		logger:               logger,
 		sessionRepository:    sessionRepository,
 		sessionConfiguration: sessionConfiguration,
@@ -64,7 +63,7 @@ func NewSessionService(
 
 // Return true if the session exists and is still valid.
 // A instance of SessionClaims is returned to be added to the request context if the conditions previously mentioned are met.
-func (sessionService *sessionServiceImpl) IsValid(sessionUUID uuid.UUID) (bool, *SessionClaims) {
+func (sessionService *sessionServiceImpl) IsValid(sessionUUID badorm.UUID) (bool, *SessionClaims) {
 	sessionInstance := sessionService.get(sessionUUID)
 	if sessionInstance == nil {
 		return false, nil
@@ -74,7 +73,7 @@ func (sessionService *sessionServiceImpl) IsValid(sessionUUID uuid.UUID) (bool, 
 
 // Get a session from cache
 // return nil if not found
-func (sessionService *sessionServiceImpl) get(sessionUUID uuid.UUID) *models.Session {
+func (sessionService *sessionServiceImpl) get(sessionUUID badorm.UUID) *models.Session {
 	sessionService.mutex.Lock()
 	defer sessionService.mutex.Unlock()
 
@@ -112,7 +111,7 @@ func (sessionService *sessionServiceImpl) add(session *models.Session) error {
 
 // Initialize the session service
 func (sessionService *sessionServiceImpl) init() {
-	sessionService.cache = make(map[uuid.UUID]*models.Session)
+	sessionService.cache = make(map[badorm.UUID]*models.Session)
 	go func() {
 		for {
 			sessionService.removeExpired()
@@ -134,7 +133,7 @@ func (sessionService *sessionServiceImpl) pullFromDB() {
 		panic(err)
 	}
 
-	newSessionCache := make(map[uuid.UUID]*models.Session)
+	newSessionCache := make(map[badorm.UUID]*models.Session)
 	for _, sessionFromDatabase := range sessionsFromDatabase {
 		newSessionCache[sessionFromDatabase.ID] = sessionFromDatabase
 	}
@@ -190,7 +189,7 @@ func (sessionService *sessionServiceImpl) delete(session *models.Session) httper
 }
 
 // Roll a session. If the session is close to expiration, extend its duration.
-func (sessionService *sessionServiceImpl) RollSession(sessionUUID uuid.UUID) httperrors.HTTPError {
+func (sessionService *sessionServiceImpl) RollSession(sessionUUID badorm.UUID) httperrors.HTTPError {
 	rollInterval := sessionService.sessionConfiguration.GetRollDuration()
 	sessionDuration := sessionService.sessionConfiguration.GetSessionDuration()
 	session := sessionService.get(sessionUUID)

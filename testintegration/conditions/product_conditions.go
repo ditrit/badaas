@@ -4,13 +4,11 @@ package conditions
 import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
-	uuid "github.com/google/uuid"
-	pq "github.com/lib/pq"
 	gorm "gorm.io/gorm"
 	"time"
 )
 
-func ProductId(v uuid.UUID) badorm.WhereCondition[models.Product] {
+func ProductId(v badorm.UUID) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
 		Field: "id",
 		Value: v,
@@ -73,12 +71,6 @@ func ProductByteArray(v []uint8) badorm.WhereCondition[models.Product] {
 func ProductMultiString(v models.MultiString) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
 		Field: "multi_string",
-		Value: v,
-	}
-}
-func ProductStringArray(v pq.StringArray) badorm.WhereCondition[models.Product] {
-	return badorm.WhereCondition[models.Product]{
-		Field: "string_array",
 		Value: v,
 	}
 }

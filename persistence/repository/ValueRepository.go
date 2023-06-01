@@ -4,7 +4,9 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
+	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -29,37 +31,30 @@ func NewValueRepository(
 func (r *ValueRepository) Create(tx *gorm.DB, values []*models.Value) error {
 	now := time.Now()
 
-	query := sq.Insert("values").
-		Columns("created_at", "updated_at", "is_null", "string_val", "float_val", "int_val",
+	pie.Each(values, func(value *models.Value) {
+		value.ID = badorm.UUID(uuid.New())
+	})
+
+	query := sq.Insert("values_").
+		Columns("id", "created_at", "updated_at", "is_null", "string_val", "float_val", "int_val",
 			"bool_val", "relation_val", "entity_id", "attribute_id")
 
 	for _, value := range values {
-		query = query.Values(now, now, value.IsNull, value.StringVal,
+		query = query.Values(value.ID, now, now, value.IsNull, value.StringVal,
 			value.FloatVal, value.IntVal, value.BoolVal,
 			value.RelationVal, value.EntityID, value.Attribute.ID)
 	}
 
 	queryString, queryValues, err := query.
-		Suffix("RETURNING \"id\"").
 		PlaceholderFormat(sq.Dollar).
 		ToSql()
 	if err != nil {
 		return err
 	}
 
-	var results []string
-	err = tx.Raw(queryString, queryValues...).Scan(&results).Error
+	err = tx.Exec(queryString, queryValues...).Error
 	if err != nil {
 		return err
-	}
-
-	for i, result := range results {
-		uuid, err := uuid.Parse(result)
-		if err != nil {
-			return err
-		}
-
-		values[i].ID = uuid
 	}
 
 	return nil

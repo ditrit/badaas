@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/utils"
@@ -18,11 +19,11 @@ var (
 
 // EAV service provide handle EAV objects
 type EAVService interface {
-	GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error)
+	GetEntity(entityTypeName string, id badorm.UUID) (*models.Entity, error)
 	GetEntities(entityTypeName string, conditions map[string]any) ([]*models.Entity, error)
 	CreateEntity(entityTypeName string, attributeValues map[string]any) (*models.Entity, error)
-	UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]any) (*models.Entity, error)
-	DeleteEntity(entityTypeName string, entityID uuid.UUID) error
+	UpdateEntity(entityTypeName string, entityID badorm.UUID, newValues map[string]any) (*models.Entity, error)
+	DeleteEntity(entityTypeName string, entityID badorm.UUID) error
 }
 
 type eavServiceImpl struct {
@@ -47,7 +48,7 @@ func NewEAVService(
 }
 
 // Get the Entity of type with name "entityTypeName" that has the "id"
-func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id uuid.UUID) (*models.Entity, error) {
+func (eavService *eavServiceImpl) GetEntity(entityTypeName string, id badorm.UUID) (*models.Entity, error) {
 	return eavService.entityRepository.Get(eavService.db, entityTypeName, id)
 }
 
@@ -153,7 +154,7 @@ func (eavService *eavServiceImpl) createValue(tx *gorm.DB, attribute *models.Att
 // entries in "newValues" that do not correspond to any attribute of the EntityType are ignored
 //
 // "newValues" are in {"attributeName": newValue} format
-func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID uuid.UUID, newValues map[string]any) (*models.Entity, error) {
+func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID badorm.UUID, newValues map[string]any) (*models.Entity, error) {
 	return ExecWithTransaction(
 		eavService.db,
 		func(tx *gorm.DB) (*models.Entity, error) {
@@ -219,7 +220,7 @@ func (eavService *eavServiceImpl) updateRelationValue(tx *gorm.DB, value *models
 		return err
 	}
 
-	relationEntity, err := eavService.entityRepository.Get(tx, relationEntityType.Name, uuidVal)
+	relationEntity, err := eavService.entityRepository.Get(tx, relationEntityType.Name, badorm.UUID(uuidVal))
 	if err != nil {
 		return err
 	}
@@ -228,7 +229,7 @@ func (eavService *eavServiceImpl) updateRelationValue(tx *gorm.DB, value *models
 }
 
 // Deletes Entity with type "entityTypeName" and id "entityID" and its values
-func (eavService *eavServiceImpl) DeleteEntity(entityTypeName string, entityID uuid.UUID) error {
+func (eavService *eavServiceImpl) DeleteEntity(entityTypeName string, entityID badorm.UUID) error {
 	return eavService.db.Transaction(func(tx *gorm.DB) error {
 		entity, err := eavService.entityRepository.Get(tx, entityTypeName, entityID)
 		if err != nil {

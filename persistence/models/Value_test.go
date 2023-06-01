@@ -25,8 +25,8 @@ func TestRelationValueNeedsEntity(t *testing.T) {
 }
 
 func TestRelationValueEntityHasToBeTheTargetOfTheAttribute(t *testing.T) {
-	brandEttID := uuid.New()
-	carEttID := uuid.New()
+	brandEttID := badorm.UUID(uuid.New())
+	carEttID := badorm.UUID(uuid.New())
 
 	brandEtt := &EntityType{
 		UUIDModel: badorm.UUIDModel{
@@ -62,14 +62,14 @@ func TestRelationValueEntityHasToBeTheTargetOfTheAttribute(t *testing.T) {
 func TestRelationValueWithCorrespondingEntity(t *testing.T) {
 	brandEtt := &EntityType{
 		UUIDModel: badorm.UUIDModel{
-			ID: uuid.New(),
+			ID: badorm.UUID(uuid.New()),
 		},
 		Name: "brand",
 	}
 
 	carEtt := &EntityType{
 		UUIDModel: badorm.UUIDModel{
-			ID: uuid.New(),
+			ID: badorm.UUID(uuid.New()),
 		},
 		Name: "car",
 	}

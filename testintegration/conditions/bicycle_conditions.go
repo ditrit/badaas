@@ -4,12 +4,11 @@ package conditions
 import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
-	uuid "github.com/google/uuid"
 	gorm "gorm.io/gorm"
 	"time"
 )
 
-func BicycleId(v uuid.UUID) badorm.WhereCondition[models.Bicycle] {
+func BicycleId(v badorm.UUID) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
 		Field: "id",
 		Value: v,

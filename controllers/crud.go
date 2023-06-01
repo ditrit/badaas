@@ -9,7 +9,6 @@ import (
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/elliotchance/pie/v2"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -28,8 +27,8 @@ type CRUDRoute struct {
 
 func NewCRUDController[T any](
 	logger *zap.Logger,
-	crudService badorm.CRUDService[T, uuid.UUID],
-	crudUnsafeService badorm.CRUDUnsafeService[T, uuid.UUID],
+	crudService badorm.CRUDService[T, badorm.UUID],
+	crudUnsafeService badorm.CRUDUnsafeService[T, badorm.UUID],
 ) CRUDRoute {
 	fullTypeName := strings.ToLower(fmt.Sprintf("%T", *new(T)))
 	// remove the package name of the type
@@ -49,8 +48,8 @@ func NewCRUDController[T any](
 // The concrete implementation of the CRUDController
 type crudControllerImpl[T any] struct {
 	logger            *zap.Logger
-	crudService       badorm.CRUDService[T, uuid.UUID]
-	crudUnsafeService badorm.CRUDUnsafeService[T, uuid.UUID]
+	crudService       badorm.CRUDService[T, badorm.UUID]
+	crudUnsafeService badorm.CRUDUnsafeService[T, badorm.UUID]
 }
 
 // The handler responsible of the retrieval of one object

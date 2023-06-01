@@ -4,30 +4,29 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/testintegration/models"
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type CRUDUnsafeServiceIntTestSuite struct {
 	CRUDServiceCommonIntTestSuite
-	crudProductService  badorm.CRUDUnsafeService[models.Product, uuid.UUID]
-	crudSaleService     badorm.CRUDUnsafeService[models.Sale, uuid.UUID]
-	crudSellerService   badorm.CRUDUnsafeService[models.Seller, uuid.UUID]
-	crudCountryService  badorm.CRUDUnsafeService[models.Country, uuid.UUID]
-	crudCityService     badorm.CRUDUnsafeService[models.City, uuid.UUID]
-	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, uuid.UUID]
-	crudBicycleService  badorm.CRUDUnsafeService[models.Bicycle, uuid.UUID]
+	crudProductService  badorm.CRUDUnsafeService[models.Product, badorm.UUID]
+	crudSaleService     badorm.CRUDUnsafeService[models.Sale, badorm.UUID]
+	crudSellerService   badorm.CRUDUnsafeService[models.Seller, badorm.UUID]
+	crudCountryService  badorm.CRUDUnsafeService[models.Country, badorm.UUID]
+	crudCityService     badorm.CRUDUnsafeService[models.City, badorm.UUID]
+	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID]
+	crudBicycleService  badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID]
 }
 
 func NewCRUDUnsafeServiceIntTestSuite(
 	db *gorm.DB,
-	crudProductService badorm.CRUDUnsafeService[models.Product, uuid.UUID],
-	crudSaleService badorm.CRUDUnsafeService[models.Sale, uuid.UUID],
-	crudSellerService badorm.CRUDUnsafeService[models.Seller, uuid.UUID],
-	crudCountryService badorm.CRUDUnsafeService[models.Country, uuid.UUID],
-	crudCityService badorm.CRUDUnsafeService[models.City, uuid.UUID],
-	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, uuid.UUID],
-	crudBicycleService badorm.CRUDUnsafeService[models.Bicycle, uuid.UUID],
+	crudProductService badorm.CRUDUnsafeService[models.Product, badorm.UUID],
+	crudSaleService badorm.CRUDUnsafeService[models.Sale, badorm.UUID],
+	crudSellerService badorm.CRUDUnsafeService[models.Seller, badorm.UUID],
+	crudCountryService badorm.CRUDUnsafeService[models.Country, badorm.UUID],
+	crudCityService badorm.CRUDUnsafeService[models.City, badorm.UUID],
+	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID],
+	crudBicycleService badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID],
 ) *CRUDUnsafeServiceIntTestSuite {
 	return &CRUDUnsafeServiceIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{

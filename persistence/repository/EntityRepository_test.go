@@ -67,7 +67,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForString() {
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			attributes_attrName.value_type = 'string' AND
@@ -88,7 +88,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForStringUUID() {
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			attributes_attrName.value_type = 'relation' AND
@@ -109,7 +109,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForBool() {
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			attributes_attrName.value_type = 'bool' AND
@@ -129,7 +129,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForNil() {
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			values_attrName.is_null = true
@@ -149,7 +149,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckIntAndFloatForFlo
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			((attributes_attrName.value_type = 'int' AND values_attrName.int_val = $2) OR
@@ -171,7 +171,7 @@ func (s *EntityRepositorySuite) TestAddValueCheck2AddsValueCheckFor2Values() {
 		JOIN attributes attributes_attrName1 ON
 			attributes_attrName1.entity_type_id = entities.entity_type_id AND
 			attributes_attrName1.name = $1
-		JOIN values values_attrName1 ON
+		JOIN values_ values_attrName1 ON
 			values_attrName1.attribute_id = attributes_attrName1.id AND
 			values_attrName1.entity_id = entities.id AND
 			attributes_attrName1.value_type = 'string' AND
@@ -179,7 +179,7 @@ func (s *EntityRepositorySuite) TestAddValueCheck2AddsValueCheckFor2Values() {
 		JOIN attributes attributes_attrName2 ON
 			attributes_attrName2.entity_type_id = entities.entity_type_id AND
 			attributes_attrName2.name = $3
-		JOIN values values_attrName2 ON
+		JOIN values_ values_attrName2 ON
 			values_attrName2.attribute_id = attributes_attrName2.id AND
 			values_attrName2.entity_id = entities.id AND
 			attributes_attrName2.value_type = 'bool' AND
@@ -205,7 +205,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMap() {
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			attributes_attrName.value_type = 'relation'
@@ -215,7 +215,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMap() {
 		JOIN attributes attributes_attrName_innerAttrName ON
 			attributes_attrName_innerAttrName.entity_type_id = entities_attrName.entity_type_id AND
 			attributes_attrName_innerAttrName.name = $2
-		JOIN values values_attrName_innerAttrName ON
+		JOIN values_ values_attrName_innerAttrName ON
 			values_attrName_innerAttrName.attribute_id = attributes_attrName_innerAttrName.id AND
 			values_attrName_innerAttrName.entity_id = entities_attrName.id AND
 			attributes_attrName_innerAttrName.value_type = 'string' AND
@@ -243,7 +243,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMapWith2
 		JOIN attributes attributes_attrName ON
 			attributes_attrName.entity_type_id = entities.entity_type_id AND
 			attributes_attrName.name = $1
-		JOIN values values_attrName ON
+		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
 			attributes_attrName.value_type = 'relation'
@@ -253,7 +253,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMapWith2
 		JOIN attributes attributes_attrName_innerAttrName1 ON
 			attributes_attrName_innerAttrName1.entity_type_id = entities_attrName.entity_type_id AND
 			attributes_attrName_innerAttrName1.name = $2
-		JOIN values values_attrName_innerAttrName1 ON
+		JOIN values_ values_attrName_innerAttrName1 ON
 			values_attrName_innerAttrName1.attribute_id = attributes_attrName_innerAttrName1.id AND
 			values_attrName_innerAttrName1.entity_id = entities_attrName.id AND
 			attributes_attrName_innerAttrName1.value_type = 'string' AND
@@ -261,7 +261,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMapWith2
 		JOIN attributes attributes_attrName_innerAttrName2 ON
 			attributes_attrName_innerAttrName2.entity_type_id = entities_attrName.entity_type_id AND
 			attributes_attrName_innerAttrName2.name = $4
-		JOIN values values_attrName_innerAttrName2 ON
+		JOIN values_ values_attrName_innerAttrName2 ON
 			values_attrName_innerAttrName2.attribute_id = attributes_attrName_innerAttrName2.id AND
 			values_attrName_innerAttrName2.entity_id = entities_attrName.id AND
 			attributes_attrName_innerAttrName2.value_type = 'string' AND
@@ -291,7 +291,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckAndJoinWithEntiti
 		JOIN attributes attributes_attrName1 ON
 			attributes_attrName1.entity_type_id = entities.entity_type_id AND
 			attributes_attrName1.name = $1
-		JOIN values values_attrName1 ON
+		JOIN values_ values_attrName1 ON
 			values_attrName1.attribute_id = attributes_attrName1.id AND
 			values_attrName1.entity_id = entities.id AND
 			attributes_attrName1.value_type = 'relation'
@@ -301,7 +301,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckAndJoinWithEntiti
 		JOIN attributes attributes_attrName1_innerAttrName1 ON
 			attributes_attrName1_innerAttrName1.entity_type_id = entities_attrName1.entity_type_id AND
 			attributes_attrName1_innerAttrName1.name = $2
-		JOIN values values_attrName1_innerAttrName1 ON
+		JOIN values_ values_attrName1_innerAttrName1 ON
 			values_attrName1_innerAttrName1.attribute_id = attributes_attrName1_innerAttrName1.id AND
 			values_attrName1_innerAttrName1.entity_id = entities_attrName1.id AND
 			attributes_attrName1_innerAttrName1.value_type = 'string' AND
@@ -309,7 +309,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckAndJoinWithEntiti
 		JOIN attributes attributes_attrName1_innerAttrName2 ON
 			attributes_attrName1_innerAttrName2.entity_type_id = entities_attrName1.entity_type_id AND
 			attributes_attrName1_innerAttrName2.name = $4
-		JOIN values values_attrName1_innerAttrName2 ON
+		JOIN values_ values_attrName1_innerAttrName2 ON
 			values_attrName1_innerAttrName2.attribute_id = attributes_attrName1_innerAttrName2.id AND
 			values_attrName1_innerAttrName2.entity_id = entities_attrName1.id AND
 			attributes_attrName1_innerAttrName2.value_type = 'string' AND
@@ -317,7 +317,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckAndJoinWithEntiti
 		JOIN attributes attributes_attrName2 ON
 			attributes_attrName2.entity_type_id = entities.entity_type_id AND
 			attributes_attrName2.name = $6
-		JOIN values values_attrName2 ON
+		JOIN values_ values_attrName2 ON
 			values_attrName2.attribute_id = attributes_attrName2.id AND
 			values_attrName2.entity_id = entities.id AND
 			attributes_attrName2.value_type = 'string' AND

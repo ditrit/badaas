@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/controllers"
 	mockServices "github.com/ditrit/badaas/mocks/services"
 	"github.com/ditrit/badaas/persistence/models"
@@ -41,7 +42,7 @@ func TestGetWithoutTypeReturnsError(t *testing.T) {
 func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 	eavService.
 		On("GetEntity", "no-exists", uuid).
 		Return(nil, gorm.ErrRecordNotFound)
@@ -115,7 +116,7 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("GetEntity", entityType.Name, uuid).
@@ -144,7 +145,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("GetEntity", entityType.Name, uuid).
@@ -177,7 +178,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 		EntityType: entityType,
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("GetEntity", entityType.Name, uuid).
@@ -359,7 +360,7 @@ func TestDeleteWithoutTypeReturnsError(t *testing.T) {
 func TestDeleteOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("DeleteEntity", "no-exists", uuid).
@@ -388,7 +389,7 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("DeleteEntity", entityType.Name, uuid).
@@ -417,7 +418,7 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("DeleteEntity", entityType.Name, uuid).
@@ -592,7 +593,7 @@ func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -613,7 +614,7 @@ func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
 func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("UpdateEntity", "no-exists", uuid, map[string]any{"1": "1"}).
@@ -642,7 +643,7 @@ func TestUpdateObjectWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	eavService.
 		On("UpdateEntity", entityType.Name, uuid, map[string]any{"1": "1"}).
@@ -671,7 +672,7 @@ func TestUpdateObjectReturnsObject(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 	entity := &models.Entity{
 		EntityType: entityType,
 	}

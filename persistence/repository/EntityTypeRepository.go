@@ -1,8 +1,8 @@
 package repository
 
 import (
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -19,7 +19,7 @@ func NewEntityTypeRepository(
 	}
 }
 
-func (r *EntityTypeRepository) Get(tx *gorm.DB, id uuid.UUID) (*models.EntityType, error) {
+func (r *EntityTypeRepository) Get(tx *gorm.DB, id badorm.UUID) (*models.EntityType, error) {
 	var entityType models.EntityType
 	err := tx.Preload("Attributes").First(&entityType, id).Error
 	if err != nil {

@@ -4,12 +4,11 @@ package conditions
 import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
-	uuid "github.com/google/uuid"
 	gorm "gorm.io/gorm"
 	"time"
 )
 
-func SaleId(v uuid.UUID) badorm.WhereCondition[models.Sale] {
+func SaleId(v badorm.UUID) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
 		Field: "id",
 		Value: v,
@@ -52,7 +51,7 @@ func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Conditio
 		T2Field:    "id",
 	}
 }
-func SaleProductId(v uuid.UUID) badorm.WhereCondition[models.Sale] {
+func SaleProductId(v badorm.UUID) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
 		Field: "product_id",
 		Value: v,
@@ -65,7 +64,7 @@ func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[
 		T2Field:    "id",
 	}
 }
-func SaleSellerId(v *uuid.UUID) badorm.WhereCondition[models.Sale] {
+func SaleSellerId(v *badorm.UUID) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
 		Field: "seller_id",
 		Value: v,

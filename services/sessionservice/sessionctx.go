@@ -3,14 +3,14 @@ package sessionservice
 import (
 	"context"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/google/uuid"
 )
 
 // The session claims passed in the request context
 type SessionClaims struct {
-	UserID      uuid.UUID
-	SessionUUID uuid.UUID
+	UserID      badorm.UUID
+	SessionUUID badorm.UUID
 }
 
 // Unique claim key type

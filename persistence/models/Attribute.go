@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/google/uuid"
 )
 
 // Describe the type of an attribute
@@ -22,7 +21,7 @@ const (
 // Describe the attribute of a en EntityType
 type Attribute struct {
 	badorm.UUIDModel
-	Name     string `gorm:"uniqueIndex:unique_name_entity_type"`
+	Name     string `gorm:"uniqueIndex:unique_name_entity_type;type:varchar(255)"`
 	Unique   bool   // TODO validate this
 	Required bool
 
@@ -36,10 +35,10 @@ type Attribute struct {
 
 	ValueType ValueTypeT // the type the values of this attr are. Can be "int", "float", "string", "bool", "relation"
 	// id of the EntityType to which a RelationValueType points to. Only if ValueType == RelationValueType
-	RelationTargetEntityTypeID uuid.UUID `gorm:"type:uuid;foreignKey:EntityType;index:fk_relation_target_entity_type"`
+	RelationTargetEntityTypeID badorm.UUID `gorm:"foreignKey:EntityType;index:fk_relation_target_entity_type"`
 
 	// GORM relations
-	EntityTypeID uuid.UUID `gorm:"uniqueIndex:unique_name_entity_type"`
+	EntityTypeID badorm.UUID `gorm:"uniqueIndex:unique_name_entity_type"`
 }
 
 var ErrNoDefaultValueSet = errors.New("no default value found")

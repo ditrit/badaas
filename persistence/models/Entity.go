@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/google/uuid"
 )
 
 // Describe an instance of an EntityType
@@ -13,7 +12,7 @@ type Entity struct {
 	Fields []*Value
 
 	// GORM relations
-	EntityTypeID uuid.UUID
+	EntityTypeID badorm.UUID
 	EntityType   *EntityType
 }
 

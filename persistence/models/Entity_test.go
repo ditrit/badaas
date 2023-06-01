@@ -9,7 +9,7 @@ import (
 )
 
 func TestMarshall(t *testing.T) {
-	id := uuid.MustParse("11e1d4b8-701d-47cc-852f-6d36922bcc75")
+	id := badorm.UUID(uuid.MustParse("11e1d4b8-701d-47cc-852f-6d36922bcc75"))
 	ett := &EntityType{
 		UUIDModel: badorm.UUIDModel{ID: id},
 		Name:      "bird",

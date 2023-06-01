@@ -18,7 +18,17 @@ const (
 	DatabaseSslmodeKey       string = "database.sslmode"
 	DatabaseRetryKey         string = "database.init.retry"
 	DatabaseRetryDurationKey string = "database.init.retryTime"
+	DatabaseDialectorKey     string = "database.dialector"
 )
+
+type DBDialector string
+
+const (
+	PostgreSQL DBDialector = "postgresql"
+	MySQL      DBDialector = "mysql"
+)
+
+var DBDialectors = []DBDialector{PostgreSQL, MySQL}
 
 // Hold the configuration values for the database connection
 type DatabaseConfiguration interface {
@@ -31,6 +41,7 @@ type DatabaseConfiguration interface {
 	GetSSLMode() string
 	GetRetry() uint
 	GetRetryTime() time.Duration
+	GetDialector() DBDialector
 }
 
 // Concrete implementation of the DatabaseConfiguration interface
@@ -43,6 +54,7 @@ type databaseConfigurationImpl struct {
 	sslmode   string
 	retry     uint
 	retryTime uint
+	dialector DBDialector
 }
 
 // Instantiate a new configuration holder for the database connection
@@ -62,6 +74,7 @@ func (databaseConfiguration *databaseConfigurationImpl) Reload() {
 	databaseConfiguration.sslmode = viper.GetString(DatabaseSslmodeKey)
 	databaseConfiguration.retry = viper.GetUint(DatabaseRetryKey)
 	databaseConfiguration.retryTime = viper.GetUint(DatabaseRetryDurationKey)
+	databaseConfiguration.dialector = DBDialector(viper.GetString(DatabaseDialectorKey))
 }
 
 // Return the port of the database server
@@ -102,6 +115,11 @@ func (databaseConfiguration *databaseConfigurationImpl) GetRetry() uint {
 // Return the waiting time between the database connections in seconds
 func (databaseConfiguration *databaseConfigurationImpl) GetRetryTime() time.Duration {
 	return utils.IntToSecond(int(databaseConfiguration.retryTime))
+}
+
+// Return the dialector to be used to connect to database
+func (databaseConfiguration *databaseConfigurationImpl) GetDialector() DBDialector {
+	return databaseConfiguration.dialector
 }
 
 // Log the values provided by the configuration holder

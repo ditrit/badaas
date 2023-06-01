@@ -5,6 +5,7 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
@@ -28,7 +29,7 @@ func NewEntityRepository(
 }
 
 // Get the Entity of type with name "entityTypeName" that has the "id"
-func (r *EntityRepository) Get(tx *gorm.DB, entityTypeName string, id uuid.UUID) (*models.Entity, error) {
+func (r *EntityRepository) Get(tx *gorm.DB, entityTypeName string, id badorm.UUID) (*models.Entity, error) {
 	var entity models.Entity
 
 	query := tx.Preload("Fields").Preload("Fields.Attribute").Preload("EntityType")
@@ -53,29 +54,24 @@ func (r *EntityRepository) Get(tx *gorm.DB, entityTypeName string, id uuid.UUID)
 func (r *EntityRepository) Create(tx *gorm.DB, entity *models.Entity) error {
 	now := time.Now()
 
+	entity.ID = badorm.UUID(uuid.New())
+
 	query, values, err := sq.Insert("entities").
-		Columns("created_at", "updated_at", "entity_type_id").
-		Values(now, now, entity.EntityType.ID).
-		Suffix("RETURNING \"id\"").
+		Columns("id", "created_at", "updated_at", "entity_type_id").
+		Values(entity.ID, now, now, entity.EntityType.ID).
 		PlaceholderFormat(sq.Dollar).ToSql()
 
 	if err != nil {
 		return err
 	}
 
-	var result string
-	err = tx.Raw(query, values...).Scan(&result).Error
-	if err != nil {
-		return err
-	}
-
-	uuid, err := uuid.Parse(result)
+	err = tx.Exec(query, values...).Error
 	if err != nil {
 		return err
 	}
 
 	pie.Each(entity.Fields, func(value *models.Value) {
-		value.EntityID = uuid
+		value.EntityID = entity.ID
 	})
 
 	if len(entity.Fields) > 0 {
@@ -85,7 +81,6 @@ func (r *EntityRepository) Create(tx *gorm.DB, entity *models.Entity) error {
 		}
 	}
 
-	entity.ID = uuid
 	return nil
 }
 
@@ -101,7 +96,7 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 		`JOIN attributes attributes%[1]s ON
 			attributes%[1]s.entity_type_id = entities%[2]s.entity_type_id
 			AND attributes%[1]s.name = ?
-		JOIN values values%[1]s ON
+		JOIN values_ values%[1]s ON
 			values%[1]s.attribute_id = attributes%[1]s.id
 			AND values%[1]s.entity_id = entities%[2]s.id
 		`,

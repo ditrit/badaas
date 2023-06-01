@@ -3,6 +3,7 @@ package middlewares
 import (
 	"net/http"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/google/uuid"
@@ -48,12 +49,12 @@ func (authenticationMiddleware *authenticationMiddleware) Handle(next http.Handl
 			NotAuthenticated.Write(response, authenticationMiddleware.logger)
 			return
 		}
-		ok, sessionClaims := authenticationMiddleware.sessionService.IsValid(extractedUUID)
+		ok, sessionClaims := authenticationMiddleware.sessionService.IsValid(badorm.UUID(extractedUUID))
 		if !ok {
 			NotAuthenticated.Write(response, authenticationMiddleware.logger)
 			return
 		}
-		herr := authenticationMiddleware.sessionService.RollSession(extractedUUID)
+		herr := authenticationMiddleware.sessionService.RollSession(badorm.UUID(extractedUUID))
 		if herr != nil {
 			herr.Write(response, authenticationMiddleware.logger)
 			return

@@ -1,10 +1,10 @@
 package testintegration
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/ditrit/badaas/badorm"
-	badaasModels "github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
@@ -29,23 +29,26 @@ func GetModels() badorm.GetModelsResult {
 }
 
 func CleanDB(db *gorm.DB) {
-	CleanDBTables(db, append(
-		pie.Reverse(ListOfTables),
-		[]any{
-			badaasModels.Value{},
-			badaasModels.Attribute{},
-			badaasModels.Entity{},
-			badaasModels.EntityType{},
-		}...,
-	))
+	CleanDBTables(db, pie.Reverse(ListOfTables))
 }
 
 func CleanDBTables(db *gorm.DB, listOfTables []any) {
 	// clean database to ensure independency between tests
 	for _, table := range listOfTables {
-		err := db.Unscoped().Where("1 = 1").Delete(table).Error
+		err := db.Exec(
+			fmt.Sprintf(
+				"DELETE FROM %s",
+				getTableName(db, table),
+			),
+		).Error
 		if err != nil {
 			log.Fatalln("could not clean database: ", err)
 		}
 	}
+}
+
+func getTableName(db *gorm.DB, entity any) string {
+	stmt := &gorm.Statement{DB: db}
+	stmt.Parse(entity)
+	return stmt.Schema.Table
 }

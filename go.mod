@@ -11,7 +11,6 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/jackc/pgconn v1.13.0
-	github.com/lib/pq v1.10.2
 	github.com/magiconair/properties v1.8.6
 	github.com/noirbizarre/gonja v0.0.0-20200629003239-4d051fd0be61
 	github.com/spf13/cobra v1.5.0
@@ -20,6 +19,7 @@ require (
 	go.uber.org/fx v1.18.2
 	go.uber.org/zap v1.23.0
 	golang.org/x/crypto v0.1.0
+	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.4.5
 	gorm.io/gorm v1.25.1
 	gotest.tools v2.2.0+incompatible
@@ -28,6 +28,7 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

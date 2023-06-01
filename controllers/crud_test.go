@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/controllers"
 	mockBadorm "github.com/ditrit/badaas/mocks/badorm"
 	"github.com/google/uuid"
@@ -17,12 +18,12 @@ import (
 // ----------------------- GetObject -----------------------
 
 type Model struct {
-	ID uuid.UUID
+	ID badorm.UUID
 }
 
 func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
@@ -41,8 +42,8 @@ func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
 }
 
 func TestCRUDGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
 	route := controllers.NewCRUDController[Model](
 		logger,
@@ -62,10 +63,10 @@ func TestCRUDGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 }
 
 func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	crudService.
 		On("GetEntity", uuid).
@@ -90,10 +91,10 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 }
 
 func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 
 	crudService.
 		On("GetEntity", uuid).
@@ -118,10 +119,10 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 }
 
 func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
-	uuid := uuid.New()
+	uuid := badorm.UUID(uuid.New())
 	entity := Model{}
 
 	crudService.
@@ -149,8 +150,8 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 // ----------------------- GetEntities -----------------------
 
 func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
 	crudUnsafeService.
 		On("GetEntities", map[string]any{}).
@@ -173,8 +174,8 @@ func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
 }
 
 func TestGetEntitiesWithoutParams(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
 	entity1 := &Model{}
 	entity2 := &Model{}
@@ -203,8 +204,8 @@ func TestGetEntitiesWithoutParams(t *testing.T) {
 }
 
 func TestGetEntitiesWithParams(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
 	entity1 := &Model{}
 
@@ -231,8 +232,8 @@ func TestGetEntitiesWithParams(t *testing.T) {
 }
 
 func TestGetEntitiesWithParamsNotJsonReturnsError(t *testing.T) {
-	crudService := mockBadorm.NewCRUDService[Model, uuid.UUID](t)
-	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, uuid.UUID](t)
+	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
+	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
 	route := controllers.NewCRUDController[Model](
 		logger,

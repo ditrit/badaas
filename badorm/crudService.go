@@ -1,7 +1,6 @@
 package badorm
 
 import (
-	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -13,7 +12,7 @@ type CRUDService[T any, ID BadaasID] interface {
 }
 
 // check interface compliance
-var _ CRUDService[UUIDModel, uuid.UUID] = (*crudServiceImpl[UUIDModel, uuid.UUID])(nil)
+var _ CRUDService[UUIDModel, UUID] = (*crudServiceImpl[UUIDModel, UUID])(nil)
 
 // Implementation of the CRUD Service
 type crudServiceImpl[T any, ID BadaasID] struct {

@@ -3,6 +3,7 @@ package testintegration
 import (
 	"fmt"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services"
@@ -10,13 +11,11 @@ import (
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
 
 type EAVServiceIntTestSuite struct {
 	suite.Suite
-	logger           *zap.Logger
 	db               *gorm.DB
 	eavService       services.EAVService
 	entityRepository *repository.EntityRepository
@@ -25,30 +24,44 @@ type EAVServiceIntTestSuite struct {
 }
 
 func NewEAVServiceIntTestSuite(
-	logger *zap.Logger,
 	db *gorm.DB,
 	eavService services.EAVService,
 	entityRepository *repository.EntityRepository,
 ) *EAVServiceIntTestSuite {
 	return &EAVServiceIntTestSuite{
-		logger:           logger,
 		db:               db,
 		eavService:       eavService,
 		entityRepository: entityRepository,
 	}
 }
 
+func (ts *EAVServiceIntTestSuite) TearDownSuite() {
+	ts.cleanDB()
+}
+
 func (ts *EAVServiceIntTestSuite) SetupTest() {
-	CleanDB(ts.db)
+	ts.cleanDB()
 
 	ts.entityType1 = ts.createEntityType("entityType1", nil)
 	ts.entityType2 = ts.createEntityType("entityType2", ts.entityType1)
 }
 
+func (ts *EAVServiceIntTestSuite) cleanDB() {
+	CleanDBTables(
+		ts.db,
+		[]any{
+			models.Value{},
+			models.Attribute{},
+			models.Entity{},
+			models.EntityType{},
+		},
+	)
+}
+
 // ------------------------- GetEntity --------------------------------
 
 func (ts *EAVServiceIntTestSuite) TestGetEntityReturnsErrorIfEntityDoesNotExist() {
-	_, err := ts.eavService.GetEntity(ts.entityType1.Name, uuid.New())
+	_, err := ts.eavService.GetEntity(ts.entityType1.Name, badorm.UUID(uuid.New()))
 	ts.ErrorContains(err, "record not found")
 }
 
@@ -532,11 +545,11 @@ func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfRelationAttributePoint
 	ts.addAttributeToEntityType(ts.entityType2, &models.Attribute{
 		Name:                       "relation2",
 		ValueType:                  models.RelationValueType,
-		RelationTargetEntityTypeID: uuid.New(),
+		RelationTargetEntityTypeID: badorm.UUID(uuid.New()),
 	})
 
 	params := map[string]any{
-		"relation2": uuid.New().String(),
+		"relation2": badorm.UUID(uuid.New()).String(),
 	}
 	entity, err := ts.eavService.CreateEntity(ts.entityType2.Name, params)
 	ts.Nil(entity)
@@ -626,7 +639,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityMultipleTimesDoesNotGenerateGo
 }
 
 func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfEntityDoesNotExist() {
-	_, err := ts.eavService.UpdateEntity(ts.entityType1.Name, uuid.New(), map[string]any{})
+	_, err := ts.eavService.UpdateEntity(ts.entityType1.Name, badorm.UUID(uuid.New()), map[string]any{})
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 
@@ -713,7 +726,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfUUIDDoesNotExist
 	entity := ts.createEntity(ts.entityType2, map[string]any{})
 
 	paramsUpdate := map[string]any{
-		"relation": uuid.New().String(),
+		"relation": badorm.UUID(uuid.New()).String(),
 	}
 	_, err := ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, paramsUpdate)
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
@@ -758,7 +771,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityDoesNotUpdateAValueIfOtherFail
 // ------------------------- DeleteEntity -------------------------
 
 func (ts *EAVServiceIntTestSuite) TestDeleteEntityReturnsErrorIfEntityDoesNotExist() {
-	err := ts.eavService.DeleteEntity(ts.entityType2.Name, uuid.New())
+	err := ts.eavService.DeleteEntity(ts.entityType2.Name, badorm.UUID(uuid.New()))
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 

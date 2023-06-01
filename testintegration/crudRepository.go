@@ -13,12 +13,12 @@ import (
 type CRUDRepositoryIntTestSuite struct {
 	suite.Suite
 	db                    *gorm.DB
-	crudProductRepository badorm.CRUDRepository[models.Product, uuid.UUID]
+	crudProductRepository badorm.CRUDRepository[models.Product, badorm.UUID]
 }
 
 func NewCRUDRepositoryIntTestSuite(
 	db *gorm.DB,
-	crudProductRepository badorm.CRUDRepository[models.Product, uuid.UUID],
+	crudProductRepository badorm.CRUDRepository[models.Product, badorm.UUID],
 ) *CRUDRepositoryIntTestSuite {
 	return &CRUDRepositoryIntTestSuite{
 		db:                    db,
@@ -30,11 +30,15 @@ func (ts *CRUDRepositoryIntTestSuite) SetupTest() {
 	CleanDB(ts.db)
 }
 
+func (ts *CRUDRepositoryIntTestSuite) TearDownSuite() {
+	CleanDB(ts.db)
+}
+
 // ------------------------- GetByID --------------------------------
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsErrorIfIDDontMatch() {
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.GetByID(ts.db, uuid.Nil)
+	_, err := ts.crudProductRepository.GetByID(ts.db, badorm.UUID(uuid.Nil))
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
