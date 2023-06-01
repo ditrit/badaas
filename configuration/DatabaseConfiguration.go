@@ -28,7 +28,10 @@ const (
 	MySQL      DBDialector = "mysql"
 )
 
-var DBDialectors = []DBDialector{PostgreSQL, MySQL}
+var DBDialectors = []string{
+	string(PostgreSQL),
+	string(MySQL),
+}
 
 // Hold the configuration values for the database connection
 type DatabaseConfiguration interface {

@@ -109,11 +109,10 @@ func configDatabaseParameters(cfg *verdeter.VerdeterCommand) error {
 		return err
 	}
 	cfg.SetRequired(configuration.DatabaseDialectorKey)
-	// TODO
-	// cfg.AddValidator(
-	// configuration.DatabaseDialectorKey,
-	// validators.AuthorizedValues(configuration.DBDialectors...),
-	// )
+	cfg.AddValidator(
+		configuration.DatabaseDialectorKey,
+		validators.AuthorizedValues(configuration.DBDialectors...),
+	)
 
 	return nil
 }
