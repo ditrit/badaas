@@ -35,7 +35,7 @@ require (
 	github.com/elliotchance/pie/v2 v2.5.2
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
-	github.com/google/go-cmp v0.5.9
+	github.com/google/go-cmp v0.5.9 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/gorilla/handlers v1.5.1
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
