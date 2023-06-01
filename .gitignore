@@ -29,3 +29,4 @@ node*
 # binary output
 badaas
 badctl
+!tools/badctl/
