@@ -72,14 +72,9 @@ func (file File) generateConditionsForEachField(object types.Object, fields []Fi
 				field,
 			)...)
 		} else {
-			newCondition, err := NewCondition(
+			conditions = append(conditions, NewCondition(
 				file.destPkg, Type{object.Type()}, field,
-			)
-			if err != nil {
-				cmderrors.FailErr(err)
-			}
-
-			conditions = append(conditions, newCondition)
+			))
 		}
 	}
 

@@ -21,21 +21,17 @@ type Condition struct {
 	destPkg string
 }
 
-func NewCondition(destPkg string, objectType Type, field Field) (*Condition, error) {
+func NewCondition(destPkg string, objectType Type, field Field) *Condition {
 	condition := &Condition{
 		param:   NewJenParam(),
 		destPkg: destPkg,
 	}
-	err := condition.generate(objectType, field)
-	if err != nil {
-		return nil, err
-	}
-
-	return condition, nil
+	condition.generate(objectType, field)
+	return condition
 }
 
 // Generate the condition between the object and the field
-func (condition *Condition) generate(objectType Type, field Field) error {
+func (condition *Condition) generate(objectType Type, field Field) {
 	switch fieldType := field.Type.Type.(type) {
 	case *types.Basic:
 		// the field is a basic type (string, int, etc)
@@ -47,7 +43,7 @@ func (condition *Condition) generate(objectType Type, field Field) error {
 		)
 	case *types.Named:
 		// the field is a named type (user defined structs)
-		return condition.generateForNamedType(
+		condition.generateForNamedType(
 			objectType,
 			field,
 		)
@@ -71,8 +67,6 @@ func (condition *Condition) generate(objectType Type, field Field) error {
 	default:
 		log.Logger.Debugf("struct field type not handled: %T", fieldType)
 	}
-
-	return nil
 }
 
 // Generate condition between the object and the field when the field is a slice
@@ -111,17 +105,13 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 }
 
 // Generate condition between object and field when the field is a named type (user defined struct)
-func (condition *Condition) generateForNamedType(objectType Type, field Field) error {
+func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 	_, err := field.Type.BadORMModelStruct()
 
 	if err == nil {
 		// field is a BaDORM Model
 		// TODO que pasa si esta en otro package? se importa solo?
-		hasFK, err := objectType.HasFK(field)
-		if err != nil {
-			return err
-		}
-
+		hasFK, _ := objectType.HasFK(field)
 		if hasFK {
 			// belongsTo relation
 			condition.generateJoinWithFK(
@@ -154,8 +144,6 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) e
 			log.Logger.Debugf("struct field type not handled: %s", field.TypeString())
 		}
 	}
-
-	return nil
 }
 
 // Generate a WhereCondition between object and field

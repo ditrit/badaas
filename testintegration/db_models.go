@@ -49,6 +49,6 @@ func CleanDBTables(db *gorm.DB, listOfTables []any) {
 
 func getTableName(db *gorm.DB, entity any) string {
 	stmt := &gorm.Statement{DB: db}
-	stmt.Parse(entity)
+	_ = stmt.Parse(entity)
 	return stmt.Schema.Table
 }
