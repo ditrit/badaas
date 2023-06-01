@@ -1,5 +1,8 @@
 PATHS = $(shell go list ./... | tail -n +2 | grep -v test_integration | grep -v test_e2e)
 
+lint:
+	golangci-lint run
+
 test_unit:
 	go test $(PATHS) -v
 
