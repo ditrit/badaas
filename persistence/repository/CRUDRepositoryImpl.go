@@ -10,7 +10,6 @@ import (
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/pagination"
-	"go.uber.org/zap"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -28,19 +27,16 @@ func DatabaseError(message string, golangError error) httperrors.HTTPError {
 type CRUDRepositoryImpl[T models.Tabler, ID any] struct {
 	CRUDRepository[T, ID]
 	gormDatabase            *gorm.DB
-	logger                  *zap.Logger
 	paginationConfiguration configuration.PaginationConfiguration
 }
 
 // Constructor of the Generic CRUD Repository
 func NewCRUDRepository[T models.Tabler, ID any](
 	database *gorm.DB,
-	logger *zap.Logger,
 	paginationConfiguration configuration.PaginationConfiguration,
 ) CRUDRepository[T, ID] {
 	return &CRUDRepositoryImpl[T, ID]{
 		gormDatabase:            database,
-		logger:                  logger,
 		paginationConfiguration: paginationConfiguration,
 	}
 }
