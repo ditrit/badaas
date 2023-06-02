@@ -47,7 +47,11 @@ var command = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 })
 
 func main() {
-  badaas.ConfigCommandParameters(command)
+  err := configuration.NewCommandInitializer().Init(command)
+  if err != nil {
+    panic(err)
+  }
+
   command.Execute()
 }
 ```

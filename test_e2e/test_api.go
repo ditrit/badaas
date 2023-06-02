@@ -26,7 +26,7 @@ var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 })
 
 func main() {
-	err := badaas.ConfigCommandParameters(rootCfg)
+	err := configuration.NewCommandInitializer().Init(rootCfg)
 	if err != nil {
 		panic(err)
 	}
