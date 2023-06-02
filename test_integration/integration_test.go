@@ -6,7 +6,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ditrit/badaas/commands"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/logger"
@@ -34,7 +33,7 @@ func TestAll(t *testing.T) {
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(b)
 	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
-	err := commands.InitCommands(testsCfg)
+	err := configuration.NewCommandInitializer().Init(testsCfg)
 	if err != nil {
 		panic(err)
 	}
