@@ -34,7 +34,7 @@ jobs:
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: latest
+          version: v1.52.2
           skip-cache: true
           skip-pkg-cache: true
           skip-build-cache: true
@@ -64,12 +64,18 @@ jobs:
         with:
           go-version: '^1.18'
           cache: true
-      - name: Run test
-        run:  make test_unit_and_cover
+      - name: Run BaDaaS tests
+        run:  make test_unit_badaas_cover
       - uses: actions/upload-artifact@v3
         with:
           name: coverage_unit
           path: coverage_unit.out
+      - name: Run BaDctl tests
+        run:  go test ./tools/badctl/... -coverprofile=coverage_badctl.out -v
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage_badctl
+          path: coverage_badctl.out
 
   integration-tests:
     name: Integration tests
@@ -138,6 +144,11 @@ jobs:
         with:
           name: coverage_unit
           path: coverage_unit.out
+      - name: Download badctl unit tests line coverage report
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage_badctl
+          path: coverage_badctl.out
       - name: Download int tests line coverage report
         uses: actions/download-artifact@v3
         with:

@@ -16,7 +16,7 @@ import (
 
 //go:embed docker/*
 //go:embed config/*
-var embedFS embed.FS
+var genEmbedFS embed.FS
 
 var genCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Use:   "gen",
@@ -81,11 +81,16 @@ func generateDockerFiles(cmd *cobra.Command, args []string) {
 		".dockerignore",
 	)
 
+	copyFile(
+		filepath.Join(sourceDockerDir, "Makefile"),
+		"Makefile",
+	)
+
 	copyBadaasConfig(dbProvider)
 }
 
 func copyBadaasConfig(dbProvider string) {
-	configFile, err := embedFS.ReadFile(
+	configFile, err := genEmbedFS.ReadFile(
 		filepath.Join("config", "badaas.yml"),
 	)
 	if err != nil {
@@ -121,7 +126,7 @@ func copyBadaasConfig(dbProvider string) {
 }
 
 func copyFile(sourcePath, destPath string) {
-	fileContent, err := embedFS.ReadFile(sourcePath)
+	fileContent, err := genEmbedFS.ReadFile(sourcePath)
 	if err != nil {
 		panic(err)
 	}
@@ -132,7 +137,7 @@ func copyFile(sourcePath, destPath string) {
 }
 
 func copyDir(sourceDir, destDir string) {
-	files, err := embedFS.ReadDir(sourceDir)
+	files, err := genEmbedFS.ReadDir(sourceDir)
 	if err != nil {
 		panic(err)
 	}
