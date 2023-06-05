@@ -1,13 +1,18 @@
-PATHS = $(shell go list ./... | tail -n +2 | grep -v test_integration | grep -v test_e2e)
+PATHS = $(shell go list ./... | tail -n +2 | grep -v test_integration)
 
 lint:
 	golangci-lint run
 
-test_unit:
+test_unit_badaas:
 	go test $(PATHS) -v
 
-test_unit_and_cover:
+test_unit_badaas_cover:
 	go test $(PATHS) -coverpkg=./... -coverprofile=coverage_unit.out -v
+
+test_unit_badctl:
+	go test ./tools/badctl/... -v
+
+test_unit: test_unit_badaas test_unit_badctl
 
 test_db:
 	docker compose -f "docker/test_db/docker-compose.yml" up -d
