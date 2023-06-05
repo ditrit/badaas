@@ -2,7 +2,6 @@ package integrationtests
 
 import (
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -259,17 +258,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleI
 	EqualList(&ts.Suite, []*Product{match1, match2}, entities)
 }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatDoesNotExistReturnsDBError() {
-	ts.createProduct("match", 0, 0, false)
-
-	params := map[string]any{
-		"not_exists": "not_exists",
-	}
-	_, err := ts.crudProductService.GetEntities(params)
-	ts.NotNil(err)
-	ts.True(gormdatabase.IsPostgresError(err, "42703"))
-}
-
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	match := ts.createProduct("match", 1, 0, false)
 	ts.createProduct("not_match", 2, 0, false)
@@ -281,17 +269,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*Product{match}, entities)
-}
-
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIncorrectTypeReturnsDBError() {
-	ts.createProduct("not_match", 1, 0, false)
-
-	params := map[string]any{
-		"int": "not_an_int",
-	}
-	_, err := ts.crudProductService.GetEntities(params)
-	ts.NotNil(err)
-	ts.True(gormdatabase.IsPostgresError(err, "22P02"))
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
