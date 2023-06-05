@@ -59,12 +59,12 @@ func getEntityIDFromRequest(r *http.Request) (badorm.UUID, httperrors.HTTPError)
 		return badorm.UUID(uuid.Nil), ErrEntityNotFound
 	}
 
-	uid, err := uuid.Parse(id)
+	uuid, err := badorm.ParseUUID(id)
 	if err != nil {
-		return badorm.UUID(uuid.Nil), ErrIDNotAnUUID
+		return uuid, ErrIDNotAnUUID
 	}
 
-	return badorm.UUID(uid), nil
+	return uuid, nil
 }
 
 func mapServiceError(err error) httperrors.HTTPError {

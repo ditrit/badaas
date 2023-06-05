@@ -1,7 +1,10 @@
 package testintegration
 
 import (
+	"os"
+
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/models"
 	"gorm.io/gorm"
 )
@@ -142,14 +145,23 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInt
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfIncorrectTypeReturnsDBError() {
+func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfIncorrectType() {
 	ts.createProduct("not_match", 1, 0, false, nil)
 
 	params := map[string]any{
 		"int": "not_an_int",
 	}
-	_, err := ts.crudProductService.GetEntities(params)
-	ts.NotNil(err)
+	result, err := ts.crudProductService.GetEntities(params)
+	switch configuration.DBDialector(os.Getenv(dbTypeEnvKey)) {
+	case configuration.PostgreSQL:
+		// postgres does the verification
+		ts.NotNil(err)
+	case configuration.MySQL:
+		// mysql simply matches nothing
+		ts.Nil(err)
+		ts.Len(result, 0)
+	}
+
 }
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfFloatType() {

@@ -179,7 +179,14 @@ func divideConditionsByEntity(
 
 	for attributeName, expectedValue := range conditions {
 		switch typedExpectedValue := expectedValue.(type) {
-		case float64, bool, string, int:
+		case string:
+			uuid, err := ParseUUID(typedExpectedValue)
+			if err == nil {
+				thisEntityConditions[attributeName] = uuid
+			} else {
+				thisEntityConditions[attributeName] = expectedValue
+			}
+		case float64, bool, int:
 			thisEntityConditions[attributeName] = expectedValue
 		case map[string]any:
 			joinConditions[attributeName] = typedExpectedValue

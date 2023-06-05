@@ -6,7 +6,6 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/services/sessionservice"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 )
 
@@ -44,17 +43,18 @@ func (authenticationMiddleware *authenticationMiddleware) Handle(next http.Handl
 			NotAuthenticated.Write(response, authenticationMiddleware.logger)
 			return
 		}
-		extractedUUID, err := uuid.Parse(accessTokenCookie.Value)
+
+		extractedUUID, err := badorm.ParseUUID(accessTokenCookie.Value)
 		if err != nil {
 			NotAuthenticated.Write(response, authenticationMiddleware.logger)
 			return
 		}
-		ok, sessionClaims := authenticationMiddleware.sessionService.IsValid(badorm.UUID(extractedUUID))
+		ok, sessionClaims := authenticationMiddleware.sessionService.IsValid(extractedUUID)
 		if !ok {
 			NotAuthenticated.Write(response, authenticationMiddleware.logger)
 			return
 		}
-		herr := authenticationMiddleware.sessionService.RollSession(badorm.UUID(extractedUUID))
+		herr := authenticationMiddleware.sessionService.RollSession(extractedUUID)
 		if herr != nil {
 			herr.Write(response, authenticationMiddleware.logger)
 			return

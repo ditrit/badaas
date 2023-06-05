@@ -121,9 +121,9 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 	case bool:
 		stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.BooleanValueType)
 	case string:
-		uuid, err := uuid.Parse(expectedValueTyped)
+		uuid, err := badorm.ParseUUID(expectedValueTyped)
 		if err == nil {
-			expectedValue = badorm.UUID(uuid)
+			expectedValue = uuid
 			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.RelationValueType)
 		} else {
 			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.StringValueType)

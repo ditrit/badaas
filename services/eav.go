@@ -8,7 +8,6 @@ import (
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/utils"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )
@@ -210,7 +209,7 @@ func (eavService *eavServiceImpl) updateValue(tx *gorm.DB, value *models.Value, 
 // returns error if entity with "newID" does not exist
 // or its type is not the same as the one pointed by the attribute's RelationTargetEntityTypeID
 func (eavService *eavServiceImpl) updateRelationValue(tx *gorm.DB, value *models.Value, newID string) error {
-	uuidVal, err := uuid.Parse(newID)
+	uuidVal, err := badorm.ParseUUID(newID)
 	if err != nil {
 		return ErrCantParseUUID
 	}
@@ -220,7 +219,7 @@ func (eavService *eavServiceImpl) updateRelationValue(tx *gorm.DB, value *models
 		return err
 	}
 
-	relationEntity, err := eavService.entityRepository.Get(tx, relationEntityType.Name, badorm.UUID(uuidVal))
+	relationEntity, err := eavService.entityRepository.Get(tx, relationEntityType.Name, uuidVal)
 	if err != nil {
 		return err
 	}
