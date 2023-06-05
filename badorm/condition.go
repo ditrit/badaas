@@ -28,7 +28,10 @@ type WhereCondition[T any] struct {
 	Value any
 }
 
-func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {}
+func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
@@ -78,7 +81,10 @@ type JoinCondition[T1 any, T2 any] struct {
 	Conditions []Condition[T2]
 }
 
-func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(t T1) {}
+func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(t T1) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 // Applies a join between the tables of T1 and T2
 // previousTableName is the name of the table of T1
