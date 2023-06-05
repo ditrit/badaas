@@ -33,7 +33,7 @@ func TestBaDaaS(t *testing.T) {
 	basePath := filepath.Dir(b)
 	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
 	viper.Set(configuration.DatabaseDialectorKey, os.Getenv(dbTypeEnvKey))
-	err := badaas.ConfigCommandParameters(testsCommand)
+	err := configuration.NewCommandInitializer().Init(testsCommand)
 	if err != nil {
 		panic(err)
 	}

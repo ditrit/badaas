@@ -7,7 +7,6 @@
   - [Build from sources](#build-from-sources)
   - [Commands](#commands)
     - [gen](#gen)
-    - [run](#run)
   - [Contributing](#contributing)
 
 ## Install with go install
@@ -48,16 +47,7 @@ Well done, you have a binary `badctl` at the root of the project.
 You can see the available commands by running:
 
 ```bash
-$ badctl help
-badctl is a command line tool that makes it possible to configure and run your BadAas applications easily
-
-Usage:
-  badctl [command]
-
-Available Commands:
-  completion  Generate the autocompletion script for the specified shell
-  gen         Generate files and configurations necessary to use BadAss
-  help        Help about any command
+badctl help
 ```
 
 For more information about the functionality provided and how to use each command use:
@@ -76,9 +66,11 @@ The possible values for `db_provider` are `cockroachdb` and `postgres`. Cockroac
 
 All these files can be modified in case you need different values than those provided by default. For more information about the configuration head to [configuration docs](../../configuration.md).
 
-### run
+A Makefile will be generated for the execution of a badaas server, with the command:
 
-`run` is the command that will allow you to run your application once you have generated the necessary files with gen.
+```bash
+make badaas_run
+```
 
 ## Contributing
 

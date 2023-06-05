@@ -23,7 +23,6 @@ func Execute() {
 }
 
 func init() {
-	rootCmd.AddSubCommand(runCmd)
 	rootCmd.AddSubCommand(gen.GenCmd)
 
 	err := rootCmd.GKey(

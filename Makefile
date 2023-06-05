@@ -1,13 +1,25 @@
-PATHS = $(shell go list ./... | tail -n +2 | grep -v testintegration | grep -v test_e2e)
+PATHS = $(shell go list ./... | tail -n +2 | grep -v testintegration)
 
-test_unit:
+lint:
+	golangci-lint run
+
+test_unit_badaas:
 	go test $(PATHS) -v
 
-test_unit_and_cover:
+test_unit_badaas_cover:
 	go test $(PATHS) -coverpkg=./... -coverprofile=coverage_unit.out -v
+
+test_unit_badctl:
+	go test ./tools/badctl/... -v
+
+test_unit: test_unit_badaas test_unit_badctl
 
 rmdb:
 	docker stop badaas-test-db && docker rm badaas-test-db
+
+test_db:
+	docker compose -f "docker/test_db/docker-compose.yml" up -d
+	./docker/wait_for_api.sh 8080/health
 
 postgresql:
 	docker compose -f "docker/postgresql/docker-compose.yml" up -d

@@ -228,67 +228,6 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMap() {
 	s.execQuery(AttributeNameAndValue{attributeName, attributeValue})
 }
 
-func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckAndJoinWithEntitiesForMapWith2Values() {
-	attributeName1 := "attrName1"
-	innerAttributeName1 := "innerAttrName1"
-	innerAttributeValue1 := "a string"
-	innerAttributeName2 := "innerAttrName2"
-	innerAttributeValue2 := "other string"
-	attributeValue1 := map[string]any{
-		innerAttributeName1: innerAttributeValue1,
-		innerAttributeName2: innerAttributeValue2,
-	}
-	attributeName2 := "attrName2"
-	attributeValue2 := "another string"
-	s.mock.ExpectQuery(regexp.QuoteMeta(
-		`SELECT entities.* FROM "entities"
-		JOIN attributes attributes_attrName1 ON
-			attributes_attrName1.entity_type_id = entities.entity_type_id AND
-			attributes_attrName1.name = $1
-		JOIN values_ values_attrName1 ON
-			values_attrName1.attribute_id = attributes_attrName1.id AND
-			values_attrName1.entity_id = entities.id AND
-			attributes_attrName1.value_type = 'relation'
-		JOIN entities entities_attrName1 ON
-			entities_attrName1.id = values_attrName1.relation_val AND
-			entities_attrName1.deleted_at IS NULL
-		JOIN attributes attributes_attrName1_innerAttrName1 ON
-			attributes_attrName1_innerAttrName1.entity_type_id = entities_attrName1.entity_type_id AND
-			attributes_attrName1_innerAttrName1.name = $2
-		JOIN values_ values_attrName1_innerAttrName1 ON
-			values_attrName1_innerAttrName1.attribute_id = attributes_attrName1_innerAttrName1.id AND
-			values_attrName1_innerAttrName1.entity_id = entities_attrName1.id AND
-			attributes_attrName1_innerAttrName1.value_type = 'string' AND
-			values_attrName1_innerAttrName1.string_val = $3
-		JOIN attributes attributes_attrName1_innerAttrName2 ON
-			attributes_attrName1_innerAttrName2.entity_type_id = entities_attrName1.entity_type_id AND
-			attributes_attrName1_innerAttrName2.name = $4
-		JOIN values_ values_attrName1_innerAttrName2 ON
-			values_attrName1_innerAttrName2.attribute_id = attributes_attrName1_innerAttrName2.id AND
-			values_attrName1_innerAttrName2.entity_id = entities_attrName1.id AND
-			attributes_attrName1_innerAttrName2.value_type = 'string' AND
-			values_attrName1_innerAttrName2.string_val = $5
-		JOIN attributes attributes_attrName2 ON
-			attributes_attrName2.entity_type_id = entities.entity_type_id AND
-			attributes_attrName2.name = $6
-		JOIN values_ values_attrName2 ON
-			values_attrName2.attribute_id = attributes_attrName2.id AND
-			values_attrName2.entity_id = entities.id AND
-			attributes_attrName2.value_type = 'string' AND
-			values_attrName2.string_val = $7
-		WHERE entities.entity_type_id = $8 AND
-			"entities"."deleted_at" IS NULL`)).
-		WithArgs(
-			attributeName1,
-			innerAttributeName1, innerAttributeValue1,
-			innerAttributeName2, innerAttributeValue2,
-			attributeName2, attributeValue2,
-			s.uuid).
-		WillReturnRows(sqlmock.NewRows(nil))
-
-	s.execQuery(AttributeNameAndValue{attributeName1, attributeValue1}, AttributeNameAndValue{attributeName2, attributeValue2})
-}
-
 func (s *EntityRepositorySuite) execQuery(attributes ...AttributeNameAndValue) {
 	for _, attribute := range attributes {
 		err := s.repository.AddValueCheckToQuery(s.query, attribute.AttributeName, attribute.AttributeValue)

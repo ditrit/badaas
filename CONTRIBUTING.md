@@ -16,12 +16,12 @@
 
 ### Unit tests
 
-We use the standard test suite in combination with [github.com/stretchr/testify](https://github.com/stretchr/testify) to do our unit testing. Mocks are generated using [mockery](https://github.com/vektra/mockery) a mock generator using this command `mockery --all --keeptree`.
+We use the standard test suite in combination with [github.com/stretchr/testify](https://github.com/stretchr/testify) to do our unit testing. Mocks are generated using [mockery](https://github.com/vektra/mockery) a mock generator using this command `make test_generate_mocks`.
 
 To run them, please run:
 
 ```sh
-make test_unit
+make -k test_unit
 ```
 
 ### Integration tests
