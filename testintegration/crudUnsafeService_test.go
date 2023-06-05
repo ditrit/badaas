@@ -18,6 +18,8 @@ type CRUDUnsafeServiceIntTestSuite struct {
 	crudCityService     badorm.CRUDUnsafeService[models.City, badorm.UUID]
 	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID]
 	crudBicycleService  badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID]
+	crudBrandService    badorm.CRUDUnsafeService[models.Brand, uint]
+	crudPhoneService    badorm.CRUDUnsafeService[models.Phone, uint]
 }
 
 func NewCRUDUnsafeServiceIntTestSuite(
@@ -29,6 +31,8 @@ func NewCRUDUnsafeServiceIntTestSuite(
 	crudCityService badorm.CRUDUnsafeService[models.City, badorm.UUID],
 	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID],
 	crudBicycleService badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID],
+	crudBrandService badorm.CRUDUnsafeService[models.Brand, uint],
+	crudPhoneService badorm.CRUDUnsafeService[models.Phone, uint],
 ) *CRUDUnsafeServiceIntTestSuite {
 	return &CRUDUnsafeServiceIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
@@ -41,6 +45,8 @@ func NewCRUDUnsafeServiceIntTestSuite(
 		crudCityService:     crudCityService,
 		crudEmployeeService: crudEmployeeService,
 		crudBicycleService:  crudBicycleService,
+		crudBrandService:    crudBrandService,
+		crudPhoneService:    crudPhoneService,
 	}
 }
 
@@ -225,6 +231,37 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithMultipleCondit
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsOnUIntModel() {
+	match := ts.createBrand("match")
+	ts.createBrand("not_match")
+
+	params := map[string]any{
+		"name": "match",
+	}
+	entities, err := ts.crudBrandService.GetEntities(params)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Brand{match}, entities)
+}
+
+func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJoinsUintBelongsTo() {
+	brand1 := ts.createBrand("google")
+	brand2 := ts.createBrand("apple")
+
+	match := ts.createPhone("pixel", *brand1)
+	ts.createPhone("iphone", *brand2)
+
+	params := map[string]any{
+		"Brand": map[string]any{
+			"name": "google",
+		},
+	}
+	entities, err := ts.crudPhoneService.GetEntities(params)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Phone{match}, entities)
 }
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJoinsBelongsTo() {

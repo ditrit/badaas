@@ -19,6 +19,8 @@ var ListOfTables = []any{
 	models.Employee{},
 	models.Person{},
 	models.Bicycle{},
+	models.Brand{},
+	models.Phone{},
 }
 
 func GetModels() badorm.GetModelsResult {

@@ -158,3 +158,26 @@ type Bicycle struct {
 func (m Bicycle) Equal(other Bicycle) bool {
 	return m.Name == other.Name
 }
+
+type Brand struct {
+	badorm.UIntModel
+
+	Name string
+}
+
+func (m Brand) Equal(other Brand) bool {
+	return m.Name == other.Name
+}
+
+type Phone struct {
+	badorm.UIntModel
+
+	Name string
+	// Phone belongsTo Brand (Phone 0..* -> 1 Brand)
+	Brand   Brand
+	BrandID uint
+}
+
+func (m Phone) Equal(other Phone) bool {
+	return m.Name == other.Name
+}

@@ -18,6 +18,8 @@ type CRUDServiceIntTestSuite struct {
 	crudCityService     badorm.CRUDService[models.City, badorm.UUID]
 	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID]
 	crudBicycleService  badorm.CRUDService[models.Bicycle, badorm.UUID]
+	crudBrandService    badorm.CRUDService[models.Brand, uint]
+	crudPhoneService    badorm.CRUDService[models.Phone, uint]
 }
 
 func NewCRUDServiceIntTestSuite(
@@ -29,6 +31,8 @@ func NewCRUDServiceIntTestSuite(
 	crudCityService badorm.CRUDService[models.City, badorm.UUID],
 	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID],
 	crudBicycleService badorm.CRUDService[models.Bicycle, badorm.UUID],
+	crudBrandService badorm.CRUDService[models.Brand, uint],
+	crudPhoneService badorm.CRUDService[models.Phone, uint],
 ) *CRUDServiceIntTestSuite {
 	return &CRUDServiceIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
@@ -41,6 +45,8 @@ func NewCRUDServiceIntTestSuite(
 		crudCityService:     crudCityService,
 		crudEmployeeService: crudEmployeeService,
 		crudBicycleService:  crudBicycleService,
+		crudBrandService:    crudBrandService,
+		crudPhoneService:    crudPhoneService,
 	}
 }
 
@@ -436,6 +442,35 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOpt
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionsOnUIntModel() {
+	match := ts.createBrand("match")
+	ts.createBrand("not_match")
+
+	entities, err := ts.crudBrandService.GetEntities(
+		conditions.BrandName("match"),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Brand{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsUintBelongsTo() {
+	brand1 := ts.createBrand("google")
+	brand2 := ts.createBrand("apple")
+
+	match := ts.createPhone("pixel", *brand1)
+	ts.createPhone("iphone", *brand2)
+
+	entities, err := ts.crudPhoneService.GetEntities(
+		conditions.PhoneBrand(
+			conditions.BrandName("google"),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Phone{match}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsBelongsTo() {

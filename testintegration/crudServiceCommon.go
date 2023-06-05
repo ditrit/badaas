@@ -103,3 +103,24 @@ func (ts *CRUDServiceCommonIntTestSuite) createBicycle(name string, owner models
 
 	return entity
 }
+
+func (ts *CRUDServiceCommonIntTestSuite) createBrand(name string) *models.Brand {
+	entity := &models.Brand{
+		Name: name,
+	}
+	err := ts.db.Create(entity).Error
+	ts.Nil(err)
+
+	return entity
+}
+
+func (ts *CRUDServiceCommonIntTestSuite) createPhone(name string, brand models.Brand) *models.Phone {
+	entity := &models.Phone{
+		Name:  name,
+		Brand: brand,
+	}
+	err := ts.db.Create(entity).Error
+	ts.Nil(err)
+
+	return entity
+}
