@@ -45,6 +45,7 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, cond
 		return nil, err
 	}
 
+	// TODO on column definition, conditions need to have the column name in place of the attribute name
 	query := tx.Where(thisEntityConditions)
 
 	entity := new(T)

@@ -73,7 +73,7 @@ func TestBaDORM(t *testing.T) {
 func runBaDORMTestSuites(
 	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
-	tsCRUDUnsafeService *CRUDRepositoryIntTestSuite,
+	tsCRUDUnsafeService *CRUDUnsafeServiceIntTestSuite,
 	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {

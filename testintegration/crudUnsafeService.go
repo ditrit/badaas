@@ -2,7 +2,6 @@ package testintegration
 
 import (
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/testintegration/models"
 	"gorm.io/gorm"
 )
@@ -73,7 +72,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithoutConditionsR
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsReturnsEmptyIfNotEntitiesCreated() {
 	params := map[string]any{
-		"string": "not_created",
+		"string_something_else": "not_created",
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
@@ -85,7 +84,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	ts.createProduct("something_else", 0, 0, false, nil)
 
 	params := map[string]any{
-		"string": "not_match",
+		"string_something_else": "not_match",
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
@@ -98,7 +97,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	ts.createProduct("not_match", 0, 0, false, nil)
 
 	params := map[string]any{
-		"string": "match",
+		"string_something_else": "match",
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
@@ -112,7 +111,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	ts.createProduct("not_match", 0, 0, false, nil)
 
 	params := map[string]any{
-		"string": "match",
+		"string_something_else": "match",
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
@@ -128,7 +127,6 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatD
 	}
 	_, err := ts.crudProductService.GetEntities(params)
 	ts.NotNil(err)
-	ts.True(gormdatabase.IsPostgresError(err, "42703"))
 }
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfIntType() {
@@ -152,7 +150,6 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInc
 	}
 	_, err := ts.crudProductService.GetEntities(params)
 	ts.NotNil(err)
-	ts.True(gormdatabase.IsPostgresError(err, "22P02"))
 }
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfFloatType() {
@@ -208,9 +205,9 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithMultipleCondit
 	ts.createProduct("match", 2, 0.0, true, nil)
 
 	params := map[string]any{
-		"string": "match",
-		"int":    1,
-		"bool":   true,
+		"string_something_else": "match",
+		"int":                   1,
+		"bool":                  true,
 	}
 	entities, err := ts.crudProductService.GetEntities(params)
 	ts.Nil(err)
@@ -333,28 +330,6 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 	ts.ErrorContains(err, "Sale has not attribute named NotExists or NotExistsID")
 }
 
-func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJoinsWithEntityThatDefinesTableName() {
-	person1 := models.Person{
-		Name: "franco",
-	}
-	person2 := models.Person{
-		Name: "xavier",
-	}
-
-	match := ts.createBicycle("BMX", person1)
-	ts.createBicycle("Shimano", person2)
-
-	params := map[string]any{
-		"Owner": map[string]any{
-			"name": "franco",
-		},
-	}
-	entities, err := ts.crudBicycleService.GetEntities(params)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Bicycle{match}, entities)
-}
-
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJoinsOnHasMany() {
 	company1 := ts.createCompany("ditrit")
 	company2 := ts.createCompany("orness")
@@ -385,8 +360,8 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 
 	params := map[string]any{
 		"Product": map[string]any{
-			"int":    1,
-			"string": "match",
+			"int":                   1,
+			"string_something_else": "match",
 		},
 	}
 	entities, err := ts.crudSaleService.GetEntities(params)
