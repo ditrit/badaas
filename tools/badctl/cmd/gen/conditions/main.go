@@ -53,27 +53,31 @@ func generateConditions(cmd *cobra.Command, args []string) {
 
 	// Generate conditions for each package
 	for _, pkg := range pkgs {
-		log.Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())
+		generateConditionsForPkg(destPkg, pkg)
+	}
+}
 
-		// Generate a file with conditions for each BaDORM model in the package
-		for _, name := range pkg.Types.Scope().Names() {
-			object := getObject(pkg, name)
-			if object != nil {
-				file := NewConditionsFile(
-					destPkg,
-					strings.ToLower(object.Name())+"_conditions.go",
-				)
+// Generates a file with conditions for each BaDORM model in the package
+func generateConditionsForPkg(destPkg string, pkg *packages.Package) {
+	log.Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())
 
-				err := file.AddConditionsFor(object)
-				if err != nil {
-					// object is not a BaDORM model, do not generate conditions
-					continue
-				}
+	for _, name := range pkg.Types.Scope().Names() {
+		object := getObject(pkg, name)
+		if object != nil {
+			file := NewConditionsFile(
+				destPkg,
+				strings.ToLower(object.Name())+"_conditions.go",
+			)
 
-				err = file.Save()
-				if err != nil {
-					cmderrors.FailErr(err)
-				}
+			err := file.AddConditionsFor(object)
+			if err != nil {
+				// object is not a BaDORM model, do not generate conditions
+				continue
+			}
+
+			err = file.Save()
+			if err != nil {
+				cmderrors.FailErr(err)
 			}
 		}
 	}
