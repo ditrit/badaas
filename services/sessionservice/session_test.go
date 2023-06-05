@@ -47,9 +47,9 @@ func setupTest(
 }
 
 func TestNewSession(t *testing.T) {
-	sessionInstance := models.NewSession(badorm.UUID(uuid.Nil), time.Second)
+	sessionInstance := models.NewSession(badorm.NilUUID, time.Second)
 	assert.NotNil(t, sessionInstance)
-	assert.Equal(t, badorm.UUID(uuid.Nil), sessionInstance.UserID)
+	assert.Equal(t, badorm.NilUUID, sessionInstance.UserID)
 }
 
 func TestLogInUser(t *testing.T) {
@@ -96,17 +96,17 @@ func TestIsValid(t *testing.T) {
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	err := service.add(session)
 	require.NoError(t, err)
 	assert.Len(t, service.cache, 1)
-	assert.Equal(t, badorm.UUID(uuid.Nil), service.cache[uuidSample].UserID)
+	assert.Equal(t, badorm.NilUUID, service.cache[uuidSample].UserID)
 	isValid, claims := service.IsValid(uuidSample)
 	require.True(t, isValid)
 	assert.Equal(t, *claims, SessionClaims{
-		UserID:      badorm.UUID(uuid.Nil),
+		UserID:      badorm.NilUUID,
 		SessionUUID: uuidSample,
 	})
 }
@@ -129,7 +129,7 @@ func TestLogOutUser(t *testing.T) {
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
@@ -149,7 +149,7 @@ func TestLogOutUserDbError(t *testing.T) {
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
@@ -167,14 +167,14 @@ func TestLogOutUser_SessionNotFound(t *testing.T) {
 	uuidSample := badorm.UUID(uuid.New())
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	service.cache[uuidSample] = session
 	sessionClaims := makeSessionClaims(session)
-	sessionClaims.SessionUUID = badorm.UUID(uuid.Nil)
+	sessionClaims.SessionUUID = badorm.NilUUID
 	err := service.LogUserOut(sessionClaims)
 	require.Error(t, err)
 	assert.Len(t, service.cache, 1)
@@ -190,9 +190,9 @@ func TestRollSession(t *testing.T) {
 	originalExpirationTime := time.Now().Add(sessionDuration / 5)
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: originalExpirationTime,
 	}
 	service.cache[uuidSample] = session
@@ -212,7 +212,7 @@ func TestRollSession_Expired(t *testing.T) {
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: originalExpirationTime,
 	}
 	service.cache[uuidSample] = session
@@ -230,9 +230,9 @@ func TestRollSession_falseUUID(t *testing.T) {
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: originalExpirationTime,
 	}
 	service.cache[uuidSample] = session
@@ -248,14 +248,14 @@ func TestRollSession_falseUUID(t *testing.T) {
 func TestRollSession_sessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, sessionConfigurationMock := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptionalByID", gormDB, badorm.UUID(uuid.Nil)).
+		On("GetOptionalByID", gormDB, badorm.NilUUID).
 		Return(nil, nil)
 
 	sessionDuration := time.Minute
 	sessionConfigurationMock.On("GetSessionDuration").Return(sessionDuration)
 	sessionConfigurationMock.On("GetRollDuration").Return(sessionDuration)
 
-	err := service.RollSession(badorm.UUID(uuid.Nil))
+	err := service.RollSession(badorm.NilUUID)
 	require.NoError(t, err)
 }
 
@@ -263,9 +263,9 @@ func Test_pullFromDB(t *testing.T) {
 	sessionRepositoryMock, service, logs, _ := setupTest(t)
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
 	sessionRepositoryMock.On("GetAll", gormDB).Return([]*models.Session{session}, nil)
@@ -291,9 +291,9 @@ func Test_removeExpired(t *testing.T) {
 	uuidSample := badorm.UUID(uuid.New())
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
@@ -316,9 +316,9 @@ func Test_removeExpired_RepositoryError(t *testing.T) {
 	uuidSample := badorm.UUID(uuid.New())
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
@@ -334,9 +334,9 @@ func Test_get(t *testing.T) {
 	uuidSample := badorm.UUID(uuid.New())
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
-		UserID:    badorm.UUID(uuid.Nil),
+		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.

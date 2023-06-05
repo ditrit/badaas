@@ -47,7 +47,7 @@ func NewCRUDServiceIntTestSuite(
 // ------------------------- GetEntity --------------------------------
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated() {
-	_, err := ts.crudProductService.GetEntity(badorm.UUID(uuid.Nil))
+	_, err := ts.crudProductService.GetEntity(badorm.NilUUID)
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 

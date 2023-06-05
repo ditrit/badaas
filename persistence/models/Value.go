@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/google/uuid"
 )
 
 // Describe the attribute value of an Entity
@@ -101,7 +100,7 @@ func (v *Value) SetNull() error {
 	v.FloatVal = 0.0
 	v.StringVal = ""
 	v.BoolVal = false
-	v.RelationVal = badorm.UUID(uuid.Nil)
+	v.RelationVal = badorm.NilUUID
 
 	return nil
 }

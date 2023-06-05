@@ -13,7 +13,6 @@ import (
 	mocksUserService "github.com/ditrit/badaas/mocks/services/userservice"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
@@ -140,7 +139,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	userService := mocksUserService.NewUserService(t)
 	user := &models.User{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.Nil),
+			ID: badorm.NilUUID,
 		},
 		Username: "bob",
 		Email:    "bob@email.com",

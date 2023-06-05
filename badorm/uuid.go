@@ -12,6 +12,8 @@ import (
 
 type UUID uuid.UUID
 
+var NilUUID = UUID(uuid.Nil)
+
 func (id UUID) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "mysql":

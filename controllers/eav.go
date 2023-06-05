@@ -9,7 +9,6 @@ import (
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
@@ -149,12 +148,12 @@ func (controller *eavControllerImpl) getEntityTypeNameFromRequest(r *http.Reques
 func (controller *eavControllerImpl) getEntityTypeNameAndEntityID(r *http.Request) (string, badorm.UUID, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
 	if herr != nil {
-		return "", badorm.UUID(uuid.Nil), herr
+		return "", badorm.NilUUID, herr
 	}
 
 	entityID, herr := getEntityIDFromRequest(r)
 	if herr != nil {
-		return "", badorm.UUID(uuid.Nil), herr
+		return "", badorm.NilUUID, herr
 	}
 
 	return entityTypeName, entityID, nil

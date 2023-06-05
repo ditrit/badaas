@@ -4,7 +4,6 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
@@ -38,7 +37,7 @@ func (ts *CRUDRepositoryIntTestSuite) TearDownSuite() {
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsErrorIfIDDontMatch() {
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.GetByID(ts.db, badorm.UUID(uuid.Nil))
+	_, err := ts.crudProductRepository.GetByID(ts.db, badorm.NilUUID)
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 

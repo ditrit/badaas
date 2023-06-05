@@ -8,7 +8,6 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
@@ -56,7 +55,7 @@ func decodeJSONOptional(r *http.Request) (map[string]any, httperrors.HTTPError) 
 func getEntityIDFromRequest(r *http.Request) (badorm.UUID, httperrors.HTTPError) {
 	id, present := mux.Vars(r)["id"]
 	if !present {
-		return badorm.UUID(uuid.Nil), ErrEntityNotFound
+		return badorm.NilUUID, ErrEntityNotFound
 	}
 
 	uuid, err := badorm.ParseUUID(id)

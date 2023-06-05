@@ -18,5 +18,5 @@ func TestParseCorrectUUID(t *testing.T) {
 func TestParseIncorrectUUID(t *testing.T) {
 	uid, err := badorm.ParseUUID("not uuid")
 	assert.Error(t, err)
-	assert.Equal(t, uuid.Nil, uid)
+	assert.Equal(t, badorm.NilUUID, uid)
 }
