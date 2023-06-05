@@ -50,6 +50,24 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 	assert.DeepEqual(ts.T(), product, productReturned)
 }
 
+// ------------------------- GetOptionalByID --------------------------------
+
+func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalByIDReturnsErrorIfIDDontMatch() {
+	ts.createProduct(0)
+	result, err := ts.crudProductRepository.GetOptionalByID(ts.db, badorm.NilUUID)
+	ts.Nil(err)
+	ts.Nil(result)
+}
+
+func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalByIDReturnsEntityIfIDMatch() {
+	product := ts.createProduct(0)
+	ts.createProduct(0)
+	productReturned, err := ts.crudProductRepository.GetOptionalByID(ts.db, product.ID)
+	ts.Nil(err)
+
+	assert.DeepEqual(ts.T(), product, productReturned)
+}
+
 // ------------------------- Get --------------------------------
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch() {
