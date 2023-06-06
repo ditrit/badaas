@@ -4,10 +4,7 @@ lint:
 	golangci-lint run
 
 test_unit_badaas:
-	go test $(PATHS) -v
-
-test_unit_badaas_cover:
-	go test $(PATHS) -coverpkg=./... -coverprofile=coverage_unit.out -v
+	gotestsum --format pkgname $(PATHS)
 
 test_unit_badctl:
 	go test ./tools/badctl/... -v
