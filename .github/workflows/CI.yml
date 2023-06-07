@@ -68,24 +68,24 @@ jobs:
       - name: Install gotestsum
         run: go install gotest.tools/gotestsum@latest
       - name: Run BaDaaS tests
-        run: gotestsum --junitfile unit-tests.xml $(go list ./... | tail -n +2 | grep -v testintegration) -coverpkg=./... -coverprofile=coverage_unit.out
-      - name: Test Report
-        uses: dorny/test-reporter@v1
-        if: always() # run this step even if previous step failed
-        with:
-          name: Unit Tests        # Name of the check run which will be created
-          path: unit-tests.xml    # Path to test results
-          reporter: java-junit    # Format of test results
+        run: gotestsum --junitfile unit-tests-badaas.xml $(go list ./... | tail -n +2 | grep -v testintegration) -coverpkg=./... -coverprofile=coverage_unit.out
       - uses: actions/upload-artifact@v3
         with:
           name: coverage_unit
           path: coverage_unit.out
       - name: Run BaDctl tests
-        run:  go test ./tools/badctl/... -coverprofile=coverage_badctl.out -v
+        run:  gotestsum --junitfile unit-tests-badctl.xml ./tools/badctl/... -coverprofile=coverage_badctl.out
       - uses: actions/upload-artifact@v3
         with:
           name: coverage_badctl
           path: coverage_badctl.out
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always() # run this step even if previous steps failed
+        with:
+          name: Unit Tests Report  # Name of the check run which will be created
+          path: unit-tests-*.xml   # Path to test results
+          reporter: java-junit     # Format of test results
 
   integration-tests:
     name: Integration tests
