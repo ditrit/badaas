@@ -124,7 +124,7 @@ jobs:
             }
           export_to: env
       - name: Run test
-        run:  DB=${{ env.dialector }} gotestsum --junitfile unit-tests-${{ matrix.db }}.xml ./testintegration -coverpkg=./... -coverprofile=coverage_int_${{ matrix.db }}.out
+        run:  DB=${{ env.dialector }} gotestsum --junitfile integration-tests-${{ matrix.db }}.xml ./testintegration -coverpkg=./... -coverprofile=coverage_int_${{ matrix.db }}.out
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always() # run this step even if previous steps failed
