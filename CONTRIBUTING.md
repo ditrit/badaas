@@ -2,6 +2,7 @@
 
 - [Contribute to the development of badaas](#contribute-to-the-development-of-badaas)
   - [Tests](#tests)
+    - [Dependencies](#dependencies)
     - [Unit tests](#unit-tests)
     - [Integration tests](#integration-tests)
     - [Feature tests (of end to end tests)](#feature-tests-of-end-to-end-tests)
@@ -13,6 +14,10 @@
     - [How to release](#how-to-release)
 
 ## Tests
+
+### Dependencies
+
+Running tests have some dependencies as: `mockery`, `gotestsum`, etc.. Install them with `make install dependencies`.
 
 ### Unit tests
 

@@ -1,5 +1,10 @@
 PATHS = $(shell go list ./... | tail -n +2 | grep -v testintegration)
 
+install_dependencies:
+	go install gotest.tools/gotestsum@latest
+	go install github.com/vektra/mockery/v2@v2.20.0
+	go install github.com/ditrit/badaas/tools/badctl@latest
+
 lint:
 	golangci-lint run
 
