@@ -7,7 +7,7 @@ test_unit_badaas:
 	gotestsum --format pkgname $(PATHS)
 
 test_unit_badctl:
-	go test ./tools/badctl/... -v
+	gotestsum --format pkgname ./tools/badctl/...
 
 test_unit: test_unit_badaas test_unit_badctl
 
@@ -31,13 +31,13 @@ mysql:
 	./docker/wait_for_db.sh
 
 test_integration_postgresql: postgresql
-	DB=postgresql go test ./testintegration -v
+	DB=postgresql gotestsum --format testname ./testintegration
 
 test_integration_cockroachdb: cockroachdb
-	DB=postgresql go test ./testintegration -v
+	DB=postgresql gotestsum --format testname ./testintegration
 
 test_integration_mysql: mysql
-	DB=mysql go test ./testintegration -v
+	DB=mysql gotestsum --format testname ./testintegration
 
 test_integration: test_integration_postgresql
 
