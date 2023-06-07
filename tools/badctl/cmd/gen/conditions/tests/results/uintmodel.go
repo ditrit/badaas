@@ -8,26 +8,26 @@ import (
 	"time"
 )
 
-func UIntModelId(v uint) badorm.WhereCondition[uintmodel.UIntModel] {
-	return badorm.WhereCondition[uintmodel.UIntModel]{
+func UintModelId(v uint) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.WhereCondition[uintmodel.UintModel]{
 		Field: "ID",
 		Value: v,
 	}
 }
-func UIntModelCreatedAt(v time.Time) badorm.WhereCondition[uintmodel.UIntModel] {
-	return badorm.WhereCondition[uintmodel.UIntModel]{
+func UintModelCreatedAt(v time.Time) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.WhereCondition[uintmodel.UintModel]{
 		Field: "CreatedAt",
 		Value: v,
 	}
 }
-func UIntModelUpdatedAt(v time.Time) badorm.WhereCondition[uintmodel.UIntModel] {
-	return badorm.WhereCondition[uintmodel.UIntModel]{
+func UintModelUpdatedAt(v time.Time) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.WhereCondition[uintmodel.UintModel]{
 		Field: "UpdatedAt",
 		Value: v,
 	}
 }
-func UIntModelDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[uintmodel.UIntModel] {
-	return badorm.WhereCondition[uintmodel.UIntModel]{
+func UintModelDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.WhereCondition[uintmodel.UintModel]{
 		Field: "DeletedAt",
 		Value: v,
 	}

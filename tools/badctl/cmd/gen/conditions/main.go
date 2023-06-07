@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"go/types"
 	"os"
-	"strings"
 
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 	"github.com/ditrit/verdeter"
+	"github.com/ettle/strcase"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
@@ -66,7 +66,7 @@ func generateConditionsForPkg(destPkg string, pkg *packages.Package) {
 		if object != nil {
 			file := NewConditionsFile(
 				destPkg,
-				strings.ToLower(object.Name())+"_conditions.go",
+				strcase.ToSnake(object.Name())+"_conditions.go",
 			)
 
 			err := file.AddConditionsFor(object)

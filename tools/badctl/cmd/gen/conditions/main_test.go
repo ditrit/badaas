@@ -16,55 +16,55 @@ const chunkSize = 100000
 
 func TestUIntModel(t *testing.T) {
 	doTest(t, "./tests/uintmodel", []Comparison{
-		{Have: "uintmodel_conditions.go", Expected: "./tests/results/uintmodel.go"},
+		{Have: "uint_model_conditions.go", Expected: "./tests/results/uintmodel.go"},
 	})
 }
 
 func TestUUIDModel(t *testing.T) {
 	doTest(t, "./tests/uuidmodel", []Comparison{
-		{Have: "uuidmodel_conditions.go", Expected: "./tests/results/uuidmodel.go"},
+		{Have: "uuid_model_conditions.go", Expected: "./tests/results/uuidmodel.go"},
 	})
 }
 
 func TestBasicTypes(t *testing.T) {
 	doTest(t, "./tests/basictypes", []Comparison{
-		{Have: "basictypes_conditions.go", Expected: "./tests/results/basictypes.go"},
+		{Have: "basic_types_conditions.go", Expected: "./tests/results/basictypes.go"},
 	})
 }
 
 func TestBasicPointers(t *testing.T) {
 	doTest(t, "./tests/basicpointers", []Comparison{
-		{Have: "basicpointers_conditions.go", Expected: "./tests/results/basicpointers.go"},
+		{Have: "basic_pointers_conditions.go", Expected: "./tests/results/basicpointers.go"},
 	})
 }
 
 func TestBasicSlices(t *testing.T) {
 	doTest(t, "./tests/basicslices", []Comparison{
-		{Have: "basicslices_conditions.go", Expected: "./tests/results/basicslices.go"},
+		{Have: "basic_slices_conditions.go", Expected: "./tests/results/basicslices.go"},
 	})
 }
 
 func TestBasicSlicesPointer(t *testing.T) {
 	doTest(t, "./tests/basicslicespointer", []Comparison{
-		{Have: "basicslicespointer_conditions.go", Expected: "./tests/results/basicslicespointer.go"},
+		{Have: "basic_slices_pointer_conditions.go", Expected: "./tests/results/basicslicespointer.go"},
 	})
 }
 
 func TestGoEmbedded(t *testing.T) {
 	doTest(t, "./tests/goembedded", []Comparison{
-		{Have: "goembedded_conditions.go", Expected: "./tests/results/goembedded.go"},
+		{Have: "go_embedded_conditions.go", Expected: "./tests/results/goembedded.go"},
 	})
 }
 
 func TestGormEmbedded(t *testing.T) {
 	doTest(t, "./tests/gormembedded", []Comparison{
-		{Have: "gormembedded_conditions.go", Expected: "./tests/results/gormembedded.go"},
+		{Have: "gorm_embedded_conditions.go", Expected: "./tests/results/gormembedded.go"},
 	})
 }
 
 func TestCustomType(t *testing.T) {
 	doTest(t, "./tests/customtype", []Comparison{
-		{Have: "customtype_conditions.go", Expected: "./tests/results/customtype.go"},
+		{Have: "custom_type_conditions.go", Expected: "./tests/results/customtype.go"},
 	})
 }
 
@@ -103,8 +103,7 @@ func TestMultiplePackage(t *testing.T) {
 
 func TestColumnDefinition(t *testing.T) {
 	doTest(t, "./tests/columndefinition", []Comparison{
-		// TODO deberia haber un _ aca
-		{Have: "columndefinition_conditions.go", Expected: "./tests/results/columndefinition.go"},
+		{Have: "column_definition_conditions.go", Expected: "./tests/results/columndefinition.go"},
 	})
 }
 
@@ -126,8 +125,7 @@ func TestOverrideForeignKeyInverse(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkeyinverse", []Comparison{
 		{Have: "user_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse.go"},
 	})
-	// TODO falta _
-	remove("creditcard_conditions.go")
+	remove("credit_card_conditions.go")
 }
 
 func TestOverrideReferencesInverse(t *testing.T) {

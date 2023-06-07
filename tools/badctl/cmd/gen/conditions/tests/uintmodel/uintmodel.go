@@ -2,6 +2,6 @@ package uintmodel
 
 import "github.com/ditrit/badaas/badorm"
 
-type UIntModel struct {
+type UintModel struct {
 	badorm.UIntModel
 }
