@@ -155,6 +155,30 @@ func main() {
 			Dom:    "Orness",
 			Expect: true,
 		},
+		{
+			Sub: "new_group",
+			Obj: Data{
+				Name:    "Ditrit",
+				Owner:   "Xavier",
+				Domain:  "Orness",
+				Creator: "Pierre",
+			},
+			Act:    "play",
+			Dom:    "domain1",
+			Expect: true,
+		},
+		{
+			Sub: "Vincent",
+			Obj: Data{
+				Name:    "Ditrit",
+				Owner:   "Xavier",
+				Domain:  "Orness",
+				Creator: "Pierre",
+			},
+			Act:    "play",
+			Dom:    "domain1",
+			Expect: true,
+		},
 	}
 
 	for _, test := range tests {
