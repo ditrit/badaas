@@ -130,7 +130,7 @@ jobs:
         if: always() # run this step even if previous steps failed
         with:
           name: ${{ matrix.db }} Integration Tests Report  # Name of the check run which will be created
-          path: unit-tests-${{ matrix.db }}.xml            # Path to test results
+          path: integration-tests-${{ matrix.db }}.xml            # Path to test results
           reporter: java-junit                             # Format of test results
       - uses: actions/upload-artifact@v3
         with:
