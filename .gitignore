@@ -30,3 +30,4 @@ node*
 badaas
 badctl
 !tools/badctl/
+tools/badctl/cmd/gen/conditions/*_conditions.go

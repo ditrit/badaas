@@ -128,8 +128,8 @@ type Employee struct {
 	badorm.UUIDModel
 
 	Name   string
-	Boss   *Employee    `gorm:"constraint:OnDelete:SET NULL;"` // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
-	BossID *badorm.UUID `gorm:"type:varchar(36)"`
+	Boss   *Employee `gorm:"constraint:OnDelete:SET NULL;"` // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
+	BossID *badorm.UUID
 }
 
 func (m Employee) Equal(other Employee) bool {

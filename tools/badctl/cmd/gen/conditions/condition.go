@@ -91,7 +91,6 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 			)
 		}
 	case *types.Pointer:
-		// TODO pointer solo testeado temporalmente porque despues gorm no lo soporta
 		// slice of pointers, generate code for a slice of the pointed type
 		// after changing the param
 		condition.param.ToPointer()
@@ -110,7 +109,6 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 
 	if err == nil {
 		// field is a BaDORM Model
-		// TODO que pasa si esta en otro package? se importa solo?
 		hasFK, _ := objectType.HasFK(field)
 		if hasFK {
 			// belongsTo relation
