@@ -10,25 +10,25 @@ import (
 
 func UIntModelId(v uint) badorm.WhereCondition[uintmodel.UIntModel] {
 	return badorm.WhereCondition[uintmodel.UIntModel]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func UIntModelCreatedAt(v time.Time) badorm.WhereCondition[uintmodel.UIntModel] {
 	return badorm.WhereCondition[uintmodel.UIntModel]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func UIntModelUpdatedAt(v time.Time) badorm.WhereCondition[uintmodel.UIntModel] {
 	return badorm.WhereCondition[uintmodel.UIntModel]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func UIntModelDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[uintmodel.UIntModel] {
 	return badorm.WhereCondition[uintmodel.UIntModel]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }

@@ -10,31 +10,31 @@ import (
 
 func CustomTypeId(v badorm.UUID) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func CustomTypeCreatedAt(v time.Time) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func CustomTypeUpdatedAt(v time.Time) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func CustomTypeDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func CustomTypeCustom(v customtype.MultiString) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "custom",
+		Field: "Custom",
 		Value: v,
 	}
 }

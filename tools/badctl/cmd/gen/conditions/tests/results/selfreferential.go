@@ -10,38 +10,38 @@ import (
 
 func EmployeeId(v badorm.UUID) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func EmployeeCreatedAt(v time.Time) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func EmployeeUpdatedAt(v time.Time) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func EmployeeDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.Condition[selfreferential.Employee] {
 	return badorm.JoinCondition[selfreferential.Employee, selfreferential.Employee]{
 		Conditions: conditions,
-		T1Field:    "boss_id",
-		T2Field:    "id",
+		T1Field:    "BossID",
+		T2Field:    "ID",
 	}
 }
 func EmployeeBossId(v *badorm.UUID) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "boss_id",
+		Field: "BossID",
 		Value: v,
 	}
 }

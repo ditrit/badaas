@@ -10,38 +10,38 @@ import (
 
 func OwnedId(v badorm.UUID) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func OwnedCreatedAt(v time.Time) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func OwnedUpdatedAt(v time.Time) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func OwnedDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Condition[belongsto.Owned] {
 	return badorm.JoinCondition[belongsto.Owned, belongsto.Owner]{
 		Conditions: conditions,
-		T1Field:    "owner_id",
-		T2Field:    "id",
+		T1Field:    "OwnerID",
+		T2Field:    "ID",
 	}
 }
 func OwnedOwnerId(v badorm.UUID) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "owner_id",
+		Field: "OwnerID",
 		Value: v,
 	}
 }

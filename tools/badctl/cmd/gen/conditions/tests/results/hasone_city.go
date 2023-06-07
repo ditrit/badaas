@@ -10,31 +10,31 @@ import (
 
 func CityId(v badorm.UUID) badorm.WhereCondition[hasone.City] {
 	return badorm.WhereCondition[hasone.City]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func CityCreatedAt(v time.Time) badorm.WhereCondition[hasone.City] {
 	return badorm.WhereCondition[hasone.City]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func CityUpdatedAt(v time.Time) badorm.WhereCondition[hasone.City] {
 	return badorm.WhereCondition[hasone.City]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func CityDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[hasone.City] {
 	return badorm.WhereCondition[hasone.City]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func CityCountryId(v badorm.UUID) badorm.WhereCondition[hasone.City] {
 	return badorm.WhereCondition[hasone.City]{
-		Field: "country_id",
+		Field: "CountryID",
 		Value: v,
 	}
 }

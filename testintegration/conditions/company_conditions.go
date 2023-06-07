@@ -10,38 +10,38 @@ import (
 
 func CompanyId(v badorm.UUID) badorm.WhereCondition[models.Company] {
 	return badorm.WhereCondition[models.Company]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func CompanyCreatedAt(v time.Time) badorm.WhereCondition[models.Company] {
 	return badorm.WhereCondition[models.Company]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func CompanyUpdatedAt(v time.Time) badorm.WhereCondition[models.Company] {
 	return badorm.WhereCondition[models.Company]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func CompanyDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Company] {
 	return badorm.WhereCondition[models.Company]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func CompanyName(v string) badorm.WhereCondition[models.Company] {
 	return badorm.WhereCondition[models.Company]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {
 	return badorm.JoinCondition[models.Seller, models.Company]{
 		Conditions: conditions,
-		T1Field:    "company_id",
-		T2Field:    "id",
+		T1Field:    "CompanyID",
+		T2Field:    "ID",
 	}
 }

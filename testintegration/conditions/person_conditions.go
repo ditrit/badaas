@@ -10,31 +10,31 @@ import (
 
 func PersonId(v badorm.UUID) badorm.WhereCondition[models.Person] {
 	return badorm.WhereCondition[models.Person]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func PersonCreatedAt(v time.Time) badorm.WhereCondition[models.Person] {
 	return badorm.WhereCondition[models.Person]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func PersonUpdatedAt(v time.Time) badorm.WhereCondition[models.Person] {
 	return badorm.WhereCondition[models.Person]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func PersonDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Person] {
 	return badorm.WhereCondition[models.Person]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func PersonName(v string) badorm.WhereCondition[models.Person] {
 	return badorm.WhereCondition[models.Person]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }

@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const DeletedAtField = "deleted_at"
+const DeletedAtField = "DeletedAt"
 
 type Condition[T any] interface {
 	// Applies the condition to the "query"
@@ -24,8 +24,10 @@ type Condition[T any] interface {
 }
 
 type WhereCondition[T any] struct {
-	Field string
-	Value any
+	Field        string
+	Column       string
+	ColumnPrefix string
+	Value        any
 }
 
 func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {
@@ -36,7 +38,7 @@ func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
 func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
-	sql, values := condition.GetSQL(tableName)
+	sql, values := condition.GetSQL(query, tableName)
 
 	if condition.Field == DeletedAtField {
 		query = query.Unscoped()
@@ -55,7 +57,13 @@ var nullableKinds = []reflect.Kind{
 	reflect.Slice,
 }
 
-func (condition WhereCondition[T]) GetSQL(tableName string) (string, []any) {
+func (condition WhereCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any) {
+	columnName := condition.Column
+	if columnName == "" {
+		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
+	}
+	columnName = condition.ColumnPrefix + columnName
+
 	val := condition.Value
 	reflectVal := reflect.ValueOf(val)
 	isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
@@ -64,14 +72,14 @@ func (condition WhereCondition[T]) GetSQL(tableName string) (string, []any) {
 		return fmt.Sprintf(
 			"%s.%s IS NULL",
 			tableName,
-			condition.Field,
+			columnName,
 		), []any{}
 	}
 
 	return fmt.Sprintf(
 		"%s.%s = ?",
 		tableName,
-		condition.Field,
+		columnName,
 	), []any{val}
 }
 
@@ -101,7 +109,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	nextTableName := toBeJoinedTableName + "_" + previousTableName
 
 	// get the sql to do the join with T2
-	joinQuery := condition.getSQLJoin(toBeJoinedTableName, nextTableName, previousTableName)
+	joinQuery := condition.getSQLJoin(query, toBeJoinedTableName, nextTableName, previousTableName)
 
 	whereConditions, joinConditions := divideConditionsByType(condition.Conditions)
 
@@ -112,7 +120,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 		if condition.Field == DeletedAtField {
 			isDeletedAtConditionPresent = true
 		}
-		sql, values := condition.GetSQL(nextTableName)
+		sql, values := condition.GetSQL(query, nextTableName)
 		joinQuery += " AND " + sql
 		conditionsValues = append(conditionsValues, values...)
 	}
@@ -141,15 +149,15 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 // Returns the SQL string to do a join between T1 and T2
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
-func (condition JoinCondition[T1, T2]) getSQLJoin(toBeJoinedTableName, nextTableName, previousTableName string) string {
+func (condition JoinCondition[T1, T2]) getSQLJoin(query *gorm.DB, toBeJoinedTableName, nextTableName, previousTableName string) string {
 	return fmt.Sprintf(
 		`JOIN %[1]s %[2]s ON %[2]s.%[3]s = %[4]s.%[5]s
 		`,
 		toBeJoinedTableName,
 		nextTableName,
-		condition.T2Field,
+		query.NamingStrategy.ColumnName(nextTableName, condition.T2Field),
 		previousTableName,
-		condition.T1Field,
+		query.NamingStrategy.ColumnName(previousTableName, condition.T1Field),
 	)
 }
 

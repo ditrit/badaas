@@ -10,32 +10,32 @@ import (
 
 func CompanyId(v badorm.UUID) badorm.WhereCondition[hasmany.Company] {
 	return badorm.WhereCondition[hasmany.Company]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func CompanyCreatedAt(v time.Time) badorm.WhereCondition[hasmany.Company] {
 	return badorm.WhereCondition[hasmany.Company]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func CompanyUpdatedAt(v time.Time) badorm.WhereCondition[hasmany.Company] {
 	return badorm.WhereCondition[hasmany.Company]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func CompanyDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[hasmany.Company] {
 	return badorm.WhereCondition[hasmany.Company]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.Condition[hasmany.Seller] {
 	return badorm.JoinCondition[hasmany.Seller, hasmany.Company]{
 		Conditions: conditions,
-		T1Field:    "company_id",
-		T2Field:    "id",
+		T1Field:    "CompanyID",
+		T2Field:    "ID",
 	}
 }

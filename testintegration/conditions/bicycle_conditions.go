@@ -10,44 +10,44 @@ import (
 
 func BicycleId(v badorm.UUID) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func BicycleCreatedAt(v time.Time) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func BicycleUpdatedAt(v time.Time) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func BicycleDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func BicycleName(v string) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Condition[models.Bicycle] {
 	return badorm.JoinCondition[models.Bicycle, models.Person]{
 		Conditions: conditions,
-		T1Field:    "owner_name",
-		T2Field:    "name",
+		T1Field:    "OwnerName",
+		T2Field:    "Name",
 	}
 }
 func BicycleOwnerName(v string) badorm.WhereCondition[models.Bicycle] {
 	return badorm.WhereCondition[models.Bicycle]{
-		Field: "owner_name",
+		Field: "OwnerName",
 		Value: v,
 	}
 }

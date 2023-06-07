@@ -10,31 +10,31 @@ import (
 
 func ColumnDefinitionId(v badorm.UUID) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func ColumnDefinitionCreatedAt(v time.Time) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func ColumnDefinitionUpdatedAt(v time.Time) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func ColumnDefinitionDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func ColumnDefinitionString(v string) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "string_something_else",
-		Value: v,
+		Column: "string_something_else",
+		Value:  v,
 	}
 }

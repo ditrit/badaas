@@ -10,7 +10,7 @@ import (
 )
 
 // badorm/baseModels.go
-var badORMModels = []string{"UUIDModel", "UIntModel"}
+var badORMModels = []string{"github.com/ditrit/badaas/badorm.UUIDModel", "github.com/ditrit/badaas/badorm.UIntModel", "gorm.io/gorm.Model"}
 
 type Type struct {
 	types.Type
@@ -52,7 +52,7 @@ func isBadORMModel(structType *types.Struct) bool {
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
 
-		if field.Embedded() && pie.Contains(badORMModels, field.Name()) {
+		if field.Embedded() && pie.Contains(badORMModels, field.Type().String()) {
 			return true
 		}
 	}
@@ -63,11 +63,7 @@ func isBadORMModel(structType *types.Struct) bool {
 // Returns true is the type has a foreign key to the field's object
 // (another field that references that object)
 func (t Type) HasFK(field Field) (bool, error) {
-	objectFields, err := getFields(
-		t,
-		// TODO testear esto si esta bien aca
-		field.Tags.getEmbeddedPrefix(),
-	)
+	objectFields, err := getFields(t, "")
 	if err != nil {
 		return false, err
 	}

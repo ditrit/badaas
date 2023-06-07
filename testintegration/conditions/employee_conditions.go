@@ -10,44 +10,44 @@ import (
 
 func EmployeeId(v badorm.UUID) badorm.WhereCondition[models.Employee] {
 	return badorm.WhereCondition[models.Employee]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func EmployeeCreatedAt(v time.Time) badorm.WhereCondition[models.Employee] {
 	return badorm.WhereCondition[models.Employee]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func EmployeeUpdatedAt(v time.Time) badorm.WhereCondition[models.Employee] {
 	return badorm.WhereCondition[models.Employee]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func EmployeeDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Employee] {
 	return badorm.WhereCondition[models.Employee]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func EmployeeName(v string) badorm.WhereCondition[models.Employee] {
 	return badorm.WhereCondition[models.Employee]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condition[models.Employee] {
 	return badorm.JoinCondition[models.Employee, models.Employee]{
 		Conditions: conditions,
-		T1Field:    "boss_id",
-		T2Field:    "id",
+		T1Field:    "BossID",
+		T2Field:    "ID",
 	}
 }
 func EmployeeBossId(v *badorm.UUID) badorm.WhereCondition[models.Employee] {
 	return badorm.WhereCondition[models.Employee]{
-		Field: "boss_id",
+		Field: "BossID",
 		Value: v,
 	}
 }

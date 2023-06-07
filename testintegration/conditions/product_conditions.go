@@ -10,79 +10,80 @@ import (
 
 func ProductId(v badorm.UUID) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func ProductCreatedAt(v time.Time) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func ProductUpdatedAt(v time.Time) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func ProductDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func ProductString(v string) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "string_something_else",
-		Value: v,
+		Column: "string_something_else",
+		Value:  v,
 	}
 }
 func ProductInt(v int) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "int",
+		Field: "Int",
 		Value: v,
 	}
 }
 func ProductIntPointer(v *int) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "int_pointer",
+		Field: "IntPointer",
 		Value: v,
 	}
 }
 func ProductFloat(v float64) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "float",
+		Field: "Float",
 		Value: v,
 	}
 }
 func ProductBool(v bool) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "bool",
+		Field: "Bool",
 		Value: v,
 	}
 }
 func ProductByteArray(v []uint8) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "byte_array",
+		Field: "ByteArray",
 		Value: v,
 	}
 }
 func ProductMultiString(v models.MultiString) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "multi_string",
+		Field: "MultiString",
 		Value: v,
 	}
 }
 func ProductEmbeddedInt(v int) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "embedded_int",
+		Field: "EmbeddedInt",
 		Value: v,
 	}
 }
 func ProductGormEmbeddedInt(v int) badorm.WhereCondition[models.Product] {
 	return badorm.WhereCondition[models.Product]{
-		Field: "gorm_embedded_int",
-		Value: v,
+		ColumnPrefix: "gorm_embedded_",
+		Field:        "Int",
+		Value:        v,
 	}
 }

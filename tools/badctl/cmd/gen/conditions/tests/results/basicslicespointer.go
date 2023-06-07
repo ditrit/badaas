@@ -10,133 +10,133 @@ import (
 
 func BasicSlicesPointerId(v badorm.UUID) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func BasicSlicesPointerCreatedAt(v time.Time) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUpdatedAt(v time.Time) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func BasicSlicesPointerDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func BasicSlicesPointerBool(v []*bool) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "bool",
+		Field: "Bool",
 		Value: v,
 	}
 }
 func BasicSlicesPointerInt(v []*int) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "int",
+		Field: "Int",
 		Value: v,
 	}
 }
 func BasicSlicesPointerInt8(v []*int8) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "int8",
+		Field: "Int8",
 		Value: v,
 	}
 }
 func BasicSlicesPointerInt16(v []*int16) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "int16",
+		Field: "Int16",
 		Value: v,
 	}
 }
 func BasicSlicesPointerInt32(v []*int32) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "int32",
+		Field: "Int32",
 		Value: v,
 	}
 }
 func BasicSlicesPointerInt64(v []*int64) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "int64",
+		Field: "Int64",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUInt(v []*uint) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "u_int",
+		Field: "UInt",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUInt8(v []*uint8) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "u_int8",
+		Field: "UInt8",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUInt16(v []*uint16) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "u_int16",
+		Field: "UInt16",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUInt32(v []*uint32) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "u_int32",
+		Field: "UInt32",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUInt64(v []*uint64) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "u_int64",
+		Field: "UInt64",
 		Value: v,
 	}
 }
 func BasicSlicesPointerUIntptr(v []*uintptr) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "u_intptr",
+		Field: "UIntptr",
 		Value: v,
 	}
 }
 func BasicSlicesPointerFloat32(v []*float32) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "float32",
+		Field: "Float32",
 		Value: v,
 	}
 }
 func BasicSlicesPointerFloat64(v []*float64) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "float64",
+		Field: "Float64",
 		Value: v,
 	}
 }
 func BasicSlicesPointerComplex64(v []*complex64) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "complex64",
+		Field: "Complex64",
 		Value: v,
 	}
 }
 func BasicSlicesPointerComplex128(v []*complex128) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "complex128",
+		Field: "Complex128",
 		Value: v,
 	}
 }
 func BasicSlicesPointerString(v []*string) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "string",
+		Field: "String",
 		Value: v,
 	}
 }
 func BasicSlicesPointerByte(v []*uint8) badorm.WhereCondition[basicslicespointer.BasicSlicesPointer] {
 	return badorm.WhereCondition[basicslicespointer.BasicSlicesPointer]{
-		Field: "byte",
+		Field: "Byte",
 		Value: v,
 	}
 }

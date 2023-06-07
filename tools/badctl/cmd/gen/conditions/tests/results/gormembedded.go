@@ -10,31 +10,32 @@ import (
 
 func GormEmbeddedId(v uint) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func GormEmbeddedCreatedAt(v time.Time) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func GormEmbeddedUpdatedAt(v time.Time) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func GormEmbeddedDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func GormEmbeddedGormEmbeddedInt(v int) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "gorm_embedded_int",
-		Value: v,
+		ColumnPrefix: "gorm_embedded_",
+		Field:        "Int",
+		Value:        v,
 	}
 }

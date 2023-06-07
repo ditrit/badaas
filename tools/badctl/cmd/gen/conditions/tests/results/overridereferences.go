@@ -10,38 +10,38 @@ import (
 
 func PhoneId(v badorm.UUID) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.WhereCondition[overridereferences.Phone]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func PhoneCreatedAt(v time.Time) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.WhereCondition[overridereferences.Phone]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func PhoneUpdatedAt(v time.Time) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.WhereCondition[overridereferences.Phone]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func PhoneDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.WhereCondition[overridereferences.Phone]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm.Condition[overridereferences.Phone] {
 	return badorm.JoinCondition[overridereferences.Phone, overridereferences.Brand]{
 		Conditions: conditions,
-		T1Field:    "brand_name",
-		T2Field:    "name",
+		T1Field:    "BrandName",
+		T2Field:    "Name",
 	}
 }
 func PhoneBrandName(v string) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.WhereCondition[overridereferences.Phone]{
-		Field: "brand_name",
+		Field: "BrandName",
 		Value: v,
 	}
 }

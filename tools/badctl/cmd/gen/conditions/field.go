@@ -3,15 +3,14 @@ package conditions
 import (
 	"errors"
 	"go/types"
-
-	"github.com/ettle/strcase"
 )
 
 type Field struct {
-	Name     string
-	Type     Type
-	Embedded bool
-	Tags     GormTags
+	Name         string
+	Type         Type
+	Embedded     bool
+	Tags         GormTags
+	ColumnPrefix string
 }
 
 // Get the name of the column where the data for a field will be saved
@@ -22,9 +21,7 @@ func (field Field) getColumnName() string {
 		return columnTag
 	}
 
-	// column name generated automatically by gorm
-	// TODO support https://gorm.io/docs/conventions.html#NamingStrategy
-	return strcase.ToSnake(field.Name)
+	return ""
 }
 
 // Get name of the attribute of the object that is a foreign key to the field's object
@@ -42,7 +39,6 @@ func (field Field) getFKAttribute() string {
 // Get name of the attribute of the field's object that is references by the foreign key
 func (field Field) getFKReferencesAttribute() string {
 	referencesTag, isPresent := field.Tags[referencesTagName]
-	// TODO testear cuando hay redefinicion en la inversa
 	if isPresent {
 		// field has a references tag, so the name will be that tag
 		return referencesTag
@@ -54,7 +50,6 @@ func (field Field) getFKReferencesAttribute() string {
 
 // Get name of the attribute of field's object that is a foreign key to the object
 func (field Field) getRelatedTypeFKAttribute(structName string) string {
-	// TODO testear cuando hay redefinicion
 	foreignKeyTag, isPresent := field.Tags[foreignKeyTagName]
 	if isPresent {
 		// field has a foreign key tag, so the name will that tag
@@ -112,10 +107,11 @@ func getStructFields(structType *types.Struct, prefix string) ([]Field, error) {
 		fieldObject := structType.Field(i)
 		gormTags := getGormTags(structType.Tag(i))
 		fields = append(fields, Field{
-			Name:     prefix + fieldObject.Name(),
-			Type:     Type{fieldObject.Type()},
-			Embedded: fieldObject.Embedded() || gormTags.hasEmbedded(),
-			Tags:     gormTags,
+			Name:         fieldObject.Name(),
+			Type:         Type{fieldObject.Type()},
+			Embedded:     fieldObject.Embedded() || gormTags.hasEmbedded(),
+			Tags:         gormTags,
+			ColumnPrefix: prefix,
 		})
 	}
 

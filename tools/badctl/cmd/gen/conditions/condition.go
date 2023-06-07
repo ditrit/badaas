@@ -155,8 +155,23 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		),
 	)
 
-	conditionName := getConditionName(objectType, field.Name)
+	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
+
+	params := jen.Dict{
+		jen.Id("Value"): jen.Id("v"),
+	}
+	columnName := field.getColumnName()
+	if columnName != "" {
+		params[jen.Id("Column")] = jen.Lit(columnName)
+	} else {
+		params[jen.Id("Field")] = jen.Lit(field.Name)
+	}
+
+	columnPrefix := field.ColumnPrefix
+	if columnPrefix != "" {
+		params[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
+	}
 
 	condition.codes = append(
 		condition.codes,
@@ -168,10 +183,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 			whereCondition.Clone(),
 		).Block(
 			jen.Return(
-				whereCondition.Clone().Values(jen.Dict{
-					jen.Id("Field"): jen.Lit(field.getColumnName()),
-					jen.Id("Value"): jen.Id("v"),
-				}),
+				whereCondition.Clone().Values(params),
 			),
 		),
 	)
@@ -181,7 +193,6 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 func (condition *Condition) generateInverseJoin(objectType Type, field Field) {
 	condition.generateJoinWithFK(
 		field.Type,
-		// TODO testear los Override Foreign Key
 		Field{
 			Name: objectType.Name(),
 			Type: objectType,
@@ -225,7 +236,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 		field.TypeName(),
 	)
 
-	conditionName := getConditionName(objectType, field.Name)
+	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
 	badormT1Condition := jen.Qual(
@@ -251,8 +262,8 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 		).Block(
 			jen.Return(
 				badormJoinCondition.Values(jen.Dict{
-					jen.Id("T1Field"):    jen.Lit(strcase.ToSnake(t1Field)),
-					jen.Id("T2Field"):    jen.Lit(strcase.ToSnake(t2Field)),
+					jen.Id("T1Field"):    jen.Lit(t1Field),
+					jen.Id("T2Field"):    jen.Lit(t2Field),
 					jen.Id("Conditions"): jen.Id("conditions"),
 				}),
 			),
@@ -261,11 +272,10 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 }
 
 // Generate condition names
-func getConditionName(typeV Type, fieldName string) string {
-	return typeV.Name() + strcase.ToPascal(fieldName)
+func getConditionName(typeV Type, field Field) string {
+	return typeV.Name() + strcase.ToPascal(field.ColumnPrefix) + strcase.ToPascal(field.Name)
 }
 
-// TODO testear esto
 // Avoid importing the same package as the destination one
 func getRelativePackagePath(destPkg string, typeV Type) string {
 	srcPkg := typeV.Pkg()

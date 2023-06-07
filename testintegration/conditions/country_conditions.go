@@ -10,45 +10,45 @@ import (
 
 func CountryId(v badorm.UUID) badorm.WhereCondition[models.Country] {
 	return badorm.WhereCondition[models.Country]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func CountryCreatedAt(v time.Time) badorm.WhereCondition[models.Country] {
 	return badorm.WhereCondition[models.Country]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func CountryUpdatedAt(v time.Time) badorm.WhereCondition[models.Country] {
 	return badorm.WhereCondition[models.Country]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func CountryDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Country] {
 	return badorm.WhereCondition[models.Country]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func CountryName(v string) badorm.WhereCondition[models.Country] {
 	return badorm.WhereCondition[models.Country]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.Condition[models.Country] {
 	return badorm.JoinCondition[models.Country, models.City]{
 		Conditions: conditions,
-		T1Field:    "id",
-		T2Field:    "country_id",
+		T1Field:    "ID",
+		T2Field:    "CountryID",
 	}
 }
 func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.Condition[models.City] {
 	return badorm.JoinCondition[models.City, models.Country]{
 		Conditions: conditions,
-		T1Field:    "country_id",
-		T2Field:    "id",
+		T1Field:    "CountryID",
+		T2Field:    "ID",
 	}
 }

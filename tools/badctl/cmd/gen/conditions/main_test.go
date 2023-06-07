@@ -122,6 +122,21 @@ func TestOverrideReferences(t *testing.T) {
 	remove("brand_conditions.go")
 }
 
+func TestOverrideForeignKeyInverse(t *testing.T) {
+	doTest(t, "./tests/overrideforeignkeyinverse", []Comparison{
+		{Have: "user_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse.go"},
+	})
+	// TODO falta _
+	remove("creditcard_conditions.go")
+}
+
+func TestOverrideReferencesInverse(t *testing.T) {
+	doTest(t, "./tests/overridereferencesinverse", []Comparison{
+		{Have: "computer_conditions.go", Expected: "./tests/results/overridereferencesinverse.go"},
+	})
+	remove("processor_conditions.go")
+}
+
 type Comparison struct {
 	Have     string
 	Expected string

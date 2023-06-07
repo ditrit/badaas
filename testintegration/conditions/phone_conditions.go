@@ -10,44 +10,44 @@ import (
 
 func PhoneId(v uint) badorm.WhereCondition[models.Phone] {
 	return badorm.WhereCondition[models.Phone]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func PhoneCreatedAt(v time.Time) badorm.WhereCondition[models.Phone] {
 	return badorm.WhereCondition[models.Phone]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func PhoneUpdatedAt(v time.Time) badorm.WhereCondition[models.Phone] {
 	return badorm.WhereCondition[models.Phone]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func PhoneDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Phone] {
 	return badorm.WhereCondition[models.Phone]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func PhoneName(v string) badorm.WhereCondition[models.Phone] {
 	return badorm.WhereCondition[models.Phone]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[models.Phone] {
 	return badorm.JoinCondition[models.Phone, models.Brand]{
 		Conditions: conditions,
-		T1Field:    "brand_id",
-		T2Field:    "id",
+		T1Field:    "BrandID",
+		T2Field:    "ID",
 	}
 }
 func PhoneBrandId(v uint) badorm.WhereCondition[models.Phone] {
 	return badorm.WhereCondition[models.Phone]{
-		Field: "brand_id",
+		Field: "BrandID",
 		Value: v,
 	}
 }

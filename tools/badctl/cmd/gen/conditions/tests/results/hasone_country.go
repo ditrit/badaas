@@ -10,39 +10,39 @@ import (
 
 func CountryId(v badorm.UUID) badorm.WhereCondition[hasone.Country] {
 	return badorm.WhereCondition[hasone.Country]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func CountryCreatedAt(v time.Time) badorm.WhereCondition[hasone.Country] {
 	return badorm.WhereCondition[hasone.Country]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func CountryUpdatedAt(v time.Time) badorm.WhereCondition[hasone.Country] {
 	return badorm.WhereCondition[hasone.Country]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func CountryDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[hasone.Country] {
 	return badorm.WhereCondition[hasone.Country]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[hasone.City]) badorm.Condition[hasone.Country] {
 	return badorm.JoinCondition[hasone.Country, hasone.City]{
 		Conditions: conditions,
-		T1Field:    "id",
-		T2Field:    "country_id",
+		T1Field:    "ID",
+		T2Field:    "CountryID",
 	}
 }
 func CityCountry(conditions ...badorm.Condition[hasone.Country]) badorm.Condition[hasone.City] {
 	return badorm.JoinCondition[hasone.City, hasone.Country]{
 		Conditions: conditions,
-		T1Field:    "country_id",
-		T2Field:    "id",
+		T1Field:    "CountryID",
+		T2Field:    "ID",
 	}
 }

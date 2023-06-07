@@ -11,39 +11,39 @@ import (
 
 func Package1Id(v badorm.UUID) badorm.WhereCondition[package1.Package1] {
 	return badorm.WhereCondition[package1.Package1]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func Package1CreatedAt(v time.Time) badorm.WhereCondition[package1.Package1] {
 	return badorm.WhereCondition[package1.Package1]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func Package1UpdatedAt(v time.Time) badorm.WhereCondition[package1.Package1] {
 	return badorm.WhereCondition[package1.Package1]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func Package1DeletedAt(v gorm.DeletedAt) badorm.WhereCondition[package1.Package1] {
 	return badorm.WhereCondition[package1.Package1]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.Condition[package1.Package1] {
 	return badorm.JoinCondition[package1.Package1, package2.Package2]{
 		Conditions: conditions,
-		T1Field:    "id",
-		T2Field:    "package1_id",
+		T1Field:    "ID",
+		T2Field:    "Package1ID",
 	}
 }
 func Package2Package1(conditions ...badorm.Condition[package1.Package1]) badorm.Condition[package2.Package2] {
 	return badorm.JoinCondition[package2.Package2, package1.Package1]{
 		Conditions: conditions,
-		T1Field:    "package1_id",
-		T2Field:    "id",
+		T1Field:    "Package1ID",
+		T2Field:    "ID",
 	}
 }

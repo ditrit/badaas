@@ -10,63 +10,63 @@ import (
 
 func SaleId(v badorm.UUID) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func SaleCreatedAt(v time.Time) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func SaleUpdatedAt(v time.Time) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func SaleDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func SaleCode(v int) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "code",
+		Field: "Code",
 		Value: v,
 	}
 }
 func SaleDescription(v string) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "description",
+		Field: "Description",
 		Value: v,
 	}
 }
 func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Condition[models.Sale] {
 	return badorm.JoinCondition[models.Sale, models.Product]{
 		Conditions: conditions,
-		T1Field:    "product_id",
-		T2Field:    "id",
+		T1Field:    "ProductID",
+		T2Field:    "ID",
 	}
 }
 func SaleProductId(v badorm.UUID) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "product_id",
+		Field: "ProductID",
 		Value: v,
 	}
 }
 func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[models.Sale] {
 	return badorm.JoinCondition[models.Sale, models.Seller]{
 		Conditions: conditions,
-		T1Field:    "seller_id",
-		T2Field:    "id",
+		T1Field:    "SellerID",
+		T2Field:    "ID",
 	}
 }
 func SaleSellerId(v *badorm.UUID) badorm.WhereCondition[models.Sale] {
 	return badorm.WhereCondition[models.Sale]{
-		Field: "seller_id",
+		Field: "SellerID",
 		Value: v,
 	}
 }

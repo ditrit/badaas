@@ -10,25 +10,25 @@ import (
 
 func OwnerId(v badorm.UUID) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.WhereCondition[belongsto.Owner]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func OwnerCreatedAt(v time.Time) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.WhereCondition[belongsto.Owner]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func OwnerUpdatedAt(v time.Time) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.WhereCondition[belongsto.Owner]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func OwnerDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.WhereCondition[belongsto.Owner]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }

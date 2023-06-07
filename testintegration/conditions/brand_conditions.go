@@ -10,31 +10,31 @@ import (
 
 func BrandId(v uint) badorm.WhereCondition[models.Brand] {
 	return badorm.WhereCondition[models.Brand]{
-		Field: "id",
+		Field: "ID",
 		Value: v,
 	}
 }
 func BrandCreatedAt(v time.Time) badorm.WhereCondition[models.Brand] {
 	return badorm.WhereCondition[models.Brand]{
-		Field: "created_at",
+		Field: "CreatedAt",
 		Value: v,
 	}
 }
 func BrandUpdatedAt(v time.Time) badorm.WhereCondition[models.Brand] {
 	return badorm.WhereCondition[models.Brand]{
-		Field: "updated_at",
+		Field: "UpdatedAt",
 		Value: v,
 	}
 }
 func BrandDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Brand] {
 	return badorm.WhereCondition[models.Brand]{
-		Field: "deleted_at",
+		Field: "DeletedAt",
 		Value: v,
 	}
 }
 func BrandName(v string) badorm.WhereCondition[models.Brand] {
 	return badorm.WhereCondition[models.Brand]{
-		Field: "name",
+		Field: "Name",
 		Value: v,
 	}
 }
