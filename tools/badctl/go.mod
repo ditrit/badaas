@@ -6,7 +6,7 @@ go 1.18
 
 require (
 	github.com/dave/jennifer v1.6.1
-	github.com/ditrit/badaas v0.0.0-20230605151246-3f2daae1a19f
+	github.com/ditrit/badaas v0.0.0-20230607151244-ded438ad025c
 	github.com/ditrit/verdeter v0.4.0
 	github.com/elliotchance/pie/v2 v2.5.2
 	github.com/ettle/strcase v0.1.1
