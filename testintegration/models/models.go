@@ -11,10 +11,6 @@ import (
 	"github.com/ditrit/badaas/badorm"
 )
 
-// TODO testear tambien en otras bases de datos
-
-// TODO todas las clases badorm tienen sus conditions, repository and service
-
 type Company struct {
 	badorm.UUIDModel
 
