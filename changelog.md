@@ -37,5 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add repositories to manage querying to the database.
 - Transform BadAas into a library.
 - Add BadCtl tool.
+- Add BaDORM to facilitate queries on sql databases.
+- Add gen conditions to BaDctl to generate a compilable query system.
 
 [unreleased]: https://github.com/ditrit/badaas/blob/main/changelog.md#unreleased

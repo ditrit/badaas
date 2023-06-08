@@ -5,7 +5,7 @@
     - [Dependencies](#dependencies)
     - [Unit tests](#unit-tests)
     - [Integration tests](#integration-tests)
-    - [Feature tests (of end to end tests)](#feature-tests-of-end-to-end-tests)
+    - [Feature tests (or end to end tests)](#feature-tests-or-end-to-end-tests)
   - [Logger](#logger)
   - [Directory structure](#directory-structure)
   - [Git](#git)
@@ -31,15 +31,15 @@ make -k test_unit
 
 ### Integration tests
 
-Integration tests have available a CockroachDB node and the dependency injection system.
-
-Run:
+Integration tests have a database and the dependency injection system. BaDaaS and BaDORM are tested on multiple databases (those supported by gorm, which is the base of BaDORM). By default, the database used will be postgresql:
 
 ```sh
 make test_integration
 ```
 
-### Feature tests (of end to end tests)
+To run the tests on another database you can use: `make test_integration_postgresql`, `make test_integration_cockroachdb`, `make test_integration_mysql`, `make test_integration_sqlite`, `make test_integration_sqlserver`. All of them will be verified by our continuous integration system.
+
+### Feature tests (or end to end tests)
 
 We use docker to run a Badaas instance in combination with one node of CockroachDB.
 

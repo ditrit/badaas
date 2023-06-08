@@ -10,7 +10,9 @@ BaDorm can be used both within a BaDaaS application and as a stand-alone applica
     - [BaDaaS Example](#badaas-example)
     - [Step-by-step instructions](#step-by-step-instructions)
   - [Provided functionalities](#provided-functionalities)
+    - [Base models](#base-models)
     - [CRUDServiceModule](#crudservicemodule)
+    - [CRUDUnsafeServiceModule](#crudunsafeservicemodule)
 
 ## Quickstart
 
@@ -49,17 +51,17 @@ func main() {
     // activate BaDORM
     badorm.BaDORMModule,
     // start example data
-    badorm.GetCRUDServiceModule[models.Company, uuid.UUID](),
-    badorm.GetCRUDServiceModule[models.Product, uuid.UUID](),
-    badorm.GetCRUDServiceModule[models.Seller, uuid.UUID](),
-    badorm.GetCRUDServiceModule[models.Sale, uuid.UUID](),
+    badorm.GetCRUDServiceModule[models.Company](),
+    badorm.GetCRUDServiceModule[models.Product](),
+    badorm.GetCRUDServiceModule[models.Seller](),
+    badorm.GetCRUDServiceModule[models.Sale](),
     fx.Provide(CreateCRUDObjects),
     fx.Invoke(QueryCRUDObjects),
   ).Run()
 }
 ```
 
-There are some things you need to provide to the BaDorm module:
+There are some things you need to provide to the BaDORM module:
 
 - `NewLogger` is the function that provides a zap logger to the BaDorm components.
 - `NewGORMDBConnection` if the function that establish the connection to the database where you data will be saved.
@@ -70,9 +72,38 @@ Finally, you can call your application functions as `CreateCRUDObjects` and `Que
 
 ## Provided functionalities
 
+### Base models
+
+BaDORM gives you two types of base models for your classes: `badorm.UUIDModel` and `badorm.UIntModel`.
+
+To use them, simply embed the desired model in any of your classes:
+
+```go
+type MyClass struct {
+  badorm.UUIDModel
+
+  // your code here
+}
+```
+
+Once done your class will be considered a **BaDORM Model**.
+
+The difference between them is the type they will use as primary key: a random uuid and an auto incremental uint respectively. Both provide date created, edited and deleted (<https://gorm.io/docs/delete.html#Soft-Delete>).
+
 ### CRUDServiceModule
 
-`CRUDServiceModule` provides you a CRUDService, a CRUDRepository for your model class and registers it. After calling it as, for example, `badorm.GetCRUDServiceModule[models.Company, uuid.UUID](),` the following can be used by dependency injection:
+`CRUDServiceModule` provides you a CRUDService and a CRUDRepository for your BaDORM Model. After calling it as, for example, `badorm.GetCRUDServiceModule[models.Company](),` the following can be used by dependency injection:
 
 - `crudCompanyService badorm.CRUDService[models.Company, uuid.UUID]`
 - `crudCompanyRepository badorm.CRUDRepository[models.Company, uuid.UUID]`
+
+These classes will allow you to perform queries using the compilable query system generated with BaDctl. For details on how to do this visit [badctl docs](github.com/ditrit/badaas/tools/badctl/README.md#gen-conditions).
+
+### CRUDUnsafeServiceModule
+
+`CRUDUnsafeServiceModule` provides you a CRUDUnsafeService and a CRUDUnsafeRepository for your BaDORM Model. After calling it as, for example, `badorm.GetCRUDUnsafeServiceModule[models.Company](),` the following can be used by dependency injection:
+
+- `crudCompanyService badorm.CRUDUnsafeService[models.Company, uuid.UUID]`
+- `crudCompanyRepository badorm.CRUDUnsafeRepository[models.Company, uuid.UUID]`
+
+These classes will allow you to perform queries using maps as conditions. **Its direct use is not recommended**, since using the compilable query system we can make sure that the query is correct at compile time, while here errors will happen at runtime in case your condition map is not well structured. This functionality is used internally by BaDaaS to provide an http api for queries.

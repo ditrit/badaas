@@ -6,7 +6,8 @@
   - [Install with go install](#install-with-go-install)
   - [Build from sources](#build-from-sources)
   - [Commands](#commands)
-    - [gen](#gen)
+    - [gen docker](#gen-docker)
+    - [gen conditions](#gen-conditions)
   - [Contributing](#contributing)
 
 ## Install with go install
@@ -56,9 +57,9 @@ For more information about the functionality provided and how to use each comman
 badctl help [command]
 ```
 
-### gen
+### gen docker
 
-gen is the command you can use to generate the files and configurations necessary for your project to use BadAss in a simple way.
+gen docker is the command you can use to generate the files and configurations necessary for your project to use BadAss in a simple way.
 
 Depending of the `db_provider` chosen `gen` will generate the docker and configuration files needed to run the application in the `badaas/docker/db` and `badaas/config` folders respectively. It will also generate docker files to run a http api in `badaas/docker/api`.
 
@@ -71,6 +72,12 @@ A Makefile will be generated for the execution of a badaas server, with the comm
 ```bash
 make badaas_run
 ```
+
+### gen conditions
+
+gen conditions is the command you can use to generate conditions to query your objects using BaDORM.For each BaDORM Model found in the input packages a file containing all possible Conditions on that object will be generated, allowing you to use BaDORM in an easy way.
+
+Its use is recommended through `go generate`. To see an example of how to do it click [here](https://github.com/ditrit/badorm-example/blob/feature/gorm_compilable_queries/standalone/conditions/badorm.go).
 
 ## Contributing
 
