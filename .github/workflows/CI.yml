@@ -141,7 +141,7 @@ jobs:
           name: coverage_int_${{ matrix.db }}
           path: coverage_int_${{ matrix.db }}.out
       - name: Stop containers
-        if: always()
+        if: ${{ matrix.db != 'sqlite' }}
         run: docker stop badaas-test-db
 
   e2e-tests:
