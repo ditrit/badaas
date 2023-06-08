@@ -6,16 +6,17 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/logger"
-	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/logger"
+	"github.com/ditrit/badaas/testintegration/models"
 )
 
 const dbTypeEnvKey = "DB"
@@ -105,7 +106,13 @@ func NewGormDBConnection(logger *zap.Logger) (*gorm.DB, error) {
 	case configuration.MySQL:
 		return badorm.ConnectToDialector(
 			logger,
-			badorm.CreateMySQLDialector(host, username, password, sslMode, dbName, port),
+			badorm.CreateMySQLDialector(host, username, password, dbName, port),
+			10, time.Duration(5)*time.Second,
+		)
+	case configuration.SQLite:
+		return badorm.ConnectToDialector(
+			logger,
+			badorm.CreateSQLiteDialector(host),
 			10, time.Duration(5)*time.Second,
 		)
 	default:

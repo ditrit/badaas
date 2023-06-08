@@ -21,6 +21,7 @@ require (
 	golang.org/x/crypto v0.9.0
 	gorm.io/driver/mysql v1.5.1
 	gorm.io/driver/postgres v1.5.2
+	gorm.io/driver/sqlite v1.5.1
 	gorm.io/gorm v1.25.1
 	gotest.tools v2.2.0+incompatible
 )
@@ -43,6 +44,7 @@ require (
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/lann/builder v0.0.0-20180802200727-47ae307949d0 // indirect
 	github.com/lann/ps v0.0.0-20150810152359-62de8c46ede0 // indirect
+	github.com/mattn/go-sqlite3 v1.14.16 // indirect
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.8 // indirect

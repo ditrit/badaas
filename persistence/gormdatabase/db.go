@@ -3,10 +3,11 @@ package gormdatabase
 import (
 	"fmt"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/configuration"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/configuration"
 )
 
 // Create the dsn string from the configuration
@@ -26,9 +27,12 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 			databaseConfiguration.GetHost(),
 			databaseConfiguration.GetUsername(),
 			databaseConfiguration.GetPassword(),
-			databaseConfiguration.GetSSLMode(),
 			databaseConfiguration.GetDBName(),
 			databaseConfiguration.GetPort(),
+		), nil
+	case configuration.SQLite:
+		return badorm.CreateSQLiteDialector(
+			databaseConfiguration.GetHost(),
 		), nil
 	default:
 		return nil, fmt.Errorf("unknown dialector: %s", databaseConfiguration.GetDialector())

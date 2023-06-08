@@ -29,7 +29,6 @@ func TestCreateMySQLDSN(t *testing.T) {
 			"192.168.2.5",
 			"username",
 			"password",
-			"disable",
 			"badaas_db",
 			1225,
 		),

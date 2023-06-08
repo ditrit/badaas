@@ -3,9 +3,10 @@ package configuration
 import (
 	"time"
 
-	"github.com/ditrit/badaas/utils"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/utils"
 )
 
 // The config keys regarding the database settings
@@ -26,11 +27,13 @@ type DBDialector string
 const (
 	PostgreSQL DBDialector = "postgresql"
 	MySQL      DBDialector = "mysql"
+	SQLite     DBDialector = "sqlite"
 )
 
 var DBDialectors = []string{
 	string(PostgreSQL),
 	string(MySQL),
+	string(SQLite),
 }
 
 // Hold the configuration values for the database connection

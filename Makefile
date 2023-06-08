@@ -44,6 +44,9 @@ test_integration_cockroachdb: cockroachdb
 test_integration_mysql: mysql
 	DB=mysql gotestsum --format testname ./testintegration
 
+test_integration_sqlite:
+	DB=sqlite gotestsum --format testname ./testintegration
+
 test_integration: test_integration_postgresql
 
 test_e2e:

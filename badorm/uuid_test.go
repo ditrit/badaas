@@ -3,9 +3,10 @@ package badorm_test
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ditrit/badaas/badorm"
 )
 
 func TestParseCorrectUUID(t *testing.T) {

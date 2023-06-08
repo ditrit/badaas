@@ -20,6 +20,8 @@ func (id UUID) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 		return "binary(16)"
 	case "postgres":
 		return "uuid"
+	case "sqlite":
+		return "varchar(36)"
 	}
 	return ""
 }
@@ -65,8 +67,7 @@ func (id UUID) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
 		return gorm.Expr("NULL")
 	}
 
-	switch db.Dialector.Name() {
-	case "mysql":
+	if db.Dialector.Name() == "mysql" {
 		binary, _ := id.MarshalBinary()
 		return gorm.Expr("?", binary)
 	}
@@ -84,6 +85,10 @@ func (id UUID) Time() uuid.Time {
 
 func (id UUID) ClockSequence() int {
 	return uuid.UUID(id).ClockSequence()
+}
+
+func NewUUID() UUID {
+	return UUID(uuid.New())
 }
 
 func ParseUUID(s string) (UUID, error) {

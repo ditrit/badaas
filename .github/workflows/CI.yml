@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        db: [postgresql, cockroachdb, mysql]
+        db: [postgresql, cockroachdb, mysql, sqlite]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -120,6 +120,9 @@ jobs:
               },
               "mysql": {
                 "dialector": "mysql"
+              },
+              "sqlite": {
+                "dialector": "sqlite"
               }
             }
           export_to: env
@@ -130,7 +133,7 @@ jobs:
         if: always() # run this step even if previous steps failed
         with:
           name: ${{ matrix.db }} Integration Tests Report  # Name of the check run which will be created
-          path: integration-tests-${{ matrix.db }}.xml            # Path to test results
+          path: integration-tests-${{ matrix.db }}.xml     # Path to test results
           reporter: java-junit                             # Format of test results
       - uses: actions/upload-artifact@v3
         with:

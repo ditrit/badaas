@@ -23,6 +23,9 @@ vendor/
 # cockroach files
 node*
 
+# sqlite files
+testintegration/sqlite:*
+
 # vscode conf
 .vscode
 
@@ -30,4 +33,6 @@ node*
 badaas
 badctl
 !tools/badctl/
+
+# test results
 tools/badctl/cmd/gen/conditions/*_conditions.go

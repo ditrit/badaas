@@ -1,6 +1,6 @@
 # The settings for the database.
 database:
-  # The host of the database server.
+  # The host of the database server (or path for sqlite).
   # (mandatory)
   host: e2e-db-1
 
