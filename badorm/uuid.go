@@ -22,6 +22,8 @@ func (id UUID) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 		return "uuid"
 	case "sqlite":
 		return "varchar(36)"
+	case "sqlserver":
+		return "uniqueidentifier"
 	}
 	return ""
 }
@@ -67,12 +69,13 @@ func (id UUID) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
 		return gorm.Expr("NULL")
 	}
 
-	if db.Dialector.Name() == "mysql" {
+	switch db.Dialector.Name() {
+	case "mysql", "sqlserver":
 		binary, _ := id.MarshalBinary()
 		return gorm.Expr("?", binary)
+	default:
+		return gorm.Expr("?", id.String())
 	}
-
-	return gorm.Expr("?", id.String())
 }
 
 func (id UUID) Value() (driver.Value, error) {

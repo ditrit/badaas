@@ -7,7 +7,7 @@ services:
     image: postgres:latest
     environment:
       POSTGRES_USER: badaas
-      POSTGRES_PASSWORD: badaas
+      POSTGRES_PASSWORD: badaas_password2023
       POSTGRES_DB: badaas_db
       PGDATA: /data/postgres
     ports:

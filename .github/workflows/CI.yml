@@ -93,7 +93,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        db: [postgresql, cockroachdb, mysql, sqlite]
+        db: [postgresql, cockroachdb, mysql, sqlite, sqlserver]
     steps:
       - uses: actions/checkout@v3
         with:
@@ -124,11 +124,14 @@ jobs:
               },
               "sqlite": {
                 "dialector": "sqlite"
+              },
+              "sqlserver": {
+                "dialector": "sqlserver"
               }
             }
           export_to: env
       - name: Run test
-        run:  DB=${{ env.dialector }} gotestsum --junitfile integration-tests-${{ matrix.db }}.xml ./testintegration -coverpkg=./... -coverprofile=coverage_int_${{ matrix.db }}.out
+        run:  DB=${{ env.dialector }} gotestsum --junitfile integration-tests-${{ matrix.db }}.xml ./testintegration -tags=${{ matrix.db }} -coverpkg=./... -coverprofile=coverage_int_${{ matrix.db }}.out
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always() # run this step even if previous steps failed

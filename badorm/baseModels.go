@@ -18,7 +18,7 @@ type BadaasID interface {
 // Every model intended to be saved in the database must embed this badorm.UUIDModel
 // reference: https://gorm.io/docs/models.html#gorm-Model
 type UUIDModel struct {
-	ID        UUID `gorm:"primarykey;"`
+	ID        UUID `gorm:"primarykey;not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt `gorm:"index"`

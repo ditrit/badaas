@@ -8,6 +8,7 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
+	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
@@ -45,6 +46,21 @@ func CreateSQLiteDialector(path string) gorm.Dialector {
 
 func CreateSQLiteDSN(path string) string {
 	return fmt.Sprintf("sqlite:%s", path)
+}
+
+func CreateSQLServerDialector(host, username, password, dbname string, port int) gorm.Dialector {
+	return sqlserver.Open(CreateSQLServerDSN(host, username, password, dbname, port))
+}
+
+func CreateSQLServerDSN(host, username, password, dbname string, port int) string {
+	return fmt.Sprintf(
+		"sqlserver://%s:%s@%s:%d?database=%s",
+		username,
+		password,
+		host,
+		port,
+		dbname,
+	)
 }
 
 func ConnectToDialector(

@@ -34,6 +34,14 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 		return badorm.CreateSQLiteDialector(
 			databaseConfiguration.GetHost(),
 		), nil
+	case configuration.SQLServer:
+		return badorm.CreateSQLServerDialector(
+			databaseConfiguration.GetHost(),
+			databaseConfiguration.GetUsername(),
+			databaseConfiguration.GetPassword(),
+			databaseConfiguration.GetDBName(),
+			databaseConfiguration.GetPort(),
+		), nil
 	default:
 		return nil, fmt.Errorf("unknown dialector: %s", databaseConfiguration.GetDialector())
 	}

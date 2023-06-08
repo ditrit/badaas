@@ -28,12 +28,14 @@ const (
 	PostgreSQL DBDialector = "postgresql"
 	MySQL      DBDialector = "mysql"
 	SQLite     DBDialector = "sqlite"
+	SQLServer  DBDialector = "sqlserver"
 )
 
 var DBDialectors = []string{
 	string(PostgreSQL),
 	string(MySQL),
 	string(SQLite),
+	string(SQLServer),
 }
 
 // Hold the configuration values for the database connection

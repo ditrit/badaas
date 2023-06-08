@@ -35,6 +35,10 @@ mysql:
 	docker compose -f "docker/mysql/docker-compose.yml" up -d
 	./docker/wait_for_db.sh
 
+sqlserver:
+	docker compose -f "docker/sqlserver/docker-compose.yml" up -d --build
+	./docker/wait_for_db.sh
+
 test_integration_postgresql: postgresql
 	DB=postgresql gotestsum --format testname ./testintegration
 
@@ -42,10 +46,13 @@ test_integration_cockroachdb: cockroachdb
 	DB=postgresql gotestsum --format testname ./testintegration
 
 test_integration_mysql: mysql
-	DB=mysql gotestsum --format testname ./testintegration
+	DB=mysql gotestsum --format testname ./testintegration -tags=mysql
 
 test_integration_sqlite:
 	DB=sqlite gotestsum --format testname ./testintegration
+
+test_integration_sqlserver: sqlserver
+	DB=sqlserver gotestsum --format testname ./testintegration
 
 test_integration: test_integration_postgresql
 

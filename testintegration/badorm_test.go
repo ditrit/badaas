@@ -23,7 +23,7 @@ const dbTypeEnvKey = "DB"
 
 const (
 	username = "badaas"
-	password = "badaas"
+	password = "badaas_password2023"
 	host     = "localhost"
 	port     = 5000
 	sslMode  = "disable"
@@ -113,6 +113,12 @@ func NewGormDBConnection(logger *zap.Logger) (*gorm.DB, error) {
 		return badorm.ConnectToDialector(
 			logger,
 			badorm.CreateSQLiteDialector(host),
+			10, time.Duration(5)*time.Second,
+		)
+	case configuration.SQLServer:
+		return badorm.ConnectToDialector(
+			logger,
+			badorm.CreateSQLServerDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	default:

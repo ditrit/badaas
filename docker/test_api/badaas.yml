@@ -11,7 +11,7 @@ database:
   port: 26257
   sslmode: disable
   username: badaas
-  password: badaas
+  password: badaas_password2023
   name: badaas_db
   init:
     retry: 10

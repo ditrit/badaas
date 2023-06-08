@@ -7,10 +7,6 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/services"
-	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
@@ -18,6 +14,11 @@ import (
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/services"
+	"github.com/ditrit/verdeter"
 )
 
 var tGlobal *testing.T

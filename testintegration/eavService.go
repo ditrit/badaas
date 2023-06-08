@@ -3,15 +3,16 @@ package testintegration
 import (
 	"fmt"
 
+	"github.com/elliotchance/pie/v2"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/suite"
+	"gorm.io/gorm"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services"
 	"github.com/ditrit/badaas/utils"
-	"github.com/elliotchance/pie/v2"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/suite"
-	"gorm.io/gorm"
 )
 
 type EAVServiceIntTestSuite struct {

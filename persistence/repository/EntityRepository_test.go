@@ -6,12 +6,13 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 type EntityRepositorySuite struct {
@@ -132,10 +133,10 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForNil() {
 		JOIN values_ values_attrName ON
 			values_attrName.attribute_id = attributes_attrName.id AND
 			values_attrName.entity_id = entities.id AND
-			values_attrName.is_null = true
-		WHERE entities.entity_type_id = $2 AND
+			values_attrName.is_null = $2
+		WHERE entities.entity_type_id = $3 AND
 			"entities"."deleted_at" IS NULL`)).
-		WithArgs(attributeName, s.uuid).
+		WithArgs(attributeName, true, s.uuid).
 		WillReturnRows(sqlmock.NewRows(nil))
 
 	s.execQuery(AttributeNameAndValue{attributeName, nil})

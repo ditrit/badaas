@@ -5,13 +5,14 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/elliotchance/pie/v2"
 	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 type EntityRepository struct {
@@ -68,7 +69,6 @@ func (r *EntityRepository) Create(tx *gorm.DB, entity *models.Entity) error {
 		Columns("id", "created_at", "updated_at", "entity_type_id").
 		Values(entity.ID, now, now, entity.EntityType.ID).
 		PlaceholderFormat(sq.Dollar).ToSql()
-
 	if err != nil {
 		return err
 	}
@@ -100,6 +100,7 @@ func (r *EntityRepository) AddValueCheckToQuery(query *gorm.DB, attributeName st
 // Adds to the "query" the verification that the value for "attribute" is "expectedValue"
 func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attributeName string, expectedValue any, entitiesTableSuffix string) error {
 	attributesSuffix := entitiesTableSuffix + "_" + attributeName
+	queryArgs := []any{attributeName}
 	stringQuery := fmt.Sprintf(
 		`JOIN attributes attributes%[1]s ON
 			attributes%[1]s.entity_type_id = entities%[2]s.entity_type_id
@@ -118,21 +119,25 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 			getQueryCheckValueOfType(attributesSuffix, models.IntValueType),
 			getQueryCheckValueOfType(attributesSuffix, models.FloatValueType),
 		)
+		queryArgs = append(queryArgs, expectedValue, expectedValue)
 	case bool:
 		stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.BooleanValueType)
+		queryArgs = append(queryArgs, expectedValue)
 	case string:
 		uuid, err := badorm.ParseUUID(expectedValueTyped)
 		if err == nil {
-			expectedValue = uuid
 			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.RelationValueType)
+			queryArgs = append(queryArgs, uuid)
 		} else {
 			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.StringValueType)
+			queryArgs = append(queryArgs, expectedValue)
 		}
 	case nil:
 		stringQuery += fmt.Sprintf(
-			"AND values%s.is_null = true",
+			"AND values%[1]s.is_null = ?",
 			attributesSuffix,
 		)
+		queryArgs = append(queryArgs, true)
 	case map[string]any:
 		return r.addJoinToQuery(
 			query, attributeName, expectedValueTyped,
@@ -142,7 +147,7 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 		return fmt.Errorf("unsupported type")
 	}
 
-	query.Joins(stringQuery, attributeName, expectedValue, expectedValue)
+	query.Joins(stringQuery, queryArgs...)
 
 	return nil
 }

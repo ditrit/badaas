@@ -5,6 +5,9 @@ import (
 	"fmt"
 	"strings"
 
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
+
 	"github.com/ditrit/badaas/badorm"
 )
 
@@ -44,6 +47,15 @@ func (s MultiString) Value() (driver.Value, error) {
 
 func (MultiString) GormDataType() string {
 	return "text"
+}
+
+func (MultiString) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+	switch db.Dialector.Name() {
+	case "sqlserver":
+		return "varchar(255)"
+	default:
+		return "text"
+	}
 }
 
 type ToBeEmbedded struct {
@@ -121,18 +133,6 @@ func (m Country) Equal(other Country) bool {
 }
 
 func (m City) Equal(other City) bool {
-	return m.Name == other.Name
-}
-
-type Employee struct {
-	badorm.UUIDModel
-
-	Name   string
-	Boss   *Employee `gorm:"constraint:OnDelete:SET NULL;"` // Self-Referential Has One (Employee 0..* -> 0..1 Employee)
-	BossID *badorm.UUID
-}
-
-func (m Employee) Equal(other Employee) bool {
 	return m.Name == other.Name
 }
 
