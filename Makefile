@@ -6,7 +6,6 @@ install_dependencies:
 	go install github.com/ditrit/badaas/tools/badctl@latest
 
 lint:
-# TODO ver esto en ci
 	golangci-lint run
 	cd test_e2e && golangci-lint run --config ../.golangci.yml
 	cd tools/badctl && golangci-lint run --config ../../.golangci.yml
