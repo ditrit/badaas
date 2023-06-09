@@ -194,13 +194,16 @@ linters-settings:
     # Otherwise, only methods that take `*testing.T`, `*testing.B`, and `testing.TB` as arguments are checked.
     # Default: false
     all: true
-  # gosec:
-    # includes:
-    # TODO ver esto, no esta dando el mismo resultado que gosec a secas
-      # - G104
-      # - G401
-      # - G402
-      # - G404
+  gosec:
+    config:
+      # Globals are applicable to all rules.
+      global:
+        # If true, ignore #nosec in comments (and an alternative as well).
+        # Default: false
+        nosec: true
+        # Audit mode enables addition checks that for normal code analysis might be too nosy.
+        # Default: false
+        audit: true
 
 issues:
   # List of regexps of issue texts to exclude, empty list by default.
