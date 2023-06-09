@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"go/types"
 	"os"
+	"os/exec"
 
 	"github.com/ettle/strcase"
 	"github.com/spf13/cobra"
@@ -54,6 +55,11 @@ func generateConditions(_ *cobra.Command, args []string) {
 	// Generate conditions for each package
 	for _, pkg := range pkgs {
 		generateConditionsForPkg(destPkg, pkg)
+	}
+
+	cmd := exec.Command("gofumpt -l -w .")
+	if err := cmd.Run(); err != nil {
+		cmderrors.FailErr(err)
 	}
 }
 

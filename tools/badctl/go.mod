@@ -19,6 +19,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/gorm v1.25.1
 	gotest.tools v2.2.0+incompatible
+	mvdan.cc/gofumpt v0.5.0
 )
 
 require (
