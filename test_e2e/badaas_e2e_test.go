@@ -11,16 +11,17 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/gormdatabase"
-	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
-	"github.com/ditrit/badaas/testintegration"
 	"github.com/elliotchance/pie/v2"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/persistence/gormdatabase"
+	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
+	"github.com/ditrit/badaas/testintegration"
 )
 
 type TestContext struct {
@@ -30,8 +31,10 @@ type TestContext struct {
 	db         *gorm.DB
 }
 
-var opts = godog.Options{Output: colors.Colored(os.Stdout)}
-var db *gorm.DB
+var (
+	opts = godog.Options{Output: colors.Colored(os.Stdout)}
+	db   *gorm.DB
+)
 
 func init() {
 	godog.BindCommandLineFlags("godog.", &opts)
@@ -55,6 +58,7 @@ func TestMain(_ *testing.M) {
 	viper.Set(configuration.DatabaseRetryKey, 10)
 	viper.Set(configuration.DatabaseRetryDurationKey, 5)
 	viper.Set(configuration.DatabaseDialectorKey, string(configuration.PostgreSQL))
+
 	db, err = gormdatabase.SetupDatabaseConnection(
 		logger,
 		configuration.NewDatabaseConfiguration(),
@@ -79,13 +83,15 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	t := &TestContext{
 		db: db,
 	}
+
 	jar, err := cookiejar.New(nil)
 	if err != nil {
 		panic(err)
 	}
+
 	t.httpClient = &http.Client{
 		Transport: http.DefaultTransport,
-		Timeout:   time.Duration(5 * time.Second),
+		Timeout:   5 * time.Second,
 		Jar:       jar,
 	}
 
@@ -154,7 +160,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I request "(.+)"$`, t.requestGet)
 	ctx.Step(`^status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
-	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJson)
+	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJSON)
 	ctx.Step(`^a "(.+)" object exists with attributes$`, t.objectExists)
 	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
 	ctx.Step(`^I query all "(.+)" objects$`, t.queryAllObjects)

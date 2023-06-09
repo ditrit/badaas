@@ -11,50 +11,45 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/messages-go/v16"
-	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/elliotchance/pie/v2"
+
+	"github.com/ditrit/badaas/testintegration/models"
 )
 
-const BaseUrl = "http://localhost:8000"
+const BaseURL = "http://localhost:8000"
 
 func (t *TestContext) requestGet(url string) error {
-	return t.request(url, http.MethodGet, nil, nil)
+	return t.request(url, http.MethodGet, nil)
 }
 
-func (t *TestContext) requestWithJson(url, method string, jsonTable *godog.Table) error {
-	return t.request(url, method, nil, jsonTable)
+func (t *TestContext) requestWithJSON(url, method string, jsonTable *godog.Table) error {
+	return t.request(url, method, jsonTable)
 }
 
-func (t *TestContext) request(url, method string, query map[string]string, jsonTable *godog.Table) error {
+func (t *TestContext) request(url, method string, jsonTable *godog.Table) error {
 	var payload io.Reader
-	var err error
+
 	if jsonTable != nil {
-		payload, err = buildJSONFromTable(jsonTable)
-		if err != nil {
-			return err
-		}
+		payload = buildJSONFromTable(jsonTable)
 	}
 
-	method, err = checkMethod(method)
+	method, err := checkMethod(method)
 	if err != nil {
 		return err
 	}
-	request, err := http.NewRequest(method, BaseUrl+url, payload)
+
+	request, err := http.NewRequest(method, BaseURL+url, payload)
 	if err != nil {
 		return fmt.Errorf("failed to build request ERROR=%s", err.Error())
 	}
-
-	q := request.URL.Query()
-	for k, v := range query {
-		q.Add(k, v)
-	}
-	request.URL.RawQuery = q.Encode()
 
 	response, err := t.httpClient.Do(request)
 	if err != nil {
 		return fmt.Errorf("failed to run request ERROR=%s", err.Error())
 	}
+
 	t.storeResponseInContext(response)
+
 	return nil
 }
 
@@ -65,25 +60,41 @@ func (t *TestContext) storeResponseInContext(response *http.Response) {
 	if err != nil {
 		t.json = map[string]any{}
 	}
+
+	err = response.Body.Close()
+	if err != nil {
+		log.Fatalln(err)
+	}
 }
 
 func (t *TestContext) assertStatusCode(expectedStatusCode int) error {
 	if t.statusCode != expectedStatusCode {
 		return fmt.Errorf("expect status code %d but is %d", expectedStatusCode, t.statusCode)
 	}
+
 	return nil
 }
 
 func (t *TestContext) assertResponseFieldIsEquals(field string, expectedValue string) error {
 	fields := strings.Split(field, ".")
-	jsonMap := t.json.(map[string]any)
+
+	jsonMap, ok := t.json.(map[string]any)
+	if !ok {
+		log.Fatalln("json is not a map")
+	}
 
 	for _, field := range fields[:len(fields)-1] {
 		intValue, present := jsonMap[field]
 		if !present {
 			return fmt.Errorf("expected response field %s to be %s but it is not present", field, expectedValue)
 		}
-		jsonMap = intValue.(map[string]any)
+
+		intValueMap, ok := intValue.(map[string]any)
+		if !ok {
+			log.Fatalln("intValue is not a map")
+		}
+
+		jsonMap = intValueMap
 	}
 
 	lastValue, present := jsonMap[pie.Last(fields)]
@@ -107,75 +118,102 @@ func assertValue(value any, expectedValue string) bool {
 		if err != nil {
 			panic(err)
 		}
+
 		return expectedValueInt == value
 	case float64:
 		expectedValueFloat, err := strconv.ParseFloat(expectedValue, 64)
 		if err != nil {
 			panic(err)
 		}
+
 		return expectedValueFloat == value
 	default:
 		panic("unsupported format")
 	}
 }
 
+func verifyHeader(row *messages.PickleTableRow) error {
+	for indexCell, cell := range row.Cells {
+		if cell.Value != []string{"key", "value", "type"}[indexCell] {
+			return fmt.Errorf("should have %q as first line of the table", "| key | value | type |")
+		}
+	}
+
+	return nil
+}
+
+func getTableValue(key, valueAsString, valueType string) (any, error) {
+	switch valueType {
+	case stringValueType:
+		return valueAsString, nil
+	case booleanValueType:
+		boolean, err := strconv.ParseBool(valueAsString)
+		if err != nil {
+			return nil, fmt.Errorf("can't parse %q as boolean for key %q", valueAsString, key)
+		}
+
+		return boolean, nil
+	case integerValueType:
+		integer, err := strconv.ParseInt(valueAsString, 10, 64)
+		if err != nil {
+			return nil, fmt.Errorf("can't parse %q as integer for key %q", valueAsString, key)
+		}
+
+		return integer, nil
+	case floatValueType:
+		floatingNumber, err := strconv.ParseFloat(valueAsString, 64)
+		if err != nil {
+			return nil, fmt.Errorf("can't parse %q as float for key %q", valueAsString, key)
+		}
+
+		return floatingNumber, nil
+	case jsonValueType:
+		jsonMap := map[string]string{}
+
+		err := json.Unmarshal([]byte(valueAsString), &jsonMap)
+		if err != nil {
+			return nil, fmt.Errorf("can't parse %q as json for key %q", valueAsString, key)
+		}
+
+		return jsonMap, nil
+	case nullValueType:
+		return nil, nil
+	default:
+		return nil, fmt.Errorf(
+			"type %q does not exists, please use %v",
+			valueType,
+			[]string{stringValueType, booleanValueType, integerValueType, floatValueType, nullValueType},
+		)
+	}
+}
+
 // build a map from a godog.Table
 func buildMapFromTable(table *godog.Table) (map[string]any, error) {
 	data := make(map[string]any, 0)
-	for indexRow, row := range table.Rows {
-		if indexRow == 0 {
-			for indexCell, cell := range row.Cells {
-				if cell.Value != []string{"key", "value", "type"}[indexCell] {
-					return nil, fmt.Errorf("should have %q as first line of the table", "| key | value | type |")
-				}
-			}
-		} else {
-			key := row.Cells[0].Value
-			valueAsString := row.Cells[1].Value
-			valueType := row.Cells[2].Value
 
-			switch valueType {
-			case stringValueType:
-				data[key] = valueAsString
-			case booleanValueType:
-				boolean, err := strconv.ParseBool(valueAsString)
-				if err != nil {
-					return nil, fmt.Errorf("can't parse %q as boolean for key %q", valueAsString, key)
-				}
-				data[key] = boolean
-			case integerValueType:
-				integer, err := strconv.ParseInt(valueAsString, 10, 64)
-				if err != nil {
-					return nil, fmt.Errorf("can't parse %q as integer for key %q", valueAsString, key)
-				}
-				data[key] = integer
-			case floatValueType:
-				floatingNumber, err := strconv.ParseFloat(valueAsString, 64)
-				if err != nil {
-					return nil, fmt.Errorf("can't parse %q as float for key %q", valueAsString, key)
-				}
-				data[key] = floatingNumber
-			case jsonValueType:
-				jsonMap := map[string]string{}
-				err := json.Unmarshal([]byte(valueAsString), &jsonMap)
-				if err != nil {
-					return nil, fmt.Errorf("can't parse %q as json for key %q", valueAsString, key)
-				}
-				data[key] = jsonMap
-			case nullValueType:
-				data[key] = nil
-			default:
-				return nil, fmt.Errorf("type %q does not exists, please use %v", valueType, []string{stringValueType, booleanValueType, integerValueType, floatValueType, nullValueType})
-			}
+	err := verifyHeader(table.Rows[0])
+	if err != nil {
+		return nil, err
+	}
 
+	for _, row := range table.Rows[1:] {
+		key := row.Cells[0].Value
+		valueAsString := row.Cells[1].Value
+		valueType := row.Cells[2].Value
+
+		value, err := getTableValue(key, valueAsString, valueType)
+		if err != nil {
+			return nil, err
 		}
+
+		data[key] = value
 	}
 
 	return data, nil
 }
 
 // build a json payload in the form of a reader from a godog.Table
-func buildJSONFromTable(table *godog.Table) (io.Reader, error) {
+func buildJSONFromTable(table *godog.Table) io.Reader {
 	data, err := buildMapFromTable(table)
 	if err != nil {
 		panic("should not return an error")
@@ -185,7 +223,8 @@ func buildJSONFromTable(table *godog.Table) (io.Reader, error) {
 	if err != nil {
 		panic("should not return an error")
 	}
-	return strings.NewReader(string(bytes)), nil
+
+	return strings.NewReader(string(bytes))
 }
 
 const (
@@ -199,7 +238,8 @@ const (
 
 // check if the method is allowed and sanitize the string
 func checkMethod(method string) (string, error) {
-	allowedMethods := []string{http.MethodGet,
+	allowedMethods := []string{
+		http.MethodGet,
 		http.MethodHead,
 		http.MethodPost,
 		http.MethodPut,
@@ -207,7 +247,9 @@ func checkMethod(method string) (string, error) {
 		http.MethodDelete,
 		http.MethodConnect,
 		http.MethodOptions,
-		http.MethodTrace}
+		http.MethodTrace,
+	}
+
 	sanitizedMethod := strings.TrimSpace(strings.ToUpper(method))
 	if !pie.Contains(
 		allowedMethods,
@@ -223,7 +265,6 @@ func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) er
 	err := t.request(
 		"/eav/objects/"+entityType,
 		http.MethodPost,
-		nil,
 		jsonTable,
 	)
 	if err != nil {
@@ -239,35 +280,26 @@ func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) er
 }
 
 func (t *TestContext) objectExistsWithRelation(entityType string, relationAttribute string, jsonTable *godog.Table) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
 	jsonTable.Rows = append(jsonTable.Rows, &messages.PickleTableRow{
 		Cells: []*messages.PickleTableCell{
 			{
 				Value: relationAttribute,
 			},
 			{
-				Value: id.(string),
+				Value: t.getIDFromJSON(),
 			},
 			{
 				Value: stringValueType,
 			},
 		},
 	})
+
 	return t.objectExists(entityType, jsonTable)
 }
 
 func (t *TestContext) queryWithObjectID(entityType string) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
 	err := t.requestGet(
-		"/eav/objects/" + entityType + "/" + id.(string),
+		"/eav/objects/" + entityType + "/" + t.getIDFromJSON(),
 	)
 	if err != nil {
 		return err
@@ -282,7 +314,7 @@ func (t *TestContext) queryWithObjectID(entityType string) error {
 }
 
 func (t *TestContext) queryObjectsWithConditions(entityType string, jsonTable *godog.Table) error {
-	err := t.requestWithJson(
+	err := t.requestWithJSON(
 		"/eav/objects/"+entityType,
 		http.MethodGet,
 		jsonTable,
@@ -316,7 +348,7 @@ func (t *TestContext) queryAllObjects(entityType string) error {
 }
 
 func (t *TestContext) thereAreObjects(expectedAmount int, entityType string) error {
-	amount := len(t.json.([]any))
+	amount := len(t.getListFromJSON())
 	if amount != expectedAmount {
 		return fmt.Errorf("expect amount %d, but there are %d objects of type %s", expectedAmount, amount, entityType)
 	}
@@ -325,15 +357,17 @@ func (t *TestContext) thereAreObjects(expectedAmount int, entityType string) err
 }
 
 func (t *TestContext) thereIsObjectWithAttributes(expectedEntityType string, jsonTable *godog.Table) error {
-	objectList := t.json.([]any)
 	expectedValues, err := buildMapFromTable(jsonTable)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	for _, object := range objectList {
-		objectMap := object.(map[string]any)
-		objectAttrs := objectMap["attrs"].(map[string]any)
+	objectMapList := t.getObjectMapListFromJSON()
+	for _, objectMap := range objectMapList {
+		objectAttrs, ok := objectMap["attrs"].(map[string]any)
+		if !ok {
+			log.Fatalln("attrs in object is not a map")
+		}
 
 		if objectMap["type"] == expectedEntityType {
 			if t.areAllAttributesEqual(objectAttrs, expectedValues) {
@@ -342,19 +376,13 @@ func (t *TestContext) thereIsObjectWithAttributes(expectedEntityType string, jso
 		}
 	}
 
-	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectList)
+	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectMapList)
 }
 
 func (t *TestContext) deleteWithObjectID(entityType string) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
 	err := t.request(
-		"/eav/objects/"+entityType+"/"+id.(string),
+		"/eav/objects/"+entityType+"/"+t.getIDFromJSON(),
 		http.MethodDelete,
-		nil,
 		nil,
 	)
 	if err != nil {
@@ -370,15 +398,9 @@ func (t *TestContext) deleteWithObjectID(entityType string) error {
 }
 
 func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.Table) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
 	err := t.request(
-		"/eav/objects/"+entityType+"/"+id.(string),
+		"/eav/objects/"+entityType+"/"+t.getIDFromJSON(),
 		http.MethodPut,
-		nil,
 		jsonTable,
 	)
 	if err != nil {
@@ -393,6 +415,20 @@ func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.T
 	return nil
 }
 
+func (t *TestContext) getIDFromJSON() string {
+	id, present := t.json.(map[string]any)["id"]
+	if !present {
+		log.Fatalln("object id not available")
+	}
+
+	idString, ok := id.(string)
+	if !ok {
+		log.Fatalln("id in json is not a string")
+	}
+
+	return idString
+}
+
 func (t *TestContext) saleExists(productInt int, code int, description string) {
 	product := &models.Product{
 		Int: productInt,
@@ -403,14 +439,14 @@ func (t *TestContext) saleExists(productInt int, code int, description string) {
 		Description: description,
 		Product:     *product,
 	}
-	err := t.db.Create(sale).Error
-	if err != nil {
+
+	if err := t.db.Create(sale).Error; err != nil {
 		log.Fatalln(err)
 	}
 }
 
 func (t *TestContext) querySalesWithConditions(jsonTable *godog.Table) error {
-	err := t.requestWithJson(
+	err := t.requestWithJSON(
 		"/objects/sale",
 		http.MethodGet,
 		jsonTable,
@@ -428,23 +464,46 @@ func (t *TestContext) querySalesWithConditions(jsonTable *godog.Table) error {
 }
 
 func (t *TestContext) thereIsSaleWithAttributes(jsonTable *godog.Table) error {
-	objectList := t.json.([]any)
 	expectedValues, err := buildMapFromTable(jsonTable)
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	for _, object := range objectList {
-		if t.areAllAttributesEqual(object.(map[string]any), expectedValues) {
+	objectMapList := t.getObjectMapListFromJSON()
+	for _, objectMap := range objectMapList {
+		if t.areAllAttributesEqual(objectMap, expectedValues) {
 			return nil
 		}
 	}
 
-	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectList)
+	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectMapList)
+}
+
+func (t *TestContext) getListFromJSON() []any {
+	objectList, ok := t.json.([]any)
+	if !ok {
+		log.Fatalln("json is not a list")
+	}
+
+	return objectList
+}
+
+func (t *TestContext) getObjectMapListFromJSON() []map[string]any {
+	objectList := t.getListFromJSON()
+
+	return pie.Map(objectList, func(object any) map[string]any {
+		objectMap, ok := object.(map[string]any)
+		if !ok {
+			log.Fatalln("object in json list is not a map")
+		}
+
+		return objectMap
+	})
 }
 
 func (t *TestContext) areAllAttributesEqual(objectMap, expectedValues map[string]any) bool {
 	allEqual := true
+
 	for attributeName, expectedValue := range expectedValues {
 		actualValue, isPresent := objectMap[attributeName]
 		if !isPresent || actualValue != expectedValue {

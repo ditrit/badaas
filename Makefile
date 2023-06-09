@@ -6,7 +6,9 @@ install_dependencies:
 	go install github.com/ditrit/badaas/tools/badctl@latest
 
 lint:
+# TODO ver esto en ci
 	golangci-lint run
+	cd test_e2e && golangci-lint run --config ../.golangci.yml
 
 test_unit_badaas:
 	gotestsum --format pkgname $(PATHS)

@@ -2,22 +2,24 @@ package main
 
 import (
 	"context"
+	"log"
 	"net"
 	"net/http"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/router"
-	"github.com/ditrit/badaas/testintegration"
-	"github.com/ditrit/badaas/testintegration/models"
-	"github.com/ditrit/verdeter"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/router"
+	"github.com/ditrit/badaas/testintegration"
+	"github.com/ditrit/badaas/testintegration/models"
+	"github.com/ditrit/verdeter"
 )
 
 var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
@@ -70,11 +72,11 @@ func NewAPIVersion() *semver.Version {
 func NewHTTPServer(
 	lc fx.Lifecycle,
 	logger *zap.Logger,
-	router *mux.Router,
+	muxRouter *mux.Router,
 	httpServerConfig configuration.HTTPServerConfiguration,
 ) *http.Server {
 	handler := handlers.CORS(
-		handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "OPTIONS"}),
+		handlers.AllowedMethods([]string{http.MethodGet, http.MethodPost, http.MethodDelete, http.MethodPut, "OPTIONS"}),
 		handlers.AllowedHeaders([]string{
 			"Accept", "Content-Type", "Content-Length",
 			"Accept-Encoding", "X-CSRF-Token", "Authorization",
@@ -85,9 +87,10 @@ func NewHTTPServer(
 		handlers.AllowedOrigins([]string{"*"}),
 		handlers.AllowCredentials(),
 		handlers.MaxAge(0),
-	)(router)
+	)(muxRouter)
 
 	srv := createServer(handler, httpServerConfig)
+
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
 			ln, err := net.Listen("tcp", srv.Addr)
@@ -95,7 +98,12 @@ func NewHTTPServer(
 				return err
 			}
 			logger.Sugar().Infof("Ready to serve at %s", srv.Addr)
-			go srv.Serve(ln)
+			go func() {
+				err := srv.Serve(ln)
+				if err != nil {
+					log.Fatalln(err)
+				}
+			}()
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
