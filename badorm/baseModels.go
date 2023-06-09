@@ -23,7 +23,7 @@ type UUIDModel struct {
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 
-func (model *UUIDModel) BeforeCreate(tx *gorm.DB) (err error) {
+func (model *UUIDModel) BeforeCreate(_ *gorm.DB) (err error) {
 	if model.ID == UUID(uuid.Nil) {
 		model.ID = UUID(uuid.New())
 	}

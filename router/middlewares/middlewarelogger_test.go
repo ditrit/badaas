@@ -29,7 +29,7 @@ func TestMiddlewareLogger(t *testing.T) {
 	res := httptest.NewRecorder()
 	actuallyRun := false
 	// create a handler to use as "next" which will verify the request
-	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	nextHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
 		actuallyRun = true
 	})
 	loggerConfiguration := configurationmocks.NewLoggerConfiguration(t)

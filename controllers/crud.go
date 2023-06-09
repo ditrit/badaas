@@ -53,7 +53,7 @@ type crudControllerImpl[T any] struct {
 }
 
 // The handler responsible of the retrieval of one object
-func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (controller *crudControllerImpl[T]) GetObject(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityID, herr := getEntityIDFromRequest(r)
 	if herr != nil {
 		return nil, herr
@@ -65,7 +65,7 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 }
 
 // The handler responsible of the retrieval of multiple objects
-func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (controller *crudControllerImpl[T]) GetObjects(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	params, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr

@@ -19,6 +19,8 @@ var HERRAccessToken = func(err error) httperrors.HTTPError {
 	return httperrors.NewInternalServerError("access token error", "unable to create access token", err)
 }
 
+const SessionCookieDuration = 48 * time.Hour
+
 type BasicAuthenticationController interface {
 	BasicLoginHandler(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
 	Logout(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
@@ -113,7 +115,7 @@ func createAndSetAccessTokenCookie(w http.ResponseWriter, sessionUUID string) er
 		HttpOnly: true,
 		SameSite: http.SameSiteNoneMode, // TODO change to http.SameSiteStrictMode in prod
 		Secure:   false,                 // TODO change to true in prod
-		Expires:  time.Now().Add(48 * time.Hour),
+		Expires:  time.Now().Add(SessionCookieDuration),
 	}
 	if err := accessToken.Valid(); err != nil {
 		return err

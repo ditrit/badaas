@@ -13,7 +13,6 @@ import (
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas"
 	"github.com/ditrit/badaas/configuration"
@@ -46,7 +45,7 @@ func TestBaDaaS(t *testing.T) {
 	testsCommand.Execute()
 }
 
-func injectDependencies(cmd *cobra.Command, args []string) {
+func injectDependencies(_ *cobra.Command, _ []string) {
 	fx.New(
 		fx.Provide(GetModels),
 		badaas.BadaasModule,
@@ -65,7 +64,6 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 
 func runBaDaaSTestSuites(
 	tsEAVService *EAVServiceIntTestSuite,
-	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
 	suite.Run(tGlobal, tsEAVService)

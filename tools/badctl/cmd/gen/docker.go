@@ -40,10 +40,16 @@ const (
 
 var DBProviders = []string{Cockroachdb, Postgres, MySQL}
 
+const (
+	CockroachdbDefaultPort = 26257
+	PostgresDefaultPort    = 5432
+	MySQLDefaultPort       = 3306
+)
+
 var DBPorts = map[string]int{
-	Cockroachdb: 26257,
-	Postgres:    5432,
-	MySQL:       3306,
+	Cockroachdb: CockroachdbDefaultPort,
+	Postgres:    PostgresDefaultPort,
+	MySQL:       MySQLDefaultPort,
 }
 
 var DBDialectors = map[string]configuration.DBDialector{
@@ -51,6 +57,8 @@ var DBDialectors = map[string]configuration.DBDialector{
 	Postgres:    configuration.PostgreSQL,
 	MySQL:       configuration.MySQL,
 }
+
+const FilePermissions = 0o0600
 
 func init() {
 	err := genDockerCmd.LKey(
@@ -72,7 +80,7 @@ func init() {
 	)
 }
 
-func generateDockerFiles(cmd *cobra.Command, args []string) {
+func generateDockerFiles(_ *cobra.Command, _ []string) {
 	sourceDockerDir := "docker"
 	destDockerDir := filepath.Join(destBadaasDir, "docker")
 
@@ -138,7 +146,7 @@ func copyBadaasConfig(dbProvider string) {
 
 	err = os.WriteFile(
 		filepath.Join(destConfigDir, "badaas.yml"),
-		configBytes, 0o0600,
+		configBytes, FilePermissions,
 	)
 	if err != nil {
 		cmderrors.FailErr(err)
@@ -151,7 +159,7 @@ func copyFile(sourcePath, destPath string) {
 		cmderrors.FailErr(err)
 	}
 
-	if err := os.WriteFile(destPath, fileContent, 0o0600); err != nil {
+	if err := os.WriteFile(destPath, fileContent, FilePermissions); err != nil {
 		cmderrors.FailErr(err)
 	}
 }

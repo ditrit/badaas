@@ -631,12 +631,14 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityMultipleTimesDoesNotGenerateGo
 		"string2": "description",
 	})
 
+	var err error
+
 	for i := 0; i < 10; i++ {
 		params := map[string]any{
 			"string":  fmt.Sprintf("displayName%d", i),
 			"string2": fmt.Sprintf("description%d", i),
 		}
-		entity, err := ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, params)
+		entity, err = ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, params)
 		ts.Nil(err)
 
 		for _, value := range entity.Fields {

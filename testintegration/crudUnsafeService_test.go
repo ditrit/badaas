@@ -161,13 +161,13 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInc
 	result, err := ts.crudProductService.GetEntities(params)
 
 	switch configuration.DBDialector(os.Getenv(dbTypeEnvKey)) {
-	case configuration.PostgreSQL:
-		// postgres does the verification
-		ts.NotNil(err)
-	case configuration.MySQL:
-		// mysql simply matches nothing
+	case configuration.MySQL, configuration.SQLite:
+		// mysql and sqlite simply matches nothing
 		ts.Nil(err)
 		ts.Len(result, 0)
+	case configuration.PostgreSQL, configuration.SQLServer:
+		// postgresql and sqlserver do the verification
+		ts.NotNil(err)
 	}
 }
 

@@ -1,9 +1,12 @@
 package conditions
 
 import (
+	"errors"
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
+
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 )
 
 type JenParam struct {
@@ -56,6 +59,12 @@ func (param JenParam) ToBasicKind(basicType *types.Basic) {
 		param.statement.Complex128()
 	case types.String:
 		param.statement.String()
+	case types.Invalid, types.UnsafePointer,
+		types.UntypedBool, types.UntypedInt,
+		types.UntypedRune, types.UntypedFloat,
+		types.UntypedComplex, types.UntypedString,
+		types.UntypedNil:
+		cmderrors.FailErr(errors.New("unreachable! untyped types can't be inside a struct"))
 	}
 }
 

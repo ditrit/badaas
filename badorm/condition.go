@@ -30,8 +30,8 @@ type WhereCondition[T any] struct {
 	Value        any
 }
 
-//nolint:unused
-func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {
+//nolint:unused // see inside
+func (condition WhereCondition[T]) interfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
@@ -92,8 +92,8 @@ type JoinCondition[T1 any, T2 any] struct {
 	Conditions []Condition[T2]
 }
 
-//nolint:unused
-func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(t T1) {
+//nolint:unused // see inside
+func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(_ T1) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }

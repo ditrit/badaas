@@ -166,7 +166,7 @@ func (eavService *eavServiceImpl) UpdateEntity(entityTypeName string, entityID b
 			for _, value := range entity.Fields {
 				newValue, isPresent := newValues[value.Attribute.Name]
 				if isPresent {
-					err := eavService.updateValue(tx, value, newValue)
+					err = eavService.updateValue(tx, value, newValue)
 					if err != nil {
 						return nil, err
 					}

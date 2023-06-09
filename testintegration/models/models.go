@@ -47,7 +47,7 @@ func (MultiString) GormDataType() string {
 	return "text"
 }
 
-func (MultiString) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+func (MultiString) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "sqlserver":
 		return "varchar(255)"

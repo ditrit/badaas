@@ -14,7 +14,7 @@ type UUID uuid.UUID
 
 var NilUUID = UUID(uuid.Nil)
 
-func (id UUID) GormDBDataType(db *gorm.DB, field *schema.Field) string {
+func (id UUID) GormDBDataType(db *gorm.DB, _ *schema.Field) string {
 	switch db.Dialector.Name() {
 	case "mysql":
 		return "binary(16)"
@@ -65,7 +65,7 @@ func (id *UUID) Scan(src interface{}) error {
 	return (*uuid.UUID)(id).Scan(src)
 }
 
-func (id UUID) GormValue(ctx context.Context, db *gorm.DB) clause.Expr {
+func (id UUID) GormValue(_ context.Context, db *gorm.DB) clause.Expr {
 	if len(id) == 0 {
 		return gorm.Expr("NULL")
 	}

@@ -50,10 +50,12 @@ func GetCRUDServiceModule[T any]() fx.Option {
 			// service
 			fx.Provide(NewCRUDService[T, uint]),
 		)
-	default:
+	case KindNotBaDORMModel:
 		log.Printf("type %T is not a BaDORM Module\n", entity)
 		return fx.Invoke(failNotBadORMModule())
 	}
+
+	return fx.Invoke(failNotBadORMModule())
 }
 
 func failNotBadORMModule() error {
@@ -90,10 +92,12 @@ func GetCRUDUnsafeServiceModule[T any]() fx.Option {
 			// service
 			fx.Provide(NewCRUDUnsafeService[T, uint]),
 		)
-	default:
+	case KindNotBaDORMModel:
 		log.Printf("type %T is not a BaDORM Module\n", entity)
 		return fx.Invoke(failNotBadORMModule())
 	}
+
+	return fx.Invoke(failNotBadORMModule())
 }
 
 type modelKind uint

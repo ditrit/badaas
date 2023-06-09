@@ -39,7 +39,7 @@ func main() {
 }
 
 // Run the http server for badaas
-func runHTTPServer(cmd *cobra.Command, args []string) {
+func runHTTPServer(_ *cobra.Command, _ []string) {
 	fx.New(
 		fx.Provide(testintegration.GetModels),
 		badaas.BadaasModule,

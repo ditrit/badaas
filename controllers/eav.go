@@ -43,7 +43,7 @@ type eavControllerImpl struct {
 }
 
 // The handler responsible of the retrieval of one objects
-func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (controller *eavControllerImpl) GetObject(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, entityID, herr := controller.getEntityTypeNameAndEntityID(r)
 	if herr != nil {
 		return nil, herr
@@ -55,7 +55,7 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 }
 
 // The handler responsible of the retrieval of multiple objects
-func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (controller *eavControllerImpl) GetObjects(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, herr := controller.getEntityTypeNameFromRequest(r)
 	if herr != nil {
 		return nil, herr
@@ -99,7 +99,7 @@ func buildEAVLocationString(et *models.Entity) string {
 }
 
 // The handler responsible for the updates of one object
-func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (controller *eavControllerImpl) UpdateObject(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, entityID, herr := controller.getEntityTypeNameAndEntityID(r)
 	if herr != nil {
 		return nil, herr
@@ -116,7 +116,7 @@ func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http
 }
 
 // The handler responsible for the deletion of a object
-func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (controller *eavControllerImpl) DeleteObject(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityTypeName, entityID, herr := controller.getEntityTypeNameAndEntityID(r)
 	if herr != nil {
 		return nil, herr

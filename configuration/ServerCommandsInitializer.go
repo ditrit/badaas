@@ -1,6 +1,9 @@
 package configuration
 
 import (
+	"fmt"
+
+	"github.com/ditrit/badaas/configuration/defaults"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
 )
@@ -12,33 +15,27 @@ func NewServerCommandsInitializer() CommandsInitializer {
 			{
 				Name:     ServerTimeoutKey,
 				ValType:  verdeter.IsInt,
-				Usage:    "Maximum timeout of the http server in second (default is 15s)",
-				DefaultV: 15,
+				Usage:    fmt.Sprintf("Maximum timeout of the http server in second (default is %ds)", defaults.ServerTimeout),
+				DefaultV: defaults.ServerTimeout,
 			},
 			{
 				Name:     ServerHostKey,
 				ValType:  verdeter.IsStr,
-				Usage:    "Address to bind (default is 0.0.0.0)",
-				DefaultV: "0.0.0.0",
+				Usage:    fmt.Sprintf("Address to bind (default is %s)", defaults.ServerHost),
+				DefaultV: defaults.ServerHost,
 			},
 			{
 				Name:      ServerPortKey,
 				ValType:   verdeter.IsInt,
-				Usage:     "Port to bind (default is 8000)",
-				DefaultV:  8000,
+				Usage:     fmt.Sprintf("Port to bind (default is %d)", defaults.ServerPort),
+				DefaultV:  defaults.ServerPort,
 				Validator: &validators.CheckTCPHighPort,
 			},
 			{
-				Name:     ServerPaginationMaxElemPerPage,
+				Name:     ServerPaginationMaxElemPerPageKey,
 				ValType:  verdeter.IsUint,
-				Usage:    "The max number of records returned per page",
-				DefaultV: uint(100),
-			},
-			{
-				Name:     ServerExampleKey,
-				ValType:  verdeter.IsStr,
-				Usage:    "Example server to exec (birds | posts)",
-				DefaultV: "",
+				Usage:    fmt.Sprintf("The max number of records returned per page (default is %d)", defaults.ServerPaginationMaxElemPerPage),
+				DefaultV: defaults.ServerPaginationMaxElemPerPage,
 			},
 		},
 	}

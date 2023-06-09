@@ -12,11 +12,10 @@ import (
 
 // The config keys regarding the http server settings
 const (
-	ServerTimeoutKey               string = "server.timeout"
-	ServerHostKey                  string = "server.host"
-	ServerPortKey                  string = "server.port"
-	ServerPaginationMaxElemPerPage string = "server.pagination.page.max"
-	ServerExampleKey               string = "server.example"
+	ServerTimeoutKey                  string = "server.timeout"
+	ServerHostKey                     string = "server.host"
+	ServerPortKey                     string = "server.port"
+	ServerPaginationMaxElemPerPageKey string = "server.pagination.page.max"
 )
 
 // Hold the configuration values for the http server

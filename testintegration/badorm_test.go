@@ -79,7 +79,6 @@ func runBaDORMTestSuites(
 	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
 	tsCRUDUnsafeService *CRUDUnsafeServiceIntTestSuite,
-	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
 	suite.Run(tGlobal, tsCRUDService)

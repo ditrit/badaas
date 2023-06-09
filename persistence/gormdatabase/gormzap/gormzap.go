@@ -13,6 +13,8 @@ import (
 	gormlogger "gorm.io/gorm/logger"
 )
 
+const SlowThreshold = 100 * time.Millisecond
+
 // This type implement the [gorm.io/gorm/logger.Interface] interface.
 // It is to be used as a replacement for the original logger
 type Logger struct {
@@ -28,7 +30,7 @@ func New(zapLogger *zap.Logger) gormlogger.Interface {
 	return Logger{
 		ZapLogger:                 zapLogger,
 		LogLevel:                  gormlogger.Info,
-		SlowThreshold:             100 * time.Millisecond,
+		SlowThreshold:             SlowThreshold,
 		SkipCallerLookup:          true,
 		IgnoreRecordNotFoundError: true,
 	}

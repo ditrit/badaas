@@ -73,12 +73,13 @@ func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Cond
 		return nil, err
 	}
 
-	if len(entities) > 1 {
-		return nil, ErrMoreThanOneObjectFound
-	} else if len(entities) == 1 {
+	switch {
+	case len(entities) == 1:
 		return entities[0], nil
-	} else {
+	case len(entities) == 0:
 		return nil, ErrObjectNotFound
+	default:
+		return nil, ErrMoreThanOneObjectFound
 	}
 }
 

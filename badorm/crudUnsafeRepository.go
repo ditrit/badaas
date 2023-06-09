@@ -51,7 +51,9 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, cond
 	entity := new(T)
 	// only entities that match the conditions
 	for joinAttributeName, joinConditions := range joinConditions {
-		tableName, err := getTableName(tx, entity)
+		var tableName string
+
+		tableName, err = getTableName(tx, entity)
 		if err != nil {
 			return nil, err
 		}
@@ -148,7 +150,7 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) addJoinToQuery(
 	query.Joins(stringQuery, conditionsValues...)
 
 	for joinAttributeName, joinConditions := range joinConditions {
-		err := repository.addJoinToQuery(
+		err = repository.addJoinToQuery(
 			query,
 			relatedObject,
 			tableWithSuffix,

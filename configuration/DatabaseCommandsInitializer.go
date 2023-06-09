@@ -1,6 +1,9 @@
 package configuration
 
 import (
+	"fmt"
+
+	"github.com/ditrit/badaas/configuration/defaults"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
 )
@@ -42,16 +45,22 @@ func NewDatabaseCommandsInitializer() CommandsInitializer {
 				Usage:   "The sslmode to use when connecting to the database server",
 			},
 			{
-				Name:     DatabaseRetryKey,
-				ValType:  verdeter.IsUint,
-				Usage:    "The number of times badaas tries to establish a connection with the database",
-				DefaultV: uint(10),
+				Name:    DatabaseRetryKey,
+				ValType: verdeter.IsUint,
+				Usage: fmt.Sprintf(
+					"The number of times badaas tries to establish a connection with the database (default is %d)",
+					defaults.DatabaseRetryTimes,
+				),
+				DefaultV: defaults.DatabaseRetryTimes,
 			},
 			{
-				Name:     DatabaseRetryDurationKey,
-				ValType:  verdeter.IsUint,
-				Usage:    "The duration in seconds badaas wait between connection attempts",
-				DefaultV: uint(5),
+				Name:    DatabaseRetryDurationKey,
+				ValType: verdeter.IsUint,
+				Usage: fmt.Sprintf(
+					"The duration in seconds badaas wait between connection attempts (default is %ds)",
+					defaults.DatabaseRetryDuration,
+				),
+				DefaultV: defaults.DatabaseRetryDuration,
 			},
 			{
 				Name:      DatabaseDialectorKey,

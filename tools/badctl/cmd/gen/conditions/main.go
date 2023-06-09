@@ -37,7 +37,7 @@ func init() {
 }
 
 // GenConditionsCmd Run func
-func generateConditions(cmd *cobra.Command, args []string) {
+func generateConditions(_ *cobra.Command, args []string) {
 	log.SetLevel()
 	// Inspect package and use type checker to infer imported types
 	pkgs := loadPackages(args)
