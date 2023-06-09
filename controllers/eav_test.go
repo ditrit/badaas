@@ -2,19 +2,20 @@ package controllers_test
 
 import (
 	"errors"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/gorilla/mux"
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/controllers"
 	mockServices "github.com/ditrit/badaas/mocks/services"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/google/uuid"
-	"github.com/gorilla/mux"
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 var logger, _ = zap.NewDevelopment()
@@ -30,7 +31,7 @@ func TestGetWithoutTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/",
 		strings.NewReader(""),
 	)
@@ -42,7 +43,7 @@ func TestGetWithoutTypeReturnsError(t *testing.T) {
 func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 	eavService.
 		On("GetEntity", "no-exists", uuid).
 		Return(nil, gorm.ErrRecordNotFound)
@@ -53,7 +54,7 @@ func TestGetOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/no-exists/id",
 		strings.NewReader(""),
 	)
@@ -76,7 +77,7 @@ func TestGetWithoutEntityIDReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -99,7 +100,7 @@ func TestGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/not-uuid",
 		strings.NewReader(""),
 	)
@@ -116,7 +117,7 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("GetEntity", entityType.Name, uuid).
@@ -128,7 +129,7 @@ func TestGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
@@ -145,7 +146,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("GetEntity", entityType.Name, uuid).
@@ -157,7 +158,7 @@ func TestGetWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
@@ -178,7 +179,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 		EntityType: entityType,
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("GetEntity", entityType.Name, uuid).
@@ -190,7 +191,7 @@ func TestGetWithCorrectIDReturnsObject(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
@@ -212,7 +213,7 @@ func TestGetAllWithoutTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/",
 		strings.NewReader(""),
 	)
@@ -234,7 +235,7 @@ func TestGetAllOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/no-exists",
 		strings.NewReader(""),
 	)
@@ -257,7 +258,7 @@ func TestGetAllWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/no-exists",
 		strings.NewReader(""),
 	)
@@ -291,7 +292,7 @@ func TestGetAllWithoutParams(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -325,7 +326,7 @@ func TestGetAllWithParams(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader("{\"param1\": \"something\"}"),
 	)
@@ -348,7 +349,7 @@ func TestDeleteWithoutTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"DELETE",
+		http.MethodDelete,
 		"/objects/",
 		strings.NewReader(""),
 	)
@@ -360,7 +361,7 @@ func TestDeleteWithoutTypeReturnsError(t *testing.T) {
 func TestDeleteOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("DeleteEntity", "no-exists", uuid).
@@ -372,7 +373,7 @@ func TestDeleteOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"DELETE",
+		http.MethodDelete,
 		"/objects/no-exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
@@ -389,7 +390,7 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("DeleteEntity", entityType.Name, uuid).
@@ -401,7 +402,7 @@ func TestDeleteObjectWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"DELETE",
+		http.MethodDelete,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
@@ -418,7 +419,7 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("DeleteEntity", entityType.Name, uuid).
@@ -430,7 +431,7 @@ func TestDeleteObjectReturnsNil(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"DELETE",
+		http.MethodDelete,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader(""),
 	)
@@ -452,7 +453,7 @@ func TestCreateWithoutTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/objects/",
 		strings.NewReader(""),
 	)
@@ -474,7 +475,7 @@ func TestCreateObjectWithBadJSONReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/objects/exists",
 		strings.NewReader("bad json"),
 	)
@@ -497,7 +498,7 @@ func TestCreateOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/objects/no-exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
@@ -524,7 +525,7 @@ func TestCreteObjectWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/objects/exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
@@ -555,7 +556,7 @@ func TestCreteObjectReturnsObject(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/objects/exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
@@ -577,7 +578,7 @@ func TestModifyWithoutTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"PUT",
+		http.MethodPut,
 		"/objects/",
 		strings.NewReader(""),
 	)
@@ -593,7 +594,7 @@ func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	controller := controllers.NewEAVController(
 		logger,
@@ -601,7 +602,7 @@ func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"PUT",
+		http.MethodPut,
 		"/objects/exists",
 		strings.NewReader("bad json"),
 	)
@@ -614,7 +615,7 @@ func TestUpdateObjectWithBadJSONReturnsError(t *testing.T) {
 func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {
 	eavService := mockServices.NewEAVService(t)
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("UpdateEntity", "no-exists", uuid, map[string]any{"1": "1"}).
@@ -626,7 +627,7 @@ func TestModifyOfNotExistentTypeReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/objects/no-exists",
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
@@ -643,7 +644,7 @@ func TestUpdateObjectWithErrorInDBReturnsError(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	eavService.
 		On("UpdateEntity", entityType.Name, uuid, map[string]any{"1": "1"}).
@@ -655,7 +656,7 @@ func TestUpdateObjectWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"PUT",
+		http.MethodPut,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader("{\"1\": \"1\"}"),
 	)
@@ -672,7 +673,7 @@ func TestUpdateObjectReturnsObject(t *testing.T) {
 		Name: "entityType",
 	}
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 	entity := &models.Entity{
 		EntityType: entityType,
 	}
@@ -687,7 +688,7 @@ func TestUpdateObjectReturnsObject(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"PUT",
+		http.MethodPut,
 		"/objects/exists/"+uuid.String(),
 		strings.NewReader("{\"1\": \"1\"}"),
 	)

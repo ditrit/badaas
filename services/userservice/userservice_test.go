@@ -1,14 +1,8 @@
 package userservice_test
 
 import (
-	"errors"
 	"testing"
 
-	"github.com/ditrit/badaas/badorm"
-	badormMocks "github.com/ditrit/badaas/mocks/badorm"
-	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/models/dto"
-	"github.com/ditrit/badaas/services/userservice"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -16,6 +10,12 @@ import (
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	badormMocks "github.com/ditrit/badaas/mocks/badorm"
+	"github.com/ditrit/badaas/persistence/models"
+	"github.com/ditrit/badaas/persistence/models/dto"
+	"github.com/ditrit/badaas/services/userservice"
 )
 
 var gormDB *gorm.DB
@@ -56,8 +56,9 @@ func TestNewUserServiceDatabaseError(t *testing.T) {
 	userRepositoryMock.On(
 		"Create", gormDB, mock.Anything,
 	).Return(
-		errors.New("database error"),
+		gorm.ErrInvalidTransaction,
 	)
+
 	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
 	user, err := userService.NewUser("bob", "bob@email.com", "1234")
 	assert.Error(t, err)

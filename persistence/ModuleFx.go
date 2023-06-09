@@ -1,9 +1,10 @@
 package persistence
 
 import (
+	"go.uber.org/fx"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/gormdatabase"
-	"go.uber.org/fx"
 )
 
 // PersistanceModule for fx

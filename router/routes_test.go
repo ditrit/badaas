@@ -7,17 +7,18 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
+
 	"github.com/ditrit/badaas/controllers"
 	mocks "github.com/ditrit/badaas/mocks/configuration"
 	mockControllers "github.com/ditrit/badaas/mocks/controllers"
 	mockMiddlewares "github.com/ditrit/badaas/mocks/router/middlewares"
 	mockUserServices "github.com/ditrit/badaas/mocks/services/userservice"
 	"github.com/ditrit/badaas/router/middlewares"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest/observer"
 )
 
 func TestCreateSuperUser(t *testing.T) {
@@ -25,10 +26,12 @@ func TestCreateSuperUser(t *testing.T) {
 	logger := zap.New(core)
 	initializationConfig := mocks.NewInitializationConfiguration(t)
 	initializationConfig.On("GetAdminPassword").Return("adminpassword")
+
 	userService := mockUserServices.NewUserService(t)
 	userService.
 		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword").
 		Return(nil, nil)
+
 	err := createSuperUser(
 		logger,
 		initializationConfig,
@@ -42,10 +45,12 @@ func TestCreateSuperUser_UserExists(t *testing.T) {
 	logger := zap.New(core)
 	initializationConfig := mocks.NewInitializationConfiguration(t)
 	initializationConfig.On("GetAdminPassword").Return("adminpassword")
+
 	userService := mockUserServices.NewUserService(t)
 	userService.
 		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword").
 		Return(nil, errors.New("user already exist in database"))
+
 	err := createSuperUser(
 		logger,
 		initializationConfig,
@@ -61,10 +66,12 @@ func TestCreateSuperUser_UserServiceError(t *testing.T) {
 	logger := zap.New(core)
 	initializationConfig := mocks.NewInitializationConfiguration(t)
 	initializationConfig.On("GetAdminPassword").Return("adminpassword")
+
 	userService := mockUserServices.NewUserService(t)
 	userService.
 		On("NewUser", "admin", "admin-no-reply@badaas.com", "adminpassword").
 		Return(nil, errors.New("email not valid"))
+
 	err := createSuperUser(
 		logger,
 		initializationConfig,
@@ -90,7 +97,7 @@ func TestAddInfoRoutes(t *testing.T) {
 
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/info",
 		nil,
 	)
@@ -120,7 +127,8 @@ func TestAddLoginRoutes(t *testing.T) {
 	authenticationMiddleware := mockMiddlewares.NewAuthenticationMiddleware(t)
 
 	router := NewRouter()
-	AddAuthRoutes(
+
+	err := AddAuthRoutes(
 		nil,
 		router,
 		authenticationMiddleware,
@@ -129,10 +137,13 @@ func TestAddLoginRoutes(t *testing.T) {
 		initializationConfig,
 		userService,
 	)
+	if err != nil {
+		t.Error(err)
+	}
 
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/login",
 		nil,
 	)
@@ -159,7 +170,7 @@ func TestAddEAVRoutes(t *testing.T) {
 
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/eav/objects/posts",
 		nil,
 	)
@@ -191,7 +202,7 @@ func TestAddCRUDRoutes(t *testing.T) {
 
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/model",
 		nil,
 	)

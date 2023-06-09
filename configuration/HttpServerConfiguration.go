@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ditrit/badaas/utils"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/utils"
 )
 
 // The config keys regarding the http server settings
@@ -20,7 +21,7 @@ const (
 
 // Hold the configuration values for the http server
 type HTTPServerConfiguration interface {
-	ConfigurationHolder
+	Holder
 	GetAddr() string
 	GetHost() string
 	GetPort() int
@@ -38,6 +39,7 @@ type hTTPServerConfigurationImpl struct {
 func NewHTTPServerConfiguration() HTTPServerConfiguration {
 	httpServerConfiguration := new(hTTPServerConfigurationImpl)
 	httpServerConfiguration.Reload()
+
 	return httpServerConfiguration
 }
 

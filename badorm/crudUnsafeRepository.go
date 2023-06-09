@@ -134,12 +134,14 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) addJoinToQuery(
 	}
 
 	conditionsValues := []any{}
+
 	for attributeName, conditionValue := range thisEntityConditions {
 		stringQuery += fmt.Sprintf(
 			`AND %[1]s.%[2]s = ?
 			`,
 			tableWithSuffix, attributeName,
 		)
+
 		conditionsValues = append(conditionsValues, conditionValue)
 	}
 

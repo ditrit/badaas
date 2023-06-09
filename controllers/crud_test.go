@@ -2,17 +2,18 @@ package controllers_test
 
 import (
 	"errors"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/controllers"
-	mockBadorm "github.com/ditrit/badaas/mocks/badorm"
-	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/controllers"
+	mockBadorm "github.com/ditrit/badaas/mocks/badorm"
 )
 
 // ----------------------- GetObject -----------------------
@@ -32,7 +33,7 @@ func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -52,7 +53,7 @@ func TestCRUDGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -66,7 +67,7 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	crudService.
 		On("GetEntity", uuid).
@@ -79,7 +80,7 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -94,7 +95,7 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 
 	crudService.
 		On("GetEntity", uuid).
@@ -107,7 +108,7 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -122,7 +123,7 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockBadorm.NewCRUDUnsafeService[Model, badorm.UUID](t)
 
-	uuid := badorm.UUID(uuid.New())
+	uuid := badorm.NewUUID()
 	entity := Model{}
 
 	crudService.
@@ -136,7 +137,7 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -164,7 +165,7 @@ func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -191,7 +192,7 @@ func TestGetEntitiesWithoutParams(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader(""),
 	)
@@ -220,7 +221,7 @@ func TestGetEntitiesWithParams(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader("{\"param1\": \"something\"}"),
 	)
@@ -242,7 +243,7 @@ func TestGetEntitiesWithParamsNotJsonReturnsError(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"GET",
+		http.MethodGet,
 		"/objects/exists/",
 		strings.NewReader("bad json"),
 	)

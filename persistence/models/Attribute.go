@@ -45,7 +45,8 @@ var ErrNoDefaultValueSet = errors.New("no default value found")
 
 func NewRelationAttribute(entityType *EntityType, name string,
 	unique bool, required bool,
-	relationTargetEntityType *EntityType) *Attribute {
+	relationTargetEntityType *EntityType,
+) *Attribute {
 	return &Attribute{
 		EntityTypeID:               entityType.ID,
 		Name:                       name,

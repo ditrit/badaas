@@ -4,17 +4,16 @@ import (
 	"errors"
 	"fmt"
 
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/utils"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
-var (
-	ErrCantParseUUID = errors.New("can't parse uuid")
-)
+var ErrCantParseUUID = errors.New("can't parse uuid")
 
 // EAV service provide handle EAV objects
 type EAVService interface {
@@ -132,6 +131,7 @@ func (eavService *eavServiceImpl) createValue(tx *gorm.DB, attribute *models.Att
 	attributeValue, isPresent := attributesValues[attribute.Name]
 	if isPresent {
 		value := &models.Value{Attribute: attribute, AttributeID: attribute.ID}
+
 		err := eavService.updateValue(tx, value, attributeValue)
 		if err != nil {
 			return nil, err
@@ -146,6 +146,7 @@ func (eavService *eavServiceImpl) createValue(tx *gorm.DB, attribute *models.Att
 	} else if attribute.Required {
 		return nil, fmt.Errorf("field %s is missing and is required", attribute.Name)
 	}
+
 	return models.NewNullValue(attribute)
 }
 
@@ -187,6 +188,7 @@ func (eavService *eavServiceImpl) updateValue(tx *gorm.DB, value *models.Value, 
 		if value.Attribute.ValueType == models.RelationValueType {
 			return eavService.updateRelationValue(tx, value, newValueTyped)
 		}
+
 		return value.SetStringVal(newValueTyped)
 	case int:
 		return value.SetIntVal(newValueTyped)
@@ -194,6 +196,7 @@ func (eavService *eavServiceImpl) updateValue(tx *gorm.DB, value *models.Value, 
 		if utils.IsAnInt(newValueTyped) && value.Attribute.ValueType == models.IntValueType {
 			return value.SetIntVal(int(newValueTyped))
 		}
+
 		return value.SetFloatVal(newValueTyped)
 	case bool:
 		return value.SetBooleanVal(newValueTyped)

@@ -30,6 +30,7 @@ type WhereCondition[T any] struct {
 	Value        any
 }
 
+//nolint:unused
 func (condition WhereCondition[T]) interfaceVerificationMethod(t T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
@@ -62,6 +63,8 @@ func (condition WhereCondition[T]) GetSQL(query *gorm.DB, tableName string) (str
 	if columnName == "" {
 		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
 	}
+
+	// add column prefix once we know the column name
 	columnName = condition.ColumnPrefix + columnName
 
 	val := condition.Value
@@ -89,6 +92,7 @@ type JoinCondition[T1 any, T2 any] struct {
 	Conditions []Condition[T2]
 }
 
+//nolint:unused
 func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(t T1) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
@@ -116,13 +120,15 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	// apply WhereConditions to join in "on" clause
 	conditionsValues := []any{}
 	isDeletedAtConditionPresent := false
+
 	for _, condition := range whereConditions {
 		if condition.Field == DeletedAtField {
 			isDeletedAtConditionPresent = true
 		}
+
 		sql, values := condition.GetSQL(query, nextTableName)
-		joinQuery += " AND " + sql
 		conditionsValues = append(conditionsValues, values...)
+		joinQuery += " AND " + sql
 	}
 
 	if !isDeletedAtConditionPresent {

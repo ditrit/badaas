@@ -1,14 +1,16 @@
 package router
 
 import (
+	"net/http"
 	"strings"
+
+	"github.com/gorilla/mux"
+	"go.uber.org/zap"
 
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services/userservice"
-	"github.com/gorilla/mux"
-	"go.uber.org/zap"
 )
 
 func AddInfoRoutes(
@@ -19,7 +21,7 @@ func AddInfoRoutes(
 	router.HandleFunc(
 		"/info",
 		jsonController.Wrap(infoController.Info),
-	).Methods("GET")
+	).Methods(http.MethodGet)
 }
 
 // Adds to the "router" the routes for handling authentication:
@@ -38,7 +40,7 @@ func AddAuthRoutes(
 	router.HandleFunc(
 		"/login",
 		jsonController.Wrap(basicAuthenticationController.BasicLoginHandler),
-	).Methods("POST")
+	).Methods(http.MethodPost)
 
 	protected := router.PathPrefix("").Subrouter()
 	protected.Use(authenticationMiddleware.Handle)
@@ -46,7 +48,7 @@ func AddAuthRoutes(
 	protected.HandleFunc(
 		"/logout",
 		jsonController.Wrap(basicAuthenticationController.Logout),
-	).Methods("GET")
+	).Methods(http.MethodGet)
 
 	return createSuperUser(logger, config, userService)
 }
@@ -63,6 +65,7 @@ func createSuperUser(
 			logger.Sugar().Errorf("failed to save the super admin %w", err)
 			return err
 		}
+
 		logger.Sugar().Infof("The superadmin user already exists in database")
 	}
 
@@ -77,11 +80,11 @@ func AddEAVCRUDRoutes(
 	// Objects CRUD
 	objectsBase := "/eav/objects/{type}"
 	objectsWithID := objectsBase + "/{id}"
-	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.GetObject)).Methods("GET")
-	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.GetObjects)).Methods("GET")
-	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.CreateObject)).Methods("POST")
-	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.UpdateObject)).Methods("PUT")
-	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.DeleteObject)).Methods("DELETE")
+	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.GetObject)).Methods(http.MethodGet)
+	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.GetObjects)).Methods(http.MethodGet)
+	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.CreateObject)).Methods(http.MethodPost)
+	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.UpdateObject)).Methods(http.MethodPut)
+	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.DeleteObject)).Methods(http.MethodDelete)
 }
 
 func AddCRUDRoutes(
@@ -93,17 +96,15 @@ func AddCRUDRoutes(
 		// Objects CRUD
 		objectsBase := "/objects/" + crudRoute.TypeName
 		objectsWithID := objectsBase + "/{id}"
-		// TODO create
+		// TODO create, update, delete
 		// read
 		router.HandleFunc(
 			objectsWithID,
 			jsonController.Wrap(crudRoute.Controller.GetObject),
-		).Methods("GET")
+		).Methods(http.MethodGet)
 		router.HandleFunc(
 			objectsBase,
 			jsonController.Wrap(crudRoute.Controller.GetObjects),
-		).Methods("GET")
-		// TODO update
-		// TODO delete
+		).Methods(http.MethodGet)
 	}
 }

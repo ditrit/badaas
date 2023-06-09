@@ -55,6 +55,7 @@ func (l Logger) Info(_ context.Context, str string, args ...interface{}) {
 	if l.LogLevel < gormlogger.Info {
 		return
 	}
+
 	l.logger().Sugar().Debugf(str, args...)
 }
 
@@ -63,6 +64,7 @@ func (l Logger) Warn(_ context.Context, str string, args ...interface{}) {
 	if l.LogLevel < gormlogger.Warn {
 		return
 	}
+
 	l.logger().Sugar().Warnf(str, args...)
 }
 
@@ -71,6 +73,7 @@ func (l Logger) Error(_ context.Context, str string, args ...interface{}) {
 	if l.LogLevel < gormlogger.Error {
 		return
 	}
+
 	l.logger().Sugar().Errorf(str, args...)
 }
 
@@ -82,6 +85,7 @@ func (l Logger) Trace(_ context.Context, begin time.Time, fc func() (string, int
 
 	elapsed := time.Since(begin)
 	sql, rows := fc()
+
 	switch {
 	case err != nil && l.LogLevel >= gormlogger.Error && (!l.IgnoreRecordNotFoundError || !errors.Is(err, gorm.ErrRecordNotFound)):
 		l.logger().Error("trace", zap.Error(err), zap.Duration("elapsed", elapsed), zap.Int64("rows", rows), zap.String("sql", sql))
@@ -101,14 +105,11 @@ var (
 func (l Logger) logger() *zap.Logger {
 	for i := 2; i < 15; i++ {
 		_, file, _, ok := runtime.Caller(i)
-		switch {
-		case !ok:
-		case strings.HasSuffix(file, "_test.go"):
-		case strings.Contains(file, gormPackage):
-		case strings.Contains(file, zapgormPackage):
-		default:
+
+		if ok && !strings.HasSuffix(file, "_test.go") && !strings.Contains(file, gormPackage) && !strings.Contains(file, zapgormPackage) {
 			return l.ZapLogger.WithOptions(zap.AddCallerSkip(i))
 		}
 	}
+
 	return l.ZapLogger
 }

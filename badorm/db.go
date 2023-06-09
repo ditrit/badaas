@@ -2,6 +2,8 @@ package badorm
 
 import (
 	"fmt"
+	"net"
+	"strconv"
 	"time"
 
 	"go.uber.org/zap"
@@ -35,8 +37,8 @@ func CreateMySQLDialector(host, username, password, dbname string, port int) gor
 
 func CreateMySQLDSN(host, username, password, dbname string, port int) string {
 	return fmt.Sprintf(
-		"%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local",
-		username, password, host, port, dbname,
+		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",
+		username, password, net.JoinHostPort(host, strconv.Itoa(port)), dbname,
 	)
 }
 
@@ -54,11 +56,10 @@ func CreateSQLServerDialector(host, username, password, dbname string, port int)
 
 func CreateSQLServerDSN(host, username, password, dbname string, port int) string {
 	return fmt.Sprintf(
-		"sqlserver://%s:%s@%s:%d?database=%s",
+		"sqlserver://%s:%s@%s?database=%s",
 		username,
 		password,
-		host,
-		port,
+		net.JoinHostPort(host, strconv.Itoa(port)),
 		dbname,
 	)
 }
@@ -68,9 +69,7 @@ func ConnectToDialector(
 	dialector gorm.Dialector,
 	retryAmount uint,
 	retryTime time.Duration,
-) (*gorm.DB, error) {
-	var err error
-	var database *gorm.DB
+) (database *gorm.DB, err error) {
 	for numberRetry := uint(0); numberRetry < retryAmount; numberRetry++ {
 		database, err = gorm.Open(dialector, &gorm.Config{
 			Logger: gormzap.New(logger),

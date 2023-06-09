@@ -6,14 +6,15 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/httperrors"
 	"github.com/gorilla/mux"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/httperrors"
 )
 
 var (
-	// Sent when the request is malformed
+	// HTTPErrRequestMalformed is sent when the request is malformed
 	HTTPErrRequestMalformed httperrors.HTTPError = httperrors.NewHTTPError(
 		http.StatusBadRequest,
 		"Request malformed",
@@ -40,8 +41,9 @@ func decodeJSON(r *http.Request, to any) httperrors.HTTPError {
 func decodeJSONOptional(r *http.Request) (map[string]any, httperrors.HTTPError) {
 	to := map[string]any{}
 	err := json.NewDecoder(r.Body).Decode(&to)
+
 	switch {
-	case err == io.EOF:
+	case errors.Is(err, io.EOF):
 		// empty body
 		return to, nil
 	case err != nil:
@@ -71,6 +73,7 @@ func mapServiceError(err error) httperrors.HTTPError {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return ErrEntityNotFound
 		}
+
 		return httperrors.NewDBError(err)
 	}
 

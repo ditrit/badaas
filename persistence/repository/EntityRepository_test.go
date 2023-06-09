@@ -60,9 +60,13 @@ type AttributeNameAndValue struct {
 	AttributeValue any
 }
 
+var (
+	attributeName = "attrName"
+	aString       = "a string"
+)
+
 func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForString() {
-	attributeName := "attrName"
-	attributeValue := "a string"
+	attributeValue := aString
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT entities.* FROM "entities"
 		JOIN attributes attributes_attrName ON
@@ -82,7 +86,6 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForString() {
 }
 
 func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForStringUUID() {
-	attributeName := "attrName"
 	attributeValue := uuid.New().String()
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT entities.* FROM "entities"
@@ -103,7 +106,6 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForStringUUID() {
 }
 
 func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForBool() {
-	attributeName := "attrName"
 	attributeValue := true
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT entities.* FROM "entities"
@@ -124,7 +126,6 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForBool() {
 }
 
 func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForNil() {
-	attributeName := "attrName"
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT entities.* FROM "entities"
 		JOIN attributes attributes_attrName ON
@@ -143,7 +144,6 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckForNil() {
 }
 
 func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckIntAndFloatForFloat() {
-	attributeName := "attrName"
 	attributeValue := 1.2
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT entities.* FROM "entities"
@@ -164,7 +164,7 @@ func (s *EntityRepositorySuite) TestAddValueCheckAddsValueCheckIntAndFloatForFlo
 
 func (s *EntityRepositorySuite) TestAddValueCheck2AddsValueCheckFor2Values() {
 	attributeName1 := "attrName1"
-	attributeValue1 := "a string"
+	attributeValue1 := aString
 	attributeName2 := "attrName2"
 	attributeValue2 := true
 	s.mock.ExpectQuery(regexp.QuoteMeta(
@@ -197,9 +197,8 @@ func (s *EntityRepositorySuite) TestAddValueCheck2AddsValueCheckFor2Values() {
 }
 
 func (s *EntityRepositorySuite) TestAddValueCheckAddsJoinWithEntitiesForMap() {
-	attributeName := "attrName"
 	innerAttributeName := "innerAttrName"
-	innerAttributeValue := "a string"
+	innerAttributeValue := aString
 	attributeValue := map[string]any{innerAttributeName: innerAttributeValue}
 	s.mock.ExpectQuery(regexp.QuoteMeta(
 		`SELECT entities.* FROM "entities"

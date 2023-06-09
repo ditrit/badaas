@@ -1,6 +1,10 @@
 package gormdatabase
 
-import "github.com/jackc/pgconn"
+import (
+	"errors"
+
+	"github.com/jackc/pgconn"
+)
 
 func IsDuplicateKeyError(err error) bool {
 	// unique_violation code is equals to 23505
@@ -8,9 +12,9 @@ func IsDuplicateKeyError(err error) bool {
 }
 
 func IsPostgresError(err error, errCode string) bool {
-	postgresError, ok := err.(*pgconn.PgError)
-	if ok {
-		return postgresError.Code == errCode
+	var pgerr *pgconn.PgError
+	if ok := errors.As(err, &pgerr); ok {
+		return pgerr.Code == errCode
 	}
 
 	return false

@@ -1,12 +1,13 @@
 package testintegration
 
 import (
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/testintegration/conditions"
-	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/testintegration/conditions"
+	"github.com/ditrit/badaas/testintegration/models"
 )
 
 type CRUDRepositoryIntTestSuite struct {
@@ -50,24 +51,6 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 	assert.DeepEqual(ts.T(), product, productReturned)
 }
 
-// ------------------------- GetOptionalByID --------------------------------
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalByIDReturnsErrorIfIDDontMatch() {
-	ts.createProduct(0)
-	result, err := ts.crudProductRepository.GetOptionalByID(ts.db, badorm.NilUUID)
-	ts.Nil(err)
-	ts.Nil(result)
-}
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalByIDReturnsEntityIfIDMatch() {
-	product := ts.createProduct(0)
-	ts.createProduct(0)
-	productReturned, err := ts.crudProductRepository.GetOptionalByID(ts.db, product.ID)
-	ts.Nil(err)
-
-	assert.DeepEqual(ts.T(), product, productReturned)
-}
-
 // ------------------------- Get --------------------------------
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch() {
@@ -82,30 +65,6 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 	ts.Nil(err)
 
 	assert.DeepEqual(ts.T(), product, productReturned)
-}
-
-// ------------------------- GetOptional --------------------------------
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsNilIfConditionsDontMatch() {
-	ts.createProduct(0)
-	productReturned, err := ts.crudProductRepository.GetOptional(ts.db, conditions.ProductInt(1))
-	ts.Nil(err)
-	ts.Nil(productReturned)
-}
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsEntityIfConditionsMatch() {
-	product := ts.createProduct(0)
-	productReturned, err := ts.crudProductRepository.GetOptional(ts.db, conditions.ProductInt(0))
-	ts.Nil(err)
-
-	assert.DeepEqual(ts.T(), product, productReturned)
-}
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetOptionalReturnsErrorIfMoreThanOneMatchConditions() {
-	ts.createProduct(0)
-	ts.createProduct(0)
-	_, err := ts.crudProductRepository.GetOptional(ts.db, conditions.ProductInt(0))
-	ts.Error(err, badorm.ErrMoreThanOneObjectFound)
 }
 
 // ------------------------- GetAll --------------------------------

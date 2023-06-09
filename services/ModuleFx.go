@@ -1,12 +1,13 @@
 package services
 
 import (
+	"go.uber.org/fx"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
-	"go.uber.org/fx"
 )
 
 var AuthServiceModule = fx.Module(

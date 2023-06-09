@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ditrit/badaas/badorm"
 )
 
 func TestRelationValueNeedsEntity(t *testing.T) {
@@ -25,8 +25,8 @@ func TestRelationValueNeedsEntity(t *testing.T) {
 }
 
 func TestRelationValueEntityHasToBeTheTargetOfTheAttribute(t *testing.T) {
-	brandEttID := badorm.UUID(uuid.New())
-	carEttID := badorm.UUID(uuid.New())
+	brandEttID := badorm.NewUUID()
+	carEttID := badorm.NewUUID()
 
 	brandEtt := &EntityType{
 		UUIDModel: badorm.UUIDModel{
@@ -62,14 +62,14 @@ func TestRelationValueEntityHasToBeTheTargetOfTheAttribute(t *testing.T) {
 func TestRelationValueWithCorrespondingEntity(t *testing.T) {
 	brandEtt := &EntityType{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.New()),
+			ID: badorm.NewUUID(),
 		},
 		Name: "brand",
 	}
 
 	carEtt := &EntityType{
 		UUIDModel: badorm.UUIDModel{
-			ID: badorm.UUID(uuid.New()),
+			ID: badorm.NewUUID(),
 		},
 		Name: "car",
 	}
@@ -218,6 +218,7 @@ func TestSetNullWorks(t *testing.T) {
 
 	value, err := NewStringValue(attr, "salut")
 	assert.Nil(t, err)
-	value.SetNull()
+	err = value.SetNull()
+	assert.Nil(t, err)
 	assert.Nil(t, value.Value())
 }

@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gorilla/mux"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services"
-	"github.com/gorilla/mux"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type EAVController interface {
@@ -49,6 +50,7 @@ func (controller *eavControllerImpl) GetObject(w http.ResponseWriter, r *http.Re
 	}
 
 	entity, err := controller.eavService.GetEntity(entityTypeName, entityID)
+
 	return entity, mapServiceError(err)
 }
 
@@ -65,6 +67,7 @@ func (controller *eavControllerImpl) GetObjects(w http.ResponseWriter, r *http.R
 	}
 
 	entities, err := controller.eavService.GetEntities(entityTypeName, params)
+
 	return entities, mapEAVServiceError(err)
 }
 
@@ -108,6 +111,7 @@ func (controller *eavControllerImpl) UpdateObject(w http.ResponseWriter, r *http
 	}
 
 	entity, err := controller.eavService.UpdateEntity(entityTypeName, entityID, attrs)
+
 	return entity, mapServiceError(err)
 }
 
@@ -119,6 +123,7 @@ func (controller *eavControllerImpl) DeleteObject(w http.ResponseWriter, r *http
 	}
 
 	err := controller.eavService.DeleteEntity(entityTypeName, entityID)
+
 	return nil, mapServiceError(err)
 }
 

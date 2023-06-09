@@ -7,6 +7,7 @@ import (
 
 func NewDatabaseCommandsInitializer() CommandsInitializer {
 	dialectorValidator := validators.AuthorizedValues(DBDialectors...)
+
 	return CommandsKeyInitializer{
 		KeySetter: NewKeySetter(),
 		Keys: []Key{

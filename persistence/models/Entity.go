@@ -39,10 +39,12 @@ func (e *Entity) MarshalJSON() ([]byte, error) {
 // return the values in a json encoded string
 func (e *Entity) encodeValues() map[string]any {
 	pairs := make(map[string]any, len(e.Fields))
+
 	for _, field := range e.Fields {
 		if field.IsNull {
 			continue
 		}
+
 		pairs[field.Attribute.Name] = field.Value()
 	}
 

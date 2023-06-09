@@ -6,7 +6,6 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/elliotchance/pie/v2"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -39,6 +38,7 @@ func (r *EntityRepository) Get(tx *gorm.DB, entityTypeName string, id badorm.UUI
 		`JOIN entity_types ON
 			entity_types.id = entities.entity_type_id`,
 	)
+
 	err := query.Where(
 		map[string]any{"entities.id": id, "entity_types.name": entityTypeName},
 	).First(&entity).Error
@@ -63,7 +63,7 @@ func (r *EntityRepository) Create(tx *gorm.DB, entity *models.Entity) error {
 
 	now := time.Now()
 
-	entity.ID = badorm.UUID(uuid.New())
+	entity.ID = badorm.NewUUID()
 
 	query, values, err := sq.Insert("entities").
 		Columns("id", "created_at", "updated_at", "entity_type_id").
@@ -112,6 +112,7 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 		attributesSuffix,
 		entitiesTableSuffix,
 	)
+
 	switch expectedValueTyped := expectedValue.(type) {
 	case float64:
 		stringQuery += fmt.Sprintf(
@@ -119,17 +120,21 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 			getQueryCheckValueOfType(attributesSuffix, models.IntValueType),
 			getQueryCheckValueOfType(attributesSuffix, models.FloatValueType),
 		)
+
 		queryArgs = append(queryArgs, expectedValue, expectedValue)
 	case bool:
 		stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.BooleanValueType)
+
 		queryArgs = append(queryArgs, expectedValue)
 	case string:
 		uuid, err := badorm.ParseUUID(expectedValueTyped)
 		if err == nil {
 			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.RelationValueType)
+
 			queryArgs = append(queryArgs, uuid)
 		} else {
 			stringQuery += "AND " + getQueryCheckValueOfType(attributesSuffix, models.StringValueType)
+
 			queryArgs = append(queryArgs, expectedValue)
 		}
 	case nil:
@@ -137,6 +142,7 @@ func (r *EntityRepository) addValueCheckToQueryInternal(query *gorm.DB, attribut
 			"AND values%[1]s.is_null = ?",
 			attributesSuffix,
 		)
+
 		queryArgs = append(queryArgs, true)
 	case map[string]any:
 		return r.addJoinToQuery(

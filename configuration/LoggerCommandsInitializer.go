@@ -7,6 +7,7 @@ import (
 
 func NewLoggerCommandsInitializer() CommandsInitializer {
 	modeValidator := validators.AuthorizedValues("prod", "dev")
+
 	return CommandsKeyInitializer{
 		KeySetter: NewKeySetter(),
 		Keys: []Key{

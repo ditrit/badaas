@@ -1,12 +1,12 @@
 package testintegration
 
 import (
+	"gorm.io/gorm"
+	"gotest.tools/assert"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
-	"github.com/google/uuid"
-	"gorm.io/gorm"
-	"gotest.tools/assert"
 )
 
 type CRUDServiceIntTestSuite struct {
@@ -60,7 +60,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated()
 func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityMatch() {
 	ts.createProduct("", 0, 0, false, nil)
 
-	_, err := ts.crudProductService.GetEntity(badorm.UUID(uuid.New()))
+	_, err := ts.crudProductService.GetEntity(badorm.NewUUID())
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
@@ -255,6 +255,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfDeletedAtNotNil
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfEmbedded() {
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
+
 	match.EmbeddedInt = 1
 
 	err := ts.db.Save(match).Error
@@ -271,6 +272,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfEmbedded() {
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfGormEmbedded() {
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
+
 	match.GormEmbedded.Int = 1
 
 	err := ts.db.Save(match).Error
@@ -316,6 +318,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayWithCo
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
+
 	match.ByteArray = []byte{1, 2}
 	notMatch1.ByteArray = []byte{2, 3}
 
@@ -337,6 +340,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayEmpty(
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
+
 	match.ByteArray = []byte{}
 	notMatch1.ByteArray = []byte{2, 3}
 
@@ -374,6 +378,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCustomType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
+
 	match.MultiString = models.MultiString{"salut", "hola"}
 	notMatch1.MultiString = models.MultiString{"salut", "hola", "hello"}
 

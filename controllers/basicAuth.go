@@ -6,19 +6,18 @@ import (
 	"net/http"
 	"time"
 
+	"go.uber.org/zap"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models/dto"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
-	"go.uber.org/zap"
 )
 
-var (
-	HERRAccessToken = func(err error) httperrors.HTTPError {
-		return httperrors.NewInternalServerError("access token error", "unable to create access token", err)
-	}
-)
+var HERRAccessToken = func(err error) httperrors.HTTPError {
+	return httperrors.NewInternalServerError("access token error", "unable to create access token", err)
+}
 
 type BasicAuthenticationController interface {
 	BasicLoginHandler(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
@@ -50,6 +49,7 @@ func NewBasicAuthenticationController(
 // Log In with username and password
 func (basicAuthController *basicAuthenticationController) BasicLoginHandler(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	var loginJSONStruct dto.UserLoginDTO
+
 	herr := decodeJSON(r, &loginJSONStruct)
 	if herr != nil {
 		return nil, herr
@@ -82,7 +82,7 @@ func (basicAuthController *basicAuthenticationController) BasicLoginHandler(w ht
 		return nil, HERRAccessToken(err)
 	}
 
-	return dto.DTOLoginSuccess{
+	return dto.LoginSuccess{
 		Email:    user.Email,
 		ID:       user.ID.String(),
 		Username: user.Username,
@@ -115,11 +115,11 @@ func createAndSetAccessTokenCookie(w http.ResponseWriter, sessionUUID string) er
 		Secure:   false,                 // TODO change to true in prod
 		Expires:  time.Now().Add(48 * time.Hour),
 	}
-	err := accessToken.Valid()
-	if err != nil {
+	if err := accessToken.Valid(); err != nil {
 		return err
 	}
 
 	http.SetCookie(w, accessToken)
+
 	return nil
 }

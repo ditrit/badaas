@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 func TestExpired(t *testing.T) {

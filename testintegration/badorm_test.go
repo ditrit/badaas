@@ -94,30 +94,30 @@ func NewLoggerConfiguration() configuration.LoggerConfiguration {
 	return configuration.NewLoggerConfiguration()
 }
 
-func NewGormDBConnection(logger *zap.Logger) (*gorm.DB, error) {
+func NewGormDBConnection(zapLogger *zap.Logger) (*gorm.DB, error) {
 	dbType := configuration.DBDialector(os.Getenv(dbTypeEnvKey))
 	switch dbType {
 	case configuration.PostgreSQL:
 		return badorm.ConnectToDialector(
-			logger,
+			zapLogger,
 			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.MySQL:
 		return badorm.ConnectToDialector(
-			logger,
+			zapLogger,
 			badorm.CreateMySQLDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLite:
 		return badorm.ConnectToDialector(
-			logger,
+			zapLogger,
 			badorm.CreateSQLiteDialector(host),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLServer:
 		return badorm.ConnectToDialector(
-			logger,
+			zapLogger,
 			badorm.CreateSQLServerDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)

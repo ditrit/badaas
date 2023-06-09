@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ditrit/badaas/configuration"
 	"github.com/gorilla/mux"
 	"github.com/noirbizarre/gonja"
 	"github.com/noirbizarre/gonja/exec"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/configuration"
 )
 
 func AddLoggerMiddleware(router *mux.Router, middlewareLogger MiddlewareLogger) {
@@ -41,6 +42,7 @@ func NewMiddlewareLogger(
 	if err != nil {
 		return nil, fmt.Errorf("failed to build jinja template from configuration %w", err)
 	}
+
 	return &middlewareLoggerImpl{
 		logger:   logger,
 		template: requestLogTemplate,
@@ -65,5 +67,6 @@ func getLogMessage(template *exec.Template, r *http.Request) string {
 			"method":   r.Method,
 			"url":      r.URL.Path,
 		})
+
 	return result
 }

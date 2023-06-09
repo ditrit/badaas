@@ -3,10 +3,11 @@ package testintegration
 import (
 	"log"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/testintegration/models"
 )
 
 var ListOfTables = []any{

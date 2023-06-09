@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-
 	"gorm.io/gorm"
 )
 
@@ -28,6 +27,7 @@ func (model *UUIDModel) BeforeCreate(tx *gorm.DB) (err error) {
 	if model.ID == UUID(uuid.Nil) {
 		model.ID = UUID(uuid.New())
 	}
+
 	return nil
 }
 

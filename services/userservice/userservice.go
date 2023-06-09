@@ -4,13 +4,14 @@ import (
 	"errors"
 	"fmt"
 
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
 	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
 	validator "github.com/ditrit/badaas/validators"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 // UserService provide functions related to Users
@@ -19,9 +20,7 @@ type UserService interface {
 	GetUser(dto.UserLoginDTO) (*models.User, error)
 }
 
-var (
-	ErrWrongPassword = errors.New("password is incorrect")
-)
+var ErrWrongPassword = errors.New("password is incorrect")
 
 // Check interface compliance
 var _ UserService = (*userServiceImpl)(nil)
@@ -58,6 +57,7 @@ func (userService *userServiceImpl) NewUser(username, email, password string) (*
 		Email:    sanitizedEmail,
 		Password: basicauth.SaltAndHashPassword(password),
 	}
+
 	err = userService.userRepository.Create(userService.db, u)
 	if err != nil {
 		return nil, err

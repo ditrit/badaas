@@ -10,7 +10,6 @@ import (
 	"github.com/ditrit/badaas/configuration"
 )
 
-// Create the dsn string from the configuration
 func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfiguration) (gorm.Dialector, error) {
 	switch databaseConfiguration.GetDialector() {
 	case configuration.PostgreSQL:
@@ -56,6 +55,7 @@ func SetupDatabaseConnection(
 	if err != nil {
 		return nil, err
 	}
+
 	return badorm.ConnectToDialector(
 		logger,
 		dialector,

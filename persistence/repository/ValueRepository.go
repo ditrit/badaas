@@ -4,12 +4,12 @@ import (
 	"time"
 
 	sq "github.com/Masterminds/squirrel"
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/elliotchance/pie/v2"
-	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 type ValueRepository struct {
@@ -32,7 +32,7 @@ func (r *ValueRepository) Create(tx *gorm.DB, values []*models.Value) error {
 	now := time.Now()
 
 	pie.Each(values, func(value *models.Value) {
-		value.ID = badorm.UUID(uuid.New())
+		value.ID = badorm.NewUUID()
 	})
 
 	query := sq.Insert("values_").

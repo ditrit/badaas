@@ -5,11 +5,12 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/elliotchance/pie/v2"
+	"go.uber.org/zap"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models"
-	"github.com/elliotchance/pie/v2"
-	"go.uber.org/zap"
 )
 
 type CRUDController interface {
@@ -42,7 +43,6 @@ func NewCRUDController[T any](
 			crudUnsafeService: crudUnsafeService,
 		},
 	}
-
 }
 
 // The concrete implementation of the CRUDController
@@ -60,6 +60,7 @@ func (controller *crudControllerImpl[T]) GetObject(w http.ResponseWriter, r *htt
 	}
 
 	entity, err := controller.crudService.GetEntity(entityID)
+
 	return entity, mapServiceError(err)
 }
 
@@ -71,5 +72,6 @@ func (controller *crudControllerImpl[T]) GetObjects(w http.ResponseWriter, r *ht
 	}
 
 	entities, err := controller.crudUnsafeService.GetEntities(params)
+
 	return entities, mapServiceError(err)
 }

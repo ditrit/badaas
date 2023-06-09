@@ -16,6 +16,7 @@ func ExecWithTransaction[RT any](
 ) (RT, error) {
 	nilValue := *new(RT)
 	tx := db.Begin(opts...)
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()

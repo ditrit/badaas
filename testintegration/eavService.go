@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/elliotchance/pie/v2"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
 
@@ -62,7 +61,7 @@ func (ts *EAVServiceIntTestSuite) cleanDB() {
 // ------------------------- GetEntity --------------------------------
 
 func (ts *EAVServiceIntTestSuite) TestGetEntityReturnsErrorIfEntityDoesNotExist() {
-	_, err := ts.eavService.GetEntity(ts.entityType1.Name, badorm.UUID(uuid.New()))
+	_, err := ts.eavService.GetEntity(ts.entityType1.Name, badorm.NewUUID())
 	ts.ErrorContains(err, "record not found")
 }
 
@@ -142,6 +141,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsOneIfOnlyO
 	match := ts.createEntity(ts.entityType2, map[string]any{
 		"string": "match",
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"string": "something_else",
 	})
@@ -162,6 +162,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionsReturnsMultipleIf
 	match2 := ts.createEntity(ts.entityType2, map[string]any{
 		"string": "match",
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"string": "something_else",
 	})
@@ -200,6 +201,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfIntType() {
 		"string": "match",
 		"int":    1,
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"string": "not_match",
 		"int":    2,
@@ -233,6 +235,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 		"string": "match",
 		"float":  1.1,
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"string": "not_match",
 		"float":  2.0,
@@ -252,6 +255,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfBoolType() {
 		"string": "match",
 		"bool":   true,
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"string": "not_match",
 		"bool":   false,
@@ -273,6 +277,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationType() {
 	match := ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity1.ID.String(),
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity2.ID.String(),
 	})
@@ -290,6 +295,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionFilterByNull() {
 	match := ts.createEntity(ts.entityType2, map[string]any{
 		"string": nil,
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"string": "something",
 	})
@@ -348,6 +354,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionThatJoins() {
 	match := ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity1.ID.String(),
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity2.ID.String(),
 	})
@@ -376,6 +383,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsOnDiffere
 	match := ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity1.ID.String(),
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity2.ID.String(),
 	})
@@ -420,6 +428,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsDifferent
 		"relation":  otherEntity11.ID.String(),
 		"relation2": otherEntity31.ID.String(),
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"relation":  otherEntity12.ID.String(),
 		"relation2": otherEntity32.ID.String(),
@@ -466,6 +475,7 @@ func (ts *EAVServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsMultipleT
 	match := ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity11.ID.String(),
 	})
+
 	ts.createEntity(ts.entityType2, map[string]any{
 		"relation": otherEntity12.ID.String(),
 	})
@@ -546,11 +556,11 @@ func (ts *EAVServiceIntTestSuite) TestCreateReturnsErrorIfRelationAttributePoint
 	ts.addAttributeToEntityType(ts.entityType2, &models.Attribute{
 		Name:                       "relation2",
 		ValueType:                  models.RelationValueType,
-		RelationTargetEntityTypeID: badorm.UUID(uuid.New()),
+		RelationTargetEntityTypeID: badorm.NewUUID(),
 	})
 
 	params := map[string]any{
-		"relation2": badorm.UUID(uuid.New()).String(),
+		"relation2": badorm.NewUUID().String(),
 	}
 	entity, err := ts.eavService.CreateEntity(ts.entityType2.Name, params)
 	ts.Nil(entity)
@@ -640,7 +650,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityMultipleTimesDoesNotGenerateGo
 }
 
 func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfEntityDoesNotExist() {
-	_, err := ts.eavService.UpdateEntity(ts.entityType1.Name, badorm.UUID(uuid.New()), map[string]any{})
+	_, err := ts.eavService.UpdateEntity(ts.entityType1.Name, badorm.NewUUID(), map[string]any{})
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 
@@ -727,7 +737,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityReturnsErrorIfUUIDDoesNotExist
 	entity := ts.createEntity(ts.entityType2, map[string]any{})
 
 	paramsUpdate := map[string]any{
-		"relation": badorm.UUID(uuid.New()).String(),
+		"relation": badorm.NewUUID().String(),
 	}
 	_, err := ts.eavService.UpdateEntity(entity.EntityType.Name, entity.ID, paramsUpdate)
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
@@ -763,6 +773,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityDoesNotUpdateAValueIfOtherFail
 
 	entityReturned, err := ts.eavService.GetEntity(ts.entityType2.Name, entity.ID)
 	ts.Nil(err)
+
 	notNull := pie.Filter(entityReturned.Fields, func(value *models.Value) bool {
 		return !value.IsNull
 	})
@@ -772,7 +783,7 @@ func (ts *EAVServiceIntTestSuite) TestUpdateEntityDoesNotUpdateAValueIfOtherFail
 // ------------------------- DeleteEntity -------------------------
 
 func (ts *EAVServiceIntTestSuite) TestDeleteEntityReturnsErrorIfEntityDoesNotExist() {
-	err := ts.eavService.DeleteEntity(ts.entityType2.Name, badorm.UUID(uuid.New()))
+	err := ts.eavService.DeleteEntity(ts.entityType2.Name, badorm.NewUUID())
 	ts.ErrorIs(err, gorm.ErrRecordNotFound)
 }
 

@@ -5,12 +5,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/httperrors"
-	badormMocks "github.com/ditrit/badaas/mocks/badorm"
-	configurationMocks "github.com/ditrit/badaas/mocks/configuration"
-	"github.com/ditrit/badaas/persistence/models"
-	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -18,9 +12,25 @@ import (
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/httperrors"
+	badormMocks "github.com/ditrit/badaas/mocks/badorm"
+	configurationMocks "github.com/ditrit/badaas/mocks/configuration"
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 var gormDB *gorm.DB
+
+// ExampleErr is an HTTPError instance useful for testing.  If the code does not care
+// about HTTPError specifics, and only needs to return the HTTPError for example, this
+// HTTPError should be used to make the test code more readable.
+var ExampleErr httperrors.HTTPError = &httperrors.HTTPErrorImpl{
+	Status:      -1,
+	Err:         "TESTING ERROR",
+	Message:     "USE ONLY FOR TESTING",
+	GolangError: nil,
+}
 
 // make values for test
 func setupTest(
@@ -55,8 +65,8 @@ func TestNewSession(t *testing.T) {
 func TestLogInUser(t *testing.T) {
 	sessionRepositoryMock, service, logs, sessionConfigurationMock := setupTest(t)
 	sessionRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
-
 	sessionConfigurationMock.On("GetSessionDuration").Return(time.Minute)
+
 	user := &models.User{
 		Username: "bob",
 		Email:    "bob@email.com",
@@ -91,7 +101,8 @@ func TestLogInUserDbError(t *testing.T) {
 func TestIsValid(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
-	uuidSample := badorm.UUID(uuid.New())
+
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
@@ -114,9 +125,10 @@ func TestIsValid(t *testing.T) {
 func TestIsValid_SessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptionalByID", gormDB, mock.Anything).
+		On("GetByID", gormDB, mock.Anything).
 		Return(nil, nil)
-	uuidSample := badorm.UUID(uuid.New())
+
+	uuidSample := badorm.NewUUID()
 	isValid, _ := service.IsValid(uuidSample)
 	require.False(t, isValid)
 }
@@ -124,7 +136,8 @@ func TestIsValid_SessionNotFound(t *testing.T) {
 func TestLogOutUser(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.On("Delete", gormDB, mock.Anything).Return(nil)
-	uuidSample := badorm.UUID(uuid.New())
+
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
@@ -144,7 +157,7 @@ func TestLogOutUserDbError(t *testing.T) {
 		On("Delete", gormDB, mock.Anything).
 		Return(errors.New("db errors"))
 
-	uuidSample := badorm.UUID(uuid.New())
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: uuidSample,
@@ -161,10 +174,10 @@ func TestLogOutUserDbError(t *testing.T) {
 func TestLogOutUser_SessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptionalByID", gormDB, mock.Anything).
+		On("GetByID", gormDB, mock.Anything).
 		Return(nil, errors.New("db errors"))
 
-	uuidSample := badorm.UUID(uuid.New())
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: badorm.NilUUID,
@@ -183,10 +196,13 @@ func TestLogOutUser_SessionNotFound(t *testing.T) {
 func TestRollSession(t *testing.T) {
 	sessionRepositoryMock, service, _, sessionConfigurationMock := setupTest(t)
 	sessionRepositoryMock.On("Save", gormDB, mock.Anything).Return(nil)
+
 	sessionDuration := time.Minute
+
 	sessionConfigurationMock.On("GetSessionDuration").Return(sessionDuration)
 	sessionConfigurationMock.On("GetRollDuration").Return(sessionDuration / 4)
-	uuidSample := badorm.UUID(uuid.New())
+
+	uuidSample := badorm.NewUUID()
 	originalExpirationTime := time.Now().Add(sessionDuration / 5)
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
@@ -206,7 +222,8 @@ func TestRollSession_Expired(t *testing.T) {
 	sessionDuration := time.Minute
 	sessionConfigurationMock.On("GetSessionDuration").Return(sessionDuration)
 	sessionConfigurationMock.On("GetRollDuration").Return(sessionDuration / 4)
-	uuidSample := badorm.UUID(uuid.New())
+
+	uuidSample := badorm.NewUUID()
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
@@ -226,7 +243,7 @@ func TestRollSession_falseUUID(t *testing.T) {
 	sessionConfigurationMock.On("GetSessionDuration").Return(sessionDuration)
 	sessionConfigurationMock.On("GetRollDuration").Return(sessionDuration / 4)
 
-	uuidSample := badorm.UUID(uuid.New())
+	uuidSample := badorm.NewUUID()
 	originalExpirationTime := time.Now().Add(-time.Hour)
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
@@ -238,17 +255,17 @@ func TestRollSession_falseUUID(t *testing.T) {
 	service.cache[uuidSample] = session
 
 	repoSession.
-		On("GetOptionalByID", gormDB, mock.Anything).
+		On("GetByID", gormDB, mock.Anything).
 		Return(nil, nil)
 
-	err := service.RollSession(badorm.UUID(uuid.New()))
+	err := service.RollSession(badorm.NewUUID())
 	require.NoError(t, err)
 }
 
 func TestRollSession_sessionNotFound(t *testing.T) {
 	sessionRepositoryMock, service, _, sessionConfigurationMock := setupTest(t)
 	sessionRepositoryMock.
-		On("GetOptionalByID", gormDB, badorm.NilUUID).
+		On("GetByID", gormDB, badorm.NilUUID).
 		Return(nil, nil)
 
 	sessionDuration := time.Minute
@@ -282,13 +299,13 @@ func Test_pullFromDB(t *testing.T) {
 
 func Test_pullFromDB_repoError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	sessionRepositoryMock.On("GetAll", gormDB).Return(nil, httperrors.AnError)
-	assert.PanicsWithError(t, httperrors.AnError.Error(), func() { service.pullFromDB() })
+	sessionRepositoryMock.On("GetAll", gormDB).Return(nil, ExampleErr)
+	assert.PanicsWithError(t, ExampleErr.Error(), func() { service.pullFromDB() })
 }
 
 func Test_removeExpired(t *testing.T) {
 	sessionRepositoryMock, service, logs, _ := setupTest(t)
-	uuidSample := badorm.UUID(uuid.New())
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: badorm.NilUUID,
@@ -299,6 +316,7 @@ func Test_removeExpired(t *testing.T) {
 	sessionRepositoryMock.
 		On("Delete", gormDB, session).
 		Return(nil)
+
 	service.cache[uuidSample] = session
 
 	service.removeExpired()
@@ -313,7 +331,7 @@ func Test_removeExpired(t *testing.T) {
 
 func Test_removeExpired_RepositoryError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	uuidSample := badorm.UUID(uuid.New())
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: badorm.NilUUID,
@@ -323,7 +341,8 @@ func Test_removeExpired_RepositoryError(t *testing.T) {
 	}
 	sessionRepositoryMock.
 		On("Delete", gormDB, session).
-		Return(httperrors.AnError)
+		Return(ExampleErr)
+
 	service.cache[uuidSample] = session
 
 	assert.Panics(t, func() { service.removeExpired() })
@@ -331,7 +350,7 @@ func Test_removeExpired_RepositoryError(t *testing.T) {
 
 func Test_get(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	uuidSample := badorm.UUID(uuid.New())
+	uuidSample := badorm.NewUUID()
 	session := &models.Session{
 		UUIDModel: badorm.UUIDModel{
 			ID: badorm.NilUUID,
@@ -340,7 +359,7 @@ func Test_get(t *testing.T) {
 		ExpiresAt: time.Now().Add(-time.Hour),
 	}
 	sessionRepositoryMock.
-		On("GetOptionalByID", gormDB, mock.Anything).
+		On("GetByID", gormDB, mock.Anything).
 		Return(session, nil)
 
 	sessionFound := service.get(uuidSample)

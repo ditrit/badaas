@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/ditrit/badaas/httperrors"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/httperrors"
 )
 
 // A JSONHandler is a function that returns a Marshable object and/or an [github.com/ditrit/badaas/httperrors.HTTPError]
@@ -39,9 +40,11 @@ func (controller *jsonControllerImpl) Wrap(handler JSONHandler) func(response ht
 			herr.Write(response, controller.logger)
 			return
 		}
+
 		if object == nil {
 			return
 		}
+
 		payload, err := json.Marshal(object)
 		if err != nil {
 			httperrors.NewInternalServerError(
@@ -49,9 +52,12 @@ func (controller *jsonControllerImpl) Wrap(handler JSONHandler) func(response ht
 				"Can't marshall the object returned by the JSON handler",
 				nil,
 			).Write(response, controller.logger)
+
 			return
 		}
+
 		response.Header().Set("Content-Type", "application/json")
+
 		_, err = response.Write(payload)
 		if err != nil {
 			controller.logger.Error(

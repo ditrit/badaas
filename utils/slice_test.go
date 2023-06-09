@@ -3,12 +3,15 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/utils"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ditrit/badaas/utils"
 )
 
-var test_result_3 = 33.04
-var test_result_4 = 0.11
+var (
+	testResult3 = 33.04
+	testResult4 = 0.11
+)
 
 var findFirstTests = []struct {
 	ss         []float64
@@ -33,12 +36,12 @@ var findFirstTests = []struct {
 	{
 		[]float64{5.4, 6.98, 4.987, 33.04},
 		func(value float64) bool { return value == 33.04 },
-		&test_result_3,
+		&testResult3,
 	},
 	{
 		[]float64{9.0, 0.11, 150.44, 33.04},
 		func(value float64) bool { return value == 0.11 },
-		&test_result_4,
+		&testResult4,
 	},
 }
 

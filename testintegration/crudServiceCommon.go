@@ -1,10 +1,11 @@
 package testintegration
 
 import (
-	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/stretchr/testify/suite"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/testintegration/models"
 )
 
 type CRUDServiceCommonIntTestSuite struct {
@@ -51,6 +52,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createSeller(name string, company *mode
 	if company != nil {
 		companyID = &company.ID
 	}
+
 	entity := &models.Seller{
 		Name:      name,
 		CompanyID: companyID,

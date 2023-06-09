@@ -4,10 +4,11 @@ import (
 	"log"
 	"sort"
 
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/stretchr/testify/suite"
 	"gotest.tools/assert"
 	is "gotest.tools/assert/cmp"
+
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 func EqualList[T any](ts *suite.Suite, expectedList, actualList []T) {
@@ -25,8 +26,10 @@ func EqualList[T any](ts *suite.Suite, expectedList, actualList []T) {
 					break
 				}
 			}
+
 			if j == expectedLen {
 				ts.Fail("Lists not equal", "element %v not in list %v", expectedList[i], actualList)
+
 				for _, element := range actualList {
 					log.Println(element)
 				}

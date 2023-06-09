@@ -3,10 +3,11 @@ package testintegration
 import (
 	"os"
 
+	"gorm.io/gorm"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/models"
-	"gorm.io/gorm"
 )
 
 type CRUDUnsafeServiceIntTestSuite struct {
@@ -158,6 +159,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInc
 		"int": "not_an_int",
 	}
 	result, err := ts.crudProductService.GetEntities(params)
+
 	switch configuration.DBDialector(os.Getenv(dbTypeEnvKey)) {
 	case configuration.PostgreSQL:
 		// postgres does the verification
@@ -167,7 +169,6 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInc
 		ts.Nil(err)
 		ts.Len(result, 0)
 	}
-
 }
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfFloatType() {

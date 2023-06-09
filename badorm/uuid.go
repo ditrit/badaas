@@ -25,6 +25,7 @@ func (id UUID) GormDBDataType(db *gorm.DB, field *schema.Field) string {
 	case "sqlserver":
 		return "uniqueidentifier"
 	}
+
 	return ""
 }
 

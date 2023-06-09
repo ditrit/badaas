@@ -3,11 +3,12 @@ package router
 import (
 	"fmt"
 
+	"go.uber.org/fx"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services"
-	"go.uber.org/fx"
 )
 
 // RouterModule for fx
@@ -71,6 +72,7 @@ var EAVRoutesModule = fx.Module(
 
 func GetCRUDRoutesModule[T any]() fx.Option {
 	typeName := fmt.Sprintf("%T", *new(T))
+
 	return fx.Module(
 		typeName+"CRUDRoutesModule",
 		// service

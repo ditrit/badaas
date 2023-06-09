@@ -3,15 +3,14 @@ package middlewares
 import (
 	"net/http"
 
+	"go.uber.org/zap"
+
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/services/sessionservice"
-	"go.uber.org/zap"
 )
 
-var (
-	NotAuthenticated = httperrors.NewUnauthorizedError("Authentication Error", "not authenticated")
-)
+var NotAuthenticated = httperrors.NewUnauthorizedError("Authentication Error", "not authenticated")
 
 // The authentication middleware
 type AuthenticationMiddleware interface {

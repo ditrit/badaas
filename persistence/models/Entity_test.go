@@ -3,9 +3,10 @@ package models
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/badorm"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ditrit/badaas/badorm"
 )
 
 func TestMarshall(t *testing.T) {
@@ -68,7 +69,7 @@ func TestMarshall(t *testing.T) {
 	p, _ := et.MarshalJSON()
 	assert.JSONEq(
 		t,
-		`{"attrs":{"color":"blue"},"id":"11e1d4b8-701d-47cc-852f-6d36922bcc75","type":"bird", "createdAt":"0001-01-01T00:00:00Z", "updatedAt":"0001-01-01T00:00:00Z"}`,
+		`{"attrs":{"color":"blue"},"id":"11e1d4b8-701d-47cc-852f-6d36922bcc75","type":"bird", "createdAt":"0001-01-01T00:00:00Z", "updatedAt":"0001-01-01T00:00:00Z"}`, //nolint:lll
 		string(p),
 	)
 }

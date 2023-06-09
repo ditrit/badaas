@@ -96,15 +96,15 @@ func GetCRUDUnsafeServiceModule[T any]() fx.Option {
 	}
 }
 
-type BadORMModelKind uint
+type modelKind uint
 
 const (
-	KindUUIDModel BadORMModelKind = iota
+	KindUUIDModel modelKind = iota
 	KindUIntModel
 	KindNotBaDORMModel
 )
 
-func getBaDORMModelKind(entity any) BadORMModelKind {
+func getBaDORMModelKind(entity any) modelKind {
 	entityType := getEntityType(entity)
 
 	_, isUUIDModel := entityType.FieldByName("UUIDModel")

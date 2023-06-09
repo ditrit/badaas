@@ -1,10 +1,15 @@
 package controllers_test
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/controllers"
@@ -13,10 +18,17 @@ import (
 	mocksUserService "github.com/ditrit/badaas/mocks/services/userservice"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest/observer"
 )
+
+// ExampleErr is an HTTPError instance useful for testing.  If the code does not care
+// about HTTPError specifics, and only needs to return the HTTPError for example, this
+// HTTPError should be used to make the test code more readable.
+var ExampleErr httperrors.HTTPError = &httperrors.HTTPErrorImpl{
+	Status:      -1,
+	Err:         "TESTING ERROR",
+	Message:     "USE ONLY FOR TESTING",
+	GolangError: nil,
+}
 
 func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
 	core, _ := observer.New(zap.DebugLevel)
@@ -32,7 +44,7 @@ func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/login",
 		strings.NewReader("qsdqsdqsd"),
 	)
@@ -40,7 +52,6 @@ func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.Equal(t, controllers.HTTPErrRequestMalformed, err)
 	assert.Nil(t, payload)
-
 }
 
 func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
@@ -53,7 +64,8 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 	userService := mocksUserService.NewUserService(t)
 	userService.
 		On("GetUser", loginJSONStruct).
-		Return(nil, httperrors.AnError)
+		Return(nil, ExampleErr)
+
 	sessionService := mocksSessionService.NewSessionService(t)
 
 	controller := controllers.NewBasicAuthenticationController(
@@ -63,7 +75,7 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 	)
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
@@ -74,7 +86,6 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.Error(t, err)
 	assert.Nil(t, payload)
-
 }
 
 func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
@@ -86,7 +97,7 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	}
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
@@ -103,10 +114,11 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	userService.
 		On("GetUser", loginJSONStruct).
 		Return(user, nil)
+
 	sessionService := mocksSessionService.NewSessionService(t)
 	sessionService.
 		On("LogUserIn", user).
-		Return(nil, httperrors.AnError)
+		Return(nil, ExampleErr)
 
 	controller := controllers.NewBasicAuthenticationController(
 		logger,
@@ -117,7 +129,6 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.Error(t, err)
 	assert.Nil(t, payload)
-
 }
 
 func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
@@ -129,7 +140,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	}
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
-		"POST",
+		http.MethodPost,
 		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
@@ -148,6 +159,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	userService.
 		On("GetUser", loginJSONStruct).
 		Return(user, nil)
+
 	sessionService := mocksSessionService.NewSessionService(t)
 	sessionService.
 		On("LogUserIn", user).
@@ -161,7 +173,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.NoError(t, err)
-	assert.Equal(t, payload, dto.DTOLoginSuccess{
+	assert.Equal(t, payload, dto.LoginSuccess{
 		Email:    "bob@email.com",
 		ID:       user.ID.String(),
 		Username: user.Username,
