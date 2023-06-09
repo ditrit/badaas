@@ -32,6 +32,7 @@ var testsCommand = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 func TestBaDaaS(t *testing.T) {
 	_, b, _, _ := runtime.Caller(0)
 	basePath := filepath.Dir(b)
+
 	viper.Set("config_path", path.Join(basePath, "int_test_config.yml"))
 	viper.Set(configuration.DatabaseDialectorKey, os.Getenv(dbTypeEnvKey))
 
