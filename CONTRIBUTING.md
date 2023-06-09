@@ -3,6 +3,7 @@
 - [Contribute to the development of badaas](#contribute-to-the-development-of-badaas)
   - [Tests](#tests)
     - [Dependencies](#dependencies)
+    - [Linting](#linting)
     - [Unit tests](#unit-tests)
     - [Integration tests](#integration-tests)
     - [Feature tests (or end to end tests)](#feature-tests-or-end-to-end-tests)
@@ -18,6 +19,10 @@
 ### Dependencies
 
 Running tests have some dependencies as: `mockery`, `gotestsum`, etc.. Install them with `make install dependencies`.
+
+### Linting
+
+We use `golangci-lint` for linting our code. You can test it with `make lint`. The configuration file is in the default path (`.golangci.yml`). The file `.vscode.settings.json.template` is a template for your `.vscode/settings.json` that formats the code according to our configuration.
 
 ### Unit tests
 
