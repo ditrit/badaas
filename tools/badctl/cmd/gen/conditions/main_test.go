@@ -143,6 +143,7 @@ type Comparison struct {
 func doTest(t *testing.T, sourcePkg string, comparisons []Comparison) {
 	viper.Set(DestPackageKey, "conditions")
 	generateConditions(nil, []string{sourcePkg})
+
 	for _, comparison := range comparisons {
 		checkFilesEqual(t, comparison.Have, comparison.Expected)
 	}
@@ -170,6 +171,7 @@ func checkFilesEqual(t *testing.T, file1, file2 string) {
 
 	b1 := make([]byte, chunkSize)
 	b2 := make([]byte, chunkSize)
+
 	for {
 		n1, err1 := io.ReadFull(f1, b1)
 		n2, err2 := io.ReadFull(f2, b2)
@@ -184,6 +186,7 @@ func checkFilesEqual(t *testing.T, file1, file2 string) {
 		if err1 != nil {
 			t.Error(err1)
 		}
+
 		if err2 != nil {
 			t.Error(err2)
 		}
@@ -192,6 +195,7 @@ func checkFilesEqual(t *testing.T, file1, file2 string) {
 	remove(file1)
 }
 
+// TODO hacer esto en la rama anterior
 // TODO codigo repetido
 func checkFileExists(t *testing.T, name string) fs.FileInfo {
 	stat, err := os.Stat(name)
@@ -203,8 +207,7 @@ func checkFileExists(t *testing.T, name string) fs.FileInfo {
 }
 
 func remove(name string) {
-	err := os.RemoveAll(name)
-	if err != nil {
+	if err := os.RemoveAll(name); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -1,4 +1,4 @@
-package basicslices
+package basicslicespointer
 
 import "github.com/ditrit/badaas/badorm"
 

@@ -32,5 +32,6 @@ func init() {
 	if err != nil {
 		cmderrors.FailErr(err)
 	}
+
 	rootCmd.SetDefault(log.VerboseKey, false)
 }

@@ -6,14 +6,14 @@ import (
 	"go/types"
 	"os"
 
-	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
-	"github.com/ditrit/badaas/tools/badctl/cmd/log"
-	"github.com/ditrit/verdeter"
 	"github.com/ettle/strcase"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
 	"golang.org/x/tools/go/packages"
+
+	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
+	"github.com/ditrit/badaas/tools/badctl/cmd/log"
+	"github.com/ditrit/verdeter"
 )
 
 var GenConditionsCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
@@ -83,12 +83,15 @@ func generateConditionsForPkg(destPkg string, pkg *packages.Package) {
 	}
 }
 
+// TODO verificar linting de los archivos generados
+// TODO ponerles .gen.go
 // Load package information from paths
 func loadPackages(paths []string) []*packages.Package {
 	cfg := &packages.Config{Mode: packages.NeedTypes}
+
 	pkgs, err := packages.Load(cfg, paths...)
 	if err != nil {
-		cmderrors.FailErr(fmt.Errorf("loading packages for inspection: %v", err))
+		cmderrors.FailErr(fmt.Errorf("loading packages for inspection: %w", err))
 	}
 
 	// print compilation errors of source packages

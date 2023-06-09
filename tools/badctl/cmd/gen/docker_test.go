@@ -48,13 +48,20 @@ func checkDBPort(t *testing.T, port int) {
 	if err != nil {
 		t.Error(err)
 	}
+
 	configData := map[string]any{}
+
 	err = yaml.Unmarshal(yamlFile, &configData)
 	if err != nil {
 		t.Error(err)
 	}
 
-	assert.Equal(t, configData["database"].(map[string]any)["port"], port)
+	databaseConfigMap, ok := configData["database"].(map[string]any)
+	if !ok {
+		log.Fatalln("Database configuration is not a map")
+	}
+
+	assert.Equal(t, databaseConfigMap["port"], port)
 }
 
 func teardown() {
@@ -64,8 +71,7 @@ func teardown() {
 }
 
 func remove(name string) {
-	err := os.RemoveAll(name)
-	if err != nil {
+	if err := os.RemoveAll(name); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -67,13 +67,16 @@ func (t Type) HasFK(field Field) (bool, error) {
 	if err != nil {
 		return false, err
 	}
+
 	return pie.Any(objectFields, func(otherField Field) bool {
 		return otherField.Name == field.getFKAttribute()
 	}), nil
 }
 
-var scanMethod = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
-var valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
+var (
+	scanMethod  = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
+	valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
+)
 
 // Returns true if the type is a Gorm Custom type (https://gorm.io/docs/data_types.html)
 func (t Type) IsGormCustomType() bool {
@@ -84,6 +87,7 @@ func (t Type) IsGormCustomType() bool {
 
 	hasScanMethod := false
 	hasValueMethod := false
+
 	for i := 0; i < typeNamed.NumMethods(); i++ {
 		methodSignature := typeNamed.Method(i).String()
 

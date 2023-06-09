@@ -2,18 +2,20 @@ package gen
 
 import (
 	"embed"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
+	"gopkg.in/yaml.v3"
+
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/verdeter"
 	"github.com/ditrit/verdeter/validators"
-	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
-	"gopkg.in/yaml.v3"
 )
 
 //go:embed docker/*
@@ -62,6 +64,7 @@ func init() {
 	if err != nil {
 		cmderrors.FailErr(err)
 	}
+
 	genDockerCmd.SetDefault(DBProviderKey, Cockroachdb)
 	genDockerCmd.AddValidator(
 		DBProviderKey,
@@ -106,13 +109,20 @@ func copyBadaasConfig(dbProvider string) {
 	}
 
 	configData := map[string]any{}
+
 	err = yaml.Unmarshal(configFile, &configData)
 	if err != nil {
 		cmderrors.FailErr(err)
 	}
 
-	configData["database"].(map[string]any)["port"] = DBPorts[dbProvider]
-	configData["database"].(map[string]any)["dialector"] = string(DBDialectors[dbProvider])
+	databaseConfigMap, ok := configData["database"].(map[string]any)
+	if !ok {
+		cmderrors.FailErr(errors.New("database configuration is not a map"))
+	}
+
+	databaseConfigMap["port"] = DBPorts[dbProvider]
+	databaseConfigMap["dialector"] = string(DBDialectors[dbProvider])
+	configData["database"] = databaseConfigMap
 
 	configBytes, err := yaml.Marshal(&configData)
 	if err != nil {
@@ -120,6 +130,7 @@ func copyBadaasConfig(dbProvider string) {
 	}
 
 	destConfigDir := filepath.Join(destBadaasDir, "config")
+
 	err = os.MkdirAll(destConfigDir, os.ModePerm)
 	if err != nil {
 		cmderrors.FailErr(err)

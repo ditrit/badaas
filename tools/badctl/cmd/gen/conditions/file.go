@@ -5,6 +5,7 @@ import (
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
+
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 	"github.com/ditrit/badaas/tools/badctl/cmd/version"
@@ -42,6 +43,7 @@ func (file File) AddConditionsFor(object types.Object) error {
 	log.Logger.Infof("Generating conditions for type %q in %s", object.Name(), file.name)
 
 	file.addConditionsForEachField(object, fields)
+
 	return nil
 }
 
@@ -64,8 +66,10 @@ func (file File) Save() error {
 // Generate the conditions for each of the object's fields
 func (file File) generateConditionsForEachField(object types.Object, fields []Field) []*Condition {
 	conditions := []*Condition{}
+
 	for _, field := range fields {
 		log.Logger.Debugf("Generating condition for field %q", field.Name)
+
 		if field.Embedded {
 			conditions = append(conditions, file.generateEmbeddedConditions(
 				object,

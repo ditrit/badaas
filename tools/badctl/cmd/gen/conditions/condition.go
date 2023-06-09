@@ -4,8 +4,9 @@ import (
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
-	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 	"github.com/ettle/strcase"
+
+	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 )
 
 const (
@@ -27,6 +28,7 @@ func NewCondition(destPkg string, objectType Type, field Field) *Condition {
 		destPkg: destPkg,
 	}
 	condition.generate(objectType, field)
+
 	return condition
 }
 
@@ -109,25 +111,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 
 	if err == nil {
 		// field is a BaDORM Model
-		hasFK, _ := objectType.HasFK(field)
-		if hasFK {
-			// belongsTo relation
-			condition.generateJoinWithFK(
-				objectType,
-				field,
-			)
-		} else {
-			// hasOne relation
-			condition.generateJoinWithoutFK(
-				objectType,
-				field,
-			)
-
-			condition.generateInverseJoin(
-				objectType,
-				field,
-			)
-		}
+		condition.generateForBadormModel(objectType, field)
 	} else {
 		// field is not a BaDORM Model
 		if field.Type.IsGormCustomType() || field.TypeString() == "time.Time" {
@@ -141,6 +125,29 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 		} else {
 			log.Logger.Debugf("struct field type not handled: %s", field.TypeString())
 		}
+	}
+}
+
+// Generate condition between object and field when the field is a BaDORM Model
+func (condition *Condition) generateForBadormModel(objectType Type, field Field) {
+	hasFK, _ := objectType.HasFK(field)
+	if hasFK {
+		// belongsTo relation
+		condition.generateJoinWithFK(
+			objectType,
+			field,
+		)
+	} else {
+		// hasOne relation
+		condition.generateJoinWithoutFK(
+			objectType,
+			field,
+		)
+
+		condition.generateInverseJoin(
+			objectType,
+			field,
+		)
 	}
 }
 
@@ -162,6 +169,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		jen.Id("Value"): jen.Id("v"),
 	}
 	columnName := field.getColumnName()
+
 	if columnName != "" {
 		params[jen.Id("Column")] = jen.Lit(columnName)
 	} else {
