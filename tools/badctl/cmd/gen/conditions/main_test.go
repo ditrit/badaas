@@ -3,13 +3,13 @@ package conditions
 import (
 	"bytes"
 	"io"
-	"io/fs"
-	"log"
 	"os"
 	"testing"
 
 	"github.com/spf13/viper"
 	"gotest.tools/assert"
+
+	"github.com/ditrit/badaas/tools/badctl/cmd/utils"
 )
 
 const chunkSize = 100000
@@ -111,28 +111,28 @@ func TestOverrideForeignKey(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkey", []Comparison{
 		{Have: "bicycle_conditions.go", Expected: "./tests/results/overrideforeignkey.go"},
 	})
-	remove("person_conditions.go")
+	utils.RemoveFile("person_conditions.go")
 }
 
 func TestOverrideReferences(t *testing.T) {
 	doTest(t, "./tests/overridereferences", []Comparison{
 		{Have: "phone_conditions.go", Expected: "./tests/results/overridereferences.go"},
 	})
-	remove("brand_conditions.go")
+	utils.RemoveFile("brand_conditions.go")
 }
 
 func TestOverrideForeignKeyInverse(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkeyinverse", []Comparison{
 		{Have: "user_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse.go"},
 	})
-	remove("credit_card_conditions.go")
+	utils.RemoveFile("credit_card_conditions.go")
 }
 
 func TestOverrideReferencesInverse(t *testing.T) {
 	doTest(t, "./tests/overridereferencesinverse", []Comparison{
 		{Have: "computer_conditions.go", Expected: "./tests/results/overridereferencesinverse.go"},
 	})
-	remove("processor_conditions.go")
+	utils.RemoveFile("processor_conditions.go")
 }
 
 type Comparison struct {
@@ -150,8 +150,8 @@ func doTest(t *testing.T, sourcePkg string, comparisons []Comparison) {
 }
 
 func checkFilesEqual(t *testing.T, file1, file2 string) {
-	stat1 := checkFileExists(t, file1)
-	stat2 := checkFileExists(t, file2)
+	stat1 := utils.CheckFileExists(t, file1)
+	stat2 := utils.CheckFileExists(t, file2)
 
 	// do inputs at least have the same size?
 	assert.Equal(t, stat1.Size(), stat2.Size(), "File lens are not equal")
@@ -192,21 +192,5 @@ func checkFilesEqual(t *testing.T, file1, file2 string) {
 		}
 	}
 
-	remove(file1)
-}
-
-// TODO codigo repetido
-func checkFileExists(t *testing.T, name string) fs.FileInfo {
-	stat, err := os.Stat(name)
-	if err != nil {
-		t.Error(err)
-	}
-
-	return stat
-}
-
-func remove(name string) {
-	if err := os.RemoveAll(name); err != nil {
-		log.Fatal(err)
-	}
+	utils.RemoveFile(file1)
 }
