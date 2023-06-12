@@ -83,8 +83,6 @@ func generateConditionsForPkg(destPkg string, pkg *packages.Package) {
 	}
 }
 
-// TODO verificar linting de los archivos generados
-// TODO ponerles .gen.go
 // Load package information from paths
 func loadPackages(paths []string) []*packages.Package {
 	cfg := &packages.Config{Mode: packages.NeedTypes}
