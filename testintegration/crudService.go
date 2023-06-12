@@ -105,7 +105,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithoutConditionsReturnsTheListWhenM
 
 func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionsReturnsEmptyIfNotEntitiesCreated() {
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductString("not_created"),
+		conditions.ProductString(
+			orm.Eq("not_created"),
+		),
 	)
 	ts.Nil(err)
 
@@ -116,7 +118,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionsReturnsEmptyIfNothingM
 	ts.createProduct("something_else", 0, 0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductString("not_match"),
+		conditions.ProductString(
+			orm.Eq("not_match"),
+		),
 	)
 	ts.Nil(err)
 
@@ -128,7 +132,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionsReturnsOneIfOnlyOneMat
 	ts.createProduct("not_match", 0, 0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductString("match"),
+		conditions.ProductString(orm.Eq("match")),
 	)
 	ts.Nil(err)
 
@@ -141,7 +145,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionsReturnsMultipleIfMulti
 	ts.createProduct("not_match", 0, 0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductString("match"),
+		conditions.ProductString(orm.Eq("match")),
 	)
 	ts.Nil(err)
 
@@ -153,11 +157,90 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntType() {
 	ts.createProduct("not_match", 2, 0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductInt(1),
+		conditions.ProductInt(orm.Eq(1)),
 	)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntTypeNotEq() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.NotEq(2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntTypeLt() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 2, 0, false, nil)
+	ts.createProduct("not_match", 3, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.Lt(3),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntTypeLtOrEq() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 2, 0, false, nil)
+	ts.createProduct("not_match", 3, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.LtOrEq(2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntTypeGt() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.Gt(2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntTypeGtOrEq() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.GtOrEq(3),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfFloatType() {
@@ -165,7 +248,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfFloatType() {
 	ts.createProduct("not_match", 0, 2.2, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductFloat(1.1),
+		conditions.ProductFloat(
+			orm.Eq(1.1),
+		),
 	)
 	ts.Nil(err)
 
@@ -177,7 +262,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfBoolType() {
 	ts.createProduct("not_match", 0, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductBool(true),
+		conditions.ProductBool(
+			orm.Eq(true),
+		),
 	)
 	ts.Nil(err)
 
@@ -192,9 +279,26 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithMultipleConditionsOfDifferentTyp
 	ts.createProduct("match", 2, 0.0, true, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductString("match"),
-		conditions.ProductInt(1),
-		conditions.ProductBool(true),
+		conditions.ProductString(orm.Eq("match")),
+		conditions.ProductInt(orm.Eq(1)),
+		conditions.ProductBool(orm.Eq(true)),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithMultipleConditionsOfDifferentTypesWithDifferentExpressionsWorks() {
+	match1 := ts.createProduct("match", 1, 0.0, true, nil)
+	match2 := ts.createProduct("match", 1, 0.0, true, nil)
+
+	ts.createProduct("not_match", 1, 0.0, true, nil)
+	ts.createProduct("match", 2, 0.0, true, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductString(orm.Eq("match")),
+		conditions.ProductInt(orm.Lt(2)),
+		conditions.ProductBool(orm.NotEq(false)),
 	)
 	ts.Nil(err)
 
@@ -206,7 +310,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfID() {
 	ts.createProduct("", 0, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductId(match.ID),
+		conditions.ProductId(
+			orm.Eq(match.ID),
+		),
 	)
 	ts.Nil(err)
 
@@ -218,7 +324,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfCreatedAt() {
 	ts.createProduct("", 0, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductCreatedAt(match.CreatedAt),
+		conditions.ProductCreatedAt(orm.Eq(match.CreatedAt)),
 	)
 	ts.Nil(err)
 
@@ -246,7 +352,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfDeletedAtNotNil() {
 	ts.Nil(ts.db.Delete(match).Error)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductDeletedAt(match.DeletedAt),
+		conditions.ProductDeletedAt(orm.Eq(match.DeletedAt)),
 	)
 	ts.Nil(err)
 
@@ -262,7 +368,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfEmbedded() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductEmbeddedInt(1),
+		conditions.ProductEmbeddedInt(orm.Eq(1)),
 	)
 	ts.Nil(err)
 
@@ -278,7 +384,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfGormEmbedded() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductGormEmbeddedInt(1),
+		conditions.ProductGormEmbeddedInt(orm.Eq(1)),
 	)
 	ts.Nil(err)
 
@@ -293,7 +399,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfPointerTypeWithValue(
 	ts.createProduct("not_match", 2, 0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductIntPointer(&intMatch),
+		conditions.ProductIntPointer(orm.Eq(&intMatch)),
 	)
 	ts.Nil(err)
 
@@ -306,7 +412,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfPointerTypeByNil() {
 	ts.createProduct("not_match", 2, 0, false, &intNotMatch)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductIntPointer(nil),
+		conditions.ProductIntPointer(orm.Eq[*int](nil)),
 	)
 	ts.Nil(err)
 
@@ -327,7 +433,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfByteArrayWithContent(
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductByteArray([]byte{1, 2}),
+		conditions.ProductByteArray(orm.Eq([]byte{1, 2})),
 	)
 	ts.Nil(err)
 
@@ -348,7 +454,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfByteArrayEmpty() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductByteArray([]byte{}),
+		conditions.ProductByteArray(orm.Eq([]byte{})),
 	)
 	ts.Nil(err)
 
@@ -364,7 +470,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfByteArrayNil() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductByteArray(nil),
+		conditions.ProductByteArray(orm.Eq[[]uint8](nil)),
 	)
 	ts.Nil(err)
 
@@ -385,7 +491,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfCustomType() {
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductMultiString(models.MultiString{"salut", "hola"}),
+		conditions.ProductMultiString(orm.Eq(models.MultiString{"salut", "hola"})),
 	)
 	ts.Nil(err)
 
@@ -403,7 +509,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfRelationType() {
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleProductId(product1.ID),
+		conditions.SaleProductId(orm.Eq(product1.ID)),
 	)
 	ts.Nil(err)
 
@@ -421,7 +527,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfRelationTypeOptionalW
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleSellerId(&seller1.ID),
+		conditions.SaleSellerId(orm.Eq(&seller1.ID)),
 	)
 	ts.Nil(err)
 
@@ -438,7 +544,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfRelationTypeOptionalB
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleSellerId(nil),
+		conditions.SaleSellerId(orm.Eq[*orm.UUID](nil)),
 	)
 	ts.Nil(err)
 
@@ -450,7 +556,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionsOnUIntModel() {
 	ts.createBrand("not_match")
 
 	entities, err := ts.crudBrandService.Query(
-		conditions.BrandName("match"),
+		conditions.BrandName(orm.Eq("match")),
 	)
 	ts.Nil(err)
 
@@ -466,7 +572,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsUintBelongsTo(
 
 	entities, err := ts.crudPhoneService.Query(
 		conditions.PhoneBrand(
-			conditions.BrandName("google"),
+			conditions.BrandName(orm.Eq("google")),
 		),
 	)
 	ts.Nil(err)
@@ -483,7 +589,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsBelongsTo() {
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductInt(1),
+			conditions.ProductInt(orm.Eq(1)),
 		),
 	)
 	ts.Nil(err)
@@ -503,9 +609,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsAndFiltersTheM
 	ts.createSale(2, product1, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleCode(1),
+		conditions.SaleCode(orm.Eq(1)),
 		conditions.SaleProduct(
-			conditions.ProductInt(1),
+			conditions.ProductInt(orm.Eq(1)),
 		),
 	)
 	ts.Nil(err)
@@ -525,7 +631,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsHasOneOptional
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
-			conditions.SellerName("franco"),
+			conditions.SellerName(orm.Eq("franco")),
 		),
 	)
 	ts.Nil(err)
@@ -546,7 +652,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsHasOneSelfRefe
 
 	entities, err := ts.crudEmployeeService.Query(
 		conditions.EmployeeBoss(
-			conditions.EmployeeName("Xavier"),
+			conditions.EmployeeName(orm.Eq("Xavier")),
 		),
 	)
 	ts.Nil(err)
@@ -567,7 +673,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsOneToOne() {
 
 	entities, err := ts.crudCityService.Query(
 		conditions.CityCountry(
-			conditions.CountryName("Argentina"),
+			conditions.CountryName(orm.Eq("Argentina")),
 		),
 	)
 	ts.Nil(err)
@@ -588,7 +694,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsOneToOneRevers
 
 	entities, err := ts.crudCountryService.Query(
 		conditions.CountryCapital(
-			conditions.CityName("Buenos Aires"),
+			conditions.CityName(orm.Eq("Buenos Aires")),
 		),
 	)
 	ts.Nil(err)
@@ -609,7 +715,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsWithEntityThat
 
 	entities, err := ts.crudBicycleService.Query(
 		conditions.BicycleOwner(
-			conditions.PersonName("franco"),
+			conditions.PersonName(orm.Eq("franco")),
 		),
 	)
 	ts.Nil(err)
@@ -626,7 +732,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsOnHasMany() {
 
 	entities, err := ts.crudSellerService.Query(
 		conditions.SellerCompany(
-			conditions.CompanyName("ditrit"),
+			conditions.CompanyName(orm.Eq("ditrit")),
 		),
 	)
 	ts.Nil(err)
@@ -646,8 +752,8 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsOnDifferentAtt
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductInt(1),
-			conditions.ProductString("match"),
+			conditions.ProductInt(orm.Eq(1)),
+			conditions.ProductString(orm.Eq("match")),
 		),
 	)
 	ts.Nil(err)
@@ -669,7 +775,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsAddsDeletedAtA
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductString("match"),
+			conditions.ProductString(orm.Eq("match")),
 		),
 	)
 	ts.Nil(err)
@@ -691,7 +797,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsOnDeletedAt() 
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductDeletedAt(product1.DeletedAt),
+			conditions.ProductDeletedAt(orm.Eq(product1.DeletedAt)),
 		),
 	)
 	ts.Nil(err)
@@ -709,7 +815,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsAndFiltersByNi
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductIntPointer(nil),
+			conditions.ProductIntPointer(orm.Eq[*int](nil)),
 		),
 	)
 	ts.Nil(err)
@@ -731,10 +837,10 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsDifferentEntit
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductInt(1),
+			conditions.ProductInt(orm.Eq(1)),
 		),
 		conditions.SaleSeller(
-			conditions.SellerName("franco"),
+			conditions.SellerName(orm.Eq("franco")),
 		),
 	)
 	ts.Nil(err)
@@ -757,9 +863,9 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsMultipleTimes(
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
-			conditions.SellerName("franco"),
+			conditions.SellerName(orm.Eq("franco")),
 			conditions.SellerCompany(
-				conditions.CompanyName("ditrit"),
+				conditions.CompanyName(orm.Eq("ditrit")),
 			),
 		),
 	)

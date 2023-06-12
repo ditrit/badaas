@@ -8,39 +8,39 @@ import (
 	"time"
 )
 
-func CityId(v orm.UUID) orm.WhereCondition[models.City] {
-	return orm.WhereCondition[models.City]{
-		Field: "ID",
-		Value: v,
+func CityId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.City, orm.UUID] {
+	return orm.FieldCondition[models.City, orm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func CityCreatedAt(v time.Time) orm.WhereCondition[models.City] {
-	return orm.WhereCondition[models.City]{
-		Field: "CreatedAt",
-		Value: v,
+func CityCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.City, time.Time] {
+	return orm.FieldCondition[models.City, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func CityUpdatedAt(v time.Time) orm.WhereCondition[models.City] {
-	return orm.WhereCondition[models.City]{
-		Field: "UpdatedAt",
-		Value: v,
+func CityUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.City, time.Time] {
+	return orm.FieldCondition[models.City, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func CityDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.City] {
-	return orm.WhereCondition[models.City]{
-		Field: "DeletedAt",
-		Value: v,
+func CityDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.City, gorm.DeletedAt] {
+	return orm.FieldCondition[models.City, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func CityName(v string) orm.WhereCondition[models.City] {
-	return orm.WhereCondition[models.City]{
-		Field: "Name",
-		Value: v,
+func CityName(exprs ...orm.Expression[string]) orm.FieldCondition[models.City, string] {
+	return orm.FieldCondition[models.City, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
-func CityCountryId(v orm.UUID) orm.WhereCondition[models.City] {
-	return orm.WhereCondition[models.City]{
-		Field: "CountryID",
-		Value: v,
+func CityCountryId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.City, orm.UUID] {
+	return orm.FieldCondition[models.City, orm.UUID]{
+		Expressions: exprs,
+		Field:       "CountryID",
 	}
 }

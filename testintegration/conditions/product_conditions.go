@@ -8,82 +8,82 @@ import (
 	"time"
 )
 
-func ProductId(v orm.UUID) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "ID",
-		Value: v,
+func ProductId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Product, orm.UUID] {
+	return orm.FieldCondition[models.Product, orm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func ProductCreatedAt(v time.Time) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "CreatedAt",
-		Value: v,
+func ProductCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Product, time.Time] {
+	return orm.FieldCondition[models.Product, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func ProductUpdatedAt(v time.Time) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "UpdatedAt",
-		Value: v,
+func ProductUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Product, time.Time] {
+	return orm.FieldCondition[models.Product, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func ProductDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "DeletedAt",
-		Value: v,
+func ProductDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Product, gorm.DeletedAt] {
+	return orm.FieldCondition[models.Product, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func ProductString(v string) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Column: "string_something_else",
-		Value:  v,
+func ProductString(exprs ...orm.Expression[string]) orm.FieldCondition[models.Product, string] {
+	return orm.FieldCondition[models.Product, string]{
+		Column:      "string_something_else",
+		Expressions: exprs,
 	}
 }
-func ProductInt(v int) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "Int",
-		Value: v,
+func ProductInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+	return orm.FieldCondition[models.Product, int]{
+		Expressions: exprs,
+		Field:       "Int",
 	}
 }
-func ProductIntPointer(v *int) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "IntPointer",
-		Value: v,
+func ProductIntPointer(exprs ...orm.Expression[*int]) orm.FieldCondition[models.Product, *int] {
+	return orm.FieldCondition[models.Product, *int]{
+		Expressions: exprs,
+		Field:       "IntPointer",
 	}
 }
-func ProductFloat(v float64) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "Float",
-		Value: v,
+func ProductFloat(exprs ...orm.Expression[float64]) orm.FieldCondition[models.Product, float64] {
+	return orm.FieldCondition[models.Product, float64]{
+		Expressions: exprs,
+		Field:       "Float",
 	}
 }
-func ProductBool(v bool) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "Bool",
-		Value: v,
+func ProductBool(exprs ...orm.Expression[bool]) orm.FieldCondition[models.Product, bool] {
+	return orm.FieldCondition[models.Product, bool]{
+		Expressions: exprs,
+		Field:       "Bool",
 	}
 }
-func ProductByteArray(v []uint8) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "ByteArray",
-		Value: v,
+func ProductByteArray(exprs ...orm.Expression[[]uint8]) orm.FieldCondition[models.Product, []uint8] {
+	return orm.FieldCondition[models.Product, []uint8]{
+		Expressions: exprs,
+		Field:       "ByteArray",
 	}
 }
-func ProductMultiString(v models.MultiString) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "MultiString",
-		Value: v,
+func ProductMultiString(exprs ...orm.Expression[models.MultiString]) orm.FieldCondition[models.Product, models.MultiString] {
+	return orm.FieldCondition[models.Product, models.MultiString]{
+		Expressions: exprs,
+		Field:       "MultiString",
 	}
 }
-func ProductEmbeddedInt(v int) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
-		Field: "EmbeddedInt",
-		Value: v,
+func ProductEmbeddedInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+	return orm.FieldCondition[models.Product, int]{
+		Expressions: exprs,
+		Field:       "EmbeddedInt",
 	}
 }
-func ProductGormEmbeddedInt(v int) orm.WhereCondition[models.Product] {
-	return orm.WhereCondition[models.Product]{
+func ProductGormEmbeddedInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+	return orm.FieldCondition[models.Product, int]{
 		ColumnPrefix: "gorm_embedded_",
+		Expressions:  exprs,
 		Field:        "Int",
-		Value:        v,
 	}
 }

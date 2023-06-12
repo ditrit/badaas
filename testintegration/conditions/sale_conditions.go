@@ -8,40 +8,40 @@ import (
 	"time"
 )
 
-func SaleId(v orm.UUID) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "ID",
-		Value: v,
+func SaleId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Sale, orm.UUID] {
+	return orm.FieldCondition[models.Sale, orm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func SaleCreatedAt(v time.Time) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "CreatedAt",
-		Value: v,
+func SaleCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Sale, time.Time] {
+	return orm.FieldCondition[models.Sale, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func SaleUpdatedAt(v time.Time) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "UpdatedAt",
-		Value: v,
+func SaleUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Sale, time.Time] {
+	return orm.FieldCondition[models.Sale, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func SaleDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "DeletedAt",
-		Value: v,
+func SaleDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Sale, gorm.DeletedAt] {
+	return orm.FieldCondition[models.Sale, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func SaleCode(v int) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "Code",
-		Value: v,
+func SaleCode(exprs ...orm.Expression[int]) orm.FieldCondition[models.Sale, int] {
+	return orm.FieldCondition[models.Sale, int]{
+		Expressions: exprs,
+		Field:       "Code",
 	}
 }
-func SaleDescription(v string) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "Description",
-		Value: v,
+func SaleDescription(exprs ...orm.Expression[string]) orm.FieldCondition[models.Sale, string] {
+	return orm.FieldCondition[models.Sale, string]{
+		Expressions: exprs,
+		Field:       "Description",
 	}
 }
 func SaleProduct(conditions ...orm.Condition[models.Product]) orm.Condition[models.Sale] {
@@ -51,10 +51,10 @@ func SaleProduct(conditions ...orm.Condition[models.Product]) orm.Condition[mode
 		T2Field:    "ID",
 	}
 }
-func SaleProductId(v orm.UUID) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "ProductID",
-		Value: v,
+func SaleProductId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Sale, orm.UUID] {
+	return orm.FieldCondition[models.Sale, orm.UUID]{
+		Expressions: exprs,
+		Field:       "ProductID",
 	}
 }
 func SaleSeller(conditions ...orm.Condition[models.Seller]) orm.Condition[models.Sale] {
@@ -64,9 +64,9 @@ func SaleSeller(conditions ...orm.Condition[models.Seller]) orm.Condition[models
 		T2Field:    "ID",
 	}
 }
-func SaleSellerId(v *orm.UUID) orm.WhereCondition[models.Sale] {
-	return orm.WhereCondition[models.Sale]{
-		Field: "SellerID",
-		Value: v,
+func SaleSellerId(exprs ...orm.Expression[*orm.UUID]) orm.FieldCondition[models.Sale, *orm.UUID] {
+	return orm.FieldCondition[models.Sale, *orm.UUID]{
+		Expressions: exprs,
+		Field:       "SellerID",
 	}
 }

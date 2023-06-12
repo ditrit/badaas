@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func PhoneId(v uint) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "ID",
-		Value: v,
+func PhoneId(exprs ...orm.Expression[uint]) orm.FieldCondition[models.Phone, uint] {
+	return orm.FieldCondition[models.Phone, uint]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func PhoneCreatedAt(v time.Time) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "CreatedAt",
-		Value: v,
+func PhoneCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Phone, time.Time] {
+	return orm.FieldCondition[models.Phone, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func PhoneUpdatedAt(v time.Time) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "UpdatedAt",
-		Value: v,
+func PhoneUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Phone, time.Time] {
+	return orm.FieldCondition[models.Phone, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func PhoneDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "DeletedAt",
-		Value: v,
+func PhoneDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Phone, gorm.DeletedAt] {
+	return orm.FieldCondition[models.Phone, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func PhoneName(v string) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "Name",
-		Value: v,
+func PhoneName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Phone, string] {
+	return orm.FieldCondition[models.Phone, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
 func PhoneBrand(conditions ...orm.Condition[models.Brand]) orm.Condition[models.Phone] {
@@ -45,9 +45,9 @@ func PhoneBrand(conditions ...orm.Condition[models.Brand]) orm.Condition[models.
 		T2Field:    "ID",
 	}
 }
-func PhoneBrandId(v uint) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "BrandID",
-		Value: v,
+func PhoneBrandId(exprs ...orm.Expression[uint]) orm.FieldCondition[models.Phone, uint] {
+	return orm.FieldCondition[models.Phone, uint]{
+		Expressions: exprs,
+		Field:       "BrandID",
 	}
 }

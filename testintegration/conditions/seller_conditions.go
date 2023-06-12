@@ -8,39 +8,39 @@ import (
 	"time"
 )
 
-func SellerId(v orm.UUID) orm.WhereCondition[models.Seller] {
-	return orm.WhereCondition[models.Seller]{
-		Field: "ID",
-		Value: v,
+func SellerId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Seller, orm.UUID] {
+	return orm.FieldCondition[models.Seller, orm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func SellerCreatedAt(v time.Time) orm.WhereCondition[models.Seller] {
-	return orm.WhereCondition[models.Seller]{
-		Field: "CreatedAt",
-		Value: v,
+func SellerCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Seller, time.Time] {
+	return orm.FieldCondition[models.Seller, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func SellerUpdatedAt(v time.Time) orm.WhereCondition[models.Seller] {
-	return orm.WhereCondition[models.Seller]{
-		Field: "UpdatedAt",
-		Value: v,
+func SellerUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Seller, time.Time] {
+	return orm.FieldCondition[models.Seller, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func SellerDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Seller] {
-	return orm.WhereCondition[models.Seller]{
-		Field: "DeletedAt",
-		Value: v,
+func SellerDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Seller, gorm.DeletedAt] {
+	return orm.FieldCondition[models.Seller, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func SellerName(v string) orm.WhereCondition[models.Seller] {
-	return orm.WhereCondition[models.Seller]{
-		Field: "Name",
-		Value: v,
+func SellerName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Seller, string] {
+	return orm.FieldCondition[models.Seller, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
-func SellerCompanyId(v *orm.UUID) orm.WhereCondition[models.Seller] {
-	return orm.WhereCondition[models.Seller]{
-		Field: "CompanyID",
-		Value: v,
+func SellerCompanyId(exprs ...orm.Expression[*orm.UUID]) orm.FieldCondition[models.Seller, *orm.UUID] {
+	return orm.FieldCondition[models.Seller, *orm.UUID]{
+		Expressions: exprs,
+		Field:       "CompanyID",
 	}
 }

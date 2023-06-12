@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func CountryId(v orm.UUID) orm.WhereCondition[models.Country] {
-	return orm.WhereCondition[models.Country]{
-		Field: "ID",
-		Value: v,
+func CountryId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Country, orm.UUID] {
+	return orm.FieldCondition[models.Country, orm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func CountryCreatedAt(v time.Time) orm.WhereCondition[models.Country] {
-	return orm.WhereCondition[models.Country]{
-		Field: "CreatedAt",
-		Value: v,
+func CountryCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Country, time.Time] {
+	return orm.FieldCondition[models.Country, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func CountryUpdatedAt(v time.Time) orm.WhereCondition[models.Country] {
-	return orm.WhereCondition[models.Country]{
-		Field: "UpdatedAt",
-		Value: v,
+func CountryUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Country, time.Time] {
+	return orm.FieldCondition[models.Country, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func CountryDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Country] {
-	return orm.WhereCondition[models.Country]{
-		Field: "DeletedAt",
-		Value: v,
+func CountryDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Country, gorm.DeletedAt] {
+	return orm.FieldCondition[models.Country, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func CountryName(v string) orm.WhereCondition[models.Country] {
-	return orm.WhereCondition[models.Country]{
-		Field: "Name",
-		Value: v,
+func CountryName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Country, string] {
+	return orm.FieldCondition[models.Country, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
 func CountryCapital(conditions ...orm.Condition[models.City]) orm.Condition[models.Country] {
