@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
 )
 
@@ -27,7 +26,8 @@ type WhereCondition[T any] struct {
 	Field        string
 	Column       string
 	ColumnPrefix string
-	Value        any
+	// TODO esto me gustaria que tenga un generics para que no le puedas poner cualquier mierda adentro
+	Expressions []Expression
 }
 
 //nolint:unused // see inside
@@ -67,23 +67,48 @@ func (condition WhereCondition[T]) GetSQL(query *gorm.DB, tableName string) (str
 	// add column prefix once we know the column name
 	columnName = condition.ColumnPrefix + columnName
 
-	val := condition.Value
-	reflectVal := reflect.ValueOf(val)
-	isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
-	// avoid nil is not nil behavior of go
-	if val == nil || (isNullableKind && reflectVal.IsNil()) {
-		return fmt.Sprintf(
-			"%s.%s IS NULL",
-			tableName,
-			columnName,
-		), []any{}
+	// TODO ver el nombre
+	conditionString := ""
+	values := []any{}
+
+	for index, expression := range condition.Expressions {
+		// TODO que se pueda hacer la connexion distinta aca
+		if index != 0 {
+			conditionString += " AND "
+		}
+
+		expressionSQL, expressionValues := expression.ToSQL(
+			fmt.Sprintf(
+				"%s.%s",
+				tableName,
+				columnName,
+			),
+		)
+		conditionString += expressionSQL
+
+		values = append(values, expressionValues)
 	}
 
-	return fmt.Sprintf(
-		"%s.%s = ?",
-		tableName,
-		columnName,
-	), []any{val}
+	return conditionString, values
+
+	// val := condition.Value
+	// TODO ver donde hago esta verificacion
+	// reflectVal := reflect.ValueOf(val)
+	// isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
+	// // avoid nil is not nil behavior of go
+	// if val == nil || (isNullableKind && reflectVal.IsNil()) {
+	// 	return fmt.Sprintf(
+	// 		"%s.%s IS NULL",
+	// 		tableName,
+	// 		columnName,
+	// 	), []any{}
+	// }
+
+	// return fmt.Sprintf(
+	// 	"%s.%s = ?",
+	// 	tableName,
+	// 	columnName,
+	// ), []any{val}
 }
 
 type JoinCondition[T1 any, T2 any] struct {
