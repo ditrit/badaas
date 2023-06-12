@@ -195,7 +195,6 @@ func checkFilesEqual(t *testing.T, file1, file2 string) {
 	remove(file1)
 }
 
-// TODO hacer esto en la rama anterior
 // TODO codigo repetido
 func checkFileExists(t *testing.T, name string) fs.FileInfo {
 	stat, err := os.Stat(name)
