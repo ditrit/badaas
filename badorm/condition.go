@@ -9,11 +9,20 @@ import (
 
 const DeletedAtField = "DeletedAt"
 
+type ConditionType string
+
+const (
+	WhereType ConditionType = "Where"
+	JoinType  ConditionType = "Join"
+)
+
 type Condition[T any] interface {
 	// Applies the condition to the "query"
 	// using the "tableName" as name for the table holding
 	// the data for object of type T
 	ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error)
+
+	Type() ConditionType
 
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T],
@@ -22,23 +31,28 @@ type Condition[T any] interface {
 	interfaceVerificationMethod(T)
 }
 
-type WhereCondition[T any] struct {
+type WhereCondition[T any] interface {
+	GetSQL(query *gorm.DB, tableName string) (string, []any)
+
+	getField() string
+}
+
+type FieldCondition[TObject any, TAtribute any] struct {
 	Field        string
 	Column       string
 	ColumnPrefix string
-	// TODO esto me gustaria que tenga un generics para que no le puedas poner cualquier mierda adentro
-	Expressions []Expression
+	Expressions  []Expression[TAtribute]
 }
 
 //nolint:unused // see inside
-func (condition WhereCondition[T]) interfaceVerificationMethod(_ T) {
+func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(_ TObject) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
 
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
-func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
 	sql, values := condition.GetSQL(query, tableName)
 
 	if condition.Field == DeletedAtField {
@@ -51,6 +65,14 @@ func (condition WhereCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*g
 	), nil
 }
 
+func (condition FieldCondition[TObject, TAtribute]) Type() ConditionType {
+	return WhereType
+}
+
+func (condition FieldCondition[TObject, TAtribute]) getField() string {
+	return condition.Field
+}
+
 var nullableKinds = []reflect.Kind{
 	reflect.Chan, reflect.Func,
 	reflect.Map, reflect.Pointer,
@@ -58,7 +80,7 @@ var nullableKinds = []reflect.Kind{
 	reflect.Slice,
 }
 
-func (condition WhereCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any) {
+func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any) {
 	columnName := condition.Column
 	if columnName == "" {
 		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
@@ -147,7 +169,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	isDeletedAtConditionPresent := false
 
 	for _, condition := range whereConditions {
-		if condition.Field == DeletedAtField {
+		if condition.getField() == DeletedAtField {
 			isDeletedAtConditionPresent = true
 		}
 
@@ -177,6 +199,10 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	return query, nil
 }
 
+func (condition JoinCondition[T1, T2]) Type() ConditionType {
+	return JoinType
+}
+
 // Returns the SQL string to do a join between T1 and T2
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
@@ -197,11 +223,16 @@ func divideConditionsByType[T any](
 	conditions []Condition[T],
 ) (thisEntityConditions []WhereCondition[T], joinConditions []Condition[T]) {
 	for _, condition := range conditions {
-		switch typedCondition := condition.(type) {
-		case WhereCondition[T]:
+		switch condition.Type() {
+		case WhereType:
+			typedCondition, ok := condition.(WhereCondition[T])
+			if !ok {
+				// TODO no se que hacer aca
+			}
+
 			thisEntityConditions = append(thisEntityConditions, typedCondition)
-		default:
-			joinConditions = append(joinConditions, typedCondition)
+		case JoinType:
+			joinConditions = append(joinConditions, condition)
 		}
 	}
 

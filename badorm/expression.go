@@ -7,54 +7,54 @@ import "fmt"
 // aunque algunos como like y eso solo funcionan para string, el problema es que yo no se si
 // uno custom va a ir a string o no
 // podria igual mirar que condiciones les genero y cuales no segun el tipo
-type Expression struct {
-	Value  any
+type Expression[T any] struct {
+	Value  T
 	symbol string
 }
 
-func (expr Expression) ToSQL(columnName string) (string, []any) {
-	return fmt.Sprintf("%s %s ?", columnName, expr.symbol), []any{expr.Value}
+func (expr Expression[T]) ToSQL(columnName string) (string, []T) {
+	return fmt.Sprintf("%s %s ?", columnName, expr.symbol), []T{expr.Value}
 }
 
 // Comparison Operators
 
-func Eq(value any) Expression {
-	return Expression{
+func Eq[T any](value T) Expression[T] {
+	return Expression[T]{
 		Value:  value,
 		symbol: "=",
 	}
 }
 
-func NotEq(value any) Expression {
-	return Expression{
+func NotEq[T any](value T) Expression[T] {
+	return Expression[T]{
 		Value:  value,
 		symbol: "<>",
 	}
 }
 
-func Lt(value any) Expression {
-	return Expression{
+func Lt[T any](value T) Expression[T] {
+	return Expression[T]{
 		Value:  value,
 		symbol: "<",
 	}
 }
 
-func LtOrEq(value any) Expression {
-	return Expression{
+func LtOrEq[T any](value T) Expression[T] {
+	return Expression[T]{
 		Value:  value,
 		symbol: "<=",
 	}
 }
 
-func Gt(value any) Expression {
-	return Expression{
+func Gt[T any](value T) Expression[T] {
+	return Expression[T]{
 		Value:  value,
 		symbol: ">",
 	}
 }
 
-func GtOrEq(value any) Expression {
-	return Expression{
+func GtOrEq[T any](value T) Expression[T] {
+	return Expression[T]{
 		Value:  value,
 		symbol: ">=",
 	}
@@ -63,74 +63,74 @@ func GtOrEq(value any) Expression {
 // Comparison Predicates
 
 // // TODO BETWEEN, NOT BETWEEN
-// func IsDistinct(value any) Expression {
-// 	return Expression{
+// func IsDistinct[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value,
 // 		symbol: "IS DISTINCT FROM",
 // 	}
 // }
 
-// func IsNotDistinct(value any) Expression {
-// 	return Expression{
+// func IsNotDistinct[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value,
 // 		symbol: "IS NOT DISTINCT FROM",
 // 	}
 // }
 
 // // TODO no deberia ser posible para todos
-// func IsNull(value any) Expression {
-// 	return Expression{
+// func IsNull[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS NULL",
 // 	}
 // }
 
-// func IsNotNull(value any) Expression {
-// 	return Expression{
+// func IsNotNull[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS NOT NULL",
 // 	}
 // }
 
 // // TODO no deberia ser posible para todos
-// func IsTrue(value any) Expression {
-// 	return Expression{
+// func IsTrue[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS TRUE",
 // 	}
 // }
 
-// func IsNotTrue(value any) Expression {
-// 	return Expression{
+// func IsNotTrue[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS NOT TRUE",
 // 	}
 // }
 
 // // TODO no deberia ser posible para todos
-// func IsFalse(value any) Expression {
-// 	return Expression{
+// func IsFalse[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS FALSE",
 // 	}
 // }
 
-// func IsNotFalse(value any) Expression {
-// 	return Expression{
+// func IsNotFalse[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS NOT FALSE",
 // 	}
 // }
 
-// func IsUnknown(value any) Expression {
-// 	return Expression{
+// func IsUnknown[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS UNKNOWN",
 // 	}
 // }
 
-// func IsNotUnknown(value any) Expression {
-// 	return Expression{
+// func IsNotUnknown[T any](value T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  value, // TODO ver aca que hago
 // 		symbol: "IS NOT UNKNOWN",
 // 	}
@@ -138,15 +138,15 @@ func GtOrEq(value any) Expression {
 
 // // TODO no se a que grupo pertenece
 
-// func In[T []any](values T) Expression {
-// 	return Expression{
+// func In[T []any](values T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  values,
 // 		symbol: "IN",
 // 	}
 // }
 
-// func NotIn[T []any](values T) Expression {
-// 	return Expression{
+// func NotIn[T []any](values T) Expression[T] {
+// 	return Expression[T]{
 // 		Value:  values,
 // 		symbol: "NOT IN",
 // 	}
