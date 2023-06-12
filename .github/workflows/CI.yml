@@ -34,14 +34,12 @@ jobs:
       - name: badaas lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.52.2
           skip-cache: true
           skip-pkg-cache: true
           skip-build-cache: true
       - name: teste2e lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.52.2
           working-directory: test_e2e
           args: --config=../.golangci.yml
           skip-cache: true
@@ -50,7 +48,6 @@ jobs:
       - name: badctl lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: v1.52.2
           working-directory: tools/badctl
           args: --config=../../.golangci.yml
           skip-cache: true

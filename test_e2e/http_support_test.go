@@ -176,13 +176,11 @@ func getTableValue(key, valueAsString, valueType string) (any, error) {
 		}
 
 		return jsonMap, nil
-	case nullValueType:
-		return nil, nil
 	default:
 		return nil, fmt.Errorf(
 			"type %q does not exists, please use %v",
 			valueType,
-			[]string{stringValueType, booleanValueType, integerValueType, floatValueType, nullValueType},
+			[]string{stringValueType, booleanValueType, integerValueType, floatValueType},
 		)
 	}
 }
@@ -232,7 +230,6 @@ const (
 	booleanValueType = "boolean"
 	integerValueType = "integer"
 	floatValueType   = "float"
-	nullValueType    = "null"
 	jsonValueType    = "json"
 )
 

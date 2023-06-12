@@ -66,8 +66,11 @@ linters-settings:
     # Default: 0.0
     package-average: 0.0
   depguard:
-    packages-with-error-message:
-      - github.com/gogo/protobuf: "gogo/protobuf is deprecated, use golang/protobuf"
+    rules:
+      main:
+        deny:
+          - pkg: "github.com/gogo/protobuf"
+            desc: gogo/protobuf is deprecated, use golang/protobuf
   errcheck:
     # report about not checking of errors in type assetions: `a := b.(MyStruct)`;
     # default is false: such cases aren't reported by default.
