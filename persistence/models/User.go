@@ -12,9 +12,9 @@ type User struct {
 	Password []byte `gorm:"not null"`
 }
 
-func UserEmailCondition(email string) badorm.Condition[User] {
-	return badorm.WhereCondition[User]{
-		Field: "email",
-		Value: email,
+func UserEmailCondition(exprs ...badorm.Expression[string]) badorm.FieldCondition[User, string] {
+	return badorm.FieldCondition[User, string]{
+		Expressions: exprs,
+		Field:       "Email",
 	}
 }
