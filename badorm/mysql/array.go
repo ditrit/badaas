@@ -11,13 +11,13 @@ import (
 
 type ArrayExpression[T any] struct {
 	Values        []T
-	SqlExpression string
+	SQLExpression string
 }
 
 func NewArrayExpression[T any](values []T, sqlExpression string) ArrayExpression[T] {
 	return ArrayExpression[T]{
 		Values:        values,
-		SqlExpression: sqlExpression,
+		SQLExpression: sqlExpression,
 	}
 }
 
@@ -33,7 +33,7 @@ func (expr ArrayExpression[T]) ToSQL(columnName string) (string, []any) {
 	return fmt.Sprintf(
 		"%s %s ("+placeholders+")",
 		columnName,
-		expr.SqlExpression,
+		expr.SQLExpression,
 	), values
 }
 

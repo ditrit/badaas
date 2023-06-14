@@ -85,7 +85,8 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 	values := []any{}
 
 	for index, expression := range condition.Expressions {
-		// TODO que se pueda hacer la connexion distinta aca
+		// TODO que se pueda hacer la connection distinta aca
+		// TODO strings.Join(exprs, " AND ")?
 		if index != 0 {
 			conditionString += " AND "
 		}
@@ -198,11 +199,10 @@ func divideConditionsByType[T any](
 		switch condition.Type() {
 		case WhereType:
 			typedCondition, ok := condition.(WhereCondition[T])
-			if !ok {
-				// TODO no se que hacer aca
+			if ok {
+				// TODO ver si dejo asi
+				thisEntityConditions = append(thisEntityConditions, typedCondition)
 			}
-
-			thisEntityConditions = append(thisEntityConditions, typedCondition)
 		case JoinType:
 			joinConditions = append(joinConditions, condition)
 		}

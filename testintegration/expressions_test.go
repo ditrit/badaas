@@ -125,7 +125,7 @@ func (ts *ExpressionIntTestSuite) TestIsDistinct() {
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
-	default:
+	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
 		// TODO
 		log.Println("TODO")
 	}
@@ -143,7 +143,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotDistinct() {
 		isNotEqualExpression = mysql.IsEqual(3)
 	case configuration.PostgreSQL:
 		isNotEqualExpression = psql.IsNotDistinct(3)
-	default:
+	case configuration.SQLServer, configuration.SQLite:
 		// TODO esto no va a andar en todos
 		isNotEqualExpression = psql.IsNotDistinct(3)
 	}
@@ -334,7 +334,7 @@ func (ts *ExpressionIntTestSuite) TestArrayIn() {
 		arrayInExpression = mysql.ArrayIn("s1", "s2", "s3")
 	case configuration.PostgreSQL:
 		arrayInExpression = psql.ArrayIn("s1", "s2", "s3")
-	default:
+	case configuration.SQLServer, configuration.SQLite:
 		// TODO esto no va a andar en todos
 		arrayInExpression = psql.ArrayIn("s1", "s2", "s3")
 	}
@@ -363,7 +363,7 @@ func (ts *ExpressionIntTestSuite) TestArrayNotIn() {
 		arrayNotInExpression = mysql.ArrayNotIn("ns1", "ns2")
 	case configuration.PostgreSQL:
 		arrayNotInExpression = psql.ArrayNotIn("ns1", "ns2")
-	default:
+	case configuration.SQLServer, configuration.SQLite:
 		// TODO esto no va a andar en todos
 		arrayNotInExpression = psql.ArrayNotIn("ns1", "ns2")
 	}
