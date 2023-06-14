@@ -2,6 +2,7 @@
 package conditions
 
 import (
+	"database/sql"
 	orm "github.com/ditrit/badaas/orm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
@@ -60,6 +61,12 @@ func ProductBool(exprs ...orm.Expression[bool]) orm.FieldCondition[models.Produc
 	return orm.FieldCondition[models.Product, bool]{
 		Expressions: exprs,
 		Field:       "Bool",
+	}
+}
+func ProductNullBool(exprs ...orm.Expression[sql.NullBool]) orm.FieldCondition[models.Product, sql.NullBool] {
+	return orm.FieldCondition[models.Product, sql.NullBool]{
+		Expressions: exprs,
+		Field:       "NullBool",
 	}
 }
 func ProductByteArray(exprs ...orm.Expression[[]uint8]) orm.FieldCondition[models.Product, []uint8] {

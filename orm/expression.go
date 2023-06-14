@@ -1,6 +1,7 @@
 package orm
 
 import (
+	"database/sql"
 	"fmt"
 	"reflect"
 
@@ -129,49 +130,44 @@ func IsNotNull[T any]() Expression[T] {
 	}
 }
 
-// // TODO no deberia ser posible para todos
-// func IsTrue[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS TRUE",
-// 	}
-// }
+// Boolean Comparison Predicates
 
-// func IsNotTrue[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS NOT TRUE",
-// 	}
-// }
+// TODO que pasa con otros que mapean a bool por valuer?
+func IsTrue[T bool | *bool | sql.NullBool]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS TRUE",
+	}
+}
 
-// // TODO no deberia ser posible para todos
-// func IsFalse[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS FALSE",
-// 	}
-// }
+func IsNotTrue[T bool | *bool | sql.NullBool]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS NOT TRUE",
+	}
+}
 
-// func IsNotFalse[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS NOT FALSE",
-// 	}
-// }
+func IsFalse[T bool | *bool | sql.NullBool]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS FALSE",
+	}
+}
 
-// func IsUnknown[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS UNKNOWN",
-// 	}
-// }
+func IsNotFalse[T bool | *bool | sql.NullBool]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS NOT FALSE",
+	}
+}
 
-// func IsNotUnknown[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS NOT UNKNOWN",
-// 	}
-// }
+func IsUnknown[T *bool | sql.NullBool]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS UNKNOWN",
+	}
+}
+
+func IsNotUnknown[T *bool | sql.NullBool]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS NOT UNKNOWN",
+	}
+}
 
 // // TODO no se a que grupo pertenece
 

@@ -1,7 +1,8 @@
 package testintegration
 
 import (
-	"github.com/google/uuid"
+	"database/sql"
+
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 
@@ -61,7 +62,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated()
 func (ts *CRUDServiceIntTestSuite) TestGetEntityReturnsErrorIfNotEntityMatch() {
 	ts.createProduct("", 0, 0, false, nil)
 
-	_, err := ts.crudProductService.GetByID(orm.UUID(uuid.New()))
+	_, err := ts.crudProductService.GetByID(orm.NewUUID())
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
@@ -306,6 +307,132 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNotNull() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsTrue() {
+	match := ts.createProduct("match", 0, 0, true, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsTrue[bool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsFalse() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, true, nil)
+	ts.createProduct("not_match", 0, 0, true, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsFalse[bool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNotTrue() {
+	match1 := ts.createProduct("match", 0, 0, false, nil)
+	match2 := ts.createProduct("match", 0, 0, false, nil)
+	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err := ts.db.Save(match2).Error
+	ts.Nil(err)
+
+	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err = ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsNotTrue[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNotFalse() {
+	match1 := ts.createProduct("match", 0, 0, false, nil)
+	match2 := ts.createProduct("match", 0, 0, false, nil)
+	match2.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err := ts.db.Save(match2).Error
+	ts.Nil(err)
+
+	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err = ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsNotFalse[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsUnknown() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+
+	notMatch1 := ts.createProduct("match", 0, 0, false, nil)
+	notMatch1.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err := ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	notMatch2 := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch2.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err = ts.db.Save(notMatch2).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsUnknown[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNotUnknown() {
+	match1 := ts.createProduct("", 0, 0, false, nil)
+	match1.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err := ts.db.Save(match1).Error
+	ts.Nil(err)
+
+	match2 := ts.createProduct("", 0, 0, false, nil)
+	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err = ts.db.Save(match2).Error
+	ts.Nil(err)
+
+	ts.createProduct("", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsNotUnknown[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithMultipleExpressions() {
