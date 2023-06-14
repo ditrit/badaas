@@ -74,7 +74,7 @@ func (t Type) HasFK(field Field) (bool, error) {
 }
 
 var (
-	scanMethod  = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* interface\{\}\) error$`)
+	scanMethod  = regexp.MustCompile(`func \(\*.*\)\.Scan\([a-zA-Z0-9_-]* (interface\{\}|any)\) error$`)
 	valueMethod = regexp.MustCompile(`func \(.*\)\.Value\(\) \(database/sql/driver\.Value\, error\)$`)
 )
 

@@ -36,7 +36,7 @@ func NewCondition(destPkg string, objectType Type, field Field) *Condition {
 
 // Generate the condition between the object and the field
 func (condition *Condition) generate(objectType Type, field Field) {
-	switch fieldType := field.Type.Type.(type) {
+	switch fieldType := field.GetType().(type) {
 	case *types.Basic:
 		// the field is a basic type (string, int, etc)
 		// adapt param to that type and generate a WhereCondition
@@ -75,7 +75,7 @@ func (condition *Condition) generate(objectType Type, field Field) {
 
 // Generate condition between the object and the field when the field is a slice
 func (condition *Condition) generateForSlice(objectType Type, field Field) {
-	switch elemType := field.Type.Type.(type) {
+	switch elemType := field.GetType().(type) {
 	case *types.Basic:
 		// slice of basic types ([]string, []int, etc.)
 		// the only one supported directly by gorm is []byte

@@ -1,6 +1,8 @@
 package testintegration
 
 import (
+	"database/sql"
+
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 
@@ -311,6 +313,132 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotNull
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsTrue() {
+	match := ts.createProduct("match", 0, 0, true, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsTrue[bool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsFalse() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, true, nil)
+	ts.createProduct("not_match", 0, 0, true, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsFalse[bool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotTrue() {
+	match1 := ts.createProduct("match", 0, 0, false, nil)
+	match2 := ts.createProduct("match", 0, 0, false, nil)
+	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err := ts.db.Save(match2).Error
+	ts.Nil(err)
+
+	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err = ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNotTrue[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotFalse() {
+	match1 := ts.createProduct("match", 0, 0, false, nil)
+	match2 := ts.createProduct("match", 0, 0, false, nil)
+	match2.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err := ts.db.Save(match2).Error
+	ts.Nil(err)
+
+	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err = ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNotFalse[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsUnknown() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+
+	notMatch1 := ts.createProduct("match", 0, 0, false, nil)
+	notMatch1.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err := ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	notMatch2 := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch2.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err = ts.db.Save(notMatch2).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsUnknown[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotUnknown() {
+	match1 := ts.createProduct("", 0, 0, false, nil)
+	match1.NullBool = sql.NullBool{Valid: true, Bool: true}
+	err := ts.db.Save(match1).Error
+	ts.Nil(err)
+
+	match2 := ts.createProduct("", 0, 0, false, nil)
+	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
+	err = ts.db.Save(match2).Error
+	ts.Nil(err)
+
+	ts.createProduct("", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullBool(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNotUnknown[sql.NullBool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithMultipleExpressions() {
