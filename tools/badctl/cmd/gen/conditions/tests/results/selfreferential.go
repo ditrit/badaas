@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-func EmployeeId(v badorm.UUID) badorm.WhereCondition[selfreferential.Employee] {
-	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "ID",
-		Value: v,
+func EmployeeId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[selfreferential.Employee, badorm.UUID] {
+	return badorm.FieldCondition[selfreferential.Employee, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func EmployeeCreatedAt(v time.Time) badorm.WhereCondition[selfreferential.Employee] {
-	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "CreatedAt",
-		Value: v,
+func EmployeeCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[selfreferential.Employee, time.Time] {
+	return badorm.FieldCondition[selfreferential.Employee, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func EmployeeUpdatedAt(v time.Time) badorm.WhereCondition[selfreferential.Employee] {
-	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "UpdatedAt",
-		Value: v,
+func EmployeeUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[selfreferential.Employee, time.Time] {
+	return badorm.FieldCondition[selfreferential.Employee, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func EmployeeDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[selfreferential.Employee] {
-	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "DeletedAt",
-		Value: v,
+func EmployeeDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[selfreferential.Employee, gorm.DeletedAt] {
+	return badorm.FieldCondition[selfreferential.Employee, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.Condition[selfreferential.Employee] {
@@ -39,9 +39,9 @@ func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) bado
 		T2Field:    "ID",
 	}
 }
-func EmployeeBossId(v *badorm.UUID) badorm.WhereCondition[selfreferential.Employee] {
-	return badorm.WhereCondition[selfreferential.Employee]{
-		Field: "BossID",
-		Value: v,
+func EmployeeBossId(exprs ...badorm.Expression[*badorm.UUID]) badorm.FieldCondition[selfreferential.Employee, *badorm.UUID] {
+	return badorm.FieldCondition[selfreferential.Employee, *badorm.UUID]{
+		Expressions: exprs,
+		Field:       "BossID",
 	}
 }

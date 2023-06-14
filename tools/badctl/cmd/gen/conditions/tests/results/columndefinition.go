@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func ColumnDefinitionId(v badorm.UUID) badorm.WhereCondition[columndefinition.ColumnDefinition] {
-	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "ID",
-		Value: v,
+func ColumnDefinitionId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[columndefinition.ColumnDefinition, badorm.UUID] {
+	return badorm.FieldCondition[columndefinition.ColumnDefinition, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func ColumnDefinitionCreatedAt(v time.Time) badorm.WhereCondition[columndefinition.ColumnDefinition] {
-	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "CreatedAt",
-		Value: v,
+func ColumnDefinitionCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time] {
+	return badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func ColumnDefinitionUpdatedAt(v time.Time) badorm.WhereCondition[columndefinition.ColumnDefinition] {
-	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "UpdatedAt",
-		Value: v,
+func ColumnDefinitionUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time] {
+	return badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func ColumnDefinitionDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[columndefinition.ColumnDefinition] {
-	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Field: "DeletedAt",
-		Value: v,
+func ColumnDefinitionDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[columndefinition.ColumnDefinition, gorm.DeletedAt] {
+	return badorm.FieldCondition[columndefinition.ColumnDefinition, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func ColumnDefinitionString(v string) badorm.WhereCondition[columndefinition.ColumnDefinition] {
-	return badorm.WhereCondition[columndefinition.ColumnDefinition]{
-		Column: "string_something_else",
-		Value:  v,
+func ColumnDefinitionString(exprs ...badorm.Expression[string]) badorm.FieldCondition[columndefinition.ColumnDefinition, string] {
+	return badorm.FieldCondition[columndefinition.ColumnDefinition, string]{
+		Column:      "string_something_else",
+		Expressions: exprs,
 	}
 }

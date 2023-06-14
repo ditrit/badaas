@@ -8,135 +8,135 @@ import (
 	"time"
 )
 
-func BasicSlicesId(v badorm.UUID) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "ID",
-		Value: v,
+func BasicSlicesId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[basicslices.BasicSlices, badorm.UUID] {
+	return badorm.FieldCondition[basicslices.BasicSlices, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func BasicSlicesCreatedAt(v time.Time) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "CreatedAt",
-		Value: v,
+func BasicSlicesCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[basicslices.BasicSlices, time.Time] {
+	return badorm.FieldCondition[basicslices.BasicSlices, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func BasicSlicesUpdatedAt(v time.Time) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UpdatedAt",
-		Value: v,
+func BasicSlicesUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[basicslices.BasicSlices, time.Time] {
+	return badorm.FieldCondition[basicslices.BasicSlices, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func BasicSlicesDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "DeletedAt",
-		Value: v,
+func BasicSlicesDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[basicslices.BasicSlices, gorm.DeletedAt] {
+	return badorm.FieldCondition[basicslices.BasicSlices, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func BasicSlicesBool(v []bool) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Bool",
-		Value: v,
+func BasicSlicesBool(exprs ...badorm.Expression[[]bool]) badorm.FieldCondition[basicslices.BasicSlices, []bool] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []bool]{
+		Expressions: exprs,
+		Field:       "Bool",
 	}
 }
-func BasicSlicesInt(v []int) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Int",
-		Value: v,
+func BasicSlicesInt(exprs ...badorm.Expression[[]int]) badorm.FieldCondition[basicslices.BasicSlices, []int] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []int]{
+		Expressions: exprs,
+		Field:       "Int",
 	}
 }
-func BasicSlicesInt8(v []int8) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Int8",
-		Value: v,
+func BasicSlicesInt8(exprs ...badorm.Expression[[]int8]) badorm.FieldCondition[basicslices.BasicSlices, []int8] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []int8]{
+		Expressions: exprs,
+		Field:       "Int8",
 	}
 }
-func BasicSlicesInt16(v []int16) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Int16",
-		Value: v,
+func BasicSlicesInt16(exprs ...badorm.Expression[[]int16]) badorm.FieldCondition[basicslices.BasicSlices, []int16] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []int16]{
+		Expressions: exprs,
+		Field:       "Int16",
 	}
 }
-func BasicSlicesInt32(v []int32) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Int32",
-		Value: v,
+func BasicSlicesInt32(exprs ...badorm.Expression[[]int32]) badorm.FieldCondition[basicslices.BasicSlices, []int32] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []int32]{
+		Expressions: exprs,
+		Field:       "Int32",
 	}
 }
-func BasicSlicesInt64(v []int64) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Int64",
-		Value: v,
+func BasicSlicesInt64(exprs ...badorm.Expression[[]int64]) badorm.FieldCondition[basicslices.BasicSlices, []int64] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []int64]{
+		Expressions: exprs,
+		Field:       "Int64",
 	}
 }
-func BasicSlicesUInt(v []uint) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UInt",
-		Value: v,
+func BasicSlicesUInt(exprs ...badorm.Expression[[]uint]) badorm.FieldCondition[basicslices.BasicSlices, []uint] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uint]{
+		Expressions: exprs,
+		Field:       "UInt",
 	}
 }
-func BasicSlicesUInt8(v []uint8) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UInt8",
-		Value: v,
+func BasicSlicesUInt8(exprs ...badorm.Expression[[]uint8]) badorm.FieldCondition[basicslices.BasicSlices, []uint8] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uint8]{
+		Expressions: exprs,
+		Field:       "UInt8",
 	}
 }
-func BasicSlicesUInt16(v []uint16) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UInt16",
-		Value: v,
+func BasicSlicesUInt16(exprs ...badorm.Expression[[]uint16]) badorm.FieldCondition[basicslices.BasicSlices, []uint16] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uint16]{
+		Expressions: exprs,
+		Field:       "UInt16",
 	}
 }
-func BasicSlicesUInt32(v []uint32) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UInt32",
-		Value: v,
+func BasicSlicesUInt32(exprs ...badorm.Expression[[]uint32]) badorm.FieldCondition[basicslices.BasicSlices, []uint32] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uint32]{
+		Expressions: exprs,
+		Field:       "UInt32",
 	}
 }
-func BasicSlicesUInt64(v []uint64) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UInt64",
-		Value: v,
+func BasicSlicesUInt64(exprs ...badorm.Expression[[]uint64]) badorm.FieldCondition[basicslices.BasicSlices, []uint64] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uint64]{
+		Expressions: exprs,
+		Field:       "UInt64",
 	}
 }
-func BasicSlicesUIntptr(v []uintptr) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "UIntptr",
-		Value: v,
+func BasicSlicesUIntptr(exprs ...badorm.Expression[[]uintptr]) badorm.FieldCondition[basicslices.BasicSlices, []uintptr] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uintptr]{
+		Expressions: exprs,
+		Field:       "UIntptr",
 	}
 }
-func BasicSlicesFloat32(v []float32) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Float32",
-		Value: v,
+func BasicSlicesFloat32(exprs ...badorm.Expression[[]float32]) badorm.FieldCondition[basicslices.BasicSlices, []float32] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []float32]{
+		Expressions: exprs,
+		Field:       "Float32",
 	}
 }
-func BasicSlicesFloat64(v []float64) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Float64",
-		Value: v,
+func BasicSlicesFloat64(exprs ...badorm.Expression[[]float64]) badorm.FieldCondition[basicslices.BasicSlices, []float64] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []float64]{
+		Expressions: exprs,
+		Field:       "Float64",
 	}
 }
-func BasicSlicesComplex64(v []complex64) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Complex64",
-		Value: v,
+func BasicSlicesComplex64(exprs ...badorm.Expression[[]complex64]) badorm.FieldCondition[basicslices.BasicSlices, []complex64] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []complex64]{
+		Expressions: exprs,
+		Field:       "Complex64",
 	}
 }
-func BasicSlicesComplex128(v []complex128) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Complex128",
-		Value: v,
+func BasicSlicesComplex128(exprs ...badorm.Expression[[]complex128]) badorm.FieldCondition[basicslices.BasicSlices, []complex128] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []complex128]{
+		Expressions: exprs,
+		Field:       "Complex128",
 	}
 }
-func BasicSlicesString(v []string) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "String",
-		Value: v,
+func BasicSlicesString(exprs ...badorm.Expression[[]string]) badorm.FieldCondition[basicslices.BasicSlices, []string] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []string]{
+		Expressions: exprs,
+		Field:       "String",
 	}
 }
-func BasicSlicesByte(v []uint8) badorm.WhereCondition[basicslices.BasicSlices] {
-	return badorm.WhereCondition[basicslices.BasicSlices]{
-		Field: "Byte",
-		Value: v,
+func BasicSlicesByte(exprs ...badorm.Expression[[]uint8]) badorm.FieldCondition[basicslices.BasicSlices, []uint8] {
+	return badorm.FieldCondition[basicslices.BasicSlices, []uint8]{
+		Expressions: exprs,
+		Field:       "Byte",
 	}
 }

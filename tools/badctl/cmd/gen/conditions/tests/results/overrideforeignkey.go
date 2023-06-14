@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-func BicycleId(v badorm.UUID) badorm.WhereCondition[overrideforeignkey.Bicycle] {
-	return badorm.WhereCondition[overrideforeignkey.Bicycle]{
-		Field: "ID",
-		Value: v,
+func BicycleId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[overrideforeignkey.Bicycle, badorm.UUID] {
+	return badorm.FieldCondition[overrideforeignkey.Bicycle, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func BicycleCreatedAt(v time.Time) badorm.WhereCondition[overrideforeignkey.Bicycle] {
-	return badorm.WhereCondition[overrideforeignkey.Bicycle]{
-		Field: "CreatedAt",
-		Value: v,
+func BicycleCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time] {
+	return badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func BicycleUpdatedAt(v time.Time) badorm.WhereCondition[overrideforeignkey.Bicycle] {
-	return badorm.WhereCondition[overrideforeignkey.Bicycle]{
-		Field: "UpdatedAt",
-		Value: v,
+func BicycleUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time] {
+	return badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func BicycleDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[overrideforeignkey.Bicycle] {
-	return badorm.WhereCondition[overrideforeignkey.Bicycle]{
-		Field: "DeletedAt",
-		Value: v,
+func BicycleDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[overrideforeignkey.Bicycle, gorm.DeletedAt] {
+	return badorm.FieldCondition[overrideforeignkey.Bicycle, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) badorm.Condition[overrideforeignkey.Bicycle] {
@@ -39,9 +39,9 @@ func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) bad
 		T2Field:    "ID",
 	}
 }
-func BicycleOwnerSomethingId(v string) badorm.WhereCondition[overrideforeignkey.Bicycle] {
-	return badorm.WhereCondition[overrideforeignkey.Bicycle]{
-		Field: "OwnerSomethingID",
-		Value: v,
+func BicycleOwnerSomethingId(exprs ...badorm.Expression[string]) badorm.FieldCondition[overrideforeignkey.Bicycle, string] {
+	return badorm.FieldCondition[overrideforeignkey.Bicycle, string]{
+		Expressions: exprs,
+		Field:       "OwnerSomethingID",
 	}
 }

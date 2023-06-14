@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func SellerId(v badorm.UUID) badorm.WhereCondition[hasmany.Seller] {
-	return badorm.WhereCondition[hasmany.Seller]{
-		Field: "ID",
-		Value: v,
+func SellerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[hasmany.Seller, badorm.UUID] {
+	return badorm.FieldCondition[hasmany.Seller, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func SellerCreatedAt(v time.Time) badorm.WhereCondition[hasmany.Seller] {
-	return badorm.WhereCondition[hasmany.Seller]{
-		Field: "CreatedAt",
-		Value: v,
+func SellerCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[hasmany.Seller, time.Time] {
+	return badorm.FieldCondition[hasmany.Seller, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func SellerUpdatedAt(v time.Time) badorm.WhereCondition[hasmany.Seller] {
-	return badorm.WhereCondition[hasmany.Seller]{
-		Field: "UpdatedAt",
-		Value: v,
+func SellerUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[hasmany.Seller, time.Time] {
+	return badorm.FieldCondition[hasmany.Seller, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func SellerDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[hasmany.Seller] {
-	return badorm.WhereCondition[hasmany.Seller]{
-		Field: "DeletedAt",
-		Value: v,
+func SellerDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[hasmany.Seller, gorm.DeletedAt] {
+	return badorm.FieldCondition[hasmany.Seller, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func SellerCompanyId(v *badorm.UUID) badorm.WhereCondition[hasmany.Seller] {
-	return badorm.WhereCondition[hasmany.Seller]{
-		Field: "CompanyID",
-		Value: v,
+func SellerCompanyId(exprs ...badorm.Expression[*badorm.UUID]) badorm.FieldCondition[hasmany.Seller, *badorm.UUID] {
+	return badorm.FieldCondition[hasmany.Seller, *badorm.UUID]{
+		Expressions: exprs,
+		Field:       "CompanyID",
 	}
 }

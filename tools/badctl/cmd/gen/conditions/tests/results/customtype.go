@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func CustomTypeId(v badorm.UUID) badorm.WhereCondition[customtype.CustomType] {
-	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "ID",
-		Value: v,
+func CustomTypeId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[customtype.CustomType, badorm.UUID] {
+	return badorm.FieldCondition[customtype.CustomType, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func CustomTypeCreatedAt(v time.Time) badorm.WhereCondition[customtype.CustomType] {
-	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "CreatedAt",
-		Value: v,
+func CustomTypeCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[customtype.CustomType, time.Time] {
+	return badorm.FieldCondition[customtype.CustomType, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func CustomTypeUpdatedAt(v time.Time) badorm.WhereCondition[customtype.CustomType] {
-	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "UpdatedAt",
-		Value: v,
+func CustomTypeUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[customtype.CustomType, time.Time] {
+	return badorm.FieldCondition[customtype.CustomType, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func CustomTypeDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[customtype.CustomType] {
-	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "DeletedAt",
-		Value: v,
+func CustomTypeDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[customtype.CustomType, gorm.DeletedAt] {
+	return badorm.FieldCondition[customtype.CustomType, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func CustomTypeCustom(v customtype.MultiString) badorm.WhereCondition[customtype.CustomType] {
-	return badorm.WhereCondition[customtype.CustomType]{
-		Field: "Custom",
-		Value: v,
+func CustomTypeCustom(exprs ...badorm.Expression[customtype.MultiString]) badorm.FieldCondition[customtype.CustomType, customtype.MultiString] {
+	return badorm.FieldCondition[customtype.CustomType, customtype.MultiString]{
+		Expressions: exprs,
+		Field:       "Custom",
 	}
 }

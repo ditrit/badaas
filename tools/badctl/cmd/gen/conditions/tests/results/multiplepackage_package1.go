@@ -9,28 +9,28 @@ import (
 	"time"
 )
 
-func Package1Id(v badorm.UUID) badorm.WhereCondition[package1.Package1] {
-	return badorm.WhereCondition[package1.Package1]{
-		Field: "ID",
-		Value: v,
+func Package1Id(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[package1.Package1, badorm.UUID] {
+	return badorm.FieldCondition[package1.Package1, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func Package1CreatedAt(v time.Time) badorm.WhereCondition[package1.Package1] {
-	return badorm.WhereCondition[package1.Package1]{
-		Field: "CreatedAt",
-		Value: v,
+func Package1CreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[package1.Package1, time.Time] {
+	return badorm.FieldCondition[package1.Package1, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func Package1UpdatedAt(v time.Time) badorm.WhereCondition[package1.Package1] {
-	return badorm.WhereCondition[package1.Package1]{
-		Field: "UpdatedAt",
-		Value: v,
+func Package1UpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[package1.Package1, time.Time] {
+	return badorm.FieldCondition[package1.Package1, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func Package1DeletedAt(v gorm.DeletedAt) badorm.WhereCondition[package1.Package1] {
-	return badorm.WhereCondition[package1.Package1]{
-		Field: "DeletedAt",
-		Value: v,
+func Package1DeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[package1.Package1, gorm.DeletedAt] {
+	return badorm.FieldCondition[package1.Package1, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
 func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.Condition[package1.Package1] {

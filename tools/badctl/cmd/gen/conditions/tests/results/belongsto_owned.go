@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-func OwnedId(v badorm.UUID) badorm.WhereCondition[belongsto.Owned] {
-	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "ID",
-		Value: v,
+func OwnedId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[belongsto.Owned, badorm.UUID] {
+	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func OwnedCreatedAt(v time.Time) badorm.WhereCondition[belongsto.Owned] {
-	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "CreatedAt",
-		Value: v,
+func OwnedCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[belongsto.Owned, time.Time] {
+	return badorm.FieldCondition[belongsto.Owned, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func OwnedUpdatedAt(v time.Time) badorm.WhereCondition[belongsto.Owned] {
-	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "UpdatedAt",
-		Value: v,
+func OwnedUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[belongsto.Owned, time.Time] {
+	return badorm.FieldCondition[belongsto.Owned, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func OwnedDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[belongsto.Owned] {
-	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "DeletedAt",
-		Value: v,
+func OwnedDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[belongsto.Owned, gorm.DeletedAt] {
+	return badorm.FieldCondition[belongsto.Owned, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
 func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Condition[belongsto.Owned] {
@@ -39,9 +39,9 @@ func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Conditio
 		T2Field:    "ID",
 	}
 }
-func OwnedOwnerId(v badorm.UUID) badorm.WhereCondition[belongsto.Owned] {
-	return badorm.WhereCondition[belongsto.Owned]{
-		Field: "OwnerID",
-		Value: v,
+func OwnedOwnerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[belongsto.Owned, badorm.UUID] {
+	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "OwnerID",
 	}
 }

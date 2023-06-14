@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func ComputerId(v badorm.UUID) badorm.WhereCondition[overridereferencesinverse.Computer] {
-	return badorm.WhereCondition[overridereferencesinverse.Computer]{
-		Field: "ID",
-		Value: v,
+func ComputerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[overridereferencesinverse.Computer, badorm.UUID] {
+	return badorm.FieldCondition[overridereferencesinverse.Computer, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func ComputerCreatedAt(v time.Time) badorm.WhereCondition[overridereferencesinverse.Computer] {
-	return badorm.WhereCondition[overridereferencesinverse.Computer]{
-		Field: "CreatedAt",
-		Value: v,
+func ComputerCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[overridereferencesinverse.Computer, time.Time] {
+	return badorm.FieldCondition[overridereferencesinverse.Computer, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func ComputerUpdatedAt(v time.Time) badorm.WhereCondition[overridereferencesinverse.Computer] {
-	return badorm.WhereCondition[overridereferencesinverse.Computer]{
-		Field: "UpdatedAt",
-		Value: v,
+func ComputerUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[overridereferencesinverse.Computer, time.Time] {
+	return badorm.FieldCondition[overridereferencesinverse.Computer, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func ComputerDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[overridereferencesinverse.Computer] {
-	return badorm.WhereCondition[overridereferencesinverse.Computer]{
-		Field: "DeletedAt",
-		Value: v,
+func ComputerDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[overridereferencesinverse.Computer, gorm.DeletedAt] {
+	return badorm.FieldCondition[overridereferencesinverse.Computer, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func ComputerName(v string) badorm.WhereCondition[overridereferencesinverse.Computer] {
-	return badorm.WhereCondition[overridereferencesinverse.Computer]{
-		Field: "Name",
-		Value: v,
+func ComputerName(exprs ...badorm.Expression[string]) badorm.FieldCondition[overridereferencesinverse.Computer, string] {
+	return badorm.FieldCondition[overridereferencesinverse.Computer, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
 func ComputerProcessor(conditions ...badorm.Condition[overridereferencesinverse.Processor]) badorm.Condition[overridereferencesinverse.Computer] {

@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-func CountryId(v badorm.UUID) badorm.WhereCondition[hasone.Country] {
-	return badorm.WhereCondition[hasone.Country]{
-		Field: "ID",
-		Value: v,
+func CountryId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[hasone.Country, badorm.UUID] {
+	return badorm.FieldCondition[hasone.Country, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func CountryCreatedAt(v time.Time) badorm.WhereCondition[hasone.Country] {
-	return badorm.WhereCondition[hasone.Country]{
-		Field: "CreatedAt",
-		Value: v,
+func CountryCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[hasone.Country, time.Time] {
+	return badorm.FieldCondition[hasone.Country, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func CountryUpdatedAt(v time.Time) badorm.WhereCondition[hasone.Country] {
-	return badorm.WhereCondition[hasone.Country]{
-		Field: "UpdatedAt",
-		Value: v,
+func CountryUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[hasone.Country, time.Time] {
+	return badorm.FieldCondition[hasone.Country, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func CountryDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[hasone.Country] {
-	return badorm.WhereCondition[hasone.Country]{
-		Field: "DeletedAt",
-		Value: v,
+func CountryDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[hasone.Country, gorm.DeletedAt] {
+	return badorm.FieldCondition[hasone.Country, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[hasone.City]) badorm.Condition[hasone.Country] {

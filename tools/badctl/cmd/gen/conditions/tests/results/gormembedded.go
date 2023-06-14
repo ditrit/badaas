@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func GormEmbeddedId(v uint) badorm.WhereCondition[gormembedded.GormEmbedded] {
-	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "ID",
-		Value: v,
+func GormEmbeddedId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[gormembedded.GormEmbedded, uint] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, uint]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func GormEmbeddedCreatedAt(v time.Time) badorm.WhereCondition[gormembedded.GormEmbedded] {
-	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "CreatedAt",
-		Value: v,
+func GormEmbeddedCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[gormembedded.GormEmbedded, time.Time] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func GormEmbeddedUpdatedAt(v time.Time) badorm.WhereCondition[gormembedded.GormEmbedded] {
-	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "UpdatedAt",
-		Value: v,
+func GormEmbeddedUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[gormembedded.GormEmbedded, time.Time] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func GormEmbeddedDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[gormembedded.GormEmbedded] {
-	return badorm.WhereCondition[gormembedded.GormEmbedded]{
-		Field: "DeletedAt",
-		Value: v,
+func GormEmbeddedDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[gormembedded.GormEmbedded, gorm.DeletedAt] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func GormEmbeddedGormEmbeddedInt(v int) badorm.WhereCondition[gormembedded.GormEmbedded] {
-	return badorm.WhereCondition[gormembedded.GormEmbedded]{
+func GormEmbeddedGormEmbeddedInt(exprs ...badorm.Expression[int]) badorm.FieldCondition[gormembedded.GormEmbedded, int] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, int]{
 		ColumnPrefix: "gorm_embedded_",
+		Expressions:  exprs,
 		Field:        "Int",
-		Value:        v,
 	}
 }

@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func GoEmbeddedId(v uint) badorm.WhereCondition[goembedded.GoEmbedded] {
-	return badorm.WhereCondition[goembedded.GoEmbedded]{
-		Field: "ID",
-		Value: v,
+func GoEmbeddedId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[goembedded.GoEmbedded, uint] {
+	return badorm.FieldCondition[goembedded.GoEmbedded, uint]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func GoEmbeddedCreatedAt(v time.Time) badorm.WhereCondition[goembedded.GoEmbedded] {
-	return badorm.WhereCondition[goembedded.GoEmbedded]{
-		Field: "CreatedAt",
-		Value: v,
+func GoEmbeddedCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[goembedded.GoEmbedded, time.Time] {
+	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func GoEmbeddedUpdatedAt(v time.Time) badorm.WhereCondition[goembedded.GoEmbedded] {
-	return badorm.WhereCondition[goembedded.GoEmbedded]{
-		Field: "UpdatedAt",
-		Value: v,
+func GoEmbeddedUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[goembedded.GoEmbedded, time.Time] {
+	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func GoEmbeddedDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[goembedded.GoEmbedded] {
-	return badorm.WhereCondition[goembedded.GoEmbedded]{
-		Field: "DeletedAt",
-		Value: v,
+func GoEmbeddedDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[goembedded.GoEmbedded, gorm.DeletedAt] {
+	return badorm.FieldCondition[goembedded.GoEmbedded, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func GoEmbeddedEmbeddedInt(v int) badorm.WhereCondition[goembedded.GoEmbedded] {
-	return badorm.WhereCondition[goembedded.GoEmbedded]{
-		Field: "EmbeddedInt",
-		Value: v,
+func GoEmbeddedEmbeddedInt(exprs ...badorm.Expression[int]) badorm.FieldCondition[goembedded.GoEmbedded, int] {
+	return badorm.FieldCondition[goembedded.GoEmbedded, int]{
+		Expressions: exprs,
+		Field:       "EmbeddedInt",
 	}
 }

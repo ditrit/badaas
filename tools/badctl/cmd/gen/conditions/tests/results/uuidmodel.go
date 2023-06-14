@@ -8,27 +8,27 @@ import (
 	"time"
 )
 
-func UUIDModelId(v badorm.UUID) badorm.WhereCondition[uuidmodel.UUIDModel] {
-	return badorm.WhereCondition[uuidmodel.UUIDModel]{
-		Field: "ID",
-		Value: v,
+func UUIDModelId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[uuidmodel.UUIDModel, badorm.UUID] {
+	return badorm.FieldCondition[uuidmodel.UUIDModel, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func UUIDModelCreatedAt(v time.Time) badorm.WhereCondition[uuidmodel.UUIDModel] {
-	return badorm.WhereCondition[uuidmodel.UUIDModel]{
-		Field: "CreatedAt",
-		Value: v,
+func UUIDModelCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[uuidmodel.UUIDModel, time.Time] {
+	return badorm.FieldCondition[uuidmodel.UUIDModel, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func UUIDModelUpdatedAt(v time.Time) badorm.WhereCondition[uuidmodel.UUIDModel] {
-	return badorm.WhereCondition[uuidmodel.UUIDModel]{
-		Field: "UpdatedAt",
-		Value: v,
+func UUIDModelUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[uuidmodel.UUIDModel, time.Time] {
+	return badorm.FieldCondition[uuidmodel.UUIDModel, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func UUIDModelDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[uuidmodel.UUIDModel] {
-	return badorm.WhereCondition[uuidmodel.UUIDModel]{
-		Field: "DeletedAt",
-		Value: v,
+func UUIDModelDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[uuidmodel.UUIDModel, gorm.DeletedAt] {
+	return badorm.FieldCondition[uuidmodel.UUIDModel, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
