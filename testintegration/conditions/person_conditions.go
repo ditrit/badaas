@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func PersonId(v badorm.UUID) badorm.WhereCondition[models.Person] {
-	return badorm.WhereCondition[models.Person]{
-		Field: "ID",
-		Value: v,
+func PersonId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Person, badorm.UUID] {
+	return badorm.FieldCondition[models.Person, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func PersonCreatedAt(v time.Time) badorm.WhereCondition[models.Person] {
-	return badorm.WhereCondition[models.Person]{
-		Field: "CreatedAt",
-		Value: v,
+func PersonCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Person, time.Time] {
+	return badorm.FieldCondition[models.Person, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func PersonUpdatedAt(v time.Time) badorm.WhereCondition[models.Person] {
-	return badorm.WhereCondition[models.Person]{
-		Field: "UpdatedAt",
-		Value: v,
+func PersonUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Person, time.Time] {
+	return badorm.FieldCondition[models.Person, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func PersonDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Person] {
-	return badorm.WhereCondition[models.Person]{
-		Field: "DeletedAt",
-		Value: v,
+func PersonDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Person, gorm.DeletedAt] {
+	return badorm.FieldCondition[models.Person, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func PersonName(v string) badorm.WhereCondition[models.Person] {
-	return badorm.WhereCondition[models.Person]{
-		Field: "Name",
-		Value: v,
+func PersonName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Person, string] {
+	return badorm.FieldCondition[models.Person, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }

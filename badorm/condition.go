@@ -2,7 +2,6 @@ package badorm
 
 import (
 	"fmt"
-	"reflect"
 
 	"gorm.io/gorm"
 )
@@ -73,13 +72,6 @@ func (condition FieldCondition[TObject, TAtribute]) getField() string {
 	return condition.Field
 }
 
-var nullableKinds = []reflect.Kind{
-	reflect.Chan, reflect.Func,
-	reflect.Map, reflect.Pointer,
-	reflect.UnsafePointer, reflect.Interface,
-	reflect.Slice,
-}
-
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any) {
 	columnName := condition.Column
 	if columnName == "" {
@@ -89,7 +81,6 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 	// add column prefix once we know the column name
 	columnName = condition.ColumnPrefix + columnName
 
-	// TODO ver el nombre
 	conditionString := ""
 	values := []any{}
 
@@ -108,29 +99,10 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 		)
 		conditionString += expressionSQL
 
-		values = append(values, expressionValues)
+		values = append(values, expressionValues...)
 	}
 
 	return conditionString, values
-
-	// val := condition.Value
-	// TODO ver donde hago esta verificacion
-	// reflectVal := reflect.ValueOf(val)
-	// isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
-	// // avoid nil is not nil behavior of go
-	// if val == nil || (isNullableKind && reflectVal.IsNil()) {
-	// 	return fmt.Sprintf(
-	// 		"%s.%s IS NULL",
-	// 		tableName,
-	// 		columnName,
-	// 	), []any{}
-	// }
-
-	// return fmt.Sprintf(
-	// 	"%s.%s = ?",
-	// 	tableName,
-	// 	columnName,
-	// ), []any{val}
 }
 
 type JoinCondition[T1 any, T2 any] struct {

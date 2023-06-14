@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func BicycleId(v badorm.UUID) badorm.WhereCondition[models.Bicycle] {
-	return badorm.WhereCondition[models.Bicycle]{
-		Field: "ID",
-		Value: v,
+func BicycleId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Bicycle, badorm.UUID] {
+	return badorm.FieldCondition[models.Bicycle, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func BicycleCreatedAt(v time.Time) badorm.WhereCondition[models.Bicycle] {
-	return badorm.WhereCondition[models.Bicycle]{
-		Field: "CreatedAt",
-		Value: v,
+func BicycleCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Bicycle, time.Time] {
+	return badorm.FieldCondition[models.Bicycle, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func BicycleUpdatedAt(v time.Time) badorm.WhereCondition[models.Bicycle] {
-	return badorm.WhereCondition[models.Bicycle]{
-		Field: "UpdatedAt",
-		Value: v,
+func BicycleUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Bicycle, time.Time] {
+	return badorm.FieldCondition[models.Bicycle, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func BicycleDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Bicycle] {
-	return badorm.WhereCondition[models.Bicycle]{
-		Field: "DeletedAt",
-		Value: v,
+func BicycleDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Bicycle, gorm.DeletedAt] {
+	return badorm.FieldCondition[models.Bicycle, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func BicycleName(v string) badorm.WhereCondition[models.Bicycle] {
-	return badorm.WhereCondition[models.Bicycle]{
-		Field: "Name",
-		Value: v,
+func BicycleName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Bicycle, string] {
+	return badorm.FieldCondition[models.Bicycle, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Condition[models.Bicycle] {
@@ -45,9 +45,9 @@ func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Conditio
 		T2Field:    "Name",
 	}
 }
-func BicycleOwnerName(v string) badorm.WhereCondition[models.Bicycle] {
-	return badorm.WhereCondition[models.Bicycle]{
-		Field: "OwnerName",
-		Value: v,
+func BicycleOwnerName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Bicycle, string] {
+	return badorm.FieldCondition[models.Bicycle, string]{
+		Expressions: exprs,
+		Field:       "OwnerName",
 	}
 }

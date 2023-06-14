@@ -1,6 +1,11 @@
 package badorm
 
-import "fmt"
+import (
+	"fmt"
+	"reflect"
+
+	"github.com/elliotchance/pie/v2"
+)
 
 // TODO
 // string, int, etc. uuid, cualquier custom, time, deletedAt, asi que es any al final
@@ -12,8 +17,29 @@ type Expression[T any] struct {
 	symbol string
 }
 
-func (expr Expression[T]) ToSQL(columnName string) (string, []T) {
-	return fmt.Sprintf("%s %s ?", columnName, expr.symbol), []T{expr.Value}
+var nullableKinds = []reflect.Kind{
+	reflect.Chan, reflect.Func,
+	reflect.Map, reflect.Pointer,
+	reflect.UnsafePointer, reflect.Interface,
+	reflect.Slice,
+}
+
+// TODO aca me gustaria que devuelva []T pero no me anda asi
+func (expr Expression[T]) ToSQL(columnName string) (string, []any) {
+	// TODO esto es valido solo para el equal, para los demas no se deberia hacer esto
+	// sino que para punteros no haya equal nil?
+	// TODO este chequeo deberia ser solo cuando T es un puntero
+	reflectVal := reflect.ValueOf(expr.Value)
+	isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
+	// avoid nil is not nil behavior of go
+	if isNullableKind && reflectVal.IsNil() {
+		return fmt.Sprintf(
+			"%s IS NULL",
+			columnName,
+		), []any{}
+	}
+
+	return fmt.Sprintf("%s %s ?", columnName, expr.symbol), []any{expr.Value}
 }
 
 // Comparison Operators

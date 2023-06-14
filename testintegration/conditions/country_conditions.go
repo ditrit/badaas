@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func CountryId(v badorm.UUID) badorm.WhereCondition[models.Country] {
-	return badorm.WhereCondition[models.Country]{
-		Field: "ID",
-		Value: v,
+func CountryId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Country, badorm.UUID] {
+	return badorm.FieldCondition[models.Country, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func CountryCreatedAt(v time.Time) badorm.WhereCondition[models.Country] {
-	return badorm.WhereCondition[models.Country]{
-		Field: "CreatedAt",
-		Value: v,
+func CountryCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Country, time.Time] {
+	return badorm.FieldCondition[models.Country, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func CountryUpdatedAt(v time.Time) badorm.WhereCondition[models.Country] {
-	return badorm.WhereCondition[models.Country]{
-		Field: "UpdatedAt",
-		Value: v,
+func CountryUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Country, time.Time] {
+	return badorm.FieldCondition[models.Country, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func CountryDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Country] {
-	return badorm.WhereCondition[models.Country]{
-		Field: "DeletedAt",
-		Value: v,
+func CountryDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Country, gorm.DeletedAt] {
+	return badorm.FieldCondition[models.Country, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func CountryName(v string) badorm.WhereCondition[models.Country] {
-	return badorm.WhereCondition[models.Country]{
-		Field: "Name",
-		Value: v,
+func CountryName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Country, string] {
+	return badorm.FieldCondition[models.Country, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.Condition[models.Country] {

@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func BrandId(v uint) badorm.WhereCondition[models.Brand] {
-	return badorm.WhereCondition[models.Brand]{
-		Field: "ID",
-		Value: v,
+func BrandId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[models.Brand, uint] {
+	return badorm.FieldCondition[models.Brand, uint]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func BrandCreatedAt(v time.Time) badorm.WhereCondition[models.Brand] {
-	return badorm.WhereCondition[models.Brand]{
-		Field: "CreatedAt",
-		Value: v,
+func BrandCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Brand, time.Time] {
+	return badorm.FieldCondition[models.Brand, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func BrandUpdatedAt(v time.Time) badorm.WhereCondition[models.Brand] {
-	return badorm.WhereCondition[models.Brand]{
-		Field: "UpdatedAt",
-		Value: v,
+func BrandUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Brand, time.Time] {
+	return badorm.FieldCondition[models.Brand, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func BrandDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Brand] {
-	return badorm.WhereCondition[models.Brand]{
-		Field: "DeletedAt",
-		Value: v,
+func BrandDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Brand, gorm.DeletedAt] {
+	return badorm.FieldCondition[models.Brand, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func BrandName(v string) badorm.WhereCondition[models.Brand] {
-	return badorm.WhereCondition[models.Brand]{
-		Field: "Name",
-		Value: v,
+func BrandName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Brand, string] {
+	return badorm.FieldCondition[models.Brand, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }

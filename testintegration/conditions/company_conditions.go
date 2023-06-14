@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func CompanyId(v badorm.UUID) badorm.WhereCondition[models.Company] {
-	return badorm.WhereCondition[models.Company]{
-		Field: "ID",
-		Value: v,
+func CompanyId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Company, badorm.UUID] {
+	return badorm.FieldCondition[models.Company, badorm.UUID]{
+		Expressions: exprs,
+		Field:       "ID",
 	}
 }
-func CompanyCreatedAt(v time.Time) badorm.WhereCondition[models.Company] {
-	return badorm.WhereCondition[models.Company]{
-		Field: "CreatedAt",
-		Value: v,
+func CompanyCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Company, time.Time] {
+	return badorm.FieldCondition[models.Company, time.Time]{
+		Expressions: exprs,
+		Field:       "CreatedAt",
 	}
 }
-func CompanyUpdatedAt(v time.Time) badorm.WhereCondition[models.Company] {
-	return badorm.WhereCondition[models.Company]{
-		Field: "UpdatedAt",
-		Value: v,
+func CompanyUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Company, time.Time] {
+	return badorm.FieldCondition[models.Company, time.Time]{
+		Expressions: exprs,
+		Field:       "UpdatedAt",
 	}
 }
-func CompanyDeletedAt(v gorm.DeletedAt) badorm.WhereCondition[models.Company] {
-	return badorm.WhereCondition[models.Company]{
-		Field: "DeletedAt",
-		Value: v,
+func CompanyDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Company, gorm.DeletedAt] {
+	return badorm.FieldCondition[models.Company, gorm.DeletedAt]{
+		Expressions: exprs,
+		Field:       "DeletedAt",
 	}
 }
-func CompanyName(v string) badorm.WhereCondition[models.Company] {
-	return badorm.WhereCondition[models.Company]{
-		Field: "Name",
-		Value: v,
+func CompanyName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Company, string] {
+	return badorm.FieldCondition[models.Company, string]{
+		Expressions: exprs,
+		Field:       "Name",
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {

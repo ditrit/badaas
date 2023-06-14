@@ -12,8 +12,10 @@ import (
 const (
 	// badorm/condition.go
 	badORMCondition      = "Condition"
-	badORMWhereCondition = "WhereCondition"
+	badORMFieldCondition = "FieldCondition"
 	badORMJoinCondition  = "JoinCondition"
+	// badorm/expression.go
+	badORMExpression = "Expression"
 )
 
 type Condition struct {
@@ -153,32 +155,33 @@ func (condition *Condition) generateForBadormModel(objectType Type, field Field)
 
 // Generate a WhereCondition between object and field
 func (condition *Condition) generateWhere(objectType Type, field Field) {
-	whereCondition := jen.Qual(
-		badORMPath, badORMWhereCondition,
+	fieldCondition := jen.Qual(
+		badORMPath, badORMFieldCondition,
 	).Types(
 		jen.Qual(
 			getRelativePackagePath(condition.destPkg, objectType),
 			objectType.Name(),
 		),
+		condition.param.GenericType(),
 	)
 
 	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
-	params := jen.Dict{
-		jen.Id("Value"): jen.Id("v"),
+	conditionValues := jen.Dict{
+		jen.Id("Expressions"): jen.Id("exprs"),
 	}
 	columnName := field.getColumnName()
 
 	if columnName != "" {
-		params[jen.Id("Column")] = jen.Lit(columnName)
+		conditionValues[jen.Id("Column")] = jen.Lit(columnName)
 	} else {
-		params[jen.Id("Field")] = jen.Lit(field.Name)
+		conditionValues[jen.Id("Field")] = jen.Lit(field.Name)
 	}
 
 	columnPrefix := field.ColumnPrefix
 	if columnPrefix != "" {
-		params[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
+		conditionValues[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
 	}
 
 	condition.codes = append(
@@ -188,10 +191,10 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		).Params(
 			condition.param.Statement(),
 		).Add(
-			whereCondition.Clone(),
+			fieldCondition.Clone(),
 		).Block(
 			jen.Return(
-				whereCondition.Clone().Values(params),
+				fieldCondition.Clone().Values(conditionValues),
 			),
 		),
 	)
@@ -287,7 +290,7 @@ func getConditionName(typeV Type, field Field) string {
 // Avoid importing the same package as the destination one
 func getRelativePackagePath(destPkg string, typeV Type) string {
 	srcPkg := typeV.Pkg()
-	if srcPkg.Name() == destPkg {
+	if srcPkg == nil || srcPkg.Name() == destPkg {
 		return ""
 	}
 
