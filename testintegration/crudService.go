@@ -441,6 +441,40 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotUnkn
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIn() {
+	match1 := ts.createProduct("s1", 0, 0, false, nil)
+	match2 := ts.createProduct("s2", 0, 0, false, nil)
+
+	ts.createProduct("ns1", 0, 0, false, nil)
+	ts.createProduct("ns2", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductString(
+			badorm.In("s1", "s2", "s3"),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprNotIn() {
+	match1 := ts.createProduct("s1", 0, 0, false, nil)
+	match2 := ts.createProduct("s2", 0, 0, false, nil)
+
+	ts.createProduct("ns1", 0, 0, false, nil)
+	ts.createProduct("ns2", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductString(
+			badorm.NotIn("ns1", "ns2"),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithMultipleExpressions() {
 	match := ts.createProduct("match", 3, 0, false, nil)
 	ts.createProduct("not_match", 5, 0, false, nil)
