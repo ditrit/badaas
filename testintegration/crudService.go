@@ -248,6 +248,88 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfIntTypeGtOrEq()
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsDistinct() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.IsDistinct(2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotDistinct() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.IsNotDistinct(3),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNull() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+	int1 := 1
+	int2 := 2
+	ts.createProduct("not_match", 0, 0, false, &int1)
+	ts.createProduct("not_match", 0, 0, false, &int2)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductIntPointer(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNull[*int](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithExprIsNotNull() {
+	int1 := 1
+	match := ts.createProduct("match", 0, 0, false, &int1)
+	ts.createProduct("not_match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductIntPointer(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNotNull[*int](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionWithMultipleExpressions() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 5, 0, false, nil)
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.GtOrEq(3),
+			badorm.LtOrEq(4),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfFloatType() {
 	match := ts.createProduct("match", 0, 1.1, false, nil)
 	ts.createProduct("not_match", 0, 2.2, false, nil)
