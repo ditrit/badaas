@@ -55,13 +55,19 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch() {
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.Get(ts.db, conditions.ProductInt(1))
+	_, err := ts.crudProductRepository.Get(
+		ts.db,
+		conditions.ProductInt(badorm.Eq(1)),
+	)
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 	product := ts.createProduct(1)
-	productReturned, err := ts.crudProductRepository.Get(ts.db, conditions.ProductInt(1))
+	productReturned, err := ts.crudProductRepository.Get(
+		ts.db,
+		conditions.ProductInt(badorm.Eq(1)),
+	)
 	ts.Nil(err)
 
 	assert.DeepEqual(ts.T(), product, productReturned)

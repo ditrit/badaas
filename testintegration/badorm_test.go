@@ -83,9 +83,9 @@ func runBaDORMTestSuites(
 	tsExpressions *ExpressionIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
-	// suite.Run(tGlobal, tsCRUDService)
-	// suite.Run(tGlobal, tsCRUDRepository)
-	// suite.Run(tGlobal, tsCRUDUnsafeService)
+	suite.Run(tGlobal, tsCRUDService)
+	suite.Run(tGlobal, tsCRUDRepository)
+	suite.Run(tGlobal, tsCRUDUnsafeService)
 	suite.Run(tGlobal, tsExpressions)
 
 	shutdowner.Shutdown()
