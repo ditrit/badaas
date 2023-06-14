@@ -19,9 +19,10 @@ type Expression[T any] interface {
 // uno custom va a ir a string o no
 // podria igual mirar que condiciones les genero y cuales no segun el tipo
 type ValueExpression[T any] struct {
-	// TODO creo que como no uso T esto no va a verificar nada, aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
+	// TODO creo que como no uso T esto no va a verificar nada,
+	// aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
 	Value         any
-	SqlExpression string
+	SQLExpression string
 }
 
 var nullableKinds = []reflect.Kind{
@@ -38,7 +39,7 @@ func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 	// TODO y aca que pasa con time, deletedAt, y otros nullables por valuer
 	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
 	// TODO esto esta feo
-	if expr.SqlExpression == "=" {
+	if expr.SQLExpression == "=" {
 		reflectVal := reflect.ValueOf(expr.Value)
 		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
 		// avoid nil is not nil behavior of go
@@ -50,29 +51,30 @@ func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 		}
 	}
 
-	return fmt.Sprintf("%s %s ?", columnName, expr.SqlExpression), []any{expr.Value}
+	return fmt.Sprintf("%s %s ?", columnName, expr.SQLExpression), []any{expr.Value}
 }
 
 func NewValueExpression[T any](value T, sqlExpression string) ValueExpression[T] {
 	return ValueExpression[T]{
 		Value:         value,
-		SqlExpression: sqlExpression,
+		SQLExpression: sqlExpression,
 	}
 }
 
 type PredicateExpression[T any] struct {
-	// TODO creo que como no uso T esto no va a verificar nada, aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
-	SqlExpression string
+	// TODO creo que como no uso T esto no va a verificar nada,
+	// aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
+	SQLExpression string
 }
 
 // TODO aca me gustaria que devuelva []T pero no me anda asi
 func (expr PredicateExpression[T]) ToSQL(columnName string) (string, []any) {
-	return fmt.Sprintf("%s %s", columnName, expr.SqlExpression), []any{}
+	return fmt.Sprintf("%s %s", columnName, expr.SQLExpression), []any{}
 }
 
 func NewPredicateExpression[T any](sqlExpression string) PredicateExpression[T] {
 	return PredicateExpression[T]{
-		SqlExpression: sqlExpression,
+		SQLExpression: sqlExpression,
 	}
 }
 
