@@ -13,7 +13,7 @@ import (
 // uno custom va a ir a string o no
 // podria igual mirar que condiciones les genero y cuales no segun el tipo
 type Expression[T any] struct {
-	Value  T
+	Values []T
 	symbol string
 }
 
@@ -26,97 +26,108 @@ var nullableKinds = []reflect.Kind{
 
 // TODO aca me gustaria que devuelva []T pero no me anda asi
 func (expr Expression[T]) ToSQL(columnName string) (string, []any) {
-	// TODO esto es valido solo para el equal, para los demas no se deberia hacer esto
-	// sino que para punteros no haya equal nil?
-	// TODO este chequeo deberia ser solo cuando T es un puntero
-	reflectVal := reflect.ValueOf(expr.Value)
-	isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
-	// avoid nil is not nil behavior of go
-	if isNullableKind && reflectVal.IsNil() {
-		return fmt.Sprintf(
-			"%s IS NULL",
-			columnName,
-		), []any{}
+	// TODO esto se podria hacer pasando expression a interfaz y tener distintos tipos
+	if len(expr.Values) == 0 {
+		return fmt.Sprintf("%s %s", columnName, expr.symbol), []any{}
 	}
 
-	return fmt.Sprintf("%s %s ?", columnName, expr.symbol), []any{expr.Value}
+	value := expr.Values[0]
+	// sino que para punteros no haya equal nil?
+	// TODO este chequeo deberia ser solo cuando T es un puntero
+	// TODO y aca que pasa con time, deletedAt, y otros nullables por valuer
+	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
+	// TODO esto esta feo
+	if expr.symbol == "=" {
+		reflectVal := reflect.ValueOf(value)
+		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
+		// avoid nil is not nil behavior of go
+		if isNullableKind && reflectVal.IsNil() {
+			return fmt.Sprintf(
+				"%s IS NULL",
+				columnName,
+			), []any{}
+		}
+	}
+
+	return fmt.Sprintf("%s %s ?", columnName, expr.symbol), []any{value}
 }
 
 // Comparison Operators
 
+// TODO aca hay codigo repetido entre los constructores
 func Eq[T any](value T) Expression[T] {
 	return Expression[T]{
-		Value:  value,
+		Values: []T{value},
 		symbol: "=",
 	}
 }
 
 func NotEq[T any](value T) Expression[T] {
 	return Expression[T]{
-		Value:  value,
+		Values: []T{value},
 		symbol: "<>",
 	}
 }
 
 func Lt[T any](value T) Expression[T] {
 	return Expression[T]{
-		Value:  value,
+		Values: []T{value},
 		symbol: "<",
 	}
 }
 
 func LtOrEq[T any](value T) Expression[T] {
 	return Expression[T]{
-		Value:  value,
+		Values: []T{value},
 		symbol: "<=",
 	}
 }
 
 func Gt[T any](value T) Expression[T] {
 	return Expression[T]{
-		Value:  value,
+		Values: []T{value},
 		symbol: ">",
 	}
 }
 
 func GtOrEq[T any](value T) Expression[T] {
 	return Expression[T]{
-		Value:  value,
+		Values: []T{value},
 		symbol: ">=",
 	}
 }
 
 // Comparison Predicates
 
-// // TODO BETWEEN, NOT BETWEEN
-// func IsDistinct[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value,
-// 		symbol: "IS DISTINCT FROM",
-// 	}
-// }
+// TODO BETWEEN, NOT BETWEEN
 
-// func IsNotDistinct[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value,
-// 		symbol: "IS NOT DISTINCT FROM",
-// 	}
-// }
+func IsDistinct[T any](value T) Expression[T] {
+	return Expression[T]{
+		Values: []T{value},
+		symbol: "IS DISTINCT FROM",
+	}
+}
 
-// // TODO no deberia ser posible para todos
-// func IsNull[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS NULL",
-// 	}
-// }
+func IsNotDistinct[T any](value T) Expression[T] {
+	return Expression[T]{
+		Values: []T{value},
+		symbol: "IS NOT DISTINCT FROM",
+	}
+}
 
-// func IsNotNull[T any](value T) Expression[T] {
-// 	return Expression[T]{
-// 		Value:  value, // TODO ver aca que hago
-// 		symbol: "IS NOT NULL",
-// 	}
-// }
+// TODO no deberia ser posible para todos, solo los que son nullables
+// pero como puedo saberlo, los que son pointers?, pero tambien hay otros como deletedAt que pueden ser null por su valuer
+func IsNull[T any]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS NULL",
+	}
+}
+
+func IsNotNull[T any]() Expression[T] {
+	return Expression[T]{
+		symbol: "IS NOT NULL",
+	}
+}
 
 // // TODO no deberia ser posible para todos
 // func IsTrue[T any](value T) Expression[T] {

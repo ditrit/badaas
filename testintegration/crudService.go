@@ -243,6 +243,88 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfIntTypeGtOrEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsDistinct() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.IsDistinct(2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNotDistinct() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.IsNotDistinct(3),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNull() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+	int1 := 1
+	int2 := 2
+	ts.createProduct("not_match", 0, 0, false, &int1)
+	ts.createProduct("not_match", 0, 0, false, &int2)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductIntPointer(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsNull[*int](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithExprIsNotNull() {
+	int1 := 1
+	match := ts.createProduct("match", 0, 0, false, &int1)
+	ts.createProduct("not_match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductIntPointer(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			orm.IsNotNull[*int](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionWithMultipleExpressions() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 5, 0, false, nil)
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.GtOrEq(3),
+			orm.LtOrEq(4),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
 func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfFloatType() {
 	match := ts.createProduct("match", 0, 1.1, false, nil)
 	ts.createProduct("not_match", 0, 2.2, false, nil)
