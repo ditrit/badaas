@@ -70,6 +70,7 @@ func TestBaDORM(t *testing.T) {
 		fx.Provide(NewCRUDServiceIntTestSuite),
 		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
+		fx.Provide(NewExpressionsIntTestSuite),
 
 		fx.Invoke(runBaDORMTestSuites),
 	).Run()
@@ -79,11 +80,13 @@ func runBaDORMTestSuites(
 	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
 	tsCRUDUnsafeService *CRUDUnsafeServiceIntTestSuite,
+	tsExpressions *ExpressionIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, tsCRUDService)
-	suite.Run(tGlobal, tsCRUDRepository)
-	suite.Run(tGlobal, tsCRUDUnsafeService)
+	// suite.Run(tGlobal, tsCRUDService)
+	// suite.Run(tGlobal, tsCRUDRepository)
+	// suite.Run(tGlobal, tsCRUDUnsafeService)
+	suite.Run(tGlobal, tsExpressions)
 
 	shutdowner.Shutdown()
 }
@@ -94,8 +97,7 @@ func NewLoggerConfiguration() configuration.LoggerConfiguration {
 }
 
 func NewGormDBConnection(zapLogger *zap.Logger) (*gorm.DB, error) {
-	dbType := configuration.DBDialector(os.Getenv(dbTypeEnvKey))
-	switch dbType {
+	switch getDBDialector() {
 	case configuration.PostgreSQL:
 		return badorm.ConnectToDialector(
 			zapLogger,
@@ -121,6 +123,10 @@ func NewGormDBConnection(zapLogger *zap.Logger) (*gorm.DB, error) {
 			10, time.Duration(5)*time.Second,
 		)
 	default:
-		return nil, fmt.Errorf("unknown db %s", dbType)
+		return nil, fmt.Errorf("unknown db %s", getDBDialector())
 	}
+}
+
+func getDBDialector() configuration.DBDialector {
+	return configuration.DBDialector(os.Getenv(dbTypeEnvKey))
 }

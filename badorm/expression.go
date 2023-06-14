@@ -21,7 +21,7 @@ type Expression[T any] interface {
 type ValueExpression[T any] struct {
 	// TODO creo que como no uso T esto no va a verificar nada, aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
 	Value         any
-	sqlExpression string
+	SqlExpression string
 }
 
 var nullableKinds = []reflect.Kind{
@@ -38,7 +38,7 @@ func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 	// TODO y aca que pasa con time, deletedAt, y otros nullables por valuer
 	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
 	// TODO esto esta feo
-	if expr.sqlExpression == "=" {
+	if expr.SqlExpression == "=" {
 		reflectVal := reflect.ValueOf(expr.Value)
 		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
 		// avoid nil is not nil behavior of go
@@ -50,160 +50,99 @@ func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 		}
 	}
 
-	return fmt.Sprintf("%s %s ?", columnName, expr.sqlExpression), []any{expr.Value}
+	return fmt.Sprintf("%s %s ?", columnName, expr.SqlExpression), []any{expr.Value}
+}
+
+func NewValueExpression[T any](value T, sqlExpression string) ValueExpression[T] {
+	return ValueExpression[T]{
+		Value:         value,
+		SqlExpression: sqlExpression,
+	}
 }
 
 type PredicateExpression[T any] struct {
 	// TODO creo que como no uso T esto no va a verificar nada, aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
-	sqlExpression string
+	SqlExpression string
 }
 
 // TODO aca me gustaria que devuelva []T pero no me anda asi
 func (expr PredicateExpression[T]) ToSQL(columnName string) (string, []any) {
-	return fmt.Sprintf("%s %s", columnName, expr.sqlExpression), []any{}
+	return fmt.Sprintf("%s %s", columnName, expr.SqlExpression), []any{}
 }
 
-type ArrayExpression[T any] struct {
-	Values        []T
-	sqlExpression string
-}
-
-func (expr ArrayExpression[T]) ToSQL(columnName string) (string, []any) {
-	return fmt.Sprintf(
-		"%s %s ?",
-		columnName,
-		expr.sqlExpression,
-	// TODO testear esto porque no se si gorm igual no lo saca de la lista
-	), []any{expr.Values}
+func NewPredicateExpression[T any](sqlExpression string) PredicateExpression[T] {
+	return PredicateExpression[T]{
+		SqlExpression: sqlExpression,
+	}
 }
 
 // Comparison Operators
-// TODO aca hay codigo repetido entre los constructores
 func Eq[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: "=",
-	}
+	return NewValueExpression(value, "=")
 }
 
 func NotEq[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: "<>",
-	}
+	return NewValueExpression(value, "<>")
 }
 
 func Lt[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: "<",
-	}
+	return NewValueExpression(value, "<")
 }
 
 func LtOrEq[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: "<=",
-	}
+	return NewValueExpression(value, "<=")
+}
+
+// TODO no existe en psql
+func NotLt[T any](value T) ValueExpression[T] {
+	return NewValueExpression(value, "!<")
 }
 
 func Gt[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: ">",
-	}
+	return NewValueExpression(value, ">")
 }
 
 func GtOrEq[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: ">=",
-	}
+	return NewValueExpression(value, ">=")
 }
 
 // Comparison Predicates
 
 // TODO BETWEEN, NOT BETWEEN
 
-func IsDistinct[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: "IS DISTINCT FROM",
-	}
-}
-
-func IsNotDistinct[T any](value T) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		sqlExpression: "IS NOT DISTINCT FROM",
-	}
-}
-
 // TODO no deberia ser posible para todos, solo los que son nullables
 // pero como puedo saberlo, los que son pointers?, pero tambien hay otros como deletedAt que pueden ser null por su valuer
 func IsNull[T any]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS NULL",
-	}
+	return NewPredicateExpression[T]("IS NULL")
 }
 
 func IsNotNull[T any]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS NOT NULL",
-	}
+	return NewPredicateExpression[T]("IS NOT NULL")
 }
 
 // Boolean Comparison Predicates
 
 // TODO que pasa con otros que mapean a bool por valuer?
 func IsTrue[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS TRUE",
-	}
+	return NewPredicateExpression[T]("IS TRUE")
 }
 
 func IsNotTrue[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS NOT TRUE",
-	}
+	return NewPredicateExpression[T]("IS NOT TRUE")
 }
 
 func IsFalse[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS FALSE",
-	}
+	return NewPredicateExpression[T]("IS FALSE")
 }
 
 func IsNotFalse[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS NOT FALSE",
-	}
+	return NewPredicateExpression[T]("IS NOT FALSE")
 }
 
 func IsUnknown[T *bool | sql.NullBool]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS UNKNOWN",
-	}
+	return NewPredicateExpression[T]("IS UNKNOWN")
 }
 
 func IsNotUnknown[T *bool | sql.NullBool]() PredicateExpression[T] {
-	return PredicateExpression[T]{
-		sqlExpression: "IS NOT UNKNOWN",
-	}
-}
-
-// Row and Array Comparisons
-
-func In[T any](values ...T) ArrayExpression[T] {
-	return ArrayExpression[T]{
-		Values:        values,
-		sqlExpression: "IN",
-	}
-}
-
-func NotIn[T any](values ...T) ArrayExpression[T] {
-	return ArrayExpression[T]{
-		Values:        values,
-		sqlExpression: "NOT IN",
-	}
+	return NewPredicateExpression[T]("IS NOT UNKNOWN")
 }

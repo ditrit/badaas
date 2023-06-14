@@ -1,8 +1,6 @@
 package testintegration
 
 import (
-	"os"
-
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
@@ -160,7 +158,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInc
 	}
 	result, err := ts.crudProductService.GetEntities(params)
 
-	switch configuration.DBDialector(os.Getenv(dbTypeEnvKey)) {
+	switch getDBDialector() {
 	case configuration.MySQL, configuration.SQLite:
 		// mysql and sqlite simply matches nothing
 		ts.Nil(err)
