@@ -31,6 +31,15 @@ func NewExpressionsIntTestSuite(
 	}
 }
 
+func (ts *ExpressionIntTestSuite) TestEqNullableNullReturnsError() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullFloat(
+			badorm.Eq(sql.NullFloat64{Valid: false}),
+		),
+	)
+	ts.ErrorIs(err, badorm.ErrValueCantBeNull)
+}
+
 func (ts *ExpressionIntTestSuite) TestEqPointers() {
 	intMatch := 1
 	match := ts.createProduct("match", 1, 0, false, &intMatch)
@@ -53,12 +62,9 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("match", 3, 0, false, nil)
 
-	eqOrNil, err := badorm.EqOrIsNull[int](1)
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			eqOrNil,
+			badorm.EqOrIsNull[int](1),
 		),
 	)
 	ts.Nil(err)
@@ -73,12 +79,9 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNil() {
 	err := ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	eqOrNil, err := badorm.EqOrIsNull[[]byte](nil)
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductByteArray(
-			eqOrNil,
+			badorm.EqOrIsNull[[]byte](nil),
 		),
 	)
 	ts.Nil(err)
@@ -94,12 +97,10 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNilOfType() {
 	ts.Nil(err)
 
 	var nilOfType []byte
-	eqOrNil, err := badorm.EqOrIsNull[[]byte](nilOfType)
-	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductByteArray(
-			eqOrNil,
+			badorm.EqOrIsNull[[]byte](nilOfType),
 		),
 	)
 	ts.Nil(err)
@@ -114,12 +115,10 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNilPointer() {
 	ts.createProduct("match", 3, 0, false, &notMatchInt)
 
 	var intPointer *int
-	eqOrNil, err := badorm.EqOrIsNull[int](intPointer)
-	ts.Nil(err)
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductIntPointer(
-			eqOrNil,
+			badorm.EqOrIsNull[int](intPointer),
 		),
 	)
 	ts.Nil(err)
@@ -133,12 +132,9 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotNilPointer() {
 
 	ts.createProduct("match", 3, 0, false, nil)
 
-	eqOrNil, err := badorm.EqOrIsNull[int](&matchInt)
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			eqOrNil,
+			badorm.EqOrIsNull[int](&matchInt),
 		),
 	)
 	ts.Nil(err)
@@ -154,12 +150,9 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNil() {
 	err := ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	eqOrNil, err := badorm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: false})
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
-			eqOrNil,
+			badorm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: false}),
 		),
 	)
 	ts.Nil(err)
@@ -175,12 +168,9 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNotNil() {
 
 	ts.createProduct("match", 3, 0, false, nil)
 
-	eqOrNil, err := badorm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: true, Float64: 6})
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
-			eqOrNil,
+			badorm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: true, Float64: 6}),
 		),
 	)
 	ts.Nil(err)
@@ -190,7 +180,12 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNotNil() {
 
 func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotRelated() {
 	notRelated := "not_related"
-	_, err := badorm.EqOrIsNull[int](&notRelated)
+
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductFloat(
+			badorm.EqOrIsNull[float64](&notRelated),
+		),
+	)
 	ts.ErrorIs(err, badorm.ErrNotRelated)
 }
 
@@ -198,12 +193,9 @@ func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("match", 3, 0, false, nil)
 
-	notEqOrNotNil, err := badorm.NotEqOrIsNotNull[int](3)
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			notEqOrNotNil,
+			badorm.NotEqOrIsNotNull[int](3),
 		),
 	)
 	ts.Nil(err)
@@ -219,12 +211,9 @@ func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNil() {
 
 	ts.createProduct("match", 3, 0, false, nil)
 
-	notEqOrNotNil, err := badorm.NotEqOrIsNotNull[[]byte](nil)
-	ts.Nil(err)
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductByteArray(
-			notEqOrNotNil,
+			badorm.NotEqOrIsNotNull[[]byte](nil),
 		),
 	)
 	ts.Nil(err)
@@ -261,6 +250,15 @@ func (ts *ExpressionIntTestSuite) TestLt() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestLtNullableNullReturnsError() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullFloat(
+			badorm.Lt(sql.NullFloat64{Valid: false}),
+		),
+	)
+	ts.ErrorIs(err, badorm.ErrValueCantBeNull)
 }
 
 func (ts *ExpressionIntTestSuite) TestLtOrEq() {

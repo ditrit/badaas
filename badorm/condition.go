@@ -31,7 +31,7 @@ type Condition[T any] interface {
 }
 
 type WhereCondition[T any] interface {
-	GetSQL(query *gorm.DB, tableName string) (string, []any)
+	GetSQL(query *gorm.DB, tableName string) (string, []any, error)
 
 	getField() string
 }
@@ -52,7 +52,10 @@ func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
 func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
-	sql, values := condition.GetSQL(query, tableName)
+	sql, values, err := condition.GetSQL(query, tableName)
+	if err != nil {
+		return nil, err
+	}
 
 	if condition.Field == DeletedAtField {
 		query = query.Unscoped()
@@ -72,7 +75,7 @@ func (condition FieldCondition[TObject, TAtribute]) getField() string {
 	return condition.Field
 }
 
-func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any) {
+func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
 	columnName := condition.Column
 	if columnName == "" {
 		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
@@ -91,19 +94,23 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 			conditionString += " AND "
 		}
 
-		expressionSQL, expressionValues := expression.ToSQL(
+		expressionSQL, expressionValues, err := expression.ToSQL(
 			fmt.Sprintf(
 				"%s.%s",
 				tableName,
 				columnName,
 			),
 		)
+		if err != nil {
+			return "", nil, err
+		}
+
 		conditionString += expressionSQL
 
 		values = append(values, expressionValues...)
 	}
 
-	return conditionString, values
+	return conditionString, values, nil
 }
 
 type JoinCondition[T1 any, T2 any] struct {
@@ -146,7 +153,11 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 			isDeletedAtConditionPresent = true
 		}
 
-		sql, values := condition.GetSQL(query, nextTableName)
+		sql, values, err := condition.GetSQL(query, nextTableName)
+		if err != nil {
+			return nil, err
+		}
+
 		conditionsValues = append(conditionsValues, values...)
 		joinQuery += " AND " + sql
 	}
@@ -201,6 +212,7 @@ func divideConditionsByType[T any](
 			typedCondition, ok := condition.(WhereCondition[T])
 			if ok {
 				// TODO ver si dejo asi
+				// esto me trajo problems cuando hice un cambio en el metodo, ya no cumplia y todas las condiciones me quedaron vacias
 				thisEntityConditions = append(thisEntityConditions, typedCondition)
 			}
 		case JoinType:
