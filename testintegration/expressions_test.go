@@ -106,6 +106,38 @@ func (ts *ExpressionIntTestSuite) TestGtOrEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+func (ts *ExpressionIntTestSuite) TestBetween() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 6, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.Between(3, 5),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotBetween() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.NotBetween(0, 2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
 func (ts *ExpressionIntTestSuite) TestIsNull() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 	int1 := 1

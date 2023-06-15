@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/elliotchance/pie/v2"
 )
@@ -40,7 +41,7 @@ var nullableKinds = []reflect.Kind{
 func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 	// sino que para punteros no haya equal nil?
 	// TODO este chequeo deberia ser solo cuando T es un puntero
-	// TODO y aca que pasa con time, deletedAt, y otros nullables por valuer
+	// y que pasa con time, deletedAt, y otros nullables por valuer
 	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
 	// TODO esto esta feo
 	// TODO tambien lo que hace la libreria esa es transformarlo en in si es un array
@@ -66,6 +67,48 @@ func NewValueExpression[T any](value T, sqlExpression string) ValueExpression[T]
 	}
 }
 
+type MultivalueExpression[T any] struct {
+	Values        []T
+	SQLExpression string
+	SQLConnector  string
+	SQLPrefix     string
+	SQLSuffix     string
+}
+
+//nolint:unused // see inside
+func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Expression[T]
+}
+
+func (expr MultivalueExpression[T]) ToSQL(columnName string) (string, []any) {
+	placeholders := strings.Join(pie.Map(expr.Values, func(value T) string {
+		return "?"
+	}), " "+expr.SQLConnector+" ")
+
+	values := pie.Map(expr.Values, func(value T) any {
+		return value
+	})
+
+	return fmt.Sprintf(
+		"%s %s %s"+placeholders+"%s",
+		columnName,
+		expr.SQLExpression,
+		expr.SQLPrefix,
+		expr.SQLSuffix,
+	), values
+}
+
+func NewMultivalueExpression[T any](sqlExpression, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) MultivalueExpression[T] {
+	return MultivalueExpression[T]{
+		Values:        values,
+		SQLExpression: sqlExpression,
+		SQLConnector:  sqlConnector,
+		SQLPrefix:     sqlPrefix,
+		SQLSuffix:     sqlSuffix,
+	}
+}
+
 type PredicateExpression[T any] struct {
 	SQLExpression string
 }
@@ -87,6 +130,10 @@ func NewPredicateExpression[T any](sqlExpression string) PredicateExpression[T] 
 }
 
 // Comparison Operators
+// refs:
+// https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
+// https://www.postgresql.org/docs/current/functions-comparison.html
+
 func Eq[T any](value T) ValueExpression[T] {
 	return NewValueExpression(value, "=")
 }
@@ -103,11 +150,6 @@ func LtOrEq[T any](value T) ValueExpression[T] {
 	return NewValueExpression(value, "<=")
 }
 
-// TODO no existe en psql
-func NotLt[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, "!<")
-}
-
 func Gt[T any](value T) ValueExpression[T] {
 	return NewValueExpression(value, ">")
 }
@@ -117,8 +159,17 @@ func GtOrEq[T any](value T) ValueExpression[T] {
 }
 
 // Comparison Predicates
+// refs:
+// https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
+// https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
-// TODO BETWEEN, NOT BETWEEN
+func Between[T any](v1 T, v2 T) MultivalueExpression[T] {
+	return NewMultivalueExpression("BETWEEN", "AND", "", "", v1, v2)
+}
+
+func NotBetween[T any](v1 T, v2 T) MultivalueExpression[T] {
+	return NewMultivalueExpression("NOT BETWEEN", "AND", "", "", v1, v2)
+}
 
 // TODO no deberia ser posible para todos, solo los que son nullables
 // pero como puedo saberlo, los que son pointers?, pero tambien hay otros como deletedAt que pueden ser null por su valuer
