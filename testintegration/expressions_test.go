@@ -9,6 +9,7 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/mysql"
 	"github.com/ditrit/badaas/badorm/psql"
+	"github.com/ditrit/badaas/badorm/sqlserver"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -277,6 +278,28 @@ func (ts *ExpressionIntTestSuite) TestLtOrEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+func (ts *ExpressionIntTestSuite) TestNotLt() {
+	switch getDBDialector() {
+	case configuration.SQLServer:
+		match1 := ts.createProduct("match", 3, 0, false, nil)
+		match2 := ts.createProduct("match", 4, 0, false, nil)
+		ts.createProduct("not_match", 1, 0, false, nil)
+		ts.createProduct("not_match", 2, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductInt(
+				sqlserver.NotLt(3),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	case configuration.PostgreSQL, configuration.MySQL, configuration.SQLite:
+		// TODO
+		log.Println("TODO")
+	}
+}
+
 func (ts *ExpressionIntTestSuite) TestGt() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
@@ -307,6 +330,28 @@ func (ts *ExpressionIntTestSuite) TestGtOrEq() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotGt() {
+	switch getDBDialector() {
+	case configuration.SQLServer:
+		match1 := ts.createProduct("match", 1, 0, false, nil)
+		match2 := ts.createProduct("match", 2, 0, false, nil)
+		ts.createProduct("not_match", 3, 0, false, nil)
+		ts.createProduct("not_match", 4, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductInt(
+				sqlserver.NotGt(2),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	case configuration.PostgreSQL, configuration.MySQL, configuration.SQLite:
+		// TODO
+		log.Println("TODO")
+	}
 }
 
 func (ts *ExpressionIntTestSuite) TestBetween() {
@@ -356,7 +401,16 @@ func (ts *ExpressionIntTestSuite) TestIsDistinct() {
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
-	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
+	case configuration.SQLServer:
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductInt(
+				sqlserver.IsDistinct(2),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	case configuration.MySQL, configuration.SQLite:
 		// TODO
 		log.Println("TODO")
 	}
@@ -374,14 +428,48 @@ func (ts *ExpressionIntTestSuite) TestIsNotDistinct() {
 		isNotEqualExpression = mysql.IsEqual(3)
 	case configuration.PostgreSQL:
 		isNotEqualExpression = psql.IsNotDistinct(3)
-	case configuration.SQLServer, configuration.SQLite:
-		// TODO esto no va a andar en todos
+	case configuration.SQLServer:
+		isNotEqualExpression = sqlserver.IsNotDistinct(3)
+	case configuration.SQLite:
+		// TODO
 		isNotEqualExpression = psql.IsNotDistinct(3)
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
 			isNotEqualExpression,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestIsNotDistinctNullValue() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+
+	notMatch := ts.createProduct("not_match", 4, 0, false, nil)
+	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
+	err := ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	var isEqualExpression badorm.Expression[sql.NullFloat64]
+
+	switch getDBDialector() {
+	case configuration.MySQL:
+		isEqualExpression = mysql.IsEqual(sql.NullFloat64{Valid: false})
+	case configuration.PostgreSQL:
+		isEqualExpression = psql.IsNotDistinct(sql.NullFloat64{Valid: false})
+	case configuration.SQLServer:
+		isEqualExpression = sqlserver.IsNotDistinct(sql.NullFloat64{Valid: false})
+	case configuration.SQLite:
+		// TODO
+		isEqualExpression = psql.IsNotDistinct(sql.NullFloat64{Valid: false})
+	}
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullFloat(
+			isEqualExpression,
 		),
 	)
 	ts.Nil(err)
@@ -468,10 +556,20 @@ func (ts *ExpressionIntTestSuite) TestIsTrue() {
 	ts.createProduct("not_match", 0, 0, false, nil)
 	ts.createProduct("not_match", 0, 0, false, nil)
 
+	var isTrueExpression badorm.Expression[bool]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		// TODO esto no queda muy lindo que hay que ponerlo asi
+		isTrueExpression = badorm.IsTrue[bool]()
+	case configuration.SQLServer:
+		// sqlserver doesn't support IsTrue
+		isTrueExpression = badorm.Eq[bool](true)
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsTrue[bool](),
+			isTrueExpression,
 		),
 	)
 	ts.Nil(err)
@@ -484,10 +582,20 @@ func (ts *ExpressionIntTestSuite) TestIsFalse() {
 	ts.createProduct("not_match", 0, 0, true, nil)
 	ts.createProduct("not_match", 0, 0, true, nil)
 
+	var isFalseExpression badorm.Expression[bool]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		// TODO esto no queda muy lindo que hay que ponerlo asi
+		isFalseExpression = badorm.IsFalse[bool]()
+	case configuration.SQLServer:
+		// sqlserver doesn't support IsFalse
+		isFalseExpression = badorm.Eq[bool](false)
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsFalse[bool](),
+			isFalseExpression,
 		),
 	)
 	ts.Nil(err)
@@ -507,10 +615,20 @@ func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 	err = ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
+	var isNotTrueExpression badorm.Expression[sql.NullBool]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		// TODO esto no queda muy lindo que hay que ponerlo asi
+		isNotTrueExpression = badorm.IsNotTrue[sql.NullBool]()
+	case configuration.SQLServer:
+		// sqlserver doesn't support IsNotTrue
+		isNotTrueExpression = sqlserver.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: true})
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsNotTrue[sql.NullBool](),
+			isNotTrueExpression,
 		),
 	)
 	ts.Nil(err)
@@ -530,10 +648,20 @@ func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
 	err = ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
+	var isNotFalseExpression badorm.Expression[sql.NullBool]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		// TODO esto no queda muy lindo que hay que ponerlo asi
+		isNotFalseExpression = badorm.IsNotFalse[sql.NullBool]()
+	case configuration.SQLServer:
+		// sqlserver doesn't support IsNotFalse
+		isNotFalseExpression = sqlserver.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: false})
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsNotFalse[sql.NullBool](),
+			isNotFalseExpression,
 		),
 	)
 	ts.Nil(err)
@@ -554,10 +682,20 @@ func (ts *ExpressionIntTestSuite) TestIsUnknown() {
 	err = ts.db.Save(notMatch2).Error
 	ts.Nil(err)
 
+	var isUnknownExpression badorm.Expression[sql.NullBool]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		// TODO esto no queda muy lindo que hay que ponerlo asi
+		isUnknownExpression = badorm.IsUnknown[sql.NullBool]()
+	case configuration.SQLServer:
+		// sqlserver doesn't support IsUnknown
+		isUnknownExpression = sqlserver.IsNotDistinct[sql.NullBool](sql.NullBool{Valid: false})
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsUnknown[sql.NullBool](),
+			isUnknownExpression,
 		),
 	)
 	ts.Nil(err)
@@ -578,10 +716,20 @@ func (ts *ExpressionIntTestSuite) TestIsNotUnknown() {
 
 	ts.createProduct("", 0, 0, false, nil)
 
+	var isNotUnknownExpression badorm.Expression[sql.NullBool]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		// TODO esto no queda muy lindo que hay que ponerlo asi
+		isNotUnknownExpression = badorm.IsNotUnknown[sql.NullBool]()
+	case configuration.SQLServer:
+		// sqlserver doesn't support IsNotUnknown
+		isNotUnknownExpression = sqlserver.IsDistinct[sql.NullBool](sql.NullBool{Valid: false})
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsNotUnknown[sql.NullBool](),
+			isNotUnknownExpression,
 		),
 	)
 	ts.Nil(err)

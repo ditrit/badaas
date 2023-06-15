@@ -1,13 +1,14 @@
 package psql
 
-import "github.com/ditrit/badaas/badorm"
-
-// Comparison Predicates
+import (
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/shared"
+)
 
 func IsDistinct[T any](value T) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](value, "IS DISTINCT FROM")
+	return shared.IsDistinct(value)
 }
 
 func IsNotDistinct[T any](value T) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](value, "IS NOT DISTINCT FROM")
+	return shared.IsNotDistinct(value)
 }

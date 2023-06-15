@@ -155,10 +155,10 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 // refs:
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html
+// https://learn.microsoft.com/en-us/sql/t-sql/language-elements/comparison-operators-transact-sql?view=sql-server-ver16
 
 // EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) Expression[T] {
-	// TODO hacer el eq de sql server que si puede con los null
 	return NewCantBeNullValueExpression[T](value, "=")
 }
 
@@ -167,10 +167,12 @@ func Eq[T any](value T) Expression[T] {
 // this must be used because ANSI SQL-92 standard defines:
 // NULL = NULL evaluates to unknown, which is later considered a false
 //
-// this behavior can be also avoided in other ways as:
-// * in SQLServer you can set ansi_nulls setting to off
-// * in MySQL you can use equal_to operator (implemented in mysql.IsEqual)
-// * in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in psql.IsNotDistinct)
+// this behavior can be also avoided in other ways:
+//   - in SQLServer you can:
+//     ** set ansi_nulls setting to off and use sqlserver.EqNullable
+//     ** use the IS NOT DISTINCT operator (implemented in sqlserver.IsNotDistinct)
+//   - in MySQL you can use equal_to operator (implemented in mysql.IsEqual)
+//   - in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in psql.IsNotDistinct)
 func EqOrIsNull[T any](value any) Expression[T] {
 	return expressionFromValueOrNil[T](value, Eq[T], IsNull[T]())
 }
@@ -185,9 +187,11 @@ func NotEq[T any](value T) Expression[T] {
 // this must be used because ANSI SQL-92 standard defines:
 // NULL = NULL evaluates to unknown, which is later considered a false
 //
-// this behavior can be also avoided in other ways as:
-// * in SQLServer you can set ansi_nulls setting to off
-// * in PostgreSQL you can use the IS DISTINCT operator (implemented in psql.IsDistinct)
+// this behavior can be also avoided in other ways:
+//   - in SQLServer you can:
+//     ** set ansi_nulls setting to off and use sqlserver.NotEqNullable
+//     ** use the IS DISTINCT operator (implemented in sqlserver.IsDistinct)
+//   - in PostgreSQL you can use the IS DISTINCT operator (implemented in psql.IsDistinct)
 func NotEqOrIsNotNull[T any](value any) Expression[T] {
 	return expressionFromValueOrNil[T](value, NotEq[T], IsNotNull[T]())
 }
