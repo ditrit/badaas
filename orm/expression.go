@@ -60,7 +60,7 @@ func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 	return fmt.Sprintf("%s %s ?", columnName, expr.SQLExpression), []any{expr.Value}
 }
 
-func NewValueExpression[T any](value T, sqlExpression string) ValueExpression[T] {
+func NewValueExpression[T any](value any, sqlExpression string) ValueExpression[T] {
 	return ValueExpression[T]{
 		Value:         value,
 		SQLExpression: sqlExpression,
@@ -135,27 +135,27 @@ func NewPredicateExpression[T any](sqlExpression string) PredicateExpression[T] 
 // https://www.postgresql.org/docs/current/functions-comparison.html
 
 func Eq[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, "=")
+	return NewValueExpression[T](value, "=")
 }
 
 func NotEq[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, "<>")
+	return NewValueExpression[T](value, "<>")
 }
 
 func Lt[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, "<")
+	return NewValueExpression[T](value, "<")
 }
 
 func LtOrEq[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, "<=")
+	return NewValueExpression[T](value, "<=")
 }
 
 func Gt[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, ">")
+	return NewValueExpression[T](value, ">")
 }
 
 func GtOrEq[T any](value T) ValueExpression[T] {
-	return NewValueExpression(value, ">=")
+	return NewValueExpression[T](value, ">=")
 }
 
 // Comparison Predicates
