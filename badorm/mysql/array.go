@@ -14,6 +14,12 @@ type ArrayExpression[T any] struct {
 	SQLExpression string
 }
 
+//nolint:unused // see inside
+func (expr ArrayExpression[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Expression[T]
+}
+
 func NewArrayExpression[T any](values []T, sqlExpression string) ArrayExpression[T] {
 	return ArrayExpression[T]{
 		Values:        values,
