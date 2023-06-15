@@ -9,20 +9,24 @@ import (
 )
 
 type Expression[T any] interface {
-	// TODO agregar el metodo de validacion de interface
 	ToSQL(columnName string) (string, []any)
+
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Expression[T],
+	// since if no method receives by parameter a type T,
+	// any other Expression[T2] would also be considered a Expression[T].
+	InterfaceVerificationMethod(T)
 }
 
-// TODO
-// string, int, etc. uuid, cualquier custom, time, deletedAt, asi que es any al final
-// aunque algunos como like y eso solo funcionan para string, el problema es que yo no se si
-// uno custom va a ir a string o no
-// podria igual mirar que condiciones les genero y cuales no segun el tipo
 type ValueExpression[T any] struct {
-	// TODO creo que como no uso T esto no va a verificar nada,
-	// aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
 	Value         any
 	SQLExpression string
+}
+
+//nolint:unused // see inside
+func (expr ValueExpression[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Expression[T]
 }
 
 var nullableKinds = []reflect.Kind{
@@ -39,6 +43,7 @@ func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
 	// TODO y aca que pasa con time, deletedAt, y otros nullables por valuer
 	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
 	// TODO esto esta feo
+	// TODO tambien lo que hace la libreria esa es transformarlo en in si es un array
 	if expr.SQLExpression == "=" {
 		reflectVal := reflect.ValueOf(expr.Value)
 		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
@@ -62,12 +67,15 @@ func NewValueExpression[T any](value T, sqlExpression string) ValueExpression[T]
 }
 
 type PredicateExpression[T any] struct {
-	// TODO creo que como no uso T esto no va a verificar nada,
-	// aca antes habia []T pero me limita para cosas que no necesariamente comparan contra T como el startsWith
 	SQLExpression string
 }
 
-// TODO aca me gustaria que devuelva []T pero no me anda asi
+//nolint:unused // see inside
+func (expr PredicateExpression[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Expression[T]
+}
+
 func (expr PredicateExpression[T]) ToSQL(columnName string) (string, []any) {
 	return fmt.Sprintf("%s %s", columnName, expr.SQLExpression), []any{}
 }
