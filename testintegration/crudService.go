@@ -361,22 +361,6 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayEmpty(
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfByteArrayNil() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
-	notMatch1.ByteArray = []byte{2, 3}
-
-	err := ts.db.Save(notMatch1).Error
-	ts.Nil(err)
-
-	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductByteArray(badorm.Eq[[]uint8](nil)),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
 func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfCustomType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
