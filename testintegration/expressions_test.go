@@ -45,6 +45,189 @@ func (ts *ExpressionIntTestSuite) TestEqPointers() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNotNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	ts.createProduct("match", 3, 0, false, nil)
+
+	eqOrNil, err := orm.EqOrIsNull[int](1)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch := ts.createProduct("match", 3, 0, false, nil)
+	notMatch.ByteArray = []byte{2, 3}
+	err := ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	eqOrNil, err := orm.EqOrIsNull[[]byte](nil)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductByteArray(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNilOfType() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	notMatch := ts.createProduct("match", 3, 0, false, nil)
+	notMatch.ByteArray = []byte{2, 3}
+	err := ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	var nilOfType []byte
+	eqOrNil, err := orm.EqOrIsNull[[]byte](nilOfType)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductByteArray(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullNilPointer() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+
+	notMatchInt := 1
+	ts.createProduct("match", 3, 0, false, &notMatchInt)
+
+	var intPointer *int
+	eqOrNil, err := orm.EqOrIsNull[int](intPointer)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductIntPointer(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotNilPointer() {
+	matchInt := 1
+	match := ts.createProduct("match", 1, 0, false, &matchInt)
+
+	ts.createProduct("match", 3, 0, false, nil)
+
+	eqOrNil, err := orm.EqOrIsNull[int](&matchInt)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+
+	notMatch := ts.createProduct("match", 3, 0, false, nil)
+	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
+	err := ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	eqOrNil, err := orm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: false})
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullFloat(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNotNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	ts.createProduct("match", 3, 0, false, nil)
+
+	eqOrNil, err := orm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: true, Float64: 6})
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullFloat(
+			eqOrNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotRelated() {
+	notRelated := "not_related"
+	_, err := orm.EqOrIsNull[int](&notRelated)
+	ts.ErrorIs(err, orm.ErrNotRelated)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	ts.createProduct("match", 3, 0, false, nil)
+
+	notEqOrNotNil, err := orm.NotEqOrIsNotNull[int](3)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			notEqOrNotNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNil() {
+	match := ts.createProduct("match", 1, 0, false, nil)
+	match.ByteArray = []byte{2, 3}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	ts.createProduct("match", 3, 0, false, nil)
+
+	notEqOrNotNil, err := orm.NotEqOrIsNotNull[[]byte](nil)
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductByteArray(
+			notEqOrNotNil,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
 func (ts *ExpressionIntTestSuite) TestNotEq() {
 	match1 := ts.createProduct("match", 1, 0, false, nil)
 	match2 := ts.createProduct("match", 3, 0, false, nil)

@@ -351,22 +351,6 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfByteArrayEmpty() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfByteArrayNil() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
-	notMatch1.ByteArray = []byte{2, 3}
-
-	err := ts.db.Save(notMatch1).Error
-	ts.Nil(err)
-
-	entities, err := ts.crudProductService.Query(
-		conditions.ProductByteArray(orm.Eq[[]uint8](nil)),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
 func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfCustomType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)

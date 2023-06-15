@@ -2,12 +2,16 @@ package orm
 
 import (
 	"database/sql"
+	"database/sql/driver"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/elliotchance/pie/v2"
 )
+
+var ErrNotRelated = errors.New("value type not related with T")
 
 type Expression[T any] interface {
 	ToSQL(columnName string) (string, []any)
@@ -39,24 +43,6 @@ var nullableKinds = []reflect.Kind{
 
 // TODO aca me gustaria que devuelva []T pero no me anda asi
 func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
-	// TODO este chequeo deberia ser solo cuando T es un puntero
-	// y que pasa con time, deletedAt, y otros nullables por valuer
-	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
-	// TODO esto esta feo
-	// TODO tambien lo que hace la libreria esa es transformarlo en in si es un array
-	// TODO ahora solo es util para los arrays y eso, para pointers ya no existe esta posibilidad
-	if expr.SQLExpression == "=" {
-		reflectVal := reflect.ValueOf(expr.Value)
-		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
-		// avoid nil is not nil behavior of go
-		if isNullableKind && reflectVal.IsNil() {
-			return fmt.Sprintf(
-				"%s IS NULL",
-				columnName,
-			), []any{}
-		}
-	}
-
 	return fmt.Sprintf("%s %s ?", columnName, expr.SQLExpression), []any{expr.Value}
 }
 
@@ -134,12 +120,77 @@ func NewPredicateExpression[T any](sqlExpression string) PredicateExpression[T] 
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html
 
+// EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) ValueExpression[T] {
 	return NewValueExpression[T](value, "=")
 }
 
+// if value is not NULL returns a Eq expression
+// but if value is NULL returns a IsNull expression
+// this must be used because ANSI SQL-92 standard defines:
+// NULL = NULL evaluates to unknown, which is later considered a false
+//
+// this behavior can be also avoided in other ways as:
+// * in SQLServer you can set ansi_nulls setting to off
+// * in MySQL you can use equal_to operator (implemented in mysql.IsEqual)
+// * in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in psql.IsNotDistinct)
+func EqOrIsNull[T any](value any) (Expression[T], error) {
+	return expressionFromValueOrNil[T](value, Eq[T], IsNull[T]())
+}
+
+// NotEqOrNotIsNull must be used in cases where value can be NULL
 func NotEq[T any](value T) ValueExpression[T] {
 	return NewValueExpression[T](value, "<>")
+}
+
+// if value is not NULL returns a NotEq expression
+// but if value is NULL returns a IsNotNull expression
+// this must be used because ANSI SQL-92 standard defines:
+// NULL = NULL evaluates to unknown, which is later considered a false
+//
+// this behavior can be also avoided in other ways as:
+// * in SQLServer you can set ansi_nulls setting to off
+// * in PostgreSQL you can use the IS DISTINCT operator (implemented in psql.IsDistinct)
+func NotEqOrIsNotNull[T any](value any) (Expression[T], error) {
+	return expressionFromValueOrNil[T](value, NotEq[T], IsNotNull[T]())
+}
+
+func expressionFromValueOrNil[T any](value any, eqFunc func(T) ValueExpression[T], nilExpression Expression[T]) (Expression[T], error) {
+	if value == nil {
+		return nilExpression, nil
+	}
+
+	valueTPointer, isTPointer := value.(*T)
+	if isTPointer {
+		if valueTPointer == nil {
+			return nilExpression, nil
+		}
+
+		return eqFunc(*valueTPointer), nil
+	}
+
+	valueT, isT := value.(T)
+	if isT {
+		reflectVal := reflect.ValueOf(value)
+		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
+		// avoid nil is not nil behavior of go
+		if isNullableKind && reflectVal.IsNil() {
+			return nilExpression, nil
+		}
+
+		// TODO creo que esto lo voy a tener que mover afuera si quiero que los nullables se comparen contra los no nullables
+		valuer, isValuer := value.(driver.Valuer)
+		if isValuer {
+			valuerValue, err := valuer.Value()
+			if err == nil && valuerValue == nil {
+				return nilExpression, nil
+			}
+		}
+
+		return eqFunc(valueT), nil
+	}
+
+	return nil, ErrNotRelated
 }
 
 func Lt[T any](value T) ValueExpression[T] {
