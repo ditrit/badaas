@@ -751,8 +751,10 @@ func (ts *ExpressionIntTestSuite) TestArrayIn() {
 		arrayInExpression = mysql.ArrayIn("s1", "s2", "s3")
 	case configuration.PostgreSQL:
 		arrayInExpression = psql.ArrayIn("s1", "s2", "s3")
-	case configuration.SQLServer, configuration.SQLite:
-		// TODO esto no va a andar en todos
+	case configuration.SQLServer:
+		arrayInExpression = sqlserver.ArrayIn("s1", "s2", "s3")
+	case configuration.SQLite:
+		// TODO
 		arrayInExpression = psql.ArrayIn("s1", "s2", "s3")
 	}
 
