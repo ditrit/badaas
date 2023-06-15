@@ -310,20 +310,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeWith
 	ts.createProduct("not_match", 2, 0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductIntPointer(badorm.Eq(&intMatch)),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
-func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfPointerTypeByNil() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	intNotMatch := 2
-	ts.createProduct("not_match", 2, 0, false, &intNotMatch)
-
-	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductIntPointer(badorm.Eq[*int](nil)),
+		conditions.ProductIntPointer(badorm.Eq(1)),
 	)
 	ts.Nil(err)
 
@@ -441,7 +428,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOpt
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		conditions.SaleSellerId(badorm.Eq(&seller1.ID)),
+		conditions.SaleSellerId(badorm.Eq(seller1.ID)),
 	)
 	ts.Nil(err)
 
@@ -458,7 +445,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionOfRelationTypeOpt
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		conditions.SaleSellerId(badorm.Eq[*badorm.UUID](nil)),
+		conditions.SaleSellerId(badorm.IsNull[badorm.UUID]()),
 	)
 	ts.Nil(err)
 
@@ -729,7 +716,7 @@ func (ts *CRUDServiceIntTestSuite) TestGetEntitiesWithConditionThatJoinsAndFilte
 
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleProduct(
-			conditions.ProductIntPointer(badorm.Eq[*int](nil)),
+			conditions.ProductIntPointer(badorm.IsNull[int]()),
 		),
 	)
 	ts.Nil(err)

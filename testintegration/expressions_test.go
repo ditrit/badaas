@@ -31,6 +31,24 @@ func NewExpressionsIntTestSuite(
 	}
 }
 
+func (ts *ExpressionIntTestSuite) TestEqPointers() {
+	intMatch := 1
+	match := ts.createProduct("match", 1, 0, false, &intMatch)
+
+	intNotMatch := 2
+	ts.createProduct("match", 3, 0, false, &intNotMatch)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductIntPointer(
+			badorm.Eq(1),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
 func (ts *ExpressionIntTestSuite) TestNotEq() {
 	match1 := ts.createProduct("match", 1, 0, false, nil)
 	match2 := ts.createProduct("match", 3, 0, false, nil)
@@ -201,7 +219,26 @@ func (ts *ExpressionIntTestSuite) TestIsNull() {
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductIntPointer(
 			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsNull[*int](),
+			badorm.IsNull[int](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestIsNullNotPointers() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+
+	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
+	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
+	err := ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullFloat(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNull[sql.NullFloat64](),
 		),
 	)
 	ts.Nil(err)
@@ -218,7 +255,26 @@ func (ts *ExpressionIntTestSuite) TestIsNotNull() {
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductIntPointer(
 			// TODO esto no queda muy lindo que hay que ponerlo asi
-			badorm.IsNotNull[*int](),
+			badorm.IsNotNull[int](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestIsNotNullNotPointers() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	ts.createProduct("not_match", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullFloat(
+			// TODO esto no queda muy lindo que hay que ponerlo asi
+			badorm.IsNotNull[sql.NullFloat64](),
 		),
 	)
 	ts.Nil(err)

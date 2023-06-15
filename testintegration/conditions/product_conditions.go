@@ -45,8 +45,8 @@ func ProductInt(exprs ...badorm.Expression[int]) badorm.FieldCondition[models.Pr
 		Field:       "Int",
 	}
 }
-func ProductIntPointer(exprs ...badorm.Expression[*int]) badorm.FieldCondition[models.Product, *int] {
-	return badorm.FieldCondition[models.Product, *int]{
+func ProductIntPointer(exprs ...badorm.Expression[int]) badorm.FieldCondition[models.Product, int] {
+	return badorm.FieldCondition[models.Product, int]{
 		Expressions: exprs,
 		Field:       "IntPointer",
 	}
@@ -55,6 +55,12 @@ func ProductFloat(exprs ...badorm.Expression[float64]) badorm.FieldCondition[mod
 	return badorm.FieldCondition[models.Product, float64]{
 		Expressions: exprs,
 		Field:       "Float",
+	}
+}
+func ProductNullFloat(exprs ...badorm.Expression[sql.NullFloat64]) badorm.FieldCondition[models.Product, sql.NullFloat64] {
+	return badorm.FieldCondition[models.Product, sql.NullFloat64]{
+		Expressions: exprs,
+		Field:       "NullFloat",
 	}
 }
 func ProductBool(exprs ...badorm.Expression[bool]) badorm.FieldCondition[models.Product, bool] {

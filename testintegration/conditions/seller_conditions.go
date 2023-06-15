@@ -38,8 +38,8 @@ func SellerName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models
 		Field:       "Name",
 	}
 }
-func SellerCompanyId(exprs ...badorm.Expression[*badorm.UUID]) badorm.FieldCondition[models.Seller, *badorm.UUID] {
-	return badorm.FieldCondition[models.Seller, *badorm.UUID]{
+func SellerCompanyId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Seller, badorm.UUID] {
+	return badorm.FieldCondition[models.Seller, badorm.UUID]{
 		Expressions: exprs,
 		Field:       "CompanyID",
 	}

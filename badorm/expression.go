@@ -39,12 +39,12 @@ var nullableKinds = []reflect.Kind{
 
 // TODO aca me gustaria que devuelva []T pero no me anda asi
 func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any) {
-	// sino que para punteros no haya equal nil?
 	// TODO este chequeo deberia ser solo cuando T es un puntero
 	// y que pasa con time, deletedAt, y otros nullables por valuer
 	// TODO que pasa para los demas symbols, puede meterme un null en un lt?
 	// TODO esto esta feo
 	// TODO tambien lo que hace la libreria esa es transformarlo en in si es un array
+	// TODO ahora solo es util para los arrays y eso, para pointers ya no existe esta posibilidad
 	if expr.SQLExpression == "=" {
 		reflectVal := reflect.ValueOf(expr.Value)
 		isNullableKind := pie.Contains(nullableKinds, reflectVal.Kind())
@@ -171,8 +171,6 @@ func NotBetween[T any](v1 T, v2 T) MultivalueExpression[T] {
 	return NewMultivalueExpression("NOT BETWEEN", "AND", "", "", v1, v2)
 }
 
-// TODO no deberia ser posible para todos, solo los que son nullables
-// pero como puedo saberlo, los que son pointers?, pero tambien hay otros como deletedAt que pueden ser null por su valuer
 func IsNull[T any]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NULL")
 }
@@ -184,26 +182,26 @@ func IsNotNull[T any]() PredicateExpression[T] {
 // Boolean Comparison Predicates
 
 // TODO que pasa con otros que mapean a bool por valuer?
-func IsTrue[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
+func IsTrue[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS TRUE")
 }
 
-func IsNotTrue[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
+func IsNotTrue[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT TRUE")
 }
 
-func IsFalse[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
+func IsFalse[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS FALSE")
 }
 
-func IsNotFalse[T bool | *bool | sql.NullBool]() PredicateExpression[T] {
+func IsNotFalse[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT FALSE")
 }
 
-func IsUnknown[T *bool | sql.NullBool]() PredicateExpression[T] {
+func IsUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS UNKNOWN")
 }
 
-func IsNotUnknown[T *bool | sql.NullBool]() PredicateExpression[T] {
+func IsNotUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT UNKNOWN")
 }

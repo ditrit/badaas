@@ -64,8 +64,8 @@ func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[
 		T2Field:    "ID",
 	}
 }
-func SaleSellerId(exprs ...badorm.Expression[*badorm.UUID]) badorm.FieldCondition[models.Sale, *badorm.UUID] {
-	return badorm.FieldCondition[models.Sale, *badorm.UUID]{
+func SaleSellerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Sale, badorm.UUID] {
+	return badorm.FieldCondition[models.Sale, badorm.UUID]{
 		Expressions: exprs,
 		Field:       "SellerID",
 	}

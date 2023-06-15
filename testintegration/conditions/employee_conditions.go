@@ -45,8 +45,8 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condit
 		T2Field:    "ID",
 	}
 }
-func EmployeeBossId(exprs ...badorm.Expression[*badorm.UUID]) badorm.FieldCondition[models.Employee, *badorm.UUID] {
-	return badorm.FieldCondition[models.Employee, *badorm.UUID]{
+func EmployeeBossId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Employee, badorm.UUID] {
+	return badorm.FieldCondition[models.Employee, badorm.UUID]{
 		Expressions: exprs,
 		Field:       "BossID",
 	}

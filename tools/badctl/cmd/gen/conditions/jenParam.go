@@ -76,10 +76,6 @@ func (param JenParam) ToBasicKind(basicType *types.Basic) {
 	}
 }
 
-func (param JenParam) ToPointer() {
-	param.internalType.Op("*")
-}
-
 func (param JenParam) ToSlice() {
 	param.internalType.Index()
 }

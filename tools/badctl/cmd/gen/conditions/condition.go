@@ -53,8 +53,6 @@ func (condition *Condition) generate(objectType Type, field Field) {
 		)
 	case *types.Pointer:
 		// the field is a pointer
-		// adapt param to pointer and generate code for the pointed type
-		condition.param.ToPointer()
 		condition.generate(
 			objectType,
 			field.ChangeType(fieldType.Elem()),
@@ -96,8 +94,6 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 		}
 	case *types.Pointer:
 		// slice of pointers, generate code for a slice of the pointed type
-		// after changing the param
-		condition.param.ToPointer()
 		condition.generateForSlice(
 			objectType,
 			field.ChangeType(elemType.Elem()),
