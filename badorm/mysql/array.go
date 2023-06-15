@@ -1,52 +1,14 @@
 package mysql
 
-import (
-	"fmt"
-	"strings"
-
-	"github.com/elliotchance/pie/v2"
-)
+import "github.com/ditrit/badaas/badorm"
 
 // Row and Array Comparisons
 
-type ArrayExpression[T any] struct {
-	Values        []T
-	SQLExpression string
+// https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_in
+func ArrayIn[T any](values ...T) badorm.MultivalueExpression[T] {
+	return badorm.NewMultivalueExpression("IN", ",", "(", ")", values...)
 }
 
-//nolint:unused // see inside
-func (expr ArrayExpression[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Expression[T]
-}
-
-func NewArrayExpression[T any](values []T, sqlExpression string) ArrayExpression[T] {
-	return ArrayExpression[T]{
-		Values:        values,
-		SQLExpression: sqlExpression,
-	}
-}
-
-func (expr ArrayExpression[T]) ToSQL(columnName string) (string, []any) {
-	placeholders := strings.Join(pie.Map(expr.Values, func(value T) string {
-		return "?"
-	}), ", ")
-
-	values := pie.Map(expr.Values, func(value T) any {
-		return value
-	})
-
-	return fmt.Sprintf(
-		"%s %s ("+placeholders+")",
-		columnName,
-		expr.SQLExpression,
-	), values
-}
-
-func ArrayIn[T any](values ...T) ArrayExpression[T] {
-	return NewArrayExpression(values, "IN")
-}
-
-func ArrayNotIn[T any](values ...T) ArrayExpression[T] {
-	return NewArrayExpression(values, "NOT IN")
+func ArrayNotIn[T any](values ...T) badorm.MultivalueExpression[T] {
+	return badorm.NewMultivalueExpression("NOT IN", ",", "(", ")", values...)
 }

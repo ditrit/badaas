@@ -110,6 +110,38 @@ func (ts *ExpressionIntTestSuite) TestGtOrEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+func (ts *ExpressionIntTestSuite) TestBetween() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 6, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.Between(3, 5),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotBetween() {
+	match1 := ts.createProduct("match", 3, 0, false, nil)
+	match2 := ts.createProduct("match", 4, 0, false, nil)
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.NotBetween(0, 2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
 func (ts *ExpressionIntTestSuite) TestIsDistinct() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
