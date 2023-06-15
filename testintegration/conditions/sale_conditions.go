@@ -64,8 +64,8 @@ func SaleSeller(conditions ...orm.Condition[models.Seller]) orm.Condition[models
 		T2Field:    "ID",
 	}
 }
-func SaleSellerId(exprs ...orm.Expression[*orm.UUID]) orm.FieldCondition[models.Sale, *orm.UUID] {
-	return orm.FieldCondition[models.Sale, *orm.UUID]{
+func SaleSellerId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Sale, orm.UUID] {
+	return orm.FieldCondition[models.Sale, orm.UUID]{
 		Expressions: exprs,
 		Field:       "SellerID",
 	}

@@ -45,8 +45,8 @@ func EmployeeBoss(conditions ...orm.Condition[models.Employee]) orm.Condition[mo
 		T2Field:    "ID",
 	}
 }
-func EmployeeBossId(exprs ...orm.Expression[*orm.UUID]) orm.FieldCondition[models.Employee, *orm.UUID] {
-	return orm.FieldCondition[models.Employee, *orm.UUID]{
+func EmployeeBossId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Employee, orm.UUID] {
+	return orm.FieldCondition[models.Employee, orm.UUID]{
 		Expressions: exprs,
 		Field:       "BossID",
 	}

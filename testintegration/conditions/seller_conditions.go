@@ -38,8 +38,8 @@ func SellerName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Selle
 		Field:       "Name",
 	}
 }
-func SellerCompanyId(exprs ...orm.Expression[*orm.UUID]) orm.FieldCondition[models.Seller, *orm.UUID] {
-	return orm.FieldCondition[models.Seller, *orm.UUID]{
+func SellerCompanyId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Seller, orm.UUID] {
+	return orm.FieldCondition[models.Seller, orm.UUID]{
 		Expressions: exprs,
 		Field:       "CompanyID",
 	}

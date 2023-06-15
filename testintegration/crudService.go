@@ -302,20 +302,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfPointerTypeWithValue(
 	ts.createProduct("not_match", 2, 0, false, nil)
 
 	entities, err := ts.crudProductService.Query(
-		conditions.ProductIntPointer(orm.Eq(&intMatch)),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
-func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfPointerTypeByNil() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	intNotMatch := 2
-	ts.createProduct("not_match", 2, 0, false, &intNotMatch)
-
-	entities, err := ts.crudProductService.Query(
-		conditions.ProductIntPointer(orm.Eq[*int](nil)),
+		conditions.ProductIntPointer(orm.Eq(1)),
 	)
 	ts.Nil(err)
 
@@ -430,7 +417,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfRelationTypeOptionalW
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleSellerId(orm.Eq(&seller1.ID)),
+		conditions.SaleSellerId(orm.Eq(seller1.ID)),
 	)
 	ts.Nil(err)
 
@@ -447,7 +434,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionOfRelationTypeOptionalB
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleSellerId(orm.Eq[*orm.UUID](nil)),
+		conditions.SaleSellerId(orm.IsNull[orm.UUID]()),
 	)
 	ts.Nil(err)
 
@@ -718,7 +705,7 @@ func (ts *CRUDServiceIntTestSuite) TestQueryWithConditionThatJoinsAndFiltersByNi
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductIntPointer(orm.Eq[*int](nil)),
+			conditions.ProductIntPointer(orm.IsNull[int]()),
 		),
 	)
 	ts.Nil(err)

@@ -45,8 +45,8 @@ func ProductInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product,
 		Field:       "Int",
 	}
 }
-func ProductIntPointer(exprs ...orm.Expression[*int]) orm.FieldCondition[models.Product, *int] {
-	return orm.FieldCondition[models.Product, *int]{
+func ProductIntPointer(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+	return orm.FieldCondition[models.Product, int]{
 		Expressions: exprs,
 		Field:       "IntPointer",
 	}
@@ -55,6 +55,12 @@ func ProductFloat(exprs ...orm.Expression[float64]) orm.FieldCondition[models.Pr
 	return orm.FieldCondition[models.Product, float64]{
 		Expressions: exprs,
 		Field:       "Float",
+	}
+}
+func ProductNullFloat(exprs ...orm.Expression[sql.NullFloat64]) orm.FieldCondition[models.Product, sql.NullFloat64] {
+	return orm.FieldCondition[models.Product, sql.NullFloat64]{
+		Expressions: exprs,
+		Field:       "NullFloat",
 	}
 }
 func ProductBool(exprs ...orm.Expression[bool]) orm.FieldCondition[models.Product, bool] {
