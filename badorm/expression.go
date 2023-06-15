@@ -156,6 +156,7 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html
 // https://learn.microsoft.com/en-us/sql/t-sql/language-elements/comparison-operators-transact-sql?view=sql-server-ver16
+// https://www.sqlite.org/lang_expr.html
 
 // EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) Expression[T] {
@@ -170,9 +171,10 @@ func Eq[T any](value T) Expression[T] {
 // this behavior can be also avoided in other ways:
 //   - in SQLServer you can:
 //     ** set ansi_nulls setting to off and use sqlserver.EqNullable
-//     ** use the IS NOT DISTINCT operator (implemented in sqlserver.IsNotDistinct)
+//     ** use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 //   - in MySQL you can use equal_to operator (implemented in mysql.IsEqual)
-//   - in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in psql.IsNotDistinct)
+//   - in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
+//   - in SQLite you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 func EqOrIsNull[T any](value any) Expression[T] {
 	return expressionFromValueOrNil[T](value, Eq[T], IsNull[T]())
 }
@@ -190,8 +192,9 @@ func NotEq[T any](value T) Expression[T] {
 // this behavior can be also avoided in other ways:
 //   - in SQLServer you can:
 //     ** set ansi_nulls setting to off and use sqlserver.NotEqNullable
-//     ** use the IS DISTINCT operator (implemented in sqlserver.IsDistinct)
-//   - in PostgreSQL you can use the IS DISTINCT operator (implemented in psql.IsDistinct)
+//     ** use the IS DISTINCT operator (implemented in IsDistinct)
+//   - in PostgreSQL you can use the IS DISTINCT operator (implemented in IsDistinct)
+//   - in SQLite you can use the IS DISTINCT operator (implemented in IsDistinct)
 func NotEqOrIsNotNull[T any](value any) Expression[T] {
 	return expressionFromValueOrNil[T](value, NotEq[T], IsNotNull[T]())
 }
@@ -283,26 +286,32 @@ func IsNotNull[T any]() PredicateExpression[T] {
 // Boolean Comparison Predicates
 
 // TODO que pasa con otros que mapean a bool por valuer?
+// Not supported by: sqlserver
 func IsTrue[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS TRUE")
 }
 
+// Not supported by: sqlserver
 func IsNotTrue[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT TRUE")
 }
 
+// Not supported by: sqlserver
 func IsFalse[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS FALSE")
 }
 
+// Not supported by: sqlserver
 func IsNotFalse[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT FALSE")
 }
 
+// Not supported by: sqlserver, sqlite
 func IsUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS UNKNOWN")
 }
 
+// Not supported by: sqlserver, sqlite
 func IsNotUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT UNKNOWN")
 }

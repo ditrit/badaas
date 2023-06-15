@@ -2,7 +2,6 @@ package sqlserver
 
 import (
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/shared"
 )
 
 // Comparison Operators
@@ -26,13 +25,4 @@ func NotLt[T any](value T) badorm.Expression[T] {
 
 func NotGt[T any](value T) badorm.Expression[T] {
 	return badorm.NewCantBeNullValueExpression[T](value, "!>")
-}
-
-// https://learn.microsoft.com/en-us/sql/t-sql/queries/is-distinct-from-transact-sql?view=sql-server-ver16
-func IsDistinct[T any](value T) badorm.ValueExpression[T] {
-	return shared.IsDistinct(value)
-}
-
-func IsNotDistinct[T any](value T) badorm.ValueExpression[T] {
-	return shared.IsNotDistinct(value)
 }
