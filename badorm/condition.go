@@ -81,36 +81,10 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
 	}
 
-	// add column prefix once we know the column name
-	columnName = condition.ColumnPrefix + columnName
+	// add column prefix and table name once we know the column name
+	columnName = tableName + "." + condition.ColumnPrefix + columnName
 
-	conditionString := ""
-	values := []any{}
-
-	for index, expression := range condition.Expressions {
-		// TODO que se pueda hacer la connection distinta aca
-		// TODO strings.Join(exprs, " AND ")?
-		if index != 0 {
-			conditionString += " AND "
-		}
-
-		expressionSQL, expressionValues, err := expression.ToSQL(
-			fmt.Sprintf(
-				"%s.%s",
-				tableName,
-				columnName,
-			),
-		)
-		if err != nil {
-			return "", nil, err
-		}
-
-		conditionString += expressionSQL
-
-		values = append(values, expressionValues...)
-	}
-
-	return conditionString, values, nil
+	return evaluateExpressions(columnName, condition.Expressions)
 }
 
 type JoinCondition[T1 any, T2 any] struct {

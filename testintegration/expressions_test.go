@@ -995,7 +995,7 @@ func (ts *ExpressionIntTestSuite) TestPosixRegexNotPosix() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestMultipleExpressions() {
+func (ts *ExpressionIntTestSuite) TestMultipleExpressionsAreConnectedByAnd() {
 	match := ts.createProduct("match", 3, 0, false, nil)
 	ts.createProduct("not_match", 5, 0, false, nil)
 	ts.createProduct("not_match", 1, 0, false, nil)
@@ -1010,6 +1010,122 @@ func (ts *ExpressionIntTestSuite) TestMultipleExpressions() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNot() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 3, 0, false, nil)
+
+	ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.Not(badorm.Eq(2)),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotWithMultipleExpressionsAreConnectedByAnd() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 5, 0, false, nil)
+
+	ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 3, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.Not(
+				badorm.Gt(1),
+				badorm.Lt(4),
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestOr() {
+	match1 := ts.createProduct("match", 2, 0, false, nil)
+	match2 := ts.createProduct("match", 3, 0, false, nil)
+
+	ts.createProduct("not_match", 1, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.Or(
+				badorm.Eq(2),
+				badorm.Eq(3),
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestNotOr() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 5, 0, false, nil)
+	match3 := ts.createProduct("match", 4, 0, false, nil)
+
+	ts.createProduct("not_match", 2, 0, false, nil)
+	ts.createProduct("not_match", 3, 0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.Not[int](
+				badorm.Or(
+					badorm.Eq(2),
+					badorm.Eq(3),
+				),
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestXor() {
+	match1 := ts.createProduct("", 1, 0, false, nil)
+	match2 := ts.createProduct("", 7, 0, false, nil)
+
+	ts.createProduct("", 5, 0, false, nil)
+	ts.createProduct("", 4, 0, false, nil)
+
+	var xorExpression badorm.Expression[int]
+
+	switch getDBDialector() {
+	case configuration.PostgreSQL, configuration.SQLite:
+		log.Println("Xor not compatible")
+	case configuration.MySQL:
+		xorExpression = mysql.Xor(
+			badorm.Lt(6),
+			badorm.Gt(3),
+		)
+	case configuration.SQLServer:
+		xorExpression = mysql.Xor(
+			badorm.Lt(6),
+			badorm.Gt(3),
+		)
+	}
+
+	if xorExpression != nil {
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductInt(
+				xorExpression,
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	}
 }
 
 func (ts *ExpressionIntTestSuite) TestMultipleConditionsDifferentExpressions() {
