@@ -597,7 +597,7 @@ func (ts *ExpressionIntTestSuite) TestLikeEscape() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
-			orm.LikeEscape[string]("_a!_%", '!'),
+			orm.Like[string]("_a!_%").Escape('!'),
 		),
 	)
 	ts.Nil(err)
