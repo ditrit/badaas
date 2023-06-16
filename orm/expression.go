@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/elliotchance/pie/v2"
@@ -67,6 +68,15 @@ func NewCantBeNullValueExpression[T any](value any, sqlExpression string) Expres
 	}
 
 	return NewValueExpression[T](value, sqlExpression)
+}
+
+func NewMustBePOSIXValueExpression[T string | sql.NullString](pattern string, sqlExpression string) Expression[T] {
+	_, err := regexp.CompilePOSIX(pattern)
+	if err != nil {
+		return NewInvalidExpression[T](err)
+	}
+
+	return NewValueExpression[T](pattern, sqlExpression)
 }
 
 type MultivalueExpression[T any] struct {
@@ -151,6 +161,40 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 	}
 }
 
+// TODO el value expression podria usar este internamente pero lo complicaria un poco
+type MultiExpressionExpression[T any] struct {
+	ExpressionsAndValues []SQLExpressionAndValue
+}
+
+type SQLExpressionAndValue struct {
+	SQLExpression string
+	Value         any
+}
+
+//nolint:unused // see inside
+func (expr MultiExpressionExpression[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Expression[T]
+}
+
+func (expr MultiExpressionExpression[T]) ToSQL(columnName string) (string, []any, error) {
+	exprString := columnName
+	values := []any{}
+
+	for _, sqlExprAndValue := range expr.ExpressionsAndValues {
+		exprString += " " + sqlExprAndValue.SQLExpression + " ?"
+		values = append(values, sqlExprAndValue.Value)
+	}
+
+	return exprString, values, nil
+}
+
+func NewMultiExpressionExpression[T any](exprsAndValues ...SQLExpressionAndValue) MultiExpressionExpression[T] {
+	return MultiExpressionExpression[T]{
+		ExpressionsAndValues: exprsAndValues,
+	}
+}
+
 // Comparison Operators
 // refs:
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
@@ -230,7 +274,6 @@ func mapsToNull(value any) bool {
 		return true
 	}
 
-	// TODO creo que esto lo voy a tener que mover afuera si quiero que los nullables se comparen contra los no nullables
 	valuer, isValuer := value.(driver.Valuer)
 	if isValuer {
 		valuerValue, err := valuer.Value()
@@ -307,6 +350,16 @@ func IsNotUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NOT UNKNOWN")
 }
 
+// Not supported by: mysql
+func IsDistinct[T any](value T) ValueExpression[T] {
+	return NewValueExpression[T](value, "IS DISTINCT FROM")
+}
+
+// Not supported by: mysql
+func IsNotDistinct[T any](value T) ValueExpression[T] {
+	return NewValueExpression[T](value, "IS NOT DISTINCT FROM")
+}
+
 // Row and Array Comparisons
 
 func ArrayIn[T any](values ...T) ValueExpression[T] {
@@ -316,3 +369,50 @@ func ArrayIn[T any](values ...T) ValueExpression[T] {
 func ArrayNotIn[T any](values ...T) ValueExpression[T] {
 	return NewValueExpression[T](values, "NOT IN")
 }
+
+// Pattern Matching
+
+// TODO que pasa con los que son strings for valuer
+// Pattern in all databases:
+//   - An underscore (_) in pattern stands for (matches) any single character.
+//   - A percent sign (%) matches any sequence of zero or more characters.
+//
+// Additionally in SQLServer:
+//   - Square brackets ([ ]) matches any single character within the specified range ([a-f]) or set ([abcdef]).
+//   - [^] matches any single character not within the specified range ([^a-f]) or set ([^abcdef]).
+//
+// # To be able to use ESCAPE operator use LikeEscape
+//
+// WARNINGS:
+//   - SQLite: LIKE is case-insensitive unless case_sensitive_like pragma (https://www.sqlite.org/pragma.html#pragma_case_sensitive_like) is true.
+//   - SQLServer, MySQL: the case-sensitivity depends on the collation used in compared column.
+//   - PostgreSQL: LIKE is always case-sensitive, if you want case-insensitive use the ILIKE operator (implemented in psql.ILike)
+//
+// refs:
+//   - mysql: https://dev.mysql.com/doc/refman/8.0/en/string-comparison-functions.html#operator_like
+//   - postgresql: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
+//   - sqlserver: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver16
+//   - sqlite: https://www.sqlite.org/lang_expr.html#like
+func Like[T string | sql.NullString](pattern string) ValueExpression[T] {
+	return NewValueExpression[T](pattern, "LIKE")
+}
+
+// Similar to Like but with the possibility to use the ESCAPE operator
+func LikeEscape[T string | sql.NullString](pattern string, escape rune) MultiExpressionExpression[T] {
+	return NewMultiExpressionExpression[T](
+		SQLExpressionAndValue{
+			SQLExpression: "LIKE",
+			Value:         pattern,
+		},
+		SQLExpressionAndValue{
+			SQLExpression: "ESCAPE",
+			Value:         string(escape),
+		},
+	)
+}
+
+// Date/Time Functions and Operators
+// TODO isfinite
+// TODO OVERLAPS
+
+// TODO Subquery Expressions
