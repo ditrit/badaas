@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func CompanyId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Company, orm.UUID] {
+func CompanyId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, orm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func CompanyCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Company, time.Time] {
+func CompanyCreatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func CompanyUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Company, time.Time] {
+func CompanyUpdatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func CompanyDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Company, gorm.DeletedAt] {
+func CompanyDeletedAt(expr orm.Expression[gorm.DeletedAt]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func CompanyName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Company, string] {
+func CompanyName(expr orm.Expression[string]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
 func SellerCompany(conditions ...orm.Condition[models.Company]) orm.Condition[models.Seller] {

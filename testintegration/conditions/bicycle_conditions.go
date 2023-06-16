@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func BicycleId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Bicycle, orm.UUID] {
+func BicycleId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, orm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func BicycleCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Bicycle, time.Time] {
+func BicycleCreatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func BicycleUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Bicycle, time.Time] {
+func BicycleUpdatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func BicycleDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Bicycle, gorm.DeletedAt] {
+func BicycleDeletedAt(expr orm.Expression[gorm.DeletedAt]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func BicycleName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Bicycle, string] {
+func BicycleName(expr orm.Expression[string]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
 func BicycleOwner(conditions ...orm.Condition[models.Person]) orm.Condition[models.Bicycle] {
@@ -45,9 +45,9 @@ func BicycleOwner(conditions ...orm.Condition[models.Person]) orm.Condition[mode
 		T2Field:    "Name",
 	}
 }
-func BicycleOwnerName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Bicycle, string] {
+func BicycleOwnerName(expr orm.Expression[string]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, string]{
-		Expressions: exprs,
-		Field:       "OwnerName",
+		Expression: expr,
+		Field:      "OwnerName",
 	}
 }

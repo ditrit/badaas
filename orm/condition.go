@@ -1,12 +1,16 @@
 package orm
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
 )
 
 const DeletedAtField = "DeletedAt"
+
+var ErrEmptyConditions = errors.New("condition must have at least one inner condition")
 
 type ConditionType string
 
@@ -31,16 +35,122 @@ type Condition[T any] interface {
 }
 
 type WhereCondition[T any] interface {
+	Condition[T]
+
 	GetSQL(query *gorm.DB, tableName string) (string, []any, error)
 
-	getField() string
+	affectsDeletedAt() bool
+}
+
+type ContainerCondition[T any] struct {
+	ConnectionCondition WhereCondition[T]
+	Prefix              string
+}
+
+//nolint:unused // see inside
+func (condition ContainerCondition[T]) interfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
+
+func (condition ContainerCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	return applyWhereCondition[T](condition, query, tableName)
+}
+
+func (condition ContainerCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+	sqlString, values, err := condition.ConnectionCondition.GetSQL(query, tableName)
+	if err != nil {
+		return "", nil, err
+	}
+
+	sqlString = condition.Prefix + " (" + sqlString + ")"
+
+	return sqlString, values, nil
+}
+
+func (condition ContainerCondition[T]) Type() ConditionType {
+	return WhereType
+}
+
+func (condition ContainerCondition[T]) affectsDeletedAt() bool {
+	return condition.ConnectionCondition.affectsDeletedAt()
+}
+
+func NewContainerCondition[T any](prefix string, conditions ...WhereCondition[T]) WhereCondition[T] {
+	if len(conditions) == 0 {
+		return NewInvalidCondition[T](ErrEmptyConditions)
+	}
+
+	return ContainerCondition[T]{
+		Prefix:              prefix,
+		ConnectionCondition: And(conditions...),
+	}
+}
+
+type ConnectionCondition[T any] struct {
+	Connector  string
+	Conditions []WhereCondition[T]
+}
+
+//nolint:unused // see inside
+func (condition ConnectionCondition[T]) interfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
+
+func (condition ConnectionCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	return applyWhereCondition[T](condition, query, tableName)
+}
+
+func (condition ConnectionCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+	sqlString := ""
+	values := []any{}
+
+	for index, internalCondition := range condition.Conditions {
+		// TODO strings.Join(exprs, " AND ")?
+		if index != 0 {
+			sqlString += " " + condition.Connector + " "
+		}
+
+		exprSQLString, exprValues, err := internalCondition.GetSQL(query, tableName)
+		if err != nil {
+			return "", nil, err
+		}
+
+		sqlString += exprSQLString
+
+		values = append(values, exprValues...)
+	}
+
+	return sqlString, values, nil
+}
+
+func (condition ConnectionCondition[T]) Type() ConditionType {
+	return WhereType
+}
+
+func (condition ConnectionCondition[T]) affectsDeletedAt() bool {
+	return pie.Any(condition.Conditions, func(internalCondition WhereCondition[T]) bool {
+		return internalCondition.affectsDeletedAt()
+	})
+}
+
+func NewConnectionCondition[T any](connector string, conditions ...WhereCondition[T]) WhereCondition[T] {
+	if len(conditions) == 0 {
+		return NewInvalidCondition[T](ErrEmptyConditions)
+	}
+
+	return ConnectionCondition[T]{
+		Connector:  connector,
+		Conditions: conditions,
+	}
 }
 
 type FieldCondition[TObject any, TAtribute any] struct {
 	Field        string
 	Column       string
 	ColumnPrefix string
-	Expressions  []Expression[TAtribute]
+	Expression   Expression[TAtribute]
 }
 
 //nolint:unused // see inside
@@ -52,12 +162,16 @@ func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
 func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	return applyWhereCondition[TObject](condition, query, tableName)
+}
+
+func applyWhereCondition[T any](condition WhereCondition[T], query *gorm.DB, tableName string) (*gorm.DB, error) {
 	sql, values, err := condition.GetSQL(query, tableName)
 	if err != nil {
 		return nil, err
 	}
 
-	if condition.Field == DeletedAtField {
+	if condition.affectsDeletedAt() {
 		query = query.Unscoped()
 	}
 
@@ -71,8 +185,8 @@ func (condition FieldCondition[TObject, TAtribute]) Type() ConditionType {
 	return WhereType
 }
 
-func (condition FieldCondition[TObject, TAtribute]) getField() string {
-	return condition.Field
+func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
+	return condition.Field == DeletedAtField
 }
 
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
@@ -80,35 +194,11 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 	if columnName == "" {
 		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
 	}
-	columnName = condition.ColumnPrefix + columnName
 
-	conditionString := ""
-	values := []any{}
+	// add column prefix and table name once we know the column name
+	columnName = tableName + "." + condition.ColumnPrefix + columnName
 
-	for index, expression := range condition.Expressions {
-		// TODO que se pueda hacer la connection distinta aca
-		// TODO strings.Join(exprs, " AND ")?
-		if index != 0 {
-			conditionString += " AND "
-		}
-
-		expressionSQL, expressionValues, err := expression.ToSQL(
-			fmt.Sprintf(
-				"%s.%s",
-				tableName,
-				columnName,
-			),
-		)
-		if err != nil {
-			return "", nil, err
-		}
-
-		conditionString += expressionSQL
-
-		values = append(values, expressionValues...)
-	}
-
-	return conditionString, values, nil
+	return condition.Expression.ToSQL(columnName)
 }
 
 type JoinCondition[T1 any, T2 any] struct {
@@ -142,23 +232,17 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	whereConditions, joinConditions := divideConditionsByType(condition.Conditions)
 
 	// apply WhereConditions to join in "on" clause
-	conditionsValues := []any{}
-	isDeletedAtConditionPresent := false
-	for _, condition := range whereConditions {
-		if condition.getField() == DeletedAtField {
-			isDeletedAtConditionPresent = true
-		}
+	connectionCondition := And(whereConditions...)
 
-		sql, values, err := condition.GetSQL(query, nextTableName)
-		if err != nil {
-			return nil, err
-		}
-
-		joinQuery += " AND " + sql
-		conditionsValues = append(conditionsValues, values...)
+	onQuery, onValues, err := connectionCondition.GetSQL(query, nextTableName)
+	if err != nil {
+		return nil, err
 	}
 
-	if !isDeletedAtConditionPresent {
+	joinQuery += " AND " + onQuery
+
+	// TODO podria desactivar el unscoped y meter esto en el connection
+	if !connectionCondition.affectsDeletedAt() {
 		joinQuery += fmt.Sprintf(
 			" AND %s.deleted_at IS NULL",
 			nextTableName,
@@ -166,7 +250,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	}
 
 	// add the join to the query
-	query = query.Joins(joinQuery, conditionsValues...)
+	query = query.Joins(joinQuery, onValues...)
 
 	// apply nested joins
 	for _, joinCondition := range joinConditions {
@@ -217,4 +301,54 @@ func divideConditionsByType[T any](
 	}
 
 	return
+}
+
+type InvalidCondition[T any] struct {
+	Err error
+}
+
+//nolint:unused // see inside
+func (condition InvalidCondition[T]) interfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
+
+func (condition InvalidCondition[T]) ApplyTo(_ *gorm.DB, _ string) (*gorm.DB, error) {
+	return nil, condition.Err
+}
+
+func (condition InvalidCondition[T]) Type() ConditionType {
+	return WhereType
+}
+
+func (condition InvalidCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+	return "", nil, condition.Err
+}
+
+func (condition InvalidCondition[T]) affectsDeletedAt() bool {
+	return false
+}
+
+func NewInvalidCondition[T any](err error) InvalidCondition[T] {
+	return InvalidCondition[T]{
+		Err: err,
+	}
+}
+
+// Logical Operators
+// ref: https://www.postgresql.org/docs/current/functions-logical.html
+
+// TODO que pasa si quiero esto entre distintas conditions,
+// y si ensima queres entre distintos joins olvidate imposible
+// -> agregar unsafe condition y unsafe expression
+func And[T any](conditions ...WhereCondition[T]) WhereCondition[T] {
+	return NewConnectionCondition("AND", conditions...)
+}
+
+func Or[T any](conditions ...WhereCondition[T]) WhereCondition[T] {
+	return NewConnectionCondition("OR", conditions...)
+}
+
+func Not[T any](conditions ...WhereCondition[T]) WhereCondition[T] {
+	return NewContainerCondition("NOT", conditions...)
 }

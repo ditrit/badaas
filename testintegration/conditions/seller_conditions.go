@@ -8,39 +8,39 @@ import (
 	"time"
 )
 
-func SellerId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Seller, orm.UUID] {
+func SellerId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, orm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func SellerCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Seller, time.Time] {
+func SellerCreatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func SellerUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Seller, time.Time] {
+func SellerUpdatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func SellerDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Seller, gorm.DeletedAt] {
+func SellerDeletedAt(expr orm.Expression[gorm.DeletedAt]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func SellerName(exprs ...orm.Expression[string]) orm.FieldCondition[models.Seller, string] {
+func SellerName(expr orm.Expression[string]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
-func SellerCompanyId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Seller, orm.UUID] {
+func SellerCompanyId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, orm.UUID]{
-		Expressions: exprs,
-		Field:       "CompanyID",
+		Expression: expr,
+		Field:      "CompanyID",
 	}
 }

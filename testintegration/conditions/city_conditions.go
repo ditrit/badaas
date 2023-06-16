@@ -8,39 +8,39 @@ import (
 	"time"
 )
 
-func CityId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.City, orm.UUID] {
+func CityId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.City] {
 	return orm.FieldCondition[models.City, orm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func CityCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.City, time.Time] {
+func CityCreatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.City] {
 	return orm.FieldCondition[models.City, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func CityUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.City, time.Time] {
+func CityUpdatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.City] {
 	return orm.FieldCondition[models.City, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func CityDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.City, gorm.DeletedAt] {
+func CityDeletedAt(expr orm.Expression[gorm.DeletedAt]) orm.WhereCondition[models.City] {
 	return orm.FieldCondition[models.City, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func CityName(exprs ...orm.Expression[string]) orm.FieldCondition[models.City, string] {
+func CityName(expr orm.Expression[string]) orm.WhereCondition[models.City] {
 	return orm.FieldCondition[models.City, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
-func CityCountryId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.City, orm.UUID] {
+func CityCountryId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.City] {
 	return orm.FieldCondition[models.City, orm.UUID]{
-		Expressions: exprs,
-		Field:       "CountryID",
+		Expression: expr,
+		Field:      "CountryID",
 	}
 }

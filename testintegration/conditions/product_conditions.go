@@ -9,94 +9,94 @@ import (
 	"time"
 )
 
-func ProductId(exprs ...orm.Expression[orm.UUID]) orm.FieldCondition[models.Product, orm.UUID] {
+func ProductId(expr orm.Expression[orm.UUID]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, orm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func ProductCreatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Product, time.Time] {
+func ProductCreatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func ProductUpdatedAt(exprs ...orm.Expression[time.Time]) orm.FieldCondition[models.Product, time.Time] {
+func ProductUpdatedAt(expr orm.Expression[time.Time]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func ProductDeletedAt(exprs ...orm.Expression[gorm.DeletedAt]) orm.FieldCondition[models.Product, gorm.DeletedAt] {
+func ProductDeletedAt(expr orm.Expression[gorm.DeletedAt]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func ProductString(exprs ...orm.Expression[string]) orm.FieldCondition[models.Product, string] {
+func ProductString(expr orm.Expression[string]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, string]{
-		Column:      "string_something_else",
-		Expressions: exprs,
+		Column:     "string_something_else",
+		Expression: expr,
 	}
 }
-func ProductInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+func ProductInt(expr orm.Expression[int]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, int]{
-		Expressions: exprs,
-		Field:       "Int",
+		Expression: expr,
+		Field:      "Int",
 	}
 }
-func ProductIntPointer(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+func ProductIntPointer(expr orm.Expression[int]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, int]{
-		Expressions: exprs,
-		Field:       "IntPointer",
+		Expression: expr,
+		Field:      "IntPointer",
 	}
 }
-func ProductFloat(exprs ...orm.Expression[float64]) orm.FieldCondition[models.Product, float64] {
+func ProductFloat(expr orm.Expression[float64]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, float64]{
-		Expressions: exprs,
-		Field:       "Float",
+		Expression: expr,
+		Field:      "Float",
 	}
 }
-func ProductNullFloat(exprs ...orm.Expression[sql.NullFloat64]) orm.FieldCondition[models.Product, sql.NullFloat64] {
+func ProductNullFloat(expr orm.Expression[sql.NullFloat64]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, sql.NullFloat64]{
-		Expressions: exprs,
-		Field:       "NullFloat",
+		Expression: expr,
+		Field:      "NullFloat",
 	}
 }
-func ProductBool(exprs ...orm.Expression[bool]) orm.FieldCondition[models.Product, bool] {
+func ProductBool(expr orm.Expression[bool]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, bool]{
-		Expressions: exprs,
-		Field:       "Bool",
+		Expression: expr,
+		Field:      "Bool",
 	}
 }
-func ProductNullBool(exprs ...orm.Expression[sql.NullBool]) orm.FieldCondition[models.Product, sql.NullBool] {
+func ProductNullBool(expr orm.Expression[sql.NullBool]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, sql.NullBool]{
-		Expressions: exprs,
-		Field:       "NullBool",
+		Expression: expr,
+		Field:      "NullBool",
 	}
 }
-func ProductByteArray(exprs ...orm.Expression[[]uint8]) orm.FieldCondition[models.Product, []uint8] {
+func ProductByteArray(expr orm.Expression[[]uint8]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, []uint8]{
-		Expressions: exprs,
-		Field:       "ByteArray",
+		Expression: expr,
+		Field:      "ByteArray",
 	}
 }
-func ProductMultiString(exprs ...orm.Expression[models.MultiString]) orm.FieldCondition[models.Product, models.MultiString] {
+func ProductMultiString(expr orm.Expression[models.MultiString]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, models.MultiString]{
-		Expressions: exprs,
-		Field:       "MultiString",
+		Expression: expr,
+		Field:      "MultiString",
 	}
 }
-func ProductEmbeddedInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+func ProductEmbeddedInt(expr orm.Expression[int]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, int]{
-		Expressions: exprs,
-		Field:       "EmbeddedInt",
+		Expression: expr,
+		Field:      "EmbeddedInt",
 	}
 }
-func ProductGormEmbeddedInt(exprs ...orm.Expression[int]) orm.FieldCondition[models.Product, int] {
+func ProductGormEmbeddedInt(expr orm.Expression[int]) orm.WhereCondition[models.Product] {
 	return orm.FieldCondition[models.Product, int]{
 		ColumnPrefix: "gorm_embedded_",
-		Expressions:  exprs,
+		Expression:   expr,
 		Field:        "Int",
 	}
 }
