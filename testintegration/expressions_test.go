@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 
+	"golang.org/x/text/unicode/norm"
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
@@ -776,6 +777,222 @@ func (ts *ExpressionIntTestSuite) TestArrayNotIn() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestLike() {
+	match1 := ts.createProduct("basd", 0, 0, false, nil)
+	match2 := ts.createProduct("cape", 0, 0, false, nil)
+
+	ts.createProduct("bbsd", 0, 0, false, nil)
+	ts.createProduct("bbasd", 0, 0, false, nil)
+
+	var likeExpression badorm.Expression[string]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		likeExpression = badorm.Like[string]("_a%")
+	case configuration.SQLServer:
+		likeExpression = badorm.Like[string]("[bc]a[^a]%")
+	}
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductString(
+			likeExpression,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestLikeEscape() {
+	match1 := ts.createProduct("ba_sd", 0, 0, false, nil)
+	match2 := ts.createProduct("ca_pe", 0, 0, false, nil)
+
+	ts.createProduct("bb_sd", 0, 0, false, nil)
+	ts.createProduct("bba_sd", 0, 0, false, nil)
+
+	var likeExpression badorm.Expression[string]
+
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
+		likeExpression = badorm.LikeEscape[string]("_a!_%", '!')
+	case configuration.SQLServer:
+		likeExpression = badorm.LikeEscape[string]("[bc]a!_[^a]%", '!')
+	}
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductString(
+			likeExpression,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestLikeOnNumeric() {
+	switch getDBDialector() {
+	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
+		log.Println("Like with numeric not compatible")
+	case configuration.MySQL:
+		match1 := ts.createProduct("", 10, 0, false, nil)
+		match2 := ts.createProduct("", 100, 0, false, nil)
+
+		ts.createProduct("", 20, 0, false, nil)
+		ts.createProduct("", 3, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductInt(
+				mysql.Like[int]("1%"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestIsNormalized() {
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
+		log.Println("IsNormalized not compatible")
+	case configuration.PostgreSQL:
+		match := ts.createProduct("A\0308", 0, 0, false, nil)
+		ts.createProduct("A\u030A", 0, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				psql.IsNormalized[string](norm.NFC),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestStartsWith() {
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
+		log.Println("StartsWith not compatible")
+	case configuration.PostgreSQL:
+		match1 := ts.createProduct("franco", 0, 0, false, nil)
+		match2 := ts.createProduct("francisco", 0, 0, false, nil)
+
+		ts.createProduct("agustin", 0, 0, false, nil)
+		ts.createProduct("lorenzo", 0, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				psql.StartsWith[string]("fra"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestILike() {
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
+		log.Println("ILike not compatible")
+	case configuration.PostgreSQL:
+		match1 := ts.createProduct("basd", 0, 0, false, nil)
+		match2 := ts.createProduct("cape", 0, 0, false, nil)
+		match3 := ts.createProduct("bAsd", 0, 0, false, nil)
+
+		ts.createProduct("bbsd", 0, 0, false, nil)
+		ts.createProduct("bbasd", 0, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				psql.ILike[string]("_a%"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestSimilarTo() {
+	switch getDBDialector() {
+	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
+		log.Println("SimilarTo not compatible")
+	case configuration.PostgreSQL:
+		match1 := ts.createProduct("abc", 0, 0, false, nil)
+		match2 := ts.createProduct("aabcc", 0, 0, false, nil)
+
+		ts.createProduct("aec", 0, 0, false, nil)
+		ts.createProduct("aaaaa", 0, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				psql.SimilarTo[string]("%(b|d)%"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestPosixRegex() {
+	match1 := ts.createProduct("ab", 0, 0, false, nil)
+	match2 := ts.createProduct("ax", 0, 0, false, nil)
+
+	ts.createProduct("bb", 0, 0, false, nil)
+	ts.createProduct("cx", 0, 0, false, nil)
+
+	var posixRegexExpression badorm.Expression[string]
+
+	switch getDBDialector() {
+	case configuration.SQLServer:
+		log.Println("PosixRegex not compatible")
+	case configuration.MySQL:
+		posixRegexExpression = mysql.RegexP[string]("^a(b|x)")
+	case configuration.PostgreSQL:
+		posixRegexExpression = psql.POSIXMatch[string]("^a(b|x)")
+	case configuration.SQLite:
+		posixRegexExpression = sqlite.Glob[string]("^a(b|x)")
+	}
+
+	if posixRegexExpression != nil {
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				posixRegexExpression,
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestPosixRegexNotPosix() {
+	var posixRegexExpression badorm.Expression[string]
+
+	switch getDBDialector() {
+	case configuration.SQLServer:
+		log.Println("PosixRegex not compatible")
+	case configuration.MySQL:
+		posixRegexExpression = mysql.RegexP[string]("^a(b|x")
+	case configuration.PostgreSQL:
+		posixRegexExpression = psql.POSIXMatch[string]("^a(b|x")
+	case configuration.SQLite:
+		posixRegexExpression = sqlite.Glob[string]("^a(b|x")
+	}
+
+	if posixRegexExpression != nil {
+		_, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				posixRegexExpression,
+			),
+		)
+		ts.ErrorContains(err, "error parsing regexp")
+	}
 }
 
 func (ts *ExpressionIntTestSuite) TestMultipleExpressions() {
