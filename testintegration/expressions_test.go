@@ -816,9 +816,9 @@ func (ts *ExpressionIntTestSuite) TestLikeEscape() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		likeExpression = badorm.LikeEscape[string]("_a!_%", '!')
+		likeExpression = badorm.Like[string]("_a!_%").Escape('!')
 	case configuration.SQLServer:
-		likeExpression = badorm.LikeEscape[string]("[bc]a!_[^a]%", '!')
+		likeExpression = badorm.Like[string]("[bc]a!_[^a]%").Escape('!')
 	}
 
 	entities, err := ts.crudProductService.GetEntities(

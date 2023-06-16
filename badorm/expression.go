@@ -29,8 +29,12 @@ type Expression[T any] interface {
 }
 
 type ValueExpression[T any] struct {
-	Value         any
+	ExpressionsAndValues []SQLExpressionAndValue
+}
+
+type SQLExpressionAndValue struct {
 	SQLExpression string
+	Value         any
 }
 
 //nolint:unused // see inside
@@ -39,27 +43,29 @@ func (expr ValueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
+func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any, error) {
+	exprString := columnName
+	values := []any{}
+
+	for _, sqlExprAndValue := range expr.ExpressionsAndValues {
+		exprString += " " + sqlExprAndValue.SQLExpression + " ?"
+		values = append(values, sqlExprAndValue.Value)
+	}
+
+	return exprString, values, nil
+}
+
+func NewValueExpression[T any](value any, sqlExpression string) ValueExpression[T] {
+	expr := ValueExpression[T]{}
+
+	return expr.AddSQLExpression(value, sqlExpression)
+}
+
 var nullableKinds = []reflect.Kind{
 	reflect.Chan, reflect.Func,
 	reflect.Map, reflect.Pointer,
 	reflect.UnsafePointer, reflect.Interface,
 	reflect.Slice,
-}
-
-// TODO aca me gustaria que devuelva []T pero no me anda asi
-func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any, error) {
-	return fmt.Sprintf(
-		"%s %s ?",
-		columnName,
-		expr.SQLExpression,
-	), []any{expr.Value}, nil
-}
-
-func NewValueExpression[T any](value any, sqlExpression string) ValueExpression[T] {
-	return ValueExpression[T]{
-		Value:         value,
-		SQLExpression: sqlExpression,
-	}
 }
 
 func NewCantBeNullValueExpression[T any](value any, sqlExpression string) Expression[T] {
@@ -77,6 +83,24 @@ func NewMustBePOSIXValueExpression[T string | sql.NullString](pattern string, sq
 	}
 
 	return NewValueExpression[T](pattern, sqlExpression)
+}
+
+func NewMultiExpressionExpression[T any](exprsAndValues ...SQLExpressionAndValue) ValueExpression[T] {
+	return ValueExpression[T]{
+		ExpressionsAndValues: exprsAndValues,
+	}
+}
+
+func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression string) ValueExpression[T] {
+	expr.ExpressionsAndValues = append(
+		expr.ExpressionsAndValues,
+		SQLExpressionAndValue{
+			Value:         value,
+			SQLExpression: sqlExpression,
+		},
+	)
+
+	return *expr
 }
 
 type MultivalueExpression[T any] struct {
@@ -151,47 +175,13 @@ func (expr InvalidExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr InvalidExpression[T]) ToSQL(columnName string) (string, []any, error) {
+func (expr InvalidExpression[T]) ToSQL(_ string) (string, []any, error) {
 	return "", nil, expr.Err
 }
 
 func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 	return InvalidExpression[T]{
 		Err: err,
-	}
-}
-
-// TODO el value expression podria usar este internamente pero lo complicaria un poco
-type MultiExpressionExpression[T any] struct {
-	ExpressionsAndValues []SQLExpressionAndValue
-}
-
-type SQLExpressionAndValue struct {
-	SQLExpression string
-	Value         any
-}
-
-//nolint:unused // see inside
-func (expr MultiExpressionExpression[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Expression[T]
-}
-
-func (expr MultiExpressionExpression[T]) ToSQL(columnName string) (string, []any, error) {
-	exprString := columnName
-	values := []any{}
-
-	for _, sqlExprAndValue := range expr.ExpressionsAndValues {
-		exprString += " " + sqlExprAndValue.SQLExpression + " ?"
-		values = append(values, sqlExprAndValue.Value)
-	}
-
-	return exprString, values, nil
-}
-
-func NewMultiExpressionExpression[T any](exprsAndValues ...SQLExpressionAndValue) MultiExpressionExpression[T] {
-	return MultiExpressionExpression[T]{
-		ExpressionsAndValues: exprsAndValues,
 	}
 }
 
@@ -374,6 +364,20 @@ func IsNotDistinct[T any](value T) ValueExpression[T] {
 
 // Pattern Matching
 
+type LikeExpression[T string | sql.NullString] struct {
+	ValueExpression[T]
+}
+
+func NewLikeExpression[T string | sql.NullString](pattern, sqlExpression string) LikeExpression[T] {
+	return LikeExpression[T]{
+		ValueExpression: NewValueExpression[T](pattern, sqlExpression),
+	}
+}
+
+func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
+	return expr.AddSQLExpression(string(escape), "ESCAPE")
+}
+
 // TODO que pasa con los que son strings for valuer
 // Pattern in all databases:
 //   - An underscore (_) in pattern stands for (matches) any single character.
@@ -395,22 +399,8 @@ func IsNotDistinct[T any](value T) ValueExpression[T] {
 //   - postgresql: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
 //   - sqlserver: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver16
 //   - sqlite: https://www.sqlite.org/lang_expr.html#like
-func Like[T string | sql.NullString](pattern string) ValueExpression[T] {
-	return NewValueExpression[T](pattern, "LIKE")
-}
-
-// Similar to Like but with the possibility to use the ESCAPE operator
-func LikeEscape[T string | sql.NullString](pattern string, escape rune) MultiExpressionExpression[T] {
-	return NewMultiExpressionExpression[T](
-		SQLExpressionAndValue{
-			SQLExpression: "LIKE",
-			Value:         pattern,
-		},
-		SQLExpressionAndValue{
-			SQLExpression: "ESCAPE",
-			Value:         string(escape),
-		},
-	)
+func Like[T string | sql.NullString](pattern string) LikeExpression[T] {
+	return NewLikeExpression[T](pattern, "LIKE")
 }
 
 // Date/Time Functions and Operators
