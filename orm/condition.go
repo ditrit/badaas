@@ -117,10 +117,6 @@ func (condition ConnectionCondition[T]) affectsDeletedAt() bool {
 }
 
 func NewConnectionCondition[T any](connector string, conditions ...WhereCondition[T]) WhereCondition[T] {
-	if len(conditions) == 0 {
-		return NewInvalidCondition[T](ErrEmptyConditions)
-	}
-
 	return ConnectionCondition[T]{
 		Connector:  connector,
 		Conditions: conditions,
@@ -217,7 +213,9 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 		return nil, err
 	}
 
-	joinQuery += " AND " + onQuery
+	if onQuery != "" {
+		joinQuery += " AND " + onQuery
+	}
 
 	if !connectionCondition.affectsDeletedAt() {
 		joinQuery += fmt.Sprintf(
@@ -271,6 +269,40 @@ func divideConditionsByType[T any](
 	return
 }
 
+type UnsafeCondition[T any] struct {
+	SQLCondition string
+	Values       []any
+}
+
+//nolint:unused // see inside
+func (condition UnsafeCondition[T]) interfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
+
+func (condition UnsafeCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	return applyWhereCondition[T](condition, query, tableName)
+}
+
+func (condition UnsafeCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+	return fmt.Sprintf(
+		condition.SQLCondition,
+		tableName,
+	), condition.Values, nil
+}
+
+//nolint:unused // is used
+func (condition UnsafeCondition[T]) affectsDeletedAt() bool {
+	return false
+}
+
+func NewUnsafeCondition[T any](condition string, values []any) UnsafeCondition[T] {
+	return UnsafeCondition[T]{
+		SQLCondition: condition,
+		Values:       values,
+	}
+}
+
 type InvalidCondition[T any] struct {
 	Err error
 }
@@ -303,9 +335,6 @@ func NewInvalidCondition[T any](err error) InvalidCondition[T] {
 // Logical Operators
 // ref: https://www.postgresql.org/docs/current/functions-logical.html
 
-// TODO que pasa si quiero esto entre distintas conditions,
-// y si ensima queres entre distintos joins olvidate imposible
-// -> agregar unsafe condition y unsafe expression
 func And[T any](conditions ...WhereCondition[T]) WhereCondition[T] {
 	return NewConnectionCondition("AND", conditions...)
 }
