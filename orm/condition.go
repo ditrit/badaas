@@ -12,20 +12,11 @@ const DeletedAtField = "DeletedAt"
 
 var ErrEmptyConditions = errors.New("condition must have at least one inner condition")
 
-type ConditionType string
-
-const (
-	WhereType ConditionType = "Where"
-	JoinType  ConditionType = "Join"
-)
-
 type Condition[T any] interface {
 	// Applies the condition to the "query"
 	// using the "tableName" as name for the table holding
 	// the data for object of type T
 	ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error)
-
-	Type() ConditionType
 
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T],
@@ -66,10 +57,6 @@ func (condition ContainerCondition[T]) GetSQL(query *gorm.DB, tableName string) 
 	sqlString = condition.Prefix + " (" + sqlString + ")"
 
 	return sqlString, values, nil
-}
-
-func (condition ContainerCondition[T]) Type() ConditionType {
-	return WhereType
 }
 
 //nolint:unused // is used
@@ -126,10 +113,6 @@ func (condition ConnectionCondition[T]) GetSQL(query *gorm.DB, tableName string)
 	return sqlString, values, nil
 }
 
-func (condition ConnectionCondition[T]) Type() ConditionType {
-	return WhereType
-}
-
 //nolint:unused // is used
 func (condition ConnectionCondition[T]) affectsDeletedAt() bool {
 	return pie.Any(condition.Conditions, func(internalCondition WhereCondition[T]) bool {
@@ -181,10 +164,6 @@ func applyWhereCondition[T any](condition WhereCondition[T], query *gorm.DB, tab
 		sql,
 		values...,
 	), nil
-}
-
-func (condition FieldCondition[TObject, TAtribute]) Type() ConditionType {
-	return WhereType
 }
 
 //nolint:unused // is used
@@ -266,10 +245,6 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	return query, nil
 }
 
-func (condition JoinCondition[T1, T2]) Type() ConditionType {
-	return JoinType
-}
-
 // Returns the SQL string to do a join between T1 and T2
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
@@ -290,15 +265,10 @@ func divideConditionsByType[T any](
 	conditions []Condition[T],
 ) (thisEntityConditions []WhereCondition[T], joinConditions []Condition[T]) {
 	for _, condition := range conditions {
-		switch condition.Type() {
-		case WhereType:
-			typedCondition, ok := condition.(WhereCondition[T])
-			if ok {
-				// TODO ver si dejo asi
-				// esto me trajo problems cuando hice un cambio en el metodo, ya no cumplia y todas las condiciones me quedaron vacias
-				thisEntityConditions = append(thisEntityConditions, typedCondition)
-			}
-		case JoinType:
+		typedCondition, ok := condition.(WhereCondition[T])
+		if ok {
+			thisEntityConditions = append(thisEntityConditions, typedCondition)
+		} else {
 			joinConditions = append(joinConditions, condition)
 		}
 	}
@@ -318,10 +288,6 @@ func (condition InvalidCondition[T]) interfaceVerificationMethod(_ T) {
 
 func (condition InvalidCondition[T]) ApplyTo(_ *gorm.DB, _ string) (*gorm.DB, error) {
 	return nil, condition.Err
-}
-
-func (condition InvalidCondition[T]) Type() ConditionType {
-	return WhereType
 }
 
 func (condition InvalidCondition[T]) GetSQL(_ *gorm.DB, _ string) (string, []any, error) {
