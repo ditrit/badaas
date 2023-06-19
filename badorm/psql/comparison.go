@@ -17,7 +17,6 @@ var normalForms = map[norm.Form]string{
 	norm.NFKD: "NFKD",
 }
 
-// TODO que pasa con otros que mapean a string por valuer?
 func IsNormalized[T string | sql.NullString](expectedNorm norm.Form) badorm.PredicateExpression[T] {
 	return badorm.NewPredicateExpression[T](
 		"IS " + normalForms[expectedNorm] + " NORMALIZED",
