@@ -284,7 +284,7 @@ func (condition UnsafeCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*
 	return applyWhereCondition[T](condition, query, tableName)
 }
 
-func (condition UnsafeCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+func (condition UnsafeCondition[T]) GetSQL(_ *gorm.DB, tableName string) (string, []any, error) {
 	return fmt.Sprintf(
 		condition.SQLCondition,
 		tableName,
