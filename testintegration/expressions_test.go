@@ -958,7 +958,7 @@ func (ts *ExpressionIntTestSuite) TestPosixRegex() {
 	case configuration.PostgreSQL:
 		posixRegexExpression = psql.POSIXMatch[string]("^a(b|x)")
 	case configuration.SQLite:
-		posixRegexExpression = sqlite.Glob[string]("^a(b|x)")
+		posixRegexExpression = sqlite.Glob[string]("a[bx]")
 	}
 
 	if posixRegexExpression != nil {
