@@ -8,39 +8,39 @@ import (
 	"time"
 )
 
-func SellerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Seller, badorm.UUID] {
+func SellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func SellerCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Seller, time.Time] {
+func SellerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func SellerUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Seller, time.Time] {
+func SellerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func SellerDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Seller, gorm.DeletedAt] {
+func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func SellerName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Seller, string] {
+func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
-func SellerCompanyId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Seller, badorm.UUID] {
+func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "CompanyID",
+		Expression: expr,
+		Field:      "CompanyID",
 	}
 }

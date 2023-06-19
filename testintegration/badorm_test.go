@@ -67,9 +67,10 @@ func TestBaDORM(t *testing.T) {
 		badorm.GetCRUDUnsafeServiceModule[models.Phone](),
 		badorm.GetCRUDUnsafeServiceModule[models.Brand](),
 
-		fx.Provide(NewCRUDServiceIntTestSuite),
 		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
+		fx.Provide(NewWhereConditionsIntTestSuite),
+		fx.Provide(NewJoinConditionsIntTestSuite),
 		fx.Provide(NewExpressionsIntTestSuite),
 
 		fx.Invoke(runBaDORMTestSuites),
@@ -77,15 +78,17 @@ func TestBaDORM(t *testing.T) {
 }
 
 func runBaDORMTestSuites(
-	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
 	tsCRUDUnsafeService *CRUDUnsafeServiceIntTestSuite,
+	tsWhereConditions *WhereConditionsIntTestSuite,
+	tsJoinConditions *JoinConditionsIntTestSuite,
 	tsExpressions *ExpressionIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, tsCRUDService)
 	suite.Run(tGlobal, tsCRUDRepository)
 	suite.Run(tGlobal, tsCRUDUnsafeService)
+	suite.Run(tGlobal, tsWhereConditions)
+	suite.Run(tGlobal, tsJoinConditions)
 	suite.Run(tGlobal, tsExpressions)
 
 	shutdowner.Shutdown()

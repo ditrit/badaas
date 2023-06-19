@@ -8,39 +8,39 @@ import (
 	"time"
 )
 
-func CityId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.City, badorm.UUID] {
+func CityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func CityCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.City, time.Time] {
+func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func CityUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.City, time.Time] {
+func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func CityDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.City, gorm.DeletedAt] {
+func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func CityName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.City, string] {
+func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
-func CityCountryId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.City, badorm.UUID] {
+func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "CountryID",
+		Expression: expr,
+		Field:      "CountryID",
 	}
 }

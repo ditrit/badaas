@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func GormEmbeddedId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[gormembedded.GormEmbedded, uint] {
+func GormEmbeddedId(expr badorm.Expression[uint]) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.FieldCondition[gormembedded.GormEmbedded, uint]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func GormEmbeddedCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[gormembedded.GormEmbedded, time.Time] {
+func GormEmbeddedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.FieldCondition[gormembedded.GormEmbedded, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func GormEmbeddedUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[gormembedded.GormEmbedded, time.Time] {
+func GormEmbeddedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.FieldCondition[gormembedded.GormEmbedded, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func GormEmbeddedDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[gormembedded.GormEmbedded, gorm.DeletedAt] {
+func GormEmbeddedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.FieldCondition[gormembedded.GormEmbedded, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func GormEmbeddedGormEmbeddedInt(exprs ...badorm.Expression[int]) badorm.FieldCondition[gormembedded.GormEmbedded, int] {
+func GormEmbeddedGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[gormembedded.GormEmbedded] {
 	return badorm.FieldCondition[gormembedded.GormEmbedded, int]{
 		ColumnPrefix: "gorm_embedded_",
-		Expressions:  exprs,
+		Expression:   expr,
 		Field:        "Int",
 	}
 }

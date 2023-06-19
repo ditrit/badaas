@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func GoEmbeddedId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[goembedded.GoEmbedded, uint] {
+func GoEmbeddedId(expr badorm.Expression[uint]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, uint]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func GoEmbeddedCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[goembedded.GoEmbedded, time.Time] {
+func GoEmbeddedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func GoEmbeddedUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[goembedded.GoEmbedded, time.Time] {
+func GoEmbeddedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func GoEmbeddedDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[goembedded.GoEmbedded, gorm.DeletedAt] {
+func GoEmbeddedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func GoEmbeddedEmbeddedInt(exprs ...badorm.Expression[int]) badorm.FieldCondition[goembedded.GoEmbedded, int] {
+func GoEmbeddedEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, int]{
-		Expressions: exprs,
-		Field:       "EmbeddedInt",
+		Expression: expr,
+		Field:      "EmbeddedInt",
 	}
 }

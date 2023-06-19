@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func EmployeeId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Employee, badorm.UUID] {
+func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func EmployeeCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Employee, time.Time] {
+func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func EmployeeUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Employee, time.Time] {
+func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func EmployeeDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Employee, gorm.DeletedAt] {
+func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func EmployeeName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Employee, string] {
+func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condition[models.Employee] {
@@ -45,9 +45,9 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condit
 		T2Field:    "ID",
 	}
 }
-func EmployeeBossId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Employee, badorm.UUID] {
+func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "BossID",
+		Expression: expr,
+		Field:      "BossID",
 	}
 }

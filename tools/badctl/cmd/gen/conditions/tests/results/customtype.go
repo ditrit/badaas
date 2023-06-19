@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func CustomTypeId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[customtype.CustomType, badorm.UUID] {
+func CustomTypeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func CustomTypeCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[customtype.CustomType, time.Time] {
+func CustomTypeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func CustomTypeUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[customtype.CustomType, time.Time] {
+func CustomTypeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func CustomTypeDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[customtype.CustomType, gorm.DeletedAt] {
+func CustomTypeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func CustomTypeCustom(exprs ...badorm.Expression[customtype.MultiString]) badorm.FieldCondition[customtype.CustomType, customtype.MultiString] {
+func CustomTypeCustom(expr badorm.Expression[customtype.MultiString]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, customtype.MultiString]{
-		Expressions: exprs,
-		Field:       "Custom",
+		Expression: expr,
+		Field:      "Custom",
 	}
 }

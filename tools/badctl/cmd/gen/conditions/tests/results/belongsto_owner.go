@@ -8,27 +8,27 @@ import (
 	"time"
 )
 
-func OwnerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[belongsto.Owner, badorm.UUID] {
+func OwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.FieldCondition[belongsto.Owner, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func OwnerCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[belongsto.Owner, time.Time] {
+func OwnerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.FieldCondition[belongsto.Owner, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func OwnerUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[belongsto.Owner, time.Time] {
+func OwnerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.FieldCondition[belongsto.Owner, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func OwnerDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[belongsto.Owner, gorm.DeletedAt] {
+func OwnerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[belongsto.Owner] {
 	return badorm.FieldCondition[belongsto.Owner, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }

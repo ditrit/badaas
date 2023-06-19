@@ -8,27 +8,27 @@ import (
 	"time"
 )
 
-func UintModelId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[uintmodel.UintModel, uint] {
+func UintModelId(expr badorm.Expression[uint]) badorm.WhereCondition[uintmodel.UintModel] {
 	return badorm.FieldCondition[uintmodel.UintModel, uint]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func UintModelCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[uintmodel.UintModel, time.Time] {
+func UintModelCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[uintmodel.UintModel] {
 	return badorm.FieldCondition[uintmodel.UintModel, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func UintModelUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[uintmodel.UintModel, time.Time] {
+func UintModelUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[uintmodel.UintModel] {
 	return badorm.FieldCondition[uintmodel.UintModel, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func UintModelDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[uintmodel.UintModel, gorm.DeletedAt] {
+func UintModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[uintmodel.UintModel] {
 	return badorm.FieldCondition[uintmodel.UintModel, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }

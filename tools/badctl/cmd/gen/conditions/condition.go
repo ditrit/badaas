@@ -13,6 +13,7 @@ const (
 	// badorm/condition.go
 	badORMCondition      = "Condition"
 	badORMFieldCondition = "FieldCondition"
+	badORMWhereCondition = "WhereCondition"
 	badORMJoinCondition  = "JoinCondition"
 	// badorm/expression.go
 	badORMExpression = "Expression"
@@ -151,21 +152,29 @@ func (condition *Condition) generateForBadormModel(objectType Type, field Field)
 
 // Generate a WhereCondition between object and field
 func (condition *Condition) generateWhere(objectType Type, field Field) {
+	objectTypeQual := jen.Qual(
+		getRelativePackagePath(condition.destPkg, objectType),
+		objectType.Name(),
+	)
+
 	fieldCondition := jen.Qual(
 		badORMPath, badORMFieldCondition,
 	).Types(
-		jen.Qual(
-			getRelativePackagePath(condition.destPkg, objectType),
-			objectType.Name(),
-		),
+		objectTypeQual,
 		condition.param.GenericType(),
+	)
+
+	whereCondition := jen.Qual(
+		badORMPath, badORMWhereCondition,
+	).Types(
+		objectTypeQual,
 	)
 
 	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
 	conditionValues := jen.Dict{
-		jen.Id("Expressions"): jen.Id("exprs"),
+		jen.Id("Expression"): jen.Id("expr"),
 	}
 	columnName := field.getColumnName()
 
@@ -187,7 +196,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		).Params(
 			condition.param.Statement(),
 		).Add(
-			fieldCondition.Clone(),
+			whereCondition,
 		).Block(
 			jen.Return(
 				fieldCondition.Clone().Values(conditionValues),

@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func CompanyId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[models.Company, badorm.UUID] {
+func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func CompanyCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Company, time.Time] {
+func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func CompanyUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Company, time.Time] {
+func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func CompanyDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Company, gorm.DeletedAt] {
+func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func CompanyName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Company, string] {
+func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {

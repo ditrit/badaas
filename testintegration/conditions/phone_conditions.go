@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func PhoneId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[models.Phone, uint] {
+func PhoneId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func PhoneCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Phone, time.Time] {
+func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func PhoneUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[models.Phone, time.Time] {
+func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func PhoneDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[models.Phone, gorm.DeletedAt] {
+func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func PhoneName(exprs ...badorm.Expression[string]) badorm.FieldCondition[models.Phone, string] {
+func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, string]{
-		Expressions: exprs,
-		Field:       "Name",
+		Expression: expr,
+		Field:      "Name",
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[models.Phone] {
@@ -45,9 +45,9 @@ func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[m
 		T2Field:    "ID",
 	}
 }
-func PhoneBrandId(exprs ...badorm.Expression[uint]) badorm.FieldCondition[models.Phone, uint] {
+func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
-		Expressions: exprs,
-		Field:       "BrandID",
+		Expression: expr,
+		Field:      "BrandID",
 	}
 }

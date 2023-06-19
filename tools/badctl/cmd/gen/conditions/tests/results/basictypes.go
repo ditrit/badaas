@@ -8,135 +8,135 @@ import (
 	"time"
 )
 
-func BasicTypesId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[basictypes.BasicTypes, badorm.UUID] {
+func BasicTypesId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func BasicTypesCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[basictypes.BasicTypes, time.Time] {
+func BasicTypesCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func BasicTypesUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[basictypes.BasicTypes, time.Time] {
+func BasicTypesUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func BasicTypesDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[basictypes.BasicTypes, gorm.DeletedAt] {
+func BasicTypesDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func BasicTypesBool(exprs ...badorm.Expression[bool]) badorm.FieldCondition[basictypes.BasicTypes, bool] {
+func BasicTypesBool(expr badorm.Expression[bool]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, bool]{
-		Expressions: exprs,
-		Field:       "Bool",
+		Expression: expr,
+		Field:      "Bool",
 	}
 }
-func BasicTypesInt(exprs ...badorm.Expression[int]) badorm.FieldCondition[basictypes.BasicTypes, int] {
+func BasicTypesInt(expr badorm.Expression[int]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int]{
-		Expressions: exprs,
-		Field:       "Int",
+		Expression: expr,
+		Field:      "Int",
 	}
 }
-func BasicTypesInt8(exprs ...badorm.Expression[int8]) badorm.FieldCondition[basictypes.BasicTypes, int8] {
+func BasicTypesInt8(expr badorm.Expression[int8]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int8]{
-		Expressions: exprs,
-		Field:       "Int8",
+		Expression: expr,
+		Field:      "Int8",
 	}
 }
-func BasicTypesInt16(exprs ...badorm.Expression[int16]) badorm.FieldCondition[basictypes.BasicTypes, int16] {
+func BasicTypesInt16(expr badorm.Expression[int16]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int16]{
-		Expressions: exprs,
-		Field:       "Int16",
+		Expression: expr,
+		Field:      "Int16",
 	}
 }
-func BasicTypesInt32(exprs ...badorm.Expression[int32]) badorm.FieldCondition[basictypes.BasicTypes, int32] {
+func BasicTypesInt32(expr badorm.Expression[int32]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int32]{
-		Expressions: exprs,
-		Field:       "Int32",
+		Expression: expr,
+		Field:      "Int32",
 	}
 }
-func BasicTypesInt64(exprs ...badorm.Expression[int64]) badorm.FieldCondition[basictypes.BasicTypes, int64] {
+func BasicTypesInt64(expr badorm.Expression[int64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int64]{
-		Expressions: exprs,
-		Field:       "Int64",
+		Expression: expr,
+		Field:      "Int64",
 	}
 }
-func BasicTypesUInt(exprs ...badorm.Expression[uint]) badorm.FieldCondition[basictypes.BasicTypes, uint] {
+func BasicTypesUInt(expr badorm.Expression[uint]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint]{
-		Expressions: exprs,
-		Field:       "UInt",
+		Expression: expr,
+		Field:      "UInt",
 	}
 }
-func BasicTypesUInt8(exprs ...badorm.Expression[uint8]) badorm.FieldCondition[basictypes.BasicTypes, uint8] {
+func BasicTypesUInt8(expr badorm.Expression[uint8]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint8]{
-		Expressions: exprs,
-		Field:       "UInt8",
+		Expression: expr,
+		Field:      "UInt8",
 	}
 }
-func BasicTypesUInt16(exprs ...badorm.Expression[uint16]) badorm.FieldCondition[basictypes.BasicTypes, uint16] {
+func BasicTypesUInt16(expr badorm.Expression[uint16]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint16]{
-		Expressions: exprs,
-		Field:       "UInt16",
+		Expression: expr,
+		Field:      "UInt16",
 	}
 }
-func BasicTypesUInt32(exprs ...badorm.Expression[uint32]) badorm.FieldCondition[basictypes.BasicTypes, uint32] {
+func BasicTypesUInt32(expr badorm.Expression[uint32]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint32]{
-		Expressions: exprs,
-		Field:       "UInt32",
+		Expression: expr,
+		Field:      "UInt32",
 	}
 }
-func BasicTypesUInt64(exprs ...badorm.Expression[uint64]) badorm.FieldCondition[basictypes.BasicTypes, uint64] {
+func BasicTypesUInt64(expr badorm.Expression[uint64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint64]{
-		Expressions: exprs,
-		Field:       "UInt64",
+		Expression: expr,
+		Field:      "UInt64",
 	}
 }
-func BasicTypesUIntptr(exprs ...badorm.Expression[uintptr]) badorm.FieldCondition[basictypes.BasicTypes, uintptr] {
+func BasicTypesUIntptr(expr badorm.Expression[uintptr]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uintptr]{
-		Expressions: exprs,
-		Field:       "UIntptr",
+		Expression: expr,
+		Field:      "UIntptr",
 	}
 }
-func BasicTypesFloat32(exprs ...badorm.Expression[float32]) badorm.FieldCondition[basictypes.BasicTypes, float32] {
+func BasicTypesFloat32(expr badorm.Expression[float32]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, float32]{
-		Expressions: exprs,
-		Field:       "Float32",
+		Expression: expr,
+		Field:      "Float32",
 	}
 }
-func BasicTypesFloat64(exprs ...badorm.Expression[float64]) badorm.FieldCondition[basictypes.BasicTypes, float64] {
+func BasicTypesFloat64(expr badorm.Expression[float64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, float64]{
-		Expressions: exprs,
-		Field:       "Float64",
+		Expression: expr,
+		Field:      "Float64",
 	}
 }
-func BasicTypesComplex64(exprs ...badorm.Expression[complex64]) badorm.FieldCondition[basictypes.BasicTypes, complex64] {
+func BasicTypesComplex64(expr badorm.Expression[complex64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, complex64]{
-		Expressions: exprs,
-		Field:       "Complex64",
+		Expression: expr,
+		Field:      "Complex64",
 	}
 }
-func BasicTypesComplex128(exprs ...badorm.Expression[complex128]) badorm.FieldCondition[basictypes.BasicTypes, complex128] {
+func BasicTypesComplex128(expr badorm.Expression[complex128]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, complex128]{
-		Expressions: exprs,
-		Field:       "Complex128",
+		Expression: expr,
+		Field:      "Complex128",
 	}
 }
-func BasicTypesString(exprs ...badorm.Expression[string]) badorm.FieldCondition[basictypes.BasicTypes, string] {
+func BasicTypesString(expr badorm.Expression[string]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, string]{
-		Expressions: exprs,
-		Field:       "String",
+		Expression: expr,
+		Field:      "String",
 	}
 }
-func BasicTypesByte(exprs ...badorm.Expression[uint8]) badorm.FieldCondition[basictypes.BasicTypes, uint8] {
+func BasicTypesByte(expr badorm.Expression[uint8]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint8]{
-		Expressions: exprs,
-		Field:       "Byte",
+		Expression: expr,
+		Field:      "Byte",
 	}
 }

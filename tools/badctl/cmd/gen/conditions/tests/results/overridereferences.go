@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-func PhoneId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[overridereferences.Phone, badorm.UUID] {
+func PhoneId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func PhoneCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[overridereferences.Phone, time.Time] {
+func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func PhoneUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[overridereferences.Phone, time.Time] {
+func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func PhoneDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[overridereferences.Phone, gorm.DeletedAt] {
+func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm.Condition[overridereferences.Phone] {
@@ -39,9 +39,9 @@ func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm
 		T2Field:    "Name",
 	}
 }
-func PhoneBrandName(exprs ...badorm.Expression[string]) badorm.FieldCondition[overridereferences.Phone, string] {
+func PhoneBrandName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, string]{
-		Expressions: exprs,
-		Field:       "BrandName",
+		Expression: expr,
+		Field:      "BrandName",
 	}
 }

@@ -13,9 +13,8 @@ import (
 )
 
 var (
-	ErrNotRelated       = errors.New("value type not related with T")
-	ErrValueCantBeNull  = errors.New("value to compare can't be null")
-	ErrEmptyExpressions = errors.New("each condition must have at least one expression")
+	ErrNotRelated      = errors.New("value type not related with T")
+	ErrValueCantBeNull = errors.New("value to compare can't be null")
 )
 
 type Expression[T any] interface {
@@ -27,87 +26,6 @@ type Expression[T any] interface {
 	// since if no method receives by parameter a type T,
 	// any other Expression[T2] would also be considered a Expression[T].
 	InterfaceVerificationMethod(T)
-}
-
-type ContainerExpression[T any] struct {
-	Expressions []Expression[T]
-	Prefix      string
-}
-
-//nolint:unused // see inside
-func (expr ContainerExpression[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Expression[T]
-}
-
-func (expr ContainerExpression[T]) ToSQL(columnName string) (string, []any, error) {
-	sqlString, values, err := evaluateExpressions(columnName, expr.Expressions)
-	if err != nil {
-		return "", nil, err
-	}
-
-	sqlString = expr.Prefix + " (" + sqlString + ")"
-
-	return sqlString, values, nil
-}
-
-func evaluateExpressions[T any](columnName string, exprs []Expression[T]) (string, []any, error) {
-	expressionsAmount := len(exprs)
-	if expressionsAmount == 0 {
-		return "", nil, ErrEmptyExpressions
-	} else if expressionsAmount == 1 {
-		return exprs[0].ToSQL(columnName)
-	}
-
-	return And(exprs...).ToSQL(columnName)
-}
-
-func NewContainerExpression[T any](prefix string, expressions ...Expression[T]) ContainerExpression[T] {
-	return ContainerExpression[T]{
-		Prefix:      prefix,
-		Expressions: expressions,
-	}
-}
-
-type ConnectionExpression[T any] struct {
-	Expressions []Expression[T]
-	Connector   string
-}
-
-//nolint:unused // see inside
-func (expr ConnectionExpression[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Expression[T]
-}
-
-func (expr ConnectionExpression[T]) ToSQL(columnName string) (string, []any, error) {
-	sqlString := ""
-	values := []any{}
-
-	for index, internalExpr := range expr.Expressions {
-		// TODO strings.Join(exprs, " AND ")?
-		if index != 0 {
-			sqlString += " " + expr.Connector + " "
-		}
-
-		exprSQLString, exprValues, err := internalExpr.ToSQL(columnName)
-		if err != nil {
-			return "", nil, err
-		}
-
-		sqlString += exprSQLString
-
-		values = append(values, exprValues...)
-	}
-
-	return sqlString, values, nil
-}
-
-func NewConnectionExpression[T any](connector string, expressions ...Expression[T]) ConnectionExpression[T] {
-	return ConnectionExpression[T]{
-		Connector:   connector,
-		Expressions: expressions,
-	}
 }
 
 type ValueExpression[T any] struct {
@@ -265,28 +183,6 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 	return InvalidExpression[T]{
 		Err: err,
 	}
-}
-
-// Logical Operators
-// ref:
-// - PostgreSQL: https://www.postgresql.org/docs/current/functions-logical.html
-// - MySQL: https://dev.mysql.com/doc/refman/8.0/en/logical-operators.html
-// - SQLServer: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/logical-operators-transact-sql?view=sql-server-ver16
-// - SQLite: https://www.sqlite.org/lang_expr.html
-
-func And[T any](exprs ...Expression[T]) ConnectionExpression[T] {
-	return NewConnectionExpression("AND", exprs...)
-}
-
-// TODO que pasa si quiero esto entre distintas conditions,
-// y si ensima queres entre distintos joins olvidate imposible
-// -> agregar unsafe condition y unsafe expression
-func Or[T any](exprs ...Expression[T]) ConnectionExpression[T] {
-	return NewConnectionExpression("OR", exprs...)
-}
-
-func Not[T any](exprs ...Expression[T]) ContainerExpression[T] {
-	return NewContainerExpression("NOT", exprs...)
 }
 
 // Comparison Operators

@@ -5,6 +5,6 @@ import (
 	"github.com/ditrit/badaas/badorm/shared"
 )
 
-func Xor[T any](exprs ...badorm.Expression[T]) badorm.ConnectionExpression[T] {
-	return shared.Xor(exprs...)
+func Xor[T any](conditions ...badorm.WhereCondition[T]) badorm.WhereCondition[T] {
+	return shared.Xor(conditions...)
 }

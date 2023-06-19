@@ -8,28 +8,28 @@ import (
 	"time"
 )
 
-func OwnedId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[belongsto.Owned, badorm.UUID] {
+func OwnedId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func OwnedCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[belongsto.Owned, time.Time] {
+func OwnedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func OwnedUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[belongsto.Owned, time.Time] {
+func OwnedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func OwnedDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[belongsto.Owned, gorm.DeletedAt] {
+func OwnedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
 func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Condition[belongsto.Owned] {
@@ -39,9 +39,9 @@ func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Conditio
 		T2Field:    "ID",
 	}
 }
-func OwnedOwnerId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[belongsto.Owned, badorm.UUID] {
+func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "OwnerID",
+		Expression: expr,
+		Field:      "OwnerID",
 	}
 }

@@ -8,135 +8,135 @@ import (
 	"time"
 )
 
-func BasicPointersId(exprs ...badorm.Expression[badorm.UUID]) badorm.FieldCondition[basicpointers.BasicPointers, badorm.UUID] {
+func BasicPointersId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, badorm.UUID]{
-		Expressions: exprs,
-		Field:       "ID",
+		Expression: expr,
+		Field:      "ID",
 	}
 }
-func BasicPointersCreatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[basicpointers.BasicPointers, time.Time] {
+func BasicPointersCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, time.Time]{
-		Expressions: exprs,
-		Field:       "CreatedAt",
+		Expression: expr,
+		Field:      "CreatedAt",
 	}
 }
-func BasicPointersUpdatedAt(exprs ...badorm.Expression[time.Time]) badorm.FieldCondition[basicpointers.BasicPointers, time.Time] {
+func BasicPointersUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, time.Time]{
-		Expressions: exprs,
-		Field:       "UpdatedAt",
+		Expression: expr,
+		Field:      "UpdatedAt",
 	}
 }
-func BasicPointersDeletedAt(exprs ...badorm.Expression[gorm.DeletedAt]) badorm.FieldCondition[basicpointers.BasicPointers, gorm.DeletedAt] {
+func BasicPointersDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, gorm.DeletedAt]{
-		Expressions: exprs,
-		Field:       "DeletedAt",
+		Expression: expr,
+		Field:      "DeletedAt",
 	}
 }
-func BasicPointersBool(exprs ...badorm.Expression[*bool]) badorm.FieldCondition[basicpointers.BasicPointers, *bool] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *bool]{
-		Expressions: exprs,
-		Field:       "Bool",
+func BasicPointersBool(expr badorm.Expression[bool]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, bool]{
+		Expression: expr,
+		Field:      "Bool",
 	}
 }
-func BasicPointersInt(exprs ...badorm.Expression[*int]) badorm.FieldCondition[basicpointers.BasicPointers, *int] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *int]{
-		Expressions: exprs,
-		Field:       "Int",
+func BasicPointersInt(expr badorm.Expression[int]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, int]{
+		Expression: expr,
+		Field:      "Int",
 	}
 }
-func BasicPointersInt8(exprs ...badorm.Expression[*int8]) badorm.FieldCondition[basicpointers.BasicPointers, *int8] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *int8]{
-		Expressions: exprs,
-		Field:       "Int8",
+func BasicPointersInt8(expr badorm.Expression[int8]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, int8]{
+		Expression: expr,
+		Field:      "Int8",
 	}
 }
-func BasicPointersInt16(exprs ...badorm.Expression[*int16]) badorm.FieldCondition[basicpointers.BasicPointers, *int16] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *int16]{
-		Expressions: exprs,
-		Field:       "Int16",
+func BasicPointersInt16(expr badorm.Expression[int16]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, int16]{
+		Expression: expr,
+		Field:      "Int16",
 	}
 }
-func BasicPointersInt32(exprs ...badorm.Expression[*int32]) badorm.FieldCondition[basicpointers.BasicPointers, *int32] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *int32]{
-		Expressions: exprs,
-		Field:       "Int32",
+func BasicPointersInt32(expr badorm.Expression[int32]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, int32]{
+		Expression: expr,
+		Field:      "Int32",
 	}
 }
-func BasicPointersInt64(exprs ...badorm.Expression[*int64]) badorm.FieldCondition[basicpointers.BasicPointers, *int64] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *int64]{
-		Expressions: exprs,
-		Field:       "Int64",
+func BasicPointersInt64(expr badorm.Expression[int64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, int64]{
+		Expression: expr,
+		Field:      "Int64",
 	}
 }
-func BasicPointersUInt(exprs ...badorm.Expression[*uint]) badorm.FieldCondition[basicpointers.BasicPointers, *uint] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uint]{
-		Expressions: exprs,
-		Field:       "UInt",
+func BasicPointersUInt(expr badorm.Expression[uint]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uint]{
+		Expression: expr,
+		Field:      "UInt",
 	}
 }
-func BasicPointersUInt8(exprs ...badorm.Expression[*uint8]) badorm.FieldCondition[basicpointers.BasicPointers, *uint8] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uint8]{
-		Expressions: exprs,
-		Field:       "UInt8",
+func BasicPointersUInt8(expr badorm.Expression[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uint8]{
+		Expression: expr,
+		Field:      "UInt8",
 	}
 }
-func BasicPointersUInt16(exprs ...badorm.Expression[*uint16]) badorm.FieldCondition[basicpointers.BasicPointers, *uint16] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uint16]{
-		Expressions: exprs,
-		Field:       "UInt16",
+func BasicPointersUInt16(expr badorm.Expression[uint16]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uint16]{
+		Expression: expr,
+		Field:      "UInt16",
 	}
 }
-func BasicPointersUInt32(exprs ...badorm.Expression[*uint32]) badorm.FieldCondition[basicpointers.BasicPointers, *uint32] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uint32]{
-		Expressions: exprs,
-		Field:       "UInt32",
+func BasicPointersUInt32(expr badorm.Expression[uint32]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uint32]{
+		Expression: expr,
+		Field:      "UInt32",
 	}
 }
-func BasicPointersUInt64(exprs ...badorm.Expression[*uint64]) badorm.FieldCondition[basicpointers.BasicPointers, *uint64] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uint64]{
-		Expressions: exprs,
-		Field:       "UInt64",
+func BasicPointersUInt64(expr badorm.Expression[uint64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uint64]{
+		Expression: expr,
+		Field:      "UInt64",
 	}
 }
-func BasicPointersUIntptr(exprs ...badorm.Expression[*uintptr]) badorm.FieldCondition[basicpointers.BasicPointers, *uintptr] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uintptr]{
-		Expressions: exprs,
-		Field:       "UIntptr",
+func BasicPointersUIntptr(expr badorm.Expression[uintptr]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uintptr]{
+		Expression: expr,
+		Field:      "UIntptr",
 	}
 }
-func BasicPointersFloat32(exprs ...badorm.Expression[*float32]) badorm.FieldCondition[basicpointers.BasicPointers, *float32] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *float32]{
-		Expressions: exprs,
-		Field:       "Float32",
+func BasicPointersFloat32(expr badorm.Expression[float32]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, float32]{
+		Expression: expr,
+		Field:      "Float32",
 	}
 }
-func BasicPointersFloat64(exprs ...badorm.Expression[*float64]) badorm.FieldCondition[basicpointers.BasicPointers, *float64] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *float64]{
-		Expressions: exprs,
-		Field:       "Float64",
+func BasicPointersFloat64(expr badorm.Expression[float64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, float64]{
+		Expression: expr,
+		Field:      "Float64",
 	}
 }
-func BasicPointersComplex64(exprs ...badorm.Expression[*complex64]) badorm.FieldCondition[basicpointers.BasicPointers, *complex64] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *complex64]{
-		Expressions: exprs,
-		Field:       "Complex64",
+func BasicPointersComplex64(expr badorm.Expression[complex64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, complex64]{
+		Expression: expr,
+		Field:      "Complex64",
 	}
 }
-func BasicPointersComplex128(exprs ...badorm.Expression[*complex128]) badorm.FieldCondition[basicpointers.BasicPointers, *complex128] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *complex128]{
-		Expressions: exprs,
-		Field:       "Complex128",
+func BasicPointersComplex128(expr badorm.Expression[complex128]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, complex128]{
+		Expression: expr,
+		Field:      "Complex128",
 	}
 }
-func BasicPointersString(exprs ...badorm.Expression[*string]) badorm.FieldCondition[basicpointers.BasicPointers, *string] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *string]{
-		Expressions: exprs,
-		Field:       "String",
+func BasicPointersString(expr badorm.Expression[string]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, string]{
+		Expression: expr,
+		Field:      "String",
 	}
 }
-func BasicPointersByte(exprs ...badorm.Expression[*uint8]) badorm.FieldCondition[basicpointers.BasicPointers, *uint8] {
-	return badorm.FieldCondition[basicpointers.BasicPointers, *uint8]{
-		Expressions: exprs,
-		Field:       "Byte",
+func BasicPointersByte(expr badorm.Expression[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
+	return badorm.FieldCondition[basicpointers.BasicPointers, uint8]{
+		Expression: expr,
+		Field:      "Byte",
 	}
 }
