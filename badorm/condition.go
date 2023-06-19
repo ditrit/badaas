@@ -3,6 +3,7 @@ package badorm
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
@@ -91,26 +92,21 @@ func (condition ConnectionCondition[T]) ApplyTo(query *gorm.DB, tableName string
 }
 
 func (condition ConnectionCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
-	sqlString := ""
+	sqlStrings := []string{}
 	values := []any{}
 
-	for index, internalCondition := range condition.Conditions {
-		// TODO strings.Join(exprs, " AND ")?
-		if index != 0 {
-			sqlString += " " + condition.Connector + " "
-		}
-
-		exprSQLString, exprValues, err := internalCondition.GetSQL(query, tableName)
+	for _, internalCondition := range condition.Conditions {
+		internalSQLString, exprValues, err := internalCondition.GetSQL(query, tableName)
 		if err != nil {
 			return "", nil, err
 		}
 
-		sqlString += exprSQLString
+		sqlStrings = append(sqlStrings, internalSQLString)
 
 		values = append(values, exprValues...)
 	}
 
-	return sqlString, values, nil
+	return strings.Join(sqlStrings, " "+condition.Connector+" "), values, nil
 }
 
 //nolint:unused // is used
