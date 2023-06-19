@@ -297,8 +297,7 @@ func (ts *ExpressionIntTestSuite) TestNotLt() {
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	case configuration.PostgreSQL, configuration.MySQL, configuration.SQLite:
-		// TODO
-		log.Println("TODO")
+		log.Println("NotLt not supported")
 	}
 }
 
@@ -351,8 +350,7 @@ func (ts *ExpressionIntTestSuite) TestNotGt() {
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	case configuration.PostgreSQL, configuration.MySQL, configuration.SQLite:
-		// TODO
-		log.Println("TODO")
+		log.Println("NotGt not supported")
 	}
 }
 
@@ -404,8 +402,14 @@ func (ts *ExpressionIntTestSuite) TestIsDistinct() {
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	case configuration.MySQL:
-		// TODO not is equal
-		log.Println("TODO")
+		entities, err := ts.crudProductService.GetEntities(
+			badorm.Not[models.Product](
+				conditions.ProductInt(mysql.IsEqual(2)),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	}
 }
 
@@ -766,9 +770,10 @@ func (ts *ExpressionIntTestSuite) TestArrayNotIn() {
 		arrayNotInExpression = mysql.ArrayNotIn("ns1", "ns2")
 	case configuration.PostgreSQL:
 		arrayNotInExpression = psql.ArrayNotIn("ns1", "ns2")
-	case configuration.SQLServer, configuration.SQLite:
-		// TODO esto no va a andar en todos
-		arrayNotInExpression = psql.ArrayNotIn("ns1", "ns2")
+	case configuration.SQLServer:
+		arrayNotInExpression = sqlserver.ArrayNotIn("ns1", "ns2")
+	case configuration.SQLite:
+		arrayNotInExpression = sqlite.ArrayNotIn("ns1", "ns2")
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
