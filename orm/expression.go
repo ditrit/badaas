@@ -18,7 +18,6 @@ var (
 )
 
 type Expression[T any] interface {
-	// TODO quizas no devolver los values aca y ponerlos en otro metodo?
 	ToSQL(columnName string) (string, []any, error)
 
 	// This method is necessary to get the compiler to verify
@@ -397,8 +396,5 @@ func Like[T string | sql.NullString](pattern string) LikeExpression[T] {
 	return NewLikeExpression[T](pattern, "LIKE")
 }
 
-// Date/Time Functions and Operators
-// TODO isfinite
-// TODO OVERLAPS
-
+// TODO Date/Time Functions and Operators
 // TODO Subquery Expressions

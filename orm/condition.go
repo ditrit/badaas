@@ -219,7 +219,6 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 
 	joinQuery += " AND " + onQuery
 
-	// TODO podria desactivar el unscoped y meter esto en el connection
 	if !connectionCondition.affectsDeletedAt() {
 		joinQuery += fmt.Sprintf(
 			" AND %s.deleted_at IS NULL",
