@@ -313,7 +313,6 @@ func IsNotNull[T any]() PredicateExpression[T] {
 
 // Boolean Comparison Predicates
 
-// TODO que pasa con otros que mapean a bool por valuer?
 // Not supported by: sqlserver
 func IsTrue[T bool | sql.NullBool]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS TRUE")
@@ -373,7 +372,6 @@ func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
 	return expr.AddSQLExpression(string(escape), "ESCAPE")
 }
 
-// TODO que pasa con los que son strings for valuer
 // Pattern in all databases:
 //   - An underscore (_) in pattern stands for (matches) any single character.
 //   - A percent sign (%) matches any sequence of zero or more characters.
@@ -381,8 +379,6 @@ func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
 // Additionally in SQLServer:
 //   - Square brackets ([ ]) matches any single character within the specified range ([a-f]) or set ([abcdef]).
 //   - [^] matches any single character not within the specified range ([^a-f]) or set ([^abcdef]).
-//
-// # To be able to use ESCAPE operator use LikeEscape
 //
 // WARNINGS:
 //   - SQLite: LIKE is case-insensitive unless case_sensitive_like pragma (https://www.sqlite.org/pragma.html#pragma_case_sensitive_like) is true.

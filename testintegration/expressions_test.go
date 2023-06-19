@@ -474,7 +474,6 @@ func (ts *ExpressionIntTestSuite) TestIsNull() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductIntPointer(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			badorm.IsNull[int](),
 		),
 	)
@@ -493,7 +492,6 @@ func (ts *ExpressionIntTestSuite) TestIsNullNotPointers() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			badorm.IsNull[sql.NullFloat64](),
 		),
 	)
@@ -510,7 +508,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotNull() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductIntPointer(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			badorm.IsNotNull[int](),
 		),
 	)
@@ -529,7 +526,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotNullNotPointers() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			badorm.IsNotNull[sql.NullFloat64](),
 		),
 	)
@@ -547,7 +543,6 @@ func (ts *ExpressionIntTestSuite) TestIsTrue() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		// TODO esto no queda muy lindo que hay que ponerlo asi
 		isTrueExpression = badorm.IsTrue[bool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsTrue
@@ -573,7 +568,6 @@ func (ts *ExpressionIntTestSuite) TestIsFalse() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		// TODO esto no queda muy lindo que hay que ponerlo asi
 		isFalseExpression = badorm.IsFalse[bool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsFalse
@@ -607,7 +601,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		// TODO esto no queda muy lindo que hay que ponerlo asi
 		isNotTrueExpression = badorm.IsNotTrue[sql.NullBool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsNotTrue
@@ -641,7 +634,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		// TODO esto no queda muy lindo que hay que ponerlo asi
 		isNotFalseExpression = badorm.IsNotFalse[sql.NullBool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsNotFalse
@@ -675,7 +667,6 @@ func (ts *ExpressionIntTestSuite) TestIsUnknown() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL:
-		// TODO esto no queda muy lindo que hay que ponerlo asi
 		isUnknownExpression = badorm.IsUnknown[sql.NullBool]()
 	case configuration.SQLServer, configuration.SQLite:
 		// sqlserver doesn't support IsUnknown
@@ -709,7 +700,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotUnknown() {
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL:
-		// TODO esto no queda muy lindo que hay que ponerlo asi
 		isNotUnknownExpression = badorm.IsNotUnknown[sql.NullBool]()
 	case configuration.SQLServer, configuration.SQLite:
 		// sqlserver doesn't support IsNotUnknown

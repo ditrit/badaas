@@ -8,7 +8,6 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/mysql"
-	"github.com/ditrit/badaas/badorm/sqlserver"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -535,15 +534,10 @@ func (ts *WhereConditionsIntTestSuite) TestXor() {
 	var xorExpression badorm.WhereCondition[models.Product]
 
 	switch getDBDialector() {
-	case configuration.PostgreSQL, configuration.SQLite:
+	case configuration.PostgreSQL, configuration.SQLite, configuration.SQLServer:
 		log.Println("Xor not compatible")
 	case configuration.MySQL:
 		xorExpression = mysql.Xor(
-			conditions.ProductInt(badorm.Lt(6)),
-			conditions.ProductInt(badorm.Gt(3)),
-		)
-	case configuration.SQLServer:
-		xorExpression = sqlserver.Xor(
 			conditions.ProductInt(badorm.Lt(6)),
 			conditions.ProductInt(badorm.Gt(3)),
 		)
