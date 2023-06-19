@@ -347,7 +347,6 @@ func (ts *ExpressionIntTestSuite) TestIsNull() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNull[int](),
 		),
 	)
@@ -366,7 +365,6 @@ func (ts *ExpressionIntTestSuite) TestIsNullNotPointers() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNull[sql.NullFloat64](),
 		),
 	)
@@ -383,7 +381,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotNull() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNotNull[int](),
 		),
 	)
@@ -402,7 +399,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotNullNotPointers() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNotNull[sql.NullFloat64](),
 		),
 	)
@@ -418,7 +414,6 @@ func (ts *ExpressionIntTestSuite) TestIsTrue() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsTrue[bool](),
 		),
 	)
@@ -434,7 +429,6 @@ func (ts *ExpressionIntTestSuite) TestIsFalse() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsFalse[bool](),
 		),
 	)
@@ -458,7 +452,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNotTrue[sql.NullBool](),
 		),
 	)
@@ -482,7 +475,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNotFalse[sql.NullBool](),
 		),
 	)
@@ -506,7 +498,6 @@ func (ts *ExpressionIntTestSuite) TestIsUnknown() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsUnknown[sql.NullBool](),
 		),
 	)
@@ -530,7 +521,6 @@ func (ts *ExpressionIntTestSuite) TestIsNotUnknown() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
-			// TODO esto no queda muy lindo que hay que ponerlo asi
 			orm.IsNotUnknown[sql.NullBool](),
 		),
 	)
