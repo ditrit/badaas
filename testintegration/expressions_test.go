@@ -586,6 +586,7 @@ func (ts *ExpressionIntTestSuite) TestIsFalse() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
+//nolint:dupl // not really duplicated
 func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
 	match2 := ts.createProduct("match", 0, 0, false, nil)
@@ -619,6 +620,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
+//nolint:dupl // not really duplicated
 func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
 	match2 := ts.createProduct("match", 0, 0, false, nil)

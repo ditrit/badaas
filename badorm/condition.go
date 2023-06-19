@@ -72,6 +72,7 @@ func (condition ContainerCondition[T]) Type() ConditionType {
 	return WhereType
 }
 
+//nolint:unused // is used
 func (condition ContainerCondition[T]) affectsDeletedAt() bool {
 	return condition.ConnectionCondition.affectsDeletedAt()
 }
@@ -129,6 +130,7 @@ func (condition ConnectionCondition[T]) Type() ConditionType {
 	return WhereType
 }
 
+//nolint:unused // is used
 func (condition ConnectionCondition[T]) affectsDeletedAt() bool {
 	return pie.Any(condition.Conditions, func(internalCondition WhereCondition[T]) bool {
 		return internalCondition.affectsDeletedAt()
@@ -185,6 +187,7 @@ func (condition FieldCondition[TObject, TAtribute]) Type() ConditionType {
 	return WhereType
 }
 
+//nolint:unused // is used
 func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
 	return condition.Field == DeletedAtField
 }
@@ -322,10 +325,11 @@ func (condition InvalidCondition[T]) Type() ConditionType {
 	return WhereType
 }
 
-func (condition InvalidCondition[T]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+func (condition InvalidCondition[T]) GetSQL(_ *gorm.DB, _ string) (string, []any, error) {
 	return "", nil, condition.Err
 }
 
+//nolint:unused // is used
 func (condition InvalidCondition[T]) affectsDeletedAt() bool {
 	return false
 }

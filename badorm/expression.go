@@ -37,7 +37,6 @@ type SQLExpressionAndValue struct {
 	Value         any
 }
 
-//nolint:unused // see inside
 func (expr ValueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Expression[T]
@@ -111,7 +110,6 @@ type MultivalueExpression[T any] struct {
 	SQLSuffix     string
 }
 
-//nolint:unused // see inside
 func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Expression[T]
@@ -149,7 +147,6 @@ type PredicateExpression[T any] struct {
 	SQLExpression string
 }
 
-//nolint:unused // see inside
 func (expr PredicateExpression[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Expression[T]
@@ -169,7 +166,6 @@ type InvalidExpression[T any] struct {
 	Err error
 }
 
-//nolint:unused // see inside
 func (expr InvalidExpression[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Expression[T]
