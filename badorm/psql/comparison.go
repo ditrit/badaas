@@ -3,29 +3,8 @@ package psql
 import (
 	"database/sql"
 
-	"golang.org/x/text/unicode/norm"
-
 	"github.com/ditrit/badaas/badorm"
 )
-
-// String Functions and Operators
-
-var normalForms = map[norm.Form]string{
-	norm.NFC:  "NFC",
-	norm.NFD:  "NFD",
-	norm.NFKC: "NFKC",
-	norm.NFKD: "NFKD",
-}
-
-func IsNormalized[T string | sql.NullString](expectedNorm norm.Form) badorm.PredicateExpression[T] {
-	return badorm.NewPredicateExpression[T](
-		"IS " + normalForms[expectedNorm] + " NORMALIZED",
-	)
-}
-
-func StartsWith[T string | sql.NullString](expectedStart string) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](expectedStart, "^@")
-}
 
 // Pattern Matching
 
