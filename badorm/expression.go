@@ -353,9 +353,6 @@ func IsNotDistinct[T any](value T) ValueExpression[T] {
 	return NewValueExpression[T](value, "IS NOT DISTINCT FROM")
 }
 
-// TODO hay muchos operadores en el caso de que quisiera aplicarle la funcion contra lo que estoy comparando
-// y despues esta el tema de si quiero en alguna comparacion usar una columna anterior, ahi ya se re complica esto
-
 // Pattern Matching
 
 type LikeExpression[T string | sql.NullString] struct {
