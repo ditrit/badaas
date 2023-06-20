@@ -178,7 +178,6 @@ func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, tableName string) (
 			fmt.Sprintf(
 				"%[1]s.%[2]s AS \"%[3]s__%[2]s\"", // name used by gorm to load the fields inside the models
 				tableName,
-				// TODO testear los casos raros de prefix, column, embedded y eso
 				columnName,
 				attributePrefix,
 			),

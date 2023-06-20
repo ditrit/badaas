@@ -463,7 +463,12 @@ var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent](
 )
 
 func (ts *JoinConditionsIntTestSuite) TestJoinAndPreload() {
-	product1 := ts.createProduct("", 1, 0.0, false, nil)
+	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
+	product1.EmbeddedInt = 1
+	product1.GormEmbedded.Int = 2
+	err := ts.db.Save(product1).Error
+	ts.Nil(err)
+
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
 
 	match := ts.createSale(0, product1, nil)
@@ -479,6 +484,9 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreload() {
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 	assert.DeepEqual(ts.T(), *product1, entities[0].Product)
+	ts.Equal("a_string", entities[0].Product.String)
+	ts.Equal(1, entities[0].Product.EmbeddedInt)
+	ts.Equal(2, entities[0].Product.GormEmbedded.Int)
 }
 
 func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
