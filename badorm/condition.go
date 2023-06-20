@@ -11,6 +11,13 @@ import (
 
 const DeletedAtField = "DeletedAt"
 
+var (
+	IDColumnID        = ColumnIdentifier{Field: "ID"}
+	CreatedAtColumnID = ColumnIdentifier{Field: "CreatedAt"}
+	UpdatedAtColumnID = ColumnIdentifier{Field: "UpdatedAt"}
+	DeletedAtColumnID = ColumnIdentifier{Field: DeletedAtField}
+)
+
 var ErrEmptyConditions = errors.New("condition must have at least one inner condition")
 
 type Condition[T any] interface {
@@ -190,7 +197,14 @@ func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, tableName string) (
 // TODO doc
 func NewPreloadCondition[T any](columns ...ColumnIdentifier) PreloadCondition[T] {
 	return PreloadCondition[T]{
-		Columns: columns,
+		Columns: append(
+			columns,
+			// base model fields
+			IDColumnID,
+			CreatedAtColumnID,
+			UpdatedAtColumnID,
+			DeletedAtColumnID,
+		),
 	}
 }
 

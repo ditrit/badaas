@@ -411,10 +411,6 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesN
 
 // TODO que se genere automaticamente
 var ProductPreload = badorm.NewPreloadCondition[models.Product](
-	badorm.ColumnIdentifier{Field: "ID"},
-	badorm.ColumnIdentifier{Field: "CreatedAt"},
-	badorm.ColumnIdentifier{Field: "UpdatedAt"},
-	badorm.ColumnIdentifier{Field: "DeletedAt"},
 	badorm.ColumnIdentifier{Column: "string_something_else"},
 	badorm.ColumnIdentifier{Field: "Int"},
 	badorm.ColumnIdentifier{Field: "IntPointer"},
@@ -429,38 +425,19 @@ var ProductPreload = badorm.NewPreloadCondition[models.Product](
 )
 
 var SellerPreload = badorm.NewPreloadCondition[models.Seller](
-	// TODO estos 4 que no se repitan todas las veces
-	badorm.ColumnIdentifier{Field: "ID"},
-	badorm.ColumnIdentifier{Field: "CreatedAt"},
-	badorm.ColumnIdentifier{Field: "UpdatedAt"},
-	badorm.ColumnIdentifier{Field: "DeletedAt"},
 	badorm.ColumnIdentifier{Field: "Name"},
 	badorm.ColumnIdentifier{Field: "CompanyID"},
 )
 
 // TODO algo para poder hacer el preload completo?
 var Parent1Preload = badorm.NewPreloadCondition[models.Parent1](
-	badorm.ColumnIdentifier{Field: "ID"},
-	badorm.ColumnIdentifier{Field: "CreatedAt"},
-	badorm.ColumnIdentifier{Field: "UpdatedAt"},
-	badorm.ColumnIdentifier{Field: "DeletedAt"},
 	badorm.ColumnIdentifier{Field: "ParentParentID"},
 )
 
 var Parent2Preload = badorm.NewPreloadCondition[models.Parent2](
-	badorm.ColumnIdentifier{Field: "ID"},
-	badorm.ColumnIdentifier{Field: "CreatedAt"},
-	badorm.ColumnIdentifier{Field: "UpdatedAt"},
-	badorm.ColumnIdentifier{Field: "DeletedAt"},
 	badorm.ColumnIdentifier{Field: "ParentParentID"},
 )
-
-var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent](
-	badorm.ColumnIdentifier{Field: "ID"},
-	badorm.ColumnIdentifier{Field: "CreatedAt"},
-	badorm.ColumnIdentifier{Field: "UpdatedAt"},
-	badorm.ColumnIdentifier{Field: "DeletedAt"},
-)
+var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent]()
 
 func (ts *JoinConditionsIntTestSuite) TestJoinAndPreload() {
 	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
