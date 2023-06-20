@@ -89,12 +89,6 @@ func NewMustBePOSIXValueExpression[T string | sql.NullString](pattern string, sq
 	return NewValueExpression[T](pattern, sqlExpression)
 }
 
-func NewMultiExpressionExpression[T any](exprsAndValues ...SQLExpressionAndValue) ValueExpression[T] {
-	return ValueExpression[T]{
-		ExpressionsAndValues: exprsAndValues,
-	}
-}
-
 func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression string) ValueExpression[T] {
 	expr.ExpressionsAndValues = append(
 		expr.ExpressionsAndValues,
