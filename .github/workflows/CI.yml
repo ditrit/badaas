@@ -72,14 +72,14 @@ jobs:
         run: gotestsum --junitfile unit-tests-badaas.xml $(go list ./... | tail -n +2 | grep -v testintegration) -coverpkg=./... -coverprofile=coverage_unit.out
       - uses: actions/upload-artifact@v3
         with:
-          name: unit
-          path: coverage
+          name: coverage/unit
+          path: coverage_unit.out
       - name: Run BaDctl tests
         run:  gotestsum --junitfile unit-tests-badctl.xml ./tools/badctl/... -coverprofile=coverage_badctl.out
       - uses: actions/upload-artifact@v3
         with:
-          name: badctl
-          path: coverage
+          name: coverage/badctl
+          path: coverage_badctl.out
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always() # run this step even if previous steps failed
@@ -142,8 +142,8 @@ jobs:
           reporter: java-junit                             # Format of test results
       - uses: actions/upload-artifact@v3
         with:
-          name: int_${{ matrix.db }}
-          path: coverage
+          name: coverage/int_${{ matrix.db }}
+          path: coverage_int_${{ matrix.db }}
       - name: Stop containers
         if: ${{ matrix.db != 'sqlite' }}
         run: docker stop badaas-test-db
@@ -188,7 +188,7 @@ jobs:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Download line coverage report
+      - name: Download line coverage reports
         uses: actions/download-artifact@v3
         with:
           path: coverage
