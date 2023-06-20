@@ -68,18 +68,18 @@ jobs:
           cache: true
       - name: Install gotestsum
         run: go install gotest.tools/gotestsum@latest
+      - name: Create coverage folder
+        run: mkdir coverage
       - name: Run BaDaaS tests
-        run: gotestsum --junitfile unit-tests-badaas.xml $(go list ./... | tail -n +2 | grep -v testintegration) -coverpkg=./... -coverprofile=coverage_unit.out
+        run: gotestsum --junitfile unit-tests-badaas.xml $(go list ./... | tail -n +2 | grep -v testintegration) -coverpkg=./... -coverprofile=coverage/unit.out
       - uses: actions/upload-artifact@v3
         with:
-          name: coverage/unit
-          path: coverage_unit.out
+          path: coverage/unit.out
       - name: Run BaDctl tests
-        run:  gotestsum --junitfile unit-tests-badctl.xml ./tools/badctl/... -coverprofile=coverage_badctl.out
+        run:  gotestsum --junitfile unit-tests-badctl.xml ./tools/badctl/... -coverprofile=coverage/badctl.out
       - uses: actions/upload-artifact@v3
         with:
-          name: coverage/badctl
-          path: coverage_badctl.out
+          path: coverage/badctl.out
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always() # run this step even if previous steps failed
@@ -105,6 +105,8 @@ jobs:
           cache: true
       - name: Install gotestsum
         run: go install gotest.tools/gotestsum@latest
+      - name: Create coverage folder
+        run: mkdir coverage
       - name: Start containers
         run: docker compose -f "docker/${{ matrix.db }}/docker-compose.yml" up -d
         if: ${{ matrix.db != 'sqlite' }}
@@ -132,7 +134,7 @@ jobs:
             }
           export_to: env
       - name: Run test
-        run:  DB=${{ env.dialector }} gotestsum --junitfile integration-tests-${{ matrix.db }}.xml ./testintegration -tags=${{ matrix.db }} -coverpkg=./... -coverprofile=coverage_int_${{ matrix.db }}.out
+        run:  DB=${{ env.dialector }} gotestsum --junitfile integration-tests-${{ matrix.db }}.xml ./testintegration -tags=${{ matrix.db }} -coverpkg=./... -coverprofile=coverage/int_${{ matrix.db }}.out
       - name: Test Report
         uses: dorny/test-reporter@v1
         if: always() # run this step even if previous steps failed
@@ -142,8 +144,7 @@ jobs:
           reporter: java-junit                             # Format of test results
       - uses: actions/upload-artifact@v3
         with:
-          name: coverage/int_${{ matrix.db }}
-          path: coverage_int_${{ matrix.db }}.out
+          path: coverage/int_${{ matrix.db }}.out
       - name: Stop containers
         if: ${{ matrix.db != 'sqlite' }}
         run: docker stop badaas-test-db
