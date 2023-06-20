@@ -18,6 +18,8 @@ var (
 )
 
 type Expression[T any] interface {
+	// Transform the Expression to a SQL string and a list of values to use in the query
+	// columnName is used by the expression to determine which is the objective column.
 	ToSQL(columnName string) (string, []any, error)
 
 	// This method is necessary to get the compiler to verify
@@ -27,6 +29,10 @@ type Expression[T any] interface {
 	InterfaceVerificationMethod(T)
 }
 
+// Expression that compares the value of the column against a fixed value
+// If ExpressionsAndValues has multiple entries, comparisons will be nested
+// Example (single): value = v1
+// Example (multi): value LIKE v1 ESCAPE v2
 type ValueExpression[T any] struct {
 	ExpressionsAndValues []SQLExpressionAndValue
 }
@@ -101,6 +107,8 @@ func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression string
 	return *expr
 }
 
+// Expression that compares the value of the column against multiple values
+// Example: value IN (v1, v2, v3, ..., vN)
 type MultivalueExpression[T any] struct {
 	Values        []T
 	SQLExpression string
@@ -142,6 +150,8 @@ func NewMultivalueExpression[T any](sqlExpression, sqlConnector, sqlPrefix, sqlS
 	}
 }
 
+// Expression that verifies a predicate
+// Example: value IS TRUE
 type PredicateExpression[T any] struct {
 	SQLExpression string
 }
@@ -161,6 +171,7 @@ func NewPredicateExpression[T any](sqlExpression string) PredicateExpression[T] 
 	}
 }
 
+// Expression used to return an error
 type InvalidExpression[T any] struct {
 	Err error
 }
@@ -187,6 +198,7 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 // - SQLServer: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/comparison-operators-transact-sql?view=sql-server-ver16
 // - SQLite: https://www.sqlite.org/lang_expr.html
 
+// EqualTo
 // EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) Expression[T] {
 	return NewCantBeNullValueExpression[T](value, "=")
@@ -208,6 +220,7 @@ func EqOrIsNull[T any](value any) Expression[T] {
 	return expressionFromValueOrNil[T](value, Eq[T], IsNull[T]())
 }
 
+// NotEqualTo
 // NotEqOrNotIsNull must be used in cases where value can be NULL
 func NotEq[T any](value T) Expression[T] {
 	return NewCantBeNullValueExpression[T](value, "<>")
@@ -273,18 +286,22 @@ func mapsToNull(value any) bool {
 	return false
 }
 
+// LessThan
 func Lt[T any](value T) Expression[T] {
 	return NewCantBeNullValueExpression[T](value, "<")
 }
 
+// LessThanOrEqualTo
 func LtOrEq[T any](value T) Expression[T] {
 	return NewCantBeNullValueExpression[T](value, "<=")
 }
 
+// GreaterThan
 func Gt[T any](value T) Expression[T] {
 	return NewCantBeNullValueExpression[T](value, ">")
 }
 
+// GreaterThanOrEqualTo
 func GtOrEq[T any](value T) Expression[T] {
 	return NewCantBeNullValueExpression[T](value, ">=")
 }
@@ -294,10 +311,12 @@ func GtOrEq[T any](value T) Expression[T] {
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
+// Equivalent to v1 < value < v2
 func Between[T any](v1 T, v2 T) MultivalueExpression[T] {
 	return NewMultivalueExpression("BETWEEN", "AND", "", "", v1, v2)
 }
 
+// Equivalent to NOT (v1 < value < v2)
 func NotBetween[T any](v1 T, v2 T) MultivalueExpression[T] {
 	return NewMultivalueExpression("NOT BETWEEN", "AND", "", "", v1, v2)
 }

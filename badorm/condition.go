@@ -26,14 +26,21 @@ type Condition[T any] interface {
 	interfaceVerificationMethod(T)
 }
 
+// Conditions that can be used in a where clause
+// (or in a on of a join)
 type WhereCondition[T any] interface {
 	Condition[T]
 
+	// Get the sql string and values to use in the query
 	GetSQL(query *gorm.DB, tableName string) (string, []any, error)
 
+	// Returns true if the DeletedAt column if affected by the condition
+	// If no condition affects the DeletedAt, the verification that it's null will be added automatically
 	affectsDeletedAt() bool
 }
 
+// Condition that contains a internal condition.
+// Example: NOT (internal condition)
 type ContainerCondition[T any] struct {
 	ConnectionCondition WhereCondition[T]
 	Prefix              string
@@ -65,6 +72,8 @@ func (condition ContainerCondition[T]) affectsDeletedAt() bool {
 	return condition.ConnectionCondition.affectsDeletedAt()
 }
 
+// Condition that contains a internal condition.
+// Example: NOT (internal condition)
 func NewContainerCondition[T any](prefix string, conditions ...WhereCondition[T]) WhereCondition[T] {
 	if len(conditions) == 0 {
 		return NewInvalidCondition[T](ErrEmptyConditions)
@@ -76,6 +85,8 @@ func NewContainerCondition[T any](prefix string, conditions ...WhereCondition[T]
 	}
 }
 
+// Condition that connects multiple conditions.
+// Example: condition1 AND condition2
 type ConnectionCondition[T any] struct {
 	Connector  string
 	Conditions []WhereCondition[T]
@@ -116,6 +127,8 @@ func (condition ConnectionCondition[T]) affectsDeletedAt() bool {
 	})
 }
 
+// Condition that connects multiple conditions.
+// Example: condition1 AND condition2
 func NewConnectionCondition[T any](connector string, conditions ...WhereCondition[T]) WhereCondition[T] {
 	return ConnectionCondition[T]{
 		Connector:  connector,
@@ -123,6 +136,8 @@ func NewConnectionCondition[T any](connector string, conditions ...WhereConditio
 	}
 }
 
+// Condition that verifies the value of a field,
+// using the Expression
 type FieldCondition[TObject any, TAtribute any] struct {
 	Field        string
 	Column       string
@@ -175,6 +190,7 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 	return condition.Expression.ToSQL(columnName)
 }
 
+// Condition that joins with other table
 type JoinCondition[T1 any, T2 any] struct {
 	T1Field    string
 	T2Field    string
@@ -270,6 +286,8 @@ func divideConditionsByType[T any](
 	return
 }
 
+// Condition that can be used to express conditions that are not supported (yet?) by BaDORM
+// Example: table1.columnX = table2.columnY
 type UnsafeCondition[T any] struct {
 	SQLCondition string
 	Values       []any
@@ -297,6 +315,8 @@ func (condition UnsafeCondition[T]) affectsDeletedAt() bool {
 	return false
 }
 
+// Condition that can be used to express conditions that are not supported (yet?) by BaDORM
+// Example: table1.columnX = table2.columnY
 func NewUnsafeCondition[T any](condition string, values []any) UnsafeCondition[T] {
 	return UnsafeCondition[T]{
 		SQLCondition: condition,
@@ -304,6 +324,7 @@ func NewUnsafeCondition[T any](condition string, values []any) UnsafeCondition[T
 	}
 }
 
+// Condition used to returns an error when the query is executed
 type InvalidCondition[T any] struct {
 	Err error
 }
@@ -327,6 +348,7 @@ func (condition InvalidCondition[T]) affectsDeletedAt() bool {
 	return false
 }
 
+// Condition used to returns an error when the query is executed
 func NewInvalidCondition[T any](err error) InvalidCondition[T] {
 	return InvalidCondition[T]{
 		Err: err,
