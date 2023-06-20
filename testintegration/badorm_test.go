@@ -54,6 +54,7 @@ func TestBaDORM(t *testing.T) {
 		badorm.GetCRUDServiceModule[models.Bicycle](),
 		badorm.GetCRUDServiceModule[models.Phone](),
 		badorm.GetCRUDServiceModule[models.Brand](),
+		badorm.GetCRUDServiceModule[models.Child](),
 
 		badorm.GetCRUDUnsafeServiceModule[models.Company](),
 		badorm.GetCRUDUnsafeServiceModule[models.Seller](),

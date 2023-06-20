@@ -136,6 +136,65 @@ func NewConnectionCondition[T any](connector string, conditions ...WhereConditio
 	}
 }
 
+// TODO usar tambien en las conditions
+// poner en variables y reutilizar
+type ColumnIdentifier struct {
+	Column       string
+	Field        string
+	ColumnPrefix string
+}
+
+func (columnID ColumnIdentifier) ColumnName(db *gorm.DB, tableName string) string {
+	// TODO codigo repetido
+	columnName := columnID.Column
+	if columnName == "" {
+		columnName = db.NamingStrategy.ColumnName(tableName, columnID.Field)
+	}
+
+	// add column prefix and table name once we know the column name
+	return columnID.ColumnPrefix + columnName
+}
+
+// TODO doc
+type PreloadCondition[T any] struct {
+	Columns []ColumnIdentifier
+}
+
+//nolint:unused // see inside
+func (condition PreloadCondition[T]) interfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
+
+func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
+	for _, columnID := range condition.Columns {
+		columnName := columnID.ColumnName(query, tableName)
+
+		// Remove first table name as GORM only adds it from the second join
+		_, attributePrefix, _ := strings.Cut(tableName, "__")
+
+		query.Statement.Selects = append(
+			query.Statement.Selects,
+			fmt.Sprintf(
+				"%[1]s.%[2]s AS \"%[3]s__%[2]s\"", // name used by gorm to load the fields inside the models
+				tableName,
+				// TODO testear los casos raros de prefix, column, embedded y eso
+				columnName,
+				attributePrefix,
+			),
+		)
+	}
+
+	return query, nil
+}
+
+// TODO doc
+func NewPreloadCondition[T any](columns ...ColumnIdentifier) PreloadCondition[T] {
+	return PreloadCondition[T]{
+		Columns: columns,
+	}
+}
+
 // Condition that verifies the value of a field,
 // using the Expression
 type FieldCondition[TObject any, TAtribute any] struct {
@@ -179,6 +238,7 @@ func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
 }
 
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
+	// TODO codigo repetido
 	columnName := condition.Column
 	if columnName == "" {
 		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
@@ -192,9 +252,10 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 
 // Condition that joins with other table
 type JoinCondition[T1 any, T2 any] struct {
-	T1Field    string
-	T2Field    string
-	Conditions []Condition[T2]
+	T1Field         string
+	T2Field         string
+	ConnectionField string
+	Conditions      []Condition[T2]
 }
 
 //nolint:unused // see inside
@@ -215,17 +276,17 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 
 	// add a suffix to avoid tables with the same name when joining
 	// the same table more than once
-	nextTableName := toBeJoinedTableName + "_" + previousTableName
+	nextTableAlias := previousTableName + "__" + condition.ConnectionField
 
 	// get the sql to do the join with T2
-	joinQuery := condition.getSQLJoin(query, toBeJoinedTableName, nextTableName, previousTableName)
+	joinQuery := condition.getSQLJoin(query, toBeJoinedTableName, nextTableAlias, previousTableName)
 
-	whereConditions, joinConditions := divideConditionsByType(condition.Conditions)
+	whereConditions, joinConditions, preloadCondition := divideConditionsByType(condition.Conditions)
 
 	// apply WhereConditions to join in "on" clause
 	connectionCondition := And(whereConditions...)
 
-	onQuery, onValues, err := connectionCondition.GetSQL(query, nextTableName)
+	onQuery, onValues, err := connectionCondition.GetSQL(query, nextTableAlias)
 	if err != nil {
 		return nil, err
 	}
@@ -237,16 +298,21 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	if !connectionCondition.affectsDeletedAt() {
 		joinQuery += fmt.Sprintf(
 			" AND %s.deleted_at IS NULL",
-			nextTableName,
+			nextTableAlias,
 		)
 	}
 
 	// add the join to the query
 	query = query.Joins(joinQuery, onValues...)
 
+	query, err = preloadCondition.ApplyTo(query, nextTableAlias)
+	if err != nil {
+		return nil, err
+	}
+
 	// apply nested joins
 	for _, joinCondition := range joinConditions {
-		query, err = joinCondition.ApplyTo(query, nextTableName)
+		query, err = joinCondition.ApplyTo(query, nextTableAlias)
 		if err != nil {
 			return nil, err
 		}
@@ -258,13 +324,13 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 // Returns the SQL string to do a join between T1 and T2
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
-func (condition JoinCondition[T1, T2]) getSQLJoin(query *gorm.DB, toBeJoinedTableName, nextTableName, previousTableName string) string {
+func (condition JoinCondition[T1, T2]) getSQLJoin(query *gorm.DB, toBeJoinedTableName, nextTableAlias, previousTableName string) string {
 	return fmt.Sprintf(
 		`JOIN %[1]s %[2]s ON %[2]s.%[3]s = %[4]s.%[5]s
 		`,
 		toBeJoinedTableName,
-		nextTableName,
-		query.NamingStrategy.ColumnName(nextTableName, condition.T2Field),
+		nextTableAlias,
+		query.NamingStrategy.ColumnName(nextTableAlias, condition.T2Field),
 		previousTableName,
 		query.NamingStrategy.ColumnName(previousTableName, condition.T1Field),
 	)
@@ -273,13 +339,18 @@ func (condition JoinCondition[T1, T2]) getSQLJoin(query *gorm.DB, toBeJoinedTabl
 // Divides a list of conditions by its type: WhereConditions and JoinConditions
 func divideConditionsByType[T any](
 	conditions []Condition[T],
-) (thisEntityConditions []WhereCondition[T], joinConditions []Condition[T]) {
+) (whereConditions []WhereCondition[T], joinConditions []Condition[T], preloadCondition PreloadCondition[T]) {
 	for _, condition := range conditions {
-		typedCondition, ok := condition.(WhereCondition[T])
+		whereCondition, ok := condition.(WhereCondition[T])
 		if ok {
-			thisEntityConditions = append(thisEntityConditions, typedCondition)
+			whereConditions = append(whereConditions, whereCondition)
 		} else {
-			joinConditions = append(joinConditions, condition)
+			possiblePreloadCondition, ok := condition.(PreloadCondition[T])
+			if ok {
+				preloadCondition = possiblePreloadCondition
+			} else {
+				joinConditions = append(joinConditions, condition)
+			}
 		}
 	}
 

@@ -47,6 +47,8 @@ func SaleDescription(expr badorm.Expression[string]) badorm.WhereCondition[model
 func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Condition[models.Sale] {
 	return badorm.JoinCondition[models.Sale, models.Product]{
 		Conditions: conditions,
+		// TODO agregar a todos
+		ConnectionField: "Product",
 		T1Field:    "ProductID",
 		T2Field:    "ID",
 	}
@@ -60,6 +62,7 @@ func SaleProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[mo
 func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[models.Sale] {
 	return badorm.JoinCondition[models.Sale, models.Seller]{
 		Conditions: conditions,
+		ConnectionField: "Seller",
 		T1Field:    "SellerID",
 		T2Field:    "ID",
 	}

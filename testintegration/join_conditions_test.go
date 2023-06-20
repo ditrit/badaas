@@ -2,6 +2,7 @@ package testintegration
 
 import (
 	"gorm.io/gorm"
+	"gotest.tools/assert"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/conditions"
@@ -17,6 +18,7 @@ type JoinConditionsIntTestSuite struct {
 	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID]
 	crudBicycleService  badorm.CRUDService[models.Bicycle, badorm.UUID]
 	crudPhoneService    badorm.CRUDService[models.Phone, uint]
+	crudChildService    badorm.CRUDService[models.Child, badorm.UUID]
 }
 
 func NewJoinConditionsIntTestSuite(
@@ -28,6 +30,7 @@ func NewJoinConditionsIntTestSuite(
 	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID],
 	crudBicycleService badorm.CRUDService[models.Bicycle, badorm.UUID],
 	crudPhoneService badorm.CRUDService[models.Phone, uint],
+	crudChildService badorm.CRUDService[models.Child, badorm.UUID],
 ) *JoinConditionsIntTestSuite {
 	return &JoinConditionsIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
@@ -40,6 +43,7 @@ func NewJoinConditionsIntTestSuite(
 		crudEmployeeService: crudEmployeeService,
 		crudBicycleService:  crudBicycleService,
 		crudPhoneService:    crudPhoneService,
+		crudChildService:    crudChildService,
 	}
 }
 
@@ -370,7 +374,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleSeller(
 			conditions.SellerCompany(
-				badorm.NewUnsafeCondition[models.Company]("%s.name = sellers_sales.name", []any{}),
+				badorm.NewUnsafeCondition[models.Company]("%s.name = sales__Seller.name", []any{}),
 			),
 		),
 	)
@@ -403,4 +407,177 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesN
 		),
 	)
 	ts.ErrorIs(err, badorm.ErrEmptyConditions)
+}
+
+// TODO que se genere automaticamente
+var ProductPreload = badorm.NewPreloadCondition[models.Product](
+	badorm.ColumnIdentifier{Field: "ID"},
+	badorm.ColumnIdentifier{Field: "CreatedAt"},
+	badorm.ColumnIdentifier{Field: "UpdatedAt"},
+	badorm.ColumnIdentifier{Field: "DeletedAt"},
+	badorm.ColumnIdentifier{Column: "string_something_else"},
+	badorm.ColumnIdentifier{Field: "Int"},
+	badorm.ColumnIdentifier{Field: "IntPointer"},
+	badorm.ColumnIdentifier{Field: "Float"},
+	badorm.ColumnIdentifier{Field: "NullFloat"},
+	badorm.ColumnIdentifier{Field: "Bool"},
+	badorm.ColumnIdentifier{Field: "NullBool"},
+	badorm.ColumnIdentifier{Field: "ByteArray"},
+	badorm.ColumnIdentifier{Field: "MultiString"},
+	badorm.ColumnIdentifier{Field: "EmbeddedInt"},
+	badorm.ColumnIdentifier{Field: "Int", ColumnPrefix: "gorm_embedded_"},
+)
+
+var SellerPreload = badorm.NewPreloadCondition[models.Seller](
+	// TODO estos 4 que no se repitan todas las veces
+	badorm.ColumnIdentifier{Field: "ID"},
+	badorm.ColumnIdentifier{Field: "CreatedAt"},
+	badorm.ColumnIdentifier{Field: "UpdatedAt"},
+	badorm.ColumnIdentifier{Field: "DeletedAt"},
+	badorm.ColumnIdentifier{Field: "Name"},
+	badorm.ColumnIdentifier{Field: "CompanyID"},
+)
+
+// TODO algo para poder hacer el preload completo?
+var Parent1Preload = badorm.NewPreloadCondition[models.Parent1](
+	badorm.ColumnIdentifier{Field: "ID"},
+	badorm.ColumnIdentifier{Field: "CreatedAt"},
+	badorm.ColumnIdentifier{Field: "UpdatedAt"},
+	badorm.ColumnIdentifier{Field: "DeletedAt"},
+	badorm.ColumnIdentifier{Field: "ParentParentID"},
+)
+
+var Parent2Preload = badorm.NewPreloadCondition[models.Parent2](
+	badorm.ColumnIdentifier{Field: "ID"},
+	badorm.ColumnIdentifier{Field: "CreatedAt"},
+	badorm.ColumnIdentifier{Field: "UpdatedAt"},
+	badorm.ColumnIdentifier{Field: "DeletedAt"},
+	badorm.ColumnIdentifier{Field: "ParentParentID"},
+)
+
+var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent](
+	badorm.ColumnIdentifier{Field: "ID"},
+	badorm.ColumnIdentifier{Field: "CreatedAt"},
+	badorm.ColumnIdentifier{Field: "UpdatedAt"},
+	badorm.ColumnIdentifier{Field: "DeletedAt"},
+)
+
+func (ts *JoinConditionsIntTestSuite) TestJoinAndPreload() {
+	product1 := ts.createProduct("", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	match := ts.createSale(0, product1, nil)
+	ts.createSale(0, product2, nil)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleProduct(
+			ProductPreload,
+			conditions.ProductInt(badorm.Eq(1)),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	assert.DeepEqual(ts.T(), *product1, entities[0].Product)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
+	product1 := ts.createProduct("", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	seller1 := ts.createSeller("franco", nil)
+	seller2 := ts.createSeller("agustin", nil)
+
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
+	ts.createSale(0, product1, seller2)
+	ts.createSale(0, product2, seller1)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleProduct(
+			ProductPreload,
+			conditions.ProductInt(badorm.Eq(1)),
+		),
+		conditions.SaleSeller(
+			SellerPreload,
+			conditions.SellerName(badorm.Eq("franco")),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+	assert.DeepEqual(ts.T(), *product1, entities[0].Product)
+	assert.DeepEqual(ts.T(), seller1, entities[0].Seller)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreload() {
+	parentParent := &models.ParentParent{}
+	err := ts.db.Create(parentParent).Error
+	ts.Nil(err)
+
+	parent1 := &models.Parent1{ParentParent: *parentParent}
+	err = ts.db.Create(parent1).Error
+	ts.Nil(err)
+
+	parent2 := &models.Parent2{ParentParent: *parentParent}
+	err = ts.db.Create(parent2).Error
+	ts.Nil(err)
+
+	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
+	err = ts.db.Create(child).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudChildService.GetEntities(
+		conditions.ChildParent1(
+			Parent1Preload,
+			conditions.Parent1ParentParent(
+				ParentParentPreload,
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Child{child}, entities)
+	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
+	assert.DeepEqual(ts.T(), *parentParent, entities[0].Parent1.ParentParent)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond() {
+	parentParent := &models.ParentParent{}
+	err := ts.db.Create(parentParent).Error
+	ts.Nil(err)
+
+	parent1 := &models.Parent1{ParentParent: *parentParent}
+	err = ts.db.Create(parent1).Error
+	ts.Nil(err)
+
+	parent2 := &models.Parent2{ParentParent: *parentParent}
+	err = ts.db.Create(parent2).Error
+	ts.Nil(err)
+
+	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
+	err = ts.db.Create(child).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudChildService.GetEntities(
+		conditions.ChildParent1(
+			Parent1Preload,
+			conditions.Parent1ParentParent(
+				ParentParentPreload,
+			),
+		),
+		conditions.ChildParent2(
+			Parent2Preload,
+			conditions.Parent2ParentParent(
+				ParentParentPreload,
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Child{child}, entities)
+	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
+	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
+	assert.DeepEqual(ts.T(), *parentParent, entities[0].Parent1.ParentParent)
+	assert.DeepEqual(ts.T(), *parentParent, entities[0].Parent2.ParentParent)
 }

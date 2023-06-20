@@ -90,7 +90,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 		return nil, err
 	}
 
-	query := tx
+	query := tx.Select(initialTableName + ".*")
 	for _, condition := range conditions {
 		query, err = condition.ApplyTo(query, initialTableName)
 		if err != nil {
