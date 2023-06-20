@@ -378,3 +378,29 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
+
+func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesNothing() {
+	product1 := ts.createProduct("", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	match1 := ts.createSale(0, product1, nil)
+	match2 := ts.createSale(0, product2, nil)
+
+	entities, err := ts.crudSaleService.Query(
+		conditions.SaleProduct(
+			orm.And[models.Product](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{match1, match2}, entities)
+}
+
+func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesNothing() {
+	_, err := ts.crudSaleService.Query(
+		conditions.SaleProduct(
+			orm.Not[models.Product](),
+		),
+	)
+	ts.ErrorIs(err, orm.ErrEmptyConditions)
+}
