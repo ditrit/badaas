@@ -894,20 +894,19 @@ func (ts *ExpressionIntTestSuite) TestSimilarTo() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestPosixRegex() {
+func (ts *ExpressionIntTestSuite) TestPosixRegexCaseSensitive() {
 	match1 := ts.createProduct("ab", 0, 0, false, nil)
 	match2 := ts.createProduct("ax", 0, 0, false, nil)
 
 	ts.createProduct("bb", 0, 0, false, nil)
 	ts.createProduct("cx", 0, 0, false, nil)
+	ts.createProduct("AB", 0, 0, false, nil)
 
 	var posixRegexExpression badorm.Expression[string]
 
 	switch getDBDialector() {
-	case configuration.SQLServer:
+	case configuration.SQLServer, configuration.MySQL:
 		log.Println("PosixRegex not compatible")
-	case configuration.MySQL:
-		posixRegexExpression = mysql.RegexP[string]("^a(b|x)")
 	case configuration.PostgreSQL:
 		posixRegexExpression = psql.POSIXMatch[string]("^a(b|x)")
 	case configuration.SQLite:
@@ -923,6 +922,37 @@ func (ts *ExpressionIntTestSuite) TestPosixRegex() {
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	}
+}
+
+func (ts *ExpressionIntTestSuite) TestPosixRegexCaseInsensitive() {
+	match1 := ts.createProduct("ab", 0, 0, false, nil)
+	match2 := ts.createProduct("ax", 0, 0, false, nil)
+	match3 := ts.createProduct("AB", 0, 0, false, nil)
+
+	ts.createProduct("bb", 0, 0, false, nil)
+	ts.createProduct("cx", 0, 0, false, nil)
+
+	var posixRegexExpression badorm.Expression[string]
+
+	switch getDBDialector() {
+	case configuration.SQLServer, configuration.SQLite:
+		log.Println("PosixRegex Case Insensitive not compatible")
+	case configuration.MySQL:
+		posixRegexExpression = mysql.RegexP[string]("^a(b|x)")
+	case configuration.PostgreSQL:
+		posixRegexExpression = psql.POSIXIMatch[string]("^a(b|x)")
+	}
+
+	if posixRegexExpression != nil {
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductString(
+				posixRegexExpression,
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
 	}
 }
 
