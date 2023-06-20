@@ -16,7 +16,8 @@ type JoinConditionsIntTestSuite struct {
 	crudCityService     orm.CRUDService[models.City, orm.UUID]
 	crudEmployeeService orm.CRUDService[models.Employee, orm.UUID]
 	crudBicycleService  orm.CRUDService[models.Bicycle, orm.UUID]
-	crudPhoneService    orm.CRUDService[models.Phone, uint]
+	crudPhoneService    orm.CRUDService[models.Phone, orm.UIntID]
+	crudChildService    orm.CRUDService[models.Child, orm.UUID]
 }
 
 func NewJoinConditionsIntTestSuite(
@@ -27,7 +28,8 @@ func NewJoinConditionsIntTestSuite(
 	crudCityService orm.CRUDService[models.City, orm.UUID],
 	crudEmployeeService orm.CRUDService[models.Employee, orm.UUID],
 	crudBicycleService orm.CRUDService[models.Bicycle, orm.UUID],
-	crudPhoneService orm.CRUDService[models.Phone, uint],
+	crudPhoneService orm.CRUDService[models.Phone, orm.UIntID],
+	crudChildService orm.CRUDService[models.Child, orm.UUID],
 ) *JoinConditionsIntTestSuite {
 	return &JoinConditionsIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
@@ -354,7 +356,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsMultipleTimes() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
+func (ts *JoinConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)
 
@@ -370,7 +372,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
 			conditions.SellerCompany(
-				orm.NewUnsafeCondition[models.Company]("%s.name = sellers_sales.name", []any{}),
+				orm.NewUnsafeCondition[models.Company]("%s.name = Seller.name", []any{}),
 			),
 		),
 	)
@@ -379,7 +381,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesNothing() {
+func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesNothing() {
 	product1 := ts.createProduct("", 1, 0.0, false, nil)
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
 
@@ -396,7 +398,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakes
 	EqualList(&ts.Suite, []*models.Sale{match1, match2}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionReturnsError() {
+func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyContainerConditionReturnsError() {
 	_, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			orm.Not[models.Product](),

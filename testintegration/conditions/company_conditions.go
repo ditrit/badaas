@@ -10,38 +10,40 @@ import (
 
 func CompanyId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, orm.UUID]{
-		Field:    "ID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.IDFieldID,
 	}
 }
 func CompanyCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, time.Time]{
-		Field:    "CreatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.CreatedAtFieldID,
 	}
 }
 func CompanyUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, time.Time]{
-		Field:    "UpdatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.UpdatedAtFieldID,
 	}
 }
 func CompanyDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, gorm.DeletedAt]{
-		Field:    "DeletedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.DeletedAtFieldID,
 	}
 }
+
+var companyNameFieldID = orm.FieldIdentifier{Field: "Name"}
+
 func CompanyName(operator orm.Operator[string]) orm.WhereCondition[models.Company] {
 	return orm.FieldCondition[models.Company, string]{
-		Field:    "Name",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: companyNameFieldID,
 	}
 }
-func SellerCompany(conditions ...orm.Condition[models.Company]) orm.Condition[models.Seller] {
-	return orm.JoinCondition[models.Seller, models.Company]{
-		Conditions: conditions,
-		T1Field:    "CompanyID",
-		T2Field:    "ID",
-	}
+func CompanyPreloadSellers(nestedPreloads ...orm.IJoinCondition[models.Seller]) orm.Condition[models.Company] {
+	return orm.NewCollectionPreloadCondition[models.Company, models.Seller]("Sellers", nestedPreloads)
 }
+
+var CompanyPreloadAttributes = orm.NewPreloadCondition[models.Company](companyNameFieldID)
+var CompanyPreloadRelations = []orm.Condition[models.Company]{CompanyPreloadSellers()}

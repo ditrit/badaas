@@ -10,44 +10,56 @@ import (
 
 func BicycleId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, orm.UUID]{
-		Field:    "ID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.IDFieldID,
 	}
 }
 func BicycleCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, time.Time]{
-		Field:    "CreatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.CreatedAtFieldID,
 	}
 }
 func BicycleUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, time.Time]{
-		Field:    "UpdatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.UpdatedAtFieldID,
 	}
 }
 func BicycleDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, gorm.DeletedAt]{
-		Field:    "DeletedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.DeletedAtFieldID,
 	}
 }
+
+var bicycleNameFieldID = orm.FieldIdentifier{Field: "Name"}
+
 func BicycleName(operator orm.Operator[string]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, string]{
-		Field:    "Name",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: bicycleNameFieldID,
 	}
 }
-func BicycleOwner(conditions ...orm.Condition[models.Person]) orm.Condition[models.Bicycle] {
+func BicycleOwner(conditions ...orm.Condition[models.Person]) orm.IJoinCondition[models.Bicycle] {
 	return orm.JoinCondition[models.Bicycle, models.Person]{
-		Conditions: conditions,
-		T1Field:    "OwnerName",
-		T2Field:    "Name",
+		Conditions:         conditions,
+		RelationField:      "Owner",
+		T1Field:            "OwnerName",
+		T1PreloadCondition: BicyclePreloadAttributes,
+		T2Field:            "Name",
 	}
 }
+
+var BicyclePreloadOwner = BicycleOwner(PersonPreloadAttributes)
+var bicycleOwnerNameFieldID = orm.FieldIdentifier{Field: "OwnerName"}
+
 func BicycleOwnerName(operator orm.Operator[string]) orm.WhereCondition[models.Bicycle] {
 	return orm.FieldCondition[models.Bicycle, string]{
-		Field:    "OwnerName",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: bicycleOwnerNameFieldID,
 	}
 }
+
+var BicyclePreloadAttributes = orm.NewPreloadCondition[models.Bicycle](bicycleNameFieldID, bicycleOwnerNameFieldID)
+var BicyclePreloadRelations = []orm.Condition[models.Bicycle]{BicyclePreloadOwner}

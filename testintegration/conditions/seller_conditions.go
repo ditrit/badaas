@@ -10,37 +10,75 @@ import (
 
 func SellerId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, orm.UUID]{
-		Field:    "ID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.IDFieldID,
 	}
 }
 func SellerCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, time.Time]{
-		Field:    "CreatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.CreatedAtFieldID,
 	}
 }
 func SellerUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, time.Time]{
-		Field:    "UpdatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.UpdatedAtFieldID,
 	}
 }
 func SellerDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, gorm.DeletedAt]{
-		Field:    "DeletedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.DeletedAtFieldID,
 	}
 }
+
+var sellerNameFieldID = orm.FieldIdentifier{Field: "Name"}
+
 func SellerName(operator orm.Operator[string]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, string]{
-		Field:    "Name",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: sellerNameFieldID,
 	}
 }
+func SellerCompany(conditions ...orm.Condition[models.Company]) orm.IJoinCondition[models.Seller] {
+	return orm.JoinCondition[models.Seller, models.Company]{
+		Conditions:         conditions,
+		RelationField:      "Company",
+		T1Field:            "CompanyID",
+		T1PreloadCondition: SellerPreloadAttributes,
+		T2Field:            "ID",
+	}
+}
+
+var SellerPreloadCompany = SellerCompany(CompanyPreloadAttributes)
+var sellerCompanyIdFieldID = orm.FieldIdentifier{Field: "CompanyID"}
+
 func SellerCompanyId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Seller] {
 	return orm.FieldCondition[models.Seller, orm.UUID]{
-		Field:    "CompanyID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: sellerCompanyIdFieldID,
 	}
 }
+func SellerUniversity(conditions ...orm.Condition[models.University]) orm.IJoinCondition[models.Seller] {
+	return orm.JoinCondition[models.Seller, models.University]{
+		Conditions:         conditions,
+		RelationField:      "University",
+		T1Field:            "UniversityID",
+		T1PreloadCondition: SellerPreloadAttributes,
+		T2Field:            "ID",
+	}
+}
+
+var SellerPreloadUniversity = SellerUniversity(UniversityPreloadAttributes)
+var sellerUniversityIdFieldID = orm.FieldIdentifier{Field: "UniversityID"}
+
+func SellerUniversityId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Seller] {
+	return orm.FieldCondition[models.Seller, orm.UUID]{
+		Operator:      operator,
+		FieldIdentifier: sellerUniversityIdFieldID,
+	}
+}
+
+var SellerPreloadAttributes = orm.NewPreloadCondition[models.Seller](sellerNameFieldID, sellerCompanyIdFieldID, sellerUniversityIdFieldID)
+var SellerPreloadRelations = []orm.Condition[models.Seller]{SellerPreloadCompany, SellerPreloadUniversity}

@@ -10,63 +10,84 @@ import (
 
 func SaleId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, orm.UUID]{
-		Field:    "ID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.IDFieldID,
 	}
 }
 func SaleCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, time.Time]{
-		Field:    "CreatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.CreatedAtFieldID,
 	}
 }
 func SaleUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, time.Time]{
-		Field:    "UpdatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.UpdatedAtFieldID,
 	}
 }
 func SaleDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, gorm.DeletedAt]{
-		Field:    "DeletedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.DeletedAtFieldID,
 	}
 }
+
+var saleCodeFieldID = orm.FieldIdentifier{Field: "Code"}
+
 func SaleCode(operator orm.Operator[int]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, int]{
-		Field:    "Code",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: saleCodeFieldID,
 	}
 }
+
+var saleDescriptionFieldID = orm.FieldIdentifier{Field: "Description"}
+
 func SaleDescription(operator orm.Operator[string]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, string]{
-		Field:    "Description",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: saleDescriptionFieldID,
 	}
 }
-func SaleProduct(conditions ...orm.Condition[models.Product]) orm.Condition[models.Sale] {
+func SaleProduct(conditions ...orm.Condition[models.Product]) orm.IJoinCondition[models.Sale] {
 	return orm.JoinCondition[models.Sale, models.Product]{
-		Conditions: conditions,
-		T1Field:    "ProductID",
-		T2Field:    "ID",
+		Conditions:         conditions,
+		RelationField:      "Product",
+		T1Field:            "ProductID",
+		T1PreloadCondition: SalePreloadAttributes,
+		T2Field:            "ID",
 	}
 }
+
+var SalePreloadProduct = SaleProduct(ProductPreloadAttributes)
+var saleProductIdFieldID = orm.FieldIdentifier{Field: "ProductID"}
+
 func SaleProductId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, orm.UUID]{
-		Field:    "ProductID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: saleProductIdFieldID,
 	}
 }
-func SaleSeller(conditions ...orm.Condition[models.Seller]) orm.Condition[models.Sale] {
+func SaleSeller(conditions ...orm.Condition[models.Seller]) orm.IJoinCondition[models.Sale] {
 	return orm.JoinCondition[models.Sale, models.Seller]{
-		Conditions: conditions,
-		T1Field:    "SellerID",
-		T2Field:    "ID",
+		Conditions:         conditions,
+		RelationField:      "Seller",
+		T1Field:            "SellerID",
+		T1PreloadCondition: SalePreloadAttributes,
+		T2Field:            "ID",
 	}
 }
+
+var SalePreloadSeller = SaleSeller(SellerPreloadAttributes)
+var saleSellerIdFieldID = orm.FieldIdentifier{Field: "SellerID"}
+
 func SaleSellerId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Sale] {
 	return orm.FieldCondition[models.Sale, orm.UUID]{
-		Field:    "SellerID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: saleSellerIdFieldID,
 	}
 }
+
+var SalePreloadAttributes = orm.NewPreloadCondition[models.Sale](saleCodeFieldID, saleDescriptionFieldID, saleProductIdFieldID, saleSellerIdFieldID)
+var SalePreloadRelations = []orm.Condition[models.Sale]{SalePreloadProduct, SalePreloadSeller}

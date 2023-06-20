@@ -10,31 +10,36 @@ import (
 
 func PersonId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Person] {
 	return orm.FieldCondition[models.Person, orm.UUID]{
-		Field:    "ID",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.IDFieldID,
 	}
 }
 func PersonCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Person] {
 	return orm.FieldCondition[models.Person, time.Time]{
-		Field:    "CreatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.CreatedAtFieldID,
 	}
 }
 func PersonUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Person] {
 	return orm.FieldCondition[models.Person, time.Time]{
-		Field:    "UpdatedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.UpdatedAtFieldID,
 	}
 }
 func PersonDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Person] {
 	return orm.FieldCondition[models.Person, gorm.DeletedAt]{
-		Field:    "DeletedAt",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: orm.DeletedAtFieldID,
 	}
 }
+
+var personNameFieldID = orm.FieldIdentifier{Field: "Name"}
+
 func PersonName(operator orm.Operator[string]) orm.WhereCondition[models.Person] {
 	return orm.FieldCondition[models.Person, string]{
-		Field:    "Name",
-		Operator: operator,
+		Operator:      operator,
+		FieldIdentifier: personNameFieldID,
 	}
 }
+
+var PersonPreloadAttributes = orm.NewPreloadCondition[models.Person](personNameFieldID)
