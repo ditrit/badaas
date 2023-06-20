@@ -292,7 +292,6 @@ func GtOrEq[T any](value T) Expression[T] {
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
 func Between[T any](v1 T, v2 T) MultivalueExpression[T] {
-	// TODO cant be null?
 	return NewMultivalueExpression("BETWEEN", "AND", "", "", v1, v2)
 }
 
@@ -390,5 +389,4 @@ func Like[T string | sql.NullString](pattern string) LikeExpression[T] {
 	return NewLikeExpression[T](pattern, "LIKE")
 }
 
-// TODO Date/Time Functions and Operators
 // TODO Subquery Expressions
