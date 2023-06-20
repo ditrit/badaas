@@ -74,11 +74,13 @@ jobs:
         run: gotestsum --junitfile unit-tests-badaas.xml $(go list ./... | tail -n +2 | grep -v testintegration) -coverpkg=./... -coverprofile=coverage/unit.out
       - uses: actions/upload-artifact@v3
         with:
+          name: coverage
           path: coverage/unit.out
       - name: Run BaDctl tests
         run:  gotestsum --junitfile unit-tests-badctl.xml ./tools/badctl/... -coverprofile=coverage/badctl.out
       - uses: actions/upload-artifact@v3
         with:
+          name: coverage
           path: coverage/badctl.out
       - name: Test Report
         uses: dorny/test-reporter@v1
@@ -144,6 +146,7 @@ jobs:
           reporter: java-junit                             # Format of test results
       - uses: actions/upload-artifact@v3
         with:
+          name: coverage
           path: coverage/int_${{ matrix.db }}.out
       - name: Stop containers
         if: ${{ matrix.db != 'sqlite' }}
@@ -192,7 +195,7 @@ jobs:
       - name: Download line coverage reports
         uses: actions/download-artifact@v3
         with:
-          path: coverage
+          name: coverage
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
