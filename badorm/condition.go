@@ -291,9 +291,6 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	// the same table more than once
 	nextTableAlias := previousTableName + "__" + condition.ConnectionField
 
-	// get the sql to do the join with T2
-	joinQuery := condition.getSQLJoin(query, toBeJoinedTableName, nextTableAlias, previousTableName)
-
 	whereConditions, joinConditions, preloadCondition := divideConditionsByType(condition.Conditions)
 
 	// apply WhereConditions to join in "on" clause
@@ -303,6 +300,19 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	if err != nil {
 		return nil, err
 	}
+
+	// get the sql to do the join with T2
+	// if it's only a preload use a left join
+	// TODO una condicion para ver que la relacion sea null (ademas de hacerle is null al fk)
+	// TODO no me termina de convencer que para el preload hay que hacer el join si o si
+	isLeftJoin := len(whereConditions) == 0 && preloadCondition != nil
+	joinQuery := condition.getSQLJoin(
+		query,
+		toBeJoinedTableName,
+		nextTableAlias,
+		previousTableName,
+		isLeftJoin,
+	)
 
 	if onQuery != "" {
 		joinQuery += " AND " + onQuery
@@ -318,9 +328,12 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 	// add the join to the query
 	query = query.Joins(joinQuery, onValues...)
 
-	query, err = preloadCondition.ApplyTo(query, nextTableAlias)
-	if err != nil {
-		return nil, err
+	// apply preload condition
+	if preloadCondition != nil {
+		query, err = preloadCondition.ApplyTo(query, nextTableAlias)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	// apply nested joins
@@ -337,22 +350,32 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 // Returns the SQL string to do a join between T1 and T2
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
-func (condition JoinCondition[T1, T2]) getSQLJoin(query *gorm.DB, toBeJoinedTableName, nextTableAlias, previousTableName string) string {
+func (condition JoinCondition[T1, T2]) getSQLJoin(
+	query *gorm.DB,
+	toBeJoinedTableName, nextTableAlias, previousTableName string,
+	isLeftJoin bool,
+) string {
+	joinString := "INNER JOIN"
+	if isLeftJoin {
+		joinString = "LEFT JOIN"
+	}
+
 	return fmt.Sprintf(
-		`JOIN %[1]s %[2]s ON %[2]s.%[3]s = %[4]s.%[5]s
+		`%[6]s %[1]s %[2]s ON %[2]s.%[3]s = %[4]s.%[5]s
 		`,
 		toBeJoinedTableName,
 		nextTableAlias,
 		query.NamingStrategy.ColumnName(nextTableAlias, condition.T2Field),
 		previousTableName,
 		query.NamingStrategy.ColumnName(previousTableName, condition.T1Field),
+		joinString,
 	)
 }
 
 // Divides a list of conditions by its type: WhereConditions and JoinConditions
 func divideConditionsByType[T any](
 	conditions []Condition[T],
-) (whereConditions []WhereCondition[T], joinConditions []Condition[T], preloadCondition PreloadCondition[T]) {
+) (whereConditions []WhereCondition[T], joinConditions []Condition[T], preloadCondition *PreloadCondition[T]) {
 	for _, condition := range conditions {
 		whereCondition, ok := condition.(WhereCondition[T])
 		if ok {
@@ -360,7 +383,7 @@ func divideConditionsByType[T any](
 		} else {
 			possiblePreloadCondition, ok := condition.(PreloadCondition[T])
 			if ok {
-				preloadCondition = possiblePreloadCondition
+				preloadCondition = &possiblePreloadCondition
 			} else {
 				joinConditions = append(joinConditions, condition)
 			}

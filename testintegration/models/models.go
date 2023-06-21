@@ -185,6 +185,8 @@ func (m Phone) Equal(other Phone) bool {
 
 type ParentParent struct {
 	badorm.UUIDModel
+
+	Name string
 }
 
 func (m ParentParent) Equal(other ParentParent) bool {

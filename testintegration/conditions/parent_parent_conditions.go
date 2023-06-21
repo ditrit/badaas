@@ -32,3 +32,9 @@ func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereC
 		Field:      "DeletedAt",
 	}
 }
+func ParentParentName(expr badorm.Expression[string]) badorm.WhereCondition[models.ParentParent] {
+	return badorm.FieldCondition[models.ParentParent, string]{
+		Expression: expr,
+		Field:      "Name",
+	}
+}
