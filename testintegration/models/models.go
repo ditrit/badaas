@@ -20,6 +20,10 @@ type Company struct {
 	Sellers []Seller // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
+func (m Company) Equal(other Company) bool {
+	return m.ID == other.ID
+}
+
 type MultiString []string
 
 func (s *MultiString) Scan(src interface{}) error {

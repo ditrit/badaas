@@ -460,7 +460,78 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithWhereConditionFilter
 	ts.Equal(2, entities[0].Product.GormEmbedded.Int)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
+func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadOneToOne() {
+	capital1 := models.City{
+		Name: "Buenos Aires",
+	}
+	capital2 := models.City{
+		Name: "Paris",
+	}
+
+	country1 := ts.createCountry("Argentina", capital1)
+	country2 := ts.createCountry("France", capital2)
+
+	entities, err := ts.crudCityService.GetEntities(
+		conditions.CityPreloadCountry,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.City{&capital1, &capital2}, entities)
+	ts.True(pie.Any(entities, func(city *models.City) bool {
+		return city.Country.Equal(*country1)
+	}))
+	ts.True(pie.Any(entities, func(city *models.City) bool {
+		return city.Country.Equal(*country2)
+	}))
+}
+
+func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadHasMany() {
+	company1 := ts.createCompany("ditrit")
+	company2 := ts.createCompany("orness")
+
+	seller1 := ts.createSeller("franco", company1)
+	seller2 := ts.createSeller("agustin", company2)
+
+	entities, err := ts.crudSellerService.GetEntities(
+		conditions.SellerPreloadCompany,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Seller{seller1, seller2}, entities)
+	ts.True(pie.Any(entities, func(seller *models.Seller) bool {
+		return seller.Company.Equal(*company1)
+	}))
+	ts.True(pie.Any(entities, func(seller *models.Seller) bool {
+		return seller.Company.Equal(*company2)
+	}))
+}
+
+func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadOneToOneReversed() {
+	capital1 := models.City{
+		Name: "Buenos Aires",
+	}
+	capital2 := models.City{
+		Name: "Paris",
+	}
+
+	country1 := ts.createCountry("Argentina", capital1)
+	country2 := ts.createCountry("France", capital2)
+
+	entities, err := ts.crudCountryService.GetEntities(
+		conditions.CountryPreloadCapital,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Country{country1, country2}, entities)
+	ts.True(pie.Any(entities, func(country *models.Country) bool {
+		return country.Capital.Equal(capital1)
+	}))
+	ts.True(pie.Any(entities, func(country *models.Country) bool {
+		return country.Capital.Equal(capital2)
+	}))
+}
+
+func (ts *JoinConditionsIntTestSuite) TestPreloadDifferentEntitiesWithConditions() {
 	product1 := ts.createProduct("", 1, 0.0, false, nil)
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
 
@@ -489,7 +560,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
 	assert.DeepEqual(ts.T(), seller1, entities[0].Seller)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestPreloadDifferentEntities() {
+func (ts *JoinConditionsIntTestSuite) TestPreloadDifferentEntitiesWithoutConditions() {
 	parentParent := &models.ParentParent{}
 	err := ts.db.Create(parentParent).Error
 	ts.Nil(err)
@@ -517,7 +588,7 @@ func (ts *JoinConditionsIntTestSuite) TestPreloadDifferentEntities() {
 	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestPreloadAll() {
+func (ts *JoinConditionsIntTestSuite) TestPreloadRelations() {
 	parentParent := &models.ParentParent{}
 	err := ts.db.Create(parentParent).Error
 	ts.Nil(err)
@@ -563,7 +634,6 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutCond
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			// TODO ver esto, no se si me gusta que esten separados
 			conditions.Parent1PreloadAttributes,
 			conditions.Parent1PreloadParentParent,
 		),
