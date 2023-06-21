@@ -34,8 +34,9 @@ func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 }
 func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.Condition[hasmany.Seller] {
 	return badorm.JoinCondition[hasmany.Seller, hasmany.Company]{
-		Conditions: conditions,
-		T1Field:    "CompanyID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Company",
+		T1Field:       "CompanyID",
+		T2Field:       "ID",
 	}
 }

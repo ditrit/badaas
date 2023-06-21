@@ -34,9 +34,10 @@ func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 }
 func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm.Condition[overridereferences.Phone] {
 	return badorm.JoinCondition[overridereferences.Phone, overridereferences.Brand]{
-		Conditions: conditions,
-		T1Field:    "BrandName",
-		T2Field:    "Name",
+		Conditions:    conditions,
+		RelationField: "Brand",
+		T1Field:       "BrandName",
+		T2Field:       "Name",
 	}
 }
 func PhoneBrandName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferences.Phone] {

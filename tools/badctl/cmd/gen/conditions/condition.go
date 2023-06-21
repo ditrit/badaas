@@ -278,9 +278,10 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 		).Block(
 			jen.Return(
 				badormJoinCondition.Values(jen.Dict{
-					jen.Id("T1Field"):    jen.Lit(t1Field),
-					jen.Id("T2Field"):    jen.Lit(t2Field),
-					jen.Id("Conditions"): jen.Id("conditions"),
+					jen.Id("T1Field"):       jen.Lit(t1Field),
+					jen.Id("T2Field"):       jen.Lit(t2Field),
+					jen.Id("RelationField"): jen.Lit(field.Name),
+					jen.Id("Conditions"):    jen.Id("conditions"),
 				}),
 			),
 		),

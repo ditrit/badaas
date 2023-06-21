@@ -34,9 +34,10 @@ func OwnedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 }
 func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Condition[belongsto.Owned] {
 	return badorm.JoinCondition[belongsto.Owned, belongsto.Owner]{
-		Conditions: conditions,
-		T1Field:    "OwnerID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Owner",
+		T1Field:       "OwnerID",
+		T2Field:       "ID",
 	}
 }
 func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {

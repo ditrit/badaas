@@ -35,15 +35,17 @@ func Package1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 }
 func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.Condition[package1.Package1] {
 	return badorm.JoinCondition[package1.Package1, package2.Package2]{
-		Conditions: conditions,
-		T1Field:    "ID",
-		T2Field:    "Package1ID",
+		Conditions:    conditions,
+		RelationField: "Package2",
+		T1Field:       "ID",
+		T2Field:       "Package1ID",
 	}
 }
 func Package2Package1(conditions ...badorm.Condition[package1.Package1]) badorm.Condition[package2.Package2] {
 	return badorm.JoinCondition[package2.Package2, package1.Package1]{
-		Conditions: conditions,
-		T1Field:    "Package1ID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Package1",
+		T1Field:       "Package1ID",
+		T2Field:       "ID",
 	}
 }

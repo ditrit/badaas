@@ -40,9 +40,10 @@ func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phon
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[models.Phone] {
 	return badorm.JoinCondition[models.Phone, models.Brand]{
-		Conditions: conditions,
-		T1Field:    "BrandID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Brand",
+		T1Field:       "BrandID",
+		T2Field:       "ID",
 	}
 }
 func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {

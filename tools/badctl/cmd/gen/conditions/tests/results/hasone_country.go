@@ -34,15 +34,17 @@ func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 }
 func CountryCapital(conditions ...badorm.Condition[hasone.City]) badorm.Condition[hasone.Country] {
 	return badorm.JoinCondition[hasone.Country, hasone.City]{
-		Conditions: conditions,
-		T1Field:    "ID",
-		T2Field:    "CountryID",
+		Conditions:    conditions,
+		RelationField: "Capital",
+		T1Field:       "ID",
+		T2Field:       "CountryID",
 	}
 }
 func CityCountry(conditions ...badorm.Condition[hasone.Country]) badorm.Condition[hasone.City] {
 	return badorm.JoinCondition[hasone.City, hasone.Country]{
-		Conditions: conditions,
-		T1Field:    "CountryID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Country",
+		T1Field:       "CountryID",
+		T2Field:       "ID",
 	}
 }

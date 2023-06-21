@@ -40,15 +40,17 @@ func ComputerName(expr badorm.Expression[string]) badorm.WhereCondition[override
 }
 func ComputerProcessor(conditions ...badorm.Condition[overridereferencesinverse.Processor]) badorm.Condition[overridereferencesinverse.Computer] {
 	return badorm.JoinCondition[overridereferencesinverse.Computer, overridereferencesinverse.Processor]{
-		Conditions: conditions,
-		T1Field:    "Name",
-		T2Field:    "ComputerName",
+		Conditions:    conditions,
+		RelationField: "Processor",
+		T1Field:       "Name",
+		T2Field:       "ComputerName",
 	}
 }
 func ProcessorComputer(conditions ...badorm.Condition[overridereferencesinverse.Computer]) badorm.Condition[overridereferencesinverse.Processor] {
 	return badorm.JoinCondition[overridereferencesinverse.Processor, overridereferencesinverse.Computer]{
-		Conditions: conditions,
-		T1Field:    "ComputerName",
-		T2Field:    "Name",
+		Conditions:    conditions,
+		RelationField: "Computer",
+		T1Field:       "ComputerName",
+		T2Field:       "Name",
 	}
 }

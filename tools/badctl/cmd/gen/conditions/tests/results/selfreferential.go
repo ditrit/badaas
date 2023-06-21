@@ -34,9 +34,10 @@ func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 }
 func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.Condition[selfreferential.Employee] {
 	return badorm.JoinCondition[selfreferential.Employee, selfreferential.Employee]{
-		Conditions: conditions,
-		T1Field:    "BossID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Boss",
+		T1Field:       "BossID",
+		T2Field:       "ID",
 	}
 }
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {

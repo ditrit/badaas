@@ -40,9 +40,10 @@ func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.E
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condition[models.Employee] {
 	return badorm.JoinCondition[models.Employee, models.Employee]{
-		Conditions: conditions,
-		T1Field:    "BossID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Boss",
+		T1Field:       "BossID",
+		T2Field:       "ID",
 	}
 }
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {

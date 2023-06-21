@@ -40,8 +40,9 @@ func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Co
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {
 	return badorm.JoinCondition[models.Seller, models.Company]{
-		Conditions: conditions,
-		T1Field:    "CompanyID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Company",
+		T1Field:       "CompanyID",
+		T2Field:       "ID",
 	}
 }

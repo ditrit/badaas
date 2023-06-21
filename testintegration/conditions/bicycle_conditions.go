@@ -40,9 +40,10 @@ func BicycleName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bi
 }
 func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Condition[models.Bicycle] {
 	return badorm.JoinCondition[models.Bicycle, models.Person]{
-		Conditions: conditions,
-		T1Field:    "OwnerName",
-		T2Field:    "Name",
+		Conditions:    conditions,
+		RelationField: "Owner",
+		T1Field:       "OwnerName",
+		T2Field:       "Name",
 	}
 }
 func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {

@@ -34,9 +34,10 @@ func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 }
 func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) badorm.Condition[overrideforeignkey.Bicycle] {
 	return badorm.JoinCondition[overrideforeignkey.Bicycle, overrideforeignkey.Person]{
-		Conditions: conditions,
-		T1Field:    "OwnerSomethingID",
-		T2Field:    "ID",
+		Conditions:    conditions,
+		RelationField: "Owner",
+		T1Field:       "OwnerSomethingID",
+		T2Field:       "ID",
 	}
 }
 func BicycleOwnerSomethingId(expr badorm.Expression[string]) badorm.WhereCondition[overrideforeignkey.Bicycle] {

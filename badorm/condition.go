@@ -265,10 +265,10 @@ func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table
 
 // Condition that joins with other table
 type JoinCondition[T1 any, T2 any] struct {
-	T1Field         string
-	T2Field         string
-	ConnectionField string
-	Conditions      []Condition[T2]
+	T1Field       string
+	T2Field       string
+	RelationField string
+	Conditions    []Condition[T2]
 }
 
 //nolint:unused // see inside
@@ -289,7 +289,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 
 	// add a suffix to avoid tables with the same name when joining
 	// the same table more than once
-	nextTableAlias := previousTableName + "__" + condition.ConnectionField
+	nextTableAlias := previousTableName + "__" + condition.RelationField
 
 	whereConditions, joinConditions, preloadCondition := divideConditionsByType(condition.Conditions)
 
