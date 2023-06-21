@@ -50,6 +50,7 @@ func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Conditio
 	}
 }
 
+var BicyclePreloadOwner = BicycleOwner(PersonPreloadAttributes)
 var bicycleOwnerNameFieldID = badorm.FieldIdentifier{Field: "OwnerName"}
 
 func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
@@ -59,4 +60,5 @@ func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[mode
 	}
 }
 
-var BicyclePreload = badorm.NewPreloadCondition[models.Bicycle](bicycleNameFieldID, bicycleOwnerNameFieldID)
+var BicyclePreloadAttributes = badorm.NewPreloadCondition[models.Bicycle](bicycleNameFieldID, bicycleOwnerNameFieldID)
+var BicyclePreloadRelations = []badorm.Condition[models.Bicycle]{BicyclePreloadOwner}

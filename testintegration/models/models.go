@@ -15,7 +15,8 @@ import (
 type Company struct {
 	badorm.UUIDModel
 
-	Name    string
+	Name string
+	// TODO preload de esto
 	Sellers []Seller // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
@@ -88,7 +89,10 @@ func (m Product) Equal(other Product) bool {
 type Seller struct {
 	badorm.UUIDModel
 
-	Name      string
+	Name string
+	// TODO estas referencias contrarias andan, por lo que puedo eliminar lo que es crear el join inverso
+	// y entonces puedo pasar a usar join + where en lugar de crear el on a mano
+	Company   *Company
 	CompanyID *badorm.UUID // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
@@ -103,6 +107,7 @@ type Sale struct {
 	ProductID badorm.UUID
 
 	// Sale HasOne Seller (Sale 0..* -> 0..1 Seller)
+	// TODO este comentario no se si esta bien, sigue siendo belongs to
 	Seller   *Seller
 	SellerID *badorm.UUID
 }
@@ -125,8 +130,15 @@ type Country struct {
 type City struct {
 	badorm.UUIDModel
 
-	Name      string
-	CountryID badorm.UUID // Country HasOne City (Country 1 -> 1 City)
+	Name    string
+	Country *Country
+	// TODO aca no me esta creando el unique index, por lo que podria haber muchos que mapeen al mismo country
+	// pero esto pasa igual por mas que saque la referencia, es un problema que gorm lo hace mal
+	// TODO tampoco le pone notNull a las cosas que no son punteros, por lo que podria crear clases para directamente
+	// poder hacer hasone y otras relaciones bien, pero no se si pueda, sino será cuestion de hacer una buena documentacion
+	// ya que la de gorm no es muy clara
+	// TODO mirar si para el save si anda la referencia, para el create ya vi que no
+	CountryID badorm.UUID //`gorm:"unique"` // Country HasOne City (Country 1 -> 1 City)
 }
 
 func (m Country) Equal(other Country) bool {

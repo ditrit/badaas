@@ -41,7 +41,16 @@ func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City]
 		FieldIdentifier: cityNameFieldID,
 	}
 }
+func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.Condition[models.City] {
+	return badorm.JoinCondition[models.City, models.Country]{
+		Conditions:    conditions,
+		RelationField: "Country",
+		T1Field:       "CountryID",
+		T2Field:       "ID",
+	}
+}
 
+var CityPreloadCountry = CityCountry(CountryPreloadAttributes)
 var cityCountryIdFieldID = badorm.FieldIdentifier{Field: "CountryID"}
 
 func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
@@ -51,4 +60,5 @@ func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[mo
 	}
 }
 
-var CityPreload = badorm.NewPreloadCondition[models.City](cityNameFieldID, cityCountryIdFieldID)
+var CityPreloadAttributes = badorm.NewPreloadCondition[models.City](cityNameFieldID, cityCountryIdFieldID)
+var CityPreloadRelations = []badorm.Condition[models.City]{CityPreloadCountry}

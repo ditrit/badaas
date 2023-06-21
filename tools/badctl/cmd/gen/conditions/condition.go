@@ -36,6 +36,7 @@ type Condition struct {
 	param           *JenParam
 	destPkg         string
 	fieldIdentifier string
+	preloadName     string
 }
 
 func NewCondition(destPkg string, objectType Type, field Field) *Condition {
@@ -96,16 +97,6 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 			objectType,
 			field,
 		)
-	case *types.Named:
-		// slice of named types (user defined types)
-		_, err := field.Type.BadORMModelStruct()
-		if err == nil {
-			// slice of BadORM models -> hasMany relation
-			condition.generateInverseJoin(
-				objectType,
-				field,
-			)
-		}
 	case *types.Pointer:
 		// slice of pointers, generate code for a slice of the pointed type
 		condition.generateForSlice(
@@ -152,11 +143,6 @@ func (condition *Condition) generateForBadormModel(objectType Type, field Field)
 	} else {
 		// hasOne relation
 		condition.generateJoinWithoutFK(
-			objectType,
-			field,
-		)
-
-		condition.generateInverseJoin(
 			objectType,
 			field,
 		)
@@ -248,18 +234,6 @@ func (condition *Condition) createFieldIdentifier(objectType Type, field Field, 
 	return jen.Qual("", fieldIdentifierName)
 }
 
-// Generate a inverse JoinCondition, so from the field's object to the object
-func (condition *Condition) generateInverseJoin(objectType Type, field Field) {
-	condition.generateJoinWithFK(
-		field.Type,
-		Field{
-			Name: objectType.Name(),
-			Type: objectType,
-			Tags: field.Tags,
-		},
-	)
-}
-
 // Generate a JoinCondition between the object and field's object
 // when object has a foreign key to the field's object
 func (condition *Condition) generateJoinWithFK(objectType Type, field Field) {
@@ -329,6 +303,18 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 			),
 		),
 	)
+
+	// preload
+	preloadName := objectType.Name() + "Preload" + field.Name
+	condition.codes = append(
+		condition.codes,
+		jen.Var().Id(
+			preloadName,
+		).Op("=").Add(jen.Id(conditionName)).Call(
+			jen.Id(getPreloadAttributesName(field.TypeName())),
+		),
+	)
+	condition.preloadName = preloadName
 }
 
 // Generate condition names

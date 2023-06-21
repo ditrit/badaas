@@ -41,13 +41,6 @@ func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Co
 		FieldIdentifier: companyNameFieldID,
 	}
 }
-func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {
-	return badorm.JoinCondition[models.Seller, models.Company]{
-		Conditions:    conditions,
-		RelationField: "Company",
-		T1Field:       "CompanyID",
-		T2Field:       "ID",
-	}
-}
 
-var CompanyPreload = badorm.NewPreloadCondition[models.Company](companyNameFieldID)
+var CompanyPreloadAttributes = badorm.NewPreloadCondition[models.Company](companyNameFieldID)
+var CompanyPreloadRelations = []badorm.Condition[models.Company]{}

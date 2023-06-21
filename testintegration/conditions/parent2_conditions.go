@@ -41,6 +41,7 @@ func Parent2ParentParent(conditions ...badorm.Condition[models.ParentParent]) ba
 	}
 }
 
+var Parent2PreloadParentParent = Parent2ParentParent(ParentParentPreloadAttributes)
 var parent2ParentParentIdFieldID = badorm.FieldIdentifier{Field: "ParentParentID"}
 
 func Parent2ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent2] {
@@ -50,4 +51,5 @@ func Parent2ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCond
 	}
 }
 
-var Parent2Preload = badorm.NewPreloadCondition[models.Parent2](parent2ParentParentIdFieldID)
+var Parent2PreloadAttributes = badorm.NewPreloadCondition[models.Parent2](parent2ParentParentIdFieldID)
+var Parent2PreloadRelations = []badorm.Condition[models.Parent2]{Parent2PreloadParentParent}

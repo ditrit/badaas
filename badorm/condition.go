@@ -290,8 +290,6 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, previousTableName
 
 	// get the sql to do the join with T2
 	// if it's only a preload use a left join
-	// TODO una condicion para ver que la relacion sea null (ademas de hacerle is null al fk)
-	// TODO no me termina de convencer que para el preload hay que hacer el join si o si
 	isLeftJoin := len(whereConditions) == 0 && preloadCondition != nil
 	joinQuery := condition.getSQLJoin(
 		query,

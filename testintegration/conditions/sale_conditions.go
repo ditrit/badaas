@@ -59,6 +59,7 @@ func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Conditio
 	}
 }
 
+var SalePreloadProduct = SaleProduct(ProductPreloadAttributes)
 var saleProductIdFieldID = badorm.FieldIdentifier{Field: "ProductID"}
 
 func SaleProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
@@ -76,6 +77,7 @@ func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[
 	}
 }
 
+var SalePreloadSeller = SaleSeller(SellerPreloadAttributes)
 var saleSellerIdFieldID = badorm.FieldIdentifier{Field: "SellerID"}
 
 func SaleSellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
@@ -85,4 +87,5 @@ func SaleSellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[mod
 	}
 }
 
-var SalePreload = badorm.NewPreloadCondition[models.Sale](saleCodeFieldID, saleDescriptionFieldID, saleProductIdFieldID, saleSellerIdFieldID)
+var SalePreloadAttributes = badorm.NewPreloadCondition[models.Sale](saleCodeFieldID, saleDescriptionFieldID, saleProductIdFieldID, saleSellerIdFieldID)
+var SalePreloadRelations = []badorm.Condition[models.Sale]{SalePreloadProduct, SalePreloadSeller}

@@ -410,8 +410,6 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesN
 	ts.ErrorIs(err, badorm.ErrEmptyConditions)
 }
 
-// TODO algo para poder hacer el preload completo?
-
 func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithoutWhereConditionDoesNotFilter() {
 	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
@@ -422,9 +420,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithoutWhereConditionDoe
 	withoutSeller := ts.createSale(0, product2, nil)
 
 	entities, err := ts.crudSaleService.GetEntities(
-		conditions.SaleSeller(
-			conditions.SellerPreload,
-		),
+		conditions.SalePreloadSeller,
 	)
 	ts.Nil(err)
 
@@ -451,7 +447,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithWhereConditionFilter
 
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleProduct(
-			conditions.ProductPreload,
+			conditions.ProductPreloadAttributes,
 			conditions.ProductInt(badorm.Eq(1)),
 		),
 	)
@@ -478,11 +474,11 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
 
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleProduct(
-			conditions.ProductPreload,
+			conditions.ProductPreloadAttributes,
 			conditions.ProductInt(badorm.Eq(1)),
 		),
 		conditions.SaleSeller(
-			conditions.SellerPreload,
+			conditions.SellerPreloadAttributes,
 			conditions.SellerName(badorm.Eq("franco")),
 		),
 	)
@@ -491,6 +487,61 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 	assert.DeepEqual(ts.T(), *product1, entities[0].Product)
 	assert.DeepEqual(ts.T(), seller1, entities[0].Seller)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestPreloadDifferentEntities() {
+	parentParent := &models.ParentParent{}
+	err := ts.db.Create(parentParent).Error
+	ts.Nil(err)
+
+	parent1 := &models.Parent1{ParentParent: *parentParent}
+	err = ts.db.Create(parent1).Error
+	ts.Nil(err)
+
+	parent2 := &models.Parent2{ParentParent: *parentParent}
+	err = ts.db.Create(parent2).Error
+	ts.Nil(err)
+
+	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
+	err = ts.db.Create(child).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudChildService.GetEntities(
+		conditions.ChildPreloadParent1,
+		conditions.ChildPreloadParent2,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Child{child}, entities)
+	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
+	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestPreloadAll() {
+	parentParent := &models.ParentParent{}
+	err := ts.db.Create(parentParent).Error
+	ts.Nil(err)
+
+	parent1 := &models.Parent1{ParentParent: *parentParent}
+	err = ts.db.Create(parent1).Error
+	ts.Nil(err)
+
+	parent2 := &models.Parent2{ParentParent: *parentParent}
+	err = ts.db.Create(parent2).Error
+	ts.Nil(err)
+
+	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
+	err = ts.db.Create(child).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudChildService.GetEntities(
+		conditions.ChildPreloadRelations...,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Child{child}, entities)
+	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
+	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
 }
 
 func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutCondition() {
@@ -512,10 +563,9 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutCond
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			conditions.Parent1Preload,
-			conditions.Parent1ParentParent(
-				conditions.ParentParentPreload,
-			),
+			// TODO ver esto, no se si me gusta que esten separados
+			conditions.Parent1PreloadAttributes,
+			conditions.Parent1PreloadParentParent,
 		),
 	)
 	ts.Nil(err)
@@ -562,9 +612,9 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithConditi
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			conditions.Parent1Preload,
+			conditions.Parent1PreloadAttributes,
 			conditions.Parent1ParentParent(
-				conditions.ParentParentPreload,
+				conditions.ParentParentPreloadAttributes,
 				conditions.ParentParentName(badorm.Eq("parentParent1")),
 			),
 		),
@@ -575,6 +625,9 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithConditi
 	assert.DeepEqual(ts.T(), *parent11, entities[0].Parent1)
 	assert.DeepEqual(ts.T(), *parentParent1, entities[0].Parent1.ParentParent)
 }
+
+// TODO que pasa si usan preaload y ademas hacen el join
+// idem ahora que pasa si hago el join dos veces con la misma entidad, deberian agruparse los join?
 
 func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond() {
 	parentParent := &models.ParentParent{}
@@ -595,16 +648,12 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond() {
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			conditions.Parent1Preload,
-			conditions.Parent1ParentParent(
-				conditions.ParentParentPreload,
-			),
+			conditions.Parent1PreloadAttributes,
+			conditions.Parent1PreloadParentParent,
 		),
 		conditions.ChildParent2(
-			conditions.Parent2Preload,
-			conditions.Parent2ParentParent(
-				conditions.ParentParentPreload,
-			),
+			conditions.Parent2PreloadAttributes,
+			conditions.Parent2PreloadParentParent,
 		),
 	)
 	ts.Nil(err)

@@ -50,6 +50,7 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condit
 	}
 }
 
+var EmployeePreloadBoss = EmployeeBoss(EmployeePreloadAttributes)
 var employeeBossIdFieldID = badorm.FieldIdentifier{Field: "BossID"}
 
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
@@ -59,4 +60,5 @@ func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[m
 	}
 }
 
-var EmployeePreload = badorm.NewPreloadCondition[models.Employee](employeeNameFieldID, employeeBossIdFieldID)
+var EmployeePreloadAttributes = badorm.NewPreloadCondition[models.Employee](employeeNameFieldID, employeeBossIdFieldID)
+var EmployeePreloadRelations = []badorm.Condition[models.Employee]{EmployeePreloadBoss}

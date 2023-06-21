@@ -49,13 +49,7 @@ func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.Conditio
 		T2Field:       "CountryID",
 	}
 }
-func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.Condition[models.City] {
-	return badorm.JoinCondition[models.City, models.Country]{
-		Conditions:    conditions,
-		RelationField: "Country",
-		T1Field:       "CountryID",
-		T2Field:       "ID",
-	}
-}
 
-var CountryPreload = badorm.NewPreloadCondition[models.Country](countryNameFieldID)
+var CountryPreloadCapital = CountryCapital(CityPreloadAttributes)
+var CountryPreloadAttributes = badorm.NewPreloadCondition[models.Country](countryNameFieldID)
+var CountryPreloadRelations = []badorm.Condition[models.Country]{CountryPreloadCapital}

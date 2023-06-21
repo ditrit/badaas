@@ -66,17 +66,28 @@ func (file File) addConditions() error {
 func (file File) addConditionsForEachField(fields []Field) {
 	conditions := file.generateConditionsForEachField(fields)
 
-	preloadCondition := jen.Var().Id(
-		file.object.Name() + "Preload",
+	objectName := file.object.Name()
+	objectQual := jen.Qual(
+		getRelativePackagePath(file.destPkg, file.objectType),
+		file.objectType.Name(),
+	)
+	preloadAttributesCondition := jen.Var().Id(
+		getPreloadAttributesName(objectName),
 	).Op("=").Add(jen.Qual(
 		badORMPath, badORMNewPreloadCondition,
 	)).Types(
-		jen.Qual(
-			getRelativePackagePath(file.destPkg, file.objectType),
-			file.objectType.Name(),
-		),
+		objectQual,
 	)
 	fieldIdentifiers := []jen.Code{}
+
+	preloadAllCondition := jen.Var().Id(
+		objectName + "PreloadRelations",
+	).Op("=").Index().Add(jen.Qual(
+		badORMPath, badORMCondition,
+	)).Types(
+		objectQual,
+	)
+	preloads := []jen.Code{}
 
 	for _, condition := range conditions {
 		for _, code := range condition.codes {
@@ -89,9 +100,21 @@ func (file File) addConditionsForEachField(fields []Field) {
 				jen.Qual("", condition.fieldIdentifier),
 			)
 		}
+
+		if condition.preloadName != "" {
+			preloads = append(
+				preloads,
+				jen.Qual("", condition.preloadName),
+			)
+		}
 	}
 
-	file.jenFile.Add(preloadCondition.Call(fieldIdentifiers...))
+	file.jenFile.Add(preloadAttributesCondition.Call(fieldIdentifiers...))
+	file.jenFile.Add(preloadAllCondition.Values(preloads...))
+}
+
+func getPreloadAttributesName(objectName string) string {
+	return objectName + "PreloadAttributes"
 }
 
 // Write generated file

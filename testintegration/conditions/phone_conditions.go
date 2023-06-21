@@ -50,6 +50,7 @@ func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[m
 	}
 }
 
+var PhonePreloadBrand = PhoneBrand(BrandPreloadAttributes)
 var phoneBrandIdFieldID = badorm.FieldIdentifier{Field: "BrandID"}
 
 func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
@@ -59,4 +60,5 @@ func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Pho
 	}
 }
 
-var PhonePreload = badorm.NewPreloadCondition[models.Phone](phoneNameFieldID, phoneBrandIdFieldID)
+var PhonePreloadAttributes = badorm.NewPreloadCondition[models.Phone](phoneNameFieldID, phoneBrandIdFieldID)
+var PhonePreloadRelations = []badorm.Condition[models.Phone]{PhonePreloadBrand}

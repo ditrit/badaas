@@ -42,4 +42,5 @@ func PersonName(expr badorm.Expression[string]) badorm.WhereCondition[models.Per
 	}
 }
 
-var PersonPreload = badorm.NewPreloadCondition[models.Person](personNameFieldID)
+var PersonPreloadAttributes = badorm.NewPreloadCondition[models.Person](personNameFieldID)
+var PersonPreloadRelations = []badorm.Condition[models.Person]{}
