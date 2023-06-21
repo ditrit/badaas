@@ -1,10 +1,9 @@
 package testintegration
 
 import (
+	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
-
-	"github.com/elliotchance/pie/v2"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/conditions"
