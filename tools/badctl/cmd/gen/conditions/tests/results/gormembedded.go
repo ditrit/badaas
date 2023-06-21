@@ -33,6 +33,15 @@ func GormEmbeddedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereC
 	}
 }
 
+var gormEmbeddedIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+
+func GormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[gormembedded.GormEmbedded] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, int]{
+		Expression:      expr,
+		FieldIdentifier: gormEmbeddedIntFieldID,
+	}
+}
+
 var gormEmbeddedGormEmbeddedIntFieldID = badorm.FieldIdentifier{
 	ColumnPrefix: "gorm_embedded_",
 	Field:        "Int",
@@ -45,4 +54,13 @@ func GormEmbeddedGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondit
 	}
 }
 
-var GormEmbeddedPreload = badorm.NewPreloadCondition[gormembedded.GormEmbedded](gormEmbeddedGormEmbeddedIntFieldID)
+var gormEmbeddedGormEmbeddedNoPrefixIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+
+func GormEmbeddedGormEmbeddedNoPrefixInt(expr badorm.Expression[int]) badorm.WhereCondition[gormembedded.GormEmbedded] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, int]{
+		Expression:      expr,
+		FieldIdentifier: gormEmbeddedGormEmbeddedNoPrefixIntFieldID,
+	}
+}
+
+var GormEmbeddedPreload = badorm.NewPreloadCondition[gormembedded.GormEmbedded](gormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedNoPrefixIntFieldID)

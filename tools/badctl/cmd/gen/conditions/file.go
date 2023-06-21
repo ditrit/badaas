@@ -5,6 +5,7 @@ import (
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
+	"github.com/elliotchance/pie/v2"
 
 	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/log"
@@ -49,7 +50,7 @@ func NewConditionsFile(destPkg string, name string, object types.Object) (*File,
 
 // Add conditions for an object in the file
 func (file File) addConditions() error {
-	fields, err := getFields(file.objectType, "")
+	fields, err := getFields(file.objectType)
 	if err != nil {
 		return err
 	}
@@ -127,10 +128,19 @@ func (file File) generateEmbeddedConditions(field Field) []*Condition {
 		cmderrors.FailErr(errors.New("unreachable! embedded objects are always structs"))
 	}
 
-	fields, err := getStructFields(embeddedStructType, field.Tags.getEmbeddedPrefix())
+	fields, err := getStructFields(embeddedStructType)
 	if err != nil {
 		// embedded field's type has not fields
 		return []*Condition{}
+	}
+
+	if !isBadORMBaseModel(field.TypeString()) {
+		fields = pie.Map(fields, func(embeddedField Field) Field {
+			embeddedField.ColumnPrefix = field.Tags.getEmbeddedPrefix()
+			embeddedField.NamePrefix = field.Name
+
+			return embeddedField
+		})
 	}
 
 	return file.generateConditionsForEachField(fields)

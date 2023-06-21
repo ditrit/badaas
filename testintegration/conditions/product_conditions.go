@@ -115,12 +115,12 @@ func ProductMultiString(expr badorm.Expression[models.MultiString]) badorm.Where
 	}
 }
 
-var productEmbeddedIntFieldID = badorm.FieldIdentifier{Field: "EmbeddedInt"}
+var productToBeEmbeddedEmbeddedIntFieldID = badorm.FieldIdentifier{Field: "EmbeddedInt"}
 
-func ProductEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
+func ProductToBeEmbeddedEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
 		Expression:      expr,
-		FieldIdentifier: productEmbeddedIntFieldID,
+		FieldIdentifier: productToBeEmbeddedEmbeddedIntFieldID,
 	}
 }
 
@@ -136,4 +136,4 @@ func ProductGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[m
 	}
 }
 
-var ProductPreload = badorm.NewPreloadCondition[models.Product](productStringFieldID, productIntFieldID, productIntPointerFieldID, productFloatFieldID, productNullFloatFieldID, productBoolFieldID, productNullBoolFieldID, productByteArrayFieldID, productMultiStringFieldID, productEmbeddedIntFieldID, productGormEmbeddedIntFieldID)
+var ProductPreload = badorm.NewPreloadCondition[models.Product](productStringFieldID, productIntFieldID, productIntPointerFieldID, productFloatFieldID, productNullFloatFieldID, productBoolFieldID, productNullBoolFieldID, productByteArrayFieldID, productMultiStringFieldID, productToBeEmbeddedEmbeddedIntFieldID, productGormEmbeddedIntFieldID)

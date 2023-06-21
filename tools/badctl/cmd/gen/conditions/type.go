@@ -52,7 +52,7 @@ func isBadORMModel(structType *types.Struct) bool {
 	for i := 0; i < structType.NumFields(); i++ {
 		field := structType.Field(i)
 
-		if field.Embedded() && pie.Contains(badORMModels, field.Type().String()) {
+		if field.Embedded() && isBadORMBaseModel(field.Type().String()) {
 			return true
 		}
 	}
@@ -60,10 +60,14 @@ func isBadORMModel(structType *types.Struct) bool {
 	return false
 }
 
+func isBadORMBaseModel(fieldName string) bool {
+	return pie.Contains(badORMModels, fieldName)
+}
+
 // Returns true is the type has a foreign key to the field's object
 // (another field that references that object)
 func (t Type) HasFK(field Field) (bool, error) {
-	objectFields, err := getFields(t, "")
+	objectFields, err := getFields(t)
 	if err != nil {
 		return false, err
 	}

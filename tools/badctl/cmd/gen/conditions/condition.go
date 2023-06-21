@@ -333,7 +333,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 
 // Generate condition names
 func getConditionName(typeV Type, field Field) string {
-	return typeV.Name() + strcase.ToPascal(field.ColumnPrefix) + strcase.ToPascal(field.Name)
+	return typeV.Name() + strcase.ToPascal(field.NamePrefix) + strcase.ToPascal(field.Name)
 }
 
 // Avoid importing the same package as the destination one
