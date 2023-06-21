@@ -32,9 +32,14 @@ func BrandDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var brandNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func BrandName(expr badorm.Expression[string]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: brandNameFieldID,
 	}
 }
+
+var BrandPreload = badorm.NewPreloadCondition[models.Brand](brandNameFieldID)

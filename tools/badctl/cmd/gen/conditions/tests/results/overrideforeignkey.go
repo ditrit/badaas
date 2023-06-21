@@ -40,9 +40,14 @@ func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) bad
 		T2Field:       "ID",
 	}
 }
+
+var bicycleOwnerSomethingIdFieldID = badorm.FieldIdentifier{Field: "OwnerSomethingID"}
+
 func BicycleOwnerSomethingId(expr badorm.Expression[string]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "OwnerSomethingID"},
+		FieldIdentifier: bicycleOwnerSomethingIdFieldID,
 	}
 }
+
+var BicyclePreload = badorm.NewPreloadCondition[overrideforeignkey.Bicycle](bicycleOwnerSomethingIdFieldID)

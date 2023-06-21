@@ -32,9 +32,14 @@ func ColumnDefinitionDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.Wh
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var columnDefinitionStringFieldID = badorm.FieldIdentifier{Column: "string_something_else"}
+
 func ColumnDefinitionString(expr badorm.Expression[string]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Column: "string_something_else"},
+		FieldIdentifier: columnDefinitionStringFieldID,
 	}
 }
+
+var ColumnDefinitionPreload = badorm.NewPreloadCondition[columndefinition.ColumnDefinition](columnDefinitionStringFieldID)

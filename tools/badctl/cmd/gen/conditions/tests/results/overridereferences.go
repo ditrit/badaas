@@ -40,9 +40,14 @@ func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm
 		T2Field:       "Name",
 	}
 }
+
+var phoneBrandNameFieldID = badorm.FieldIdentifier{Field: "BrandName"}
+
 func PhoneBrandName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "BrandName"},
+		FieldIdentifier: phoneBrandNameFieldID,
 	}
 }
+
+var PhonePreload = badorm.NewPreloadCondition[overridereferences.Phone](phoneBrandNameFieldID)

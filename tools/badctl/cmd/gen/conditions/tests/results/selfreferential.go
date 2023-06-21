@@ -40,9 +40,14 @@ func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) bado
 		T2Field:       "ID",
 	}
 }
+
+var employeeBossIdFieldID = badorm.FieldIdentifier{Field: "BossID"}
+
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "BossID"},
+		FieldIdentifier: employeeBossIdFieldID,
 	}
 }
+
+var EmployeePreload = badorm.NewPreloadCondition[selfreferential.Employee](employeeBossIdFieldID)

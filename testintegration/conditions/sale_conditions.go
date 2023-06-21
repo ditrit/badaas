@@ -32,16 +32,22 @@ func SaleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var saleCodeFieldID = badorm.FieldIdentifier{Field: "Code"}
+
 func SaleCode(expr badorm.Expression[int]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, int]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Code"},
+		FieldIdentifier: saleCodeFieldID,
 	}
 }
+
+var saleDescriptionFieldID = badorm.FieldIdentifier{Field: "Description"}
+
 func SaleDescription(expr badorm.Expression[string]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Description"},
+		FieldIdentifier: saleDescriptionFieldID,
 	}
 }
 func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Condition[models.Sale] {
@@ -52,10 +58,13 @@ func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Conditio
 		T2Field:       "ID",
 	}
 }
+
+var saleProductIdFieldID = badorm.FieldIdentifier{Field: "ProductID"}
+
 func SaleProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "ProductID"},
+		FieldIdentifier: saleProductIdFieldID,
 	}
 }
 func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[models.Sale] {
@@ -66,9 +75,14 @@ func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[
 		T2Field:       "ID",
 	}
 }
+
+var saleSellerIdFieldID = badorm.FieldIdentifier{Field: "SellerID"}
+
 func SaleSellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "SellerID"},
+		FieldIdentifier: saleSellerIdFieldID,
 	}
 }
+
+var SalePreload = badorm.NewPreloadCondition[models.Sale](saleCodeFieldID, saleDescriptionFieldID, saleProductIdFieldID, saleSellerIdFieldID)

@@ -32,9 +32,10 @@ var constantFieldIdentifiers = map[string]*jen.Statement{
 }
 
 type Condition struct {
-	codes   []jen.Code
-	param   *JenParam
-	destPkg string
+	codes           []jen.Code
+	param           *JenParam
+	destPkg         string
+	fieldIdentifier string
 }
 
 func NewCondition(destPkg string, objectType Type, field Field) *Condition {
@@ -185,28 +186,12 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
-	fieldIdentifier := jen.Qual(
-		badORMPath, badORMFieldIdentifier,
-	)
+	var fieldIdentifier *jen.Statement
 
 	if constantFieldIdentifier, ok := constantFieldIdentifiers[field.Name]; ok {
 		fieldIdentifier = constantFieldIdentifier
 	} else {
-		fieldIdentifierValues := jen.Dict{}
-		columnName := field.getColumnName()
-
-		if columnName != "" {
-			fieldIdentifierValues[jen.Id("Column")] = jen.Lit(columnName)
-		} else {
-			fieldIdentifierValues[jen.Id("Field")] = jen.Lit(field.Name)
-		}
-
-		columnPrefix := field.ColumnPrefix
-		if columnPrefix != "" {
-			fieldIdentifierValues[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
-		}
-
-		fieldIdentifier = fieldIdentifier.Values(fieldIdentifierValues)
+		fieldIdentifier = condition.createFieldIdentifier(objectType, field, conditionName)
 	}
 
 	condition.codes = append(
@@ -226,6 +211,41 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 			),
 		),
 	)
+}
+
+// create a variable containing the definition of the field identifier
+// to use it in the where condition and in the preload condition
+func (condition *Condition) createFieldIdentifier(objectType Type, field Field, conditionName string) *jen.Statement {
+	fieldIdentifierValues := jen.Dict{}
+	columnName := field.getColumnName()
+
+	if columnName != "" {
+		fieldIdentifierValues[jen.Id("Column")] = jen.Lit(columnName)
+	} else {
+		fieldIdentifierValues[jen.Id("Field")] = jen.Lit(field.Name)
+	}
+
+	columnPrefix := field.ColumnPrefix
+	if columnPrefix != "" {
+		fieldIdentifierValues[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
+	}
+
+	fieldIdentifierVar := jen.Qual(
+		badORMPath, badORMFieldIdentifier,
+	).Values(fieldIdentifierValues)
+
+	fieldIdentifierName := strcase.ToCamel(conditionName) + "FieldID"
+
+	condition.codes = append(
+		condition.codes,
+		jen.Var().Id(
+			fieldIdentifierName,
+		).Op("=").Add(fieldIdentifierVar),
+	)
+
+	condition.fieldIdentifier = fieldIdentifierName
+
+	return jen.Qual("", fieldIdentifierName)
 }
 
 // Generate a inverse JoinCondition, so from the field's object to the object

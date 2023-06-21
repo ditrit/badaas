@@ -33,72 +33,107 @@ func ProductDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var productStringFieldID = badorm.FieldIdentifier{Column: "string_something_else"}
+
 func ProductString(expr badorm.Expression[string]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Column: "string_something_else"},
+		FieldIdentifier: productStringFieldID,
 	}
 }
+
+var productIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+
 func ProductInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Int"},
+		FieldIdentifier: productIntFieldID,
 	}
 }
+
+var productIntPointerFieldID = badorm.FieldIdentifier{Field: "IntPointer"}
+
 func ProductIntPointer(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "IntPointer"},
+		FieldIdentifier: productIntPointerFieldID,
 	}
 }
+
+var productFloatFieldID = badorm.FieldIdentifier{Field: "Float"}
+
 func ProductFloat(expr badorm.Expression[float64]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, float64]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Float"},
+		FieldIdentifier: productFloatFieldID,
 	}
 }
+
+var productNullFloatFieldID = badorm.FieldIdentifier{Field: "NullFloat"}
+
 func ProductNullFloat(expr badorm.Expression[sql.NullFloat64]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, sql.NullFloat64]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "NullFloat"},
+		FieldIdentifier: productNullFloatFieldID,
 	}
 }
+
+var productBoolFieldID = badorm.FieldIdentifier{Field: "Bool"}
+
 func ProductBool(expr badorm.Expression[bool]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, bool]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Bool"},
+		FieldIdentifier: productBoolFieldID,
 	}
 }
+
+var productNullBoolFieldID = badorm.FieldIdentifier{Field: "NullBool"}
+
 func ProductNullBool(expr badorm.Expression[sql.NullBool]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, sql.NullBool]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "NullBool"},
+		FieldIdentifier: productNullBoolFieldID,
 	}
 }
+
+var productByteArrayFieldID = badorm.FieldIdentifier{Field: "ByteArray"}
+
 func ProductByteArray(expr badorm.Expression[[]uint8]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, []uint8]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "ByteArray"},
+		FieldIdentifier: productByteArrayFieldID,
 	}
 }
+
+var productMultiStringFieldID = badorm.FieldIdentifier{Field: "MultiString"}
+
 func ProductMultiString(expr badorm.Expression[models.MultiString]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, models.MultiString]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "MultiString"},
+		FieldIdentifier: productMultiStringFieldID,
 	}
 }
+
+var productEmbeddedIntFieldID = badorm.FieldIdentifier{Field: "EmbeddedInt"}
+
 func ProductEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "EmbeddedInt"},
+		FieldIdentifier: productEmbeddedIntFieldID,
 	}
 }
+
+var productGormEmbeddedIntFieldID = badorm.FieldIdentifier{
+	ColumnPrefix: "gorm_embedded_",
+	Field:        "Int",
+}
+
 func ProductGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
-		Expression: expr,
-		FieldIdentifier: badorm.FieldIdentifier{
-			ColumnPrefix: "gorm_embedded_",
-			Field:        "Int",
-		},
+		Expression:      expr,
+		FieldIdentifier: productGormEmbeddedIntFieldID,
 	}
 }
+
+var ProductPreload = badorm.NewPreloadCondition[models.Product](productStringFieldID, productIntFieldID, productIntPointerFieldID, productFloatFieldID, productNullFloatFieldID, productBoolFieldID, productNullBoolFieldID, productByteArrayFieldID, productMultiStringFieldID, productEmbeddedIntFieldID, productGormEmbeddedIntFieldID)

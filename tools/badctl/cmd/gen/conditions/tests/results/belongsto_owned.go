@@ -40,9 +40,14 @@ func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Conditio
 		T2Field:       "ID",
 	}
 }
+
+var ownedOwnerIdFieldID = badorm.FieldIdentifier{Field: "OwnerID"}
+
 func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "OwnerID"},
+		FieldIdentifier: ownedOwnerIdFieldID,
 	}
 }
+
+var OwnedPreload = badorm.NewPreloadCondition[belongsto.Owned](ownedOwnerIdFieldID)

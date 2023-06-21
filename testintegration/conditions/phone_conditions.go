@@ -32,10 +32,13 @@ func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var phoneNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: phoneNameFieldID,
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[models.Phone] {
@@ -46,9 +49,14 @@ func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[m
 		T2Field:       "ID",
 	}
 }
+
+var phoneBrandIdFieldID = badorm.FieldIdentifier{Field: "BrandID"}
+
 func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "BrandID"},
+		FieldIdentifier: phoneBrandIdFieldID,
 	}
 }
+
+var PhonePreload = badorm.NewPreloadCondition[models.Phone](phoneNameFieldID, phoneBrandIdFieldID)

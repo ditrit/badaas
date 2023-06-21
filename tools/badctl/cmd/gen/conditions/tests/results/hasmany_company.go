@@ -40,3 +40,5 @@ func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.Condi
 		T2Field:       "ID",
 	}
 }
+
+var CompanyPreload = badorm.NewPreloadCondition[hasmany.Company]()

@@ -32,10 +32,13 @@ func ComputerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var computerNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func ComputerName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: computerNameFieldID,
 	}
 }
 func ComputerProcessor(conditions ...badorm.Condition[overridereferencesinverse.Processor]) badorm.Condition[overridereferencesinverse.Computer] {
@@ -54,3 +57,5 @@ func ProcessorComputer(conditions ...badorm.Condition[overridereferencesinverse.
 		T2Field:       "Name",
 	}
 }
+
+var ComputerPreload = badorm.NewPreloadCondition[overridereferencesinverse.Computer](computerNameFieldID)

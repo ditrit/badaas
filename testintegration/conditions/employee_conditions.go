@@ -32,10 +32,13 @@ func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var employeeNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: employeeNameFieldID,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condition[models.Employee] {
@@ -46,9 +49,14 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condit
 		T2Field:       "ID",
 	}
 }
+
+var employeeBossIdFieldID = badorm.FieldIdentifier{Field: "BossID"}
+
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "BossID"},
+		FieldIdentifier: employeeBossIdFieldID,
 	}
 }
+
+var EmployeePreload = badorm.NewPreloadCondition[models.Employee](employeeNameFieldID, employeeBossIdFieldID)

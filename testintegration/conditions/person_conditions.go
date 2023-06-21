@@ -32,9 +32,14 @@ func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var personNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func PersonName(expr badorm.Expression[string]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: personNameFieldID,
 	}
 }
+
+var PersonPreload = badorm.NewPreloadCondition[models.Person](personNameFieldID)

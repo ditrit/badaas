@@ -32,9 +32,14 @@ func CustomTypeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCon
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var customTypeCustomFieldID = badorm.FieldIdentifier{Field: "Custom"}
+
 func CustomTypeCustom(expr badorm.Expression[customtype.MultiString]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, customtype.MultiString]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Custom"},
+		FieldIdentifier: customTypeCustomFieldID,
 	}
 }
+
+var CustomTypePreload = badorm.NewPreloadCondition[customtype.CustomType](customTypeCustomFieldID)

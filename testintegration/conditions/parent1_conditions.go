@@ -40,9 +40,14 @@ func Parent1ParentParent(conditions ...badorm.Condition[models.ParentParent]) ba
 		T2Field:       "ID",
 	}
 }
+
+var parent1ParentParentIdFieldID = badorm.FieldIdentifier{Field: "ParentParentID"}
+
 func Parent1ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "ParentParentID"},
+		FieldIdentifier: parent1ParentParentIdFieldID,
 	}
 }
+
+var Parent1Preload = badorm.NewPreloadCondition[models.Parent1](parent1ParentParentIdFieldID)

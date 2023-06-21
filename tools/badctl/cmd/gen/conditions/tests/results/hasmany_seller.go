@@ -32,9 +32,14 @@ func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var sellerCompanyIdFieldID = badorm.FieldIdentifier{Field: "CompanyID"}
+
 func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasmany.Seller] {
 	return badorm.FieldCondition[hasmany.Seller, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "CompanyID"},
+		FieldIdentifier: sellerCompanyIdFieldID,
 	}
 }
+
+var SellerPreload = badorm.NewPreloadCondition[hasmany.Seller](sellerCompanyIdFieldID)

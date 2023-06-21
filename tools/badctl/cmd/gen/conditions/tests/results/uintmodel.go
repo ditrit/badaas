@@ -32,3 +32,5 @@ func UintModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCond
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var UintModelPreload = badorm.NewPreloadCondition[uintmodel.UintModel]()

@@ -32,9 +32,14 @@ func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereC
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var parentParentNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func ParentParentName(expr badorm.Expression[string]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: parentParentNameFieldID,
 	}
 }
+
+var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent](parentParentNameFieldID)

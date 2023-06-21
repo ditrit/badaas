@@ -32,9 +32,14 @@ func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var cityCountryIdFieldID = badorm.FieldIdentifier{Field: "CountryID"}
+
 func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasone.City] {
 	return badorm.FieldCondition[hasone.City, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "CountryID"},
+		FieldIdentifier: cityCountryIdFieldID,
 	}
 }
+
+var CityPreload = badorm.NewPreloadCondition[hasone.City](cityCountryIdFieldID)

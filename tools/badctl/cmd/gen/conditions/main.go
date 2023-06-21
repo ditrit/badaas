@@ -64,12 +64,11 @@ func generateConditionsForPkg(destPkg string, pkg *packages.Package) {
 	for _, name := range pkg.Types.Scope().Names() {
 		object := getObject(pkg, name)
 		if object != nil {
-			file := NewConditionsFile(
+			file, err := NewConditionsFile(
 				destPkg,
 				strcase.ToSnake(object.Name())+"_conditions.go",
+				object,
 			)
-
-			err := file.AddConditionsFor(object)
 			if err != nil {
 				// object is not a BaDORM model, do not generate conditions
 				continue

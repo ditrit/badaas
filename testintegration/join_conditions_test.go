@@ -411,35 +411,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesN
 	ts.ErrorIs(err, badorm.ErrEmptyConditions)
 }
 
-// TODO que se genere automaticamente
-var ProductPreload = badorm.NewPreloadCondition[models.Product](
-	badorm.FieldIdentifier{Column: "string_something_else"},
-	badorm.FieldIdentifier{Field: "Int"},
-	badorm.FieldIdentifier{Field: "IntPointer"},
-	badorm.FieldIdentifier{Field: "Float"},
-	badorm.FieldIdentifier{Field: "NullFloat"},
-	badorm.FieldIdentifier{Field: "Bool"},
-	badorm.FieldIdentifier{Field: "NullBool"},
-	badorm.FieldIdentifier{Field: "ByteArray"},
-	badorm.FieldIdentifier{Field: "MultiString"},
-	badorm.FieldIdentifier{Field: "EmbeddedInt"},
-	badorm.FieldIdentifier{Field: "Int", ColumnPrefix: "gorm_embedded_"},
-)
-
-var SellerPreload = badorm.NewPreloadCondition[models.Seller](
-	badorm.FieldIdentifier{Field: "Name"},
-	badorm.FieldIdentifier{Field: "CompanyID"},
-)
-
 // TODO algo para poder hacer el preload completo?
-var Parent1Preload = badorm.NewPreloadCondition[models.Parent1](
-	badorm.FieldIdentifier{Field: "ParentParentID"},
-)
-
-var Parent2Preload = badorm.NewPreloadCondition[models.Parent2](
-	badorm.FieldIdentifier{Field: "ParentParentID"},
-)
-var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent]()
 
 func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithoutWhereConditionDoesNotFilter() {
 	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
@@ -452,7 +424,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithoutWhereConditionDoe
 
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleSeller(
-			SellerPreload,
+			conditions.SellerPreload,
 		),
 	)
 	ts.Nil(err)
@@ -480,7 +452,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadWithWhereConditionFilter
 
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleProduct(
-			ProductPreload,
+			conditions.ProductPreload,
 			conditions.ProductInt(badorm.Eq(1)),
 		),
 	)
@@ -507,11 +479,11 @@ func (ts *JoinConditionsIntTestSuite) TestJoinAndPreloadDifferentEntities() {
 
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleProduct(
-			ProductPreload,
+			conditions.ProductPreload,
 			conditions.ProductInt(badorm.Eq(1)),
 		),
 		conditions.SaleSeller(
-			SellerPreload,
+			conditions.SellerPreload,
 			conditions.SellerName(badorm.Eq("franco")),
 		),
 	)
@@ -541,9 +513,9 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutCond
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			Parent1Preload,
+			conditions.Parent1Preload,
 			conditions.Parent1ParentParent(
-				ParentParentPreload,
+				conditions.ParentParentPreload,
 			),
 		),
 	)
@@ -591,9 +563,9 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithConditi
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			Parent1Preload,
+			conditions.Parent1Preload,
 			conditions.Parent1ParentParent(
-				ParentParentPreload,
+				conditions.ParentParentPreload,
 				conditions.ParentParentName(badorm.Eq("parentParent1")),
 			),
 		),
@@ -624,15 +596,15 @@ func (ts *JoinConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond() {
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			Parent1Preload,
+			conditions.Parent1Preload,
 			conditions.Parent1ParentParent(
-				ParentParentPreload,
+				conditions.ParentParentPreload,
 			),
 		),
 		conditions.ChildParent2(
-			Parent2Preload,
+			conditions.Parent2Preload,
 			conditions.Parent2ParentParent(
-				ParentParentPreload,
+				conditions.ParentParentPreload,
 			),
 		),
 	)

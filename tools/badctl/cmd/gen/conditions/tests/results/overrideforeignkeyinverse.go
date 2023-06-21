@@ -48,3 +48,5 @@ func CreditCardUser(conditions ...badorm.Condition[overrideforeignkeyinverse.Use
 		T2Field:       "ID",
 	}
 }
+
+var UserPreload = badorm.NewPreloadCondition[overrideforeignkeyinverse.User]()

@@ -32,10 +32,13 @@ func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var bicycleNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func BicycleName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: bicycleNameFieldID,
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Condition[models.Bicycle] {
@@ -46,9 +49,14 @@ func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Conditio
 		T2Field:       "Name",
 	}
 }
+
+var bicycleOwnerNameFieldID = badorm.FieldIdentifier{Field: "OwnerName"}
+
 func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "OwnerName"},
+		FieldIdentifier: bicycleOwnerNameFieldID,
 	}
 }
+
+var BicyclePreload = badorm.NewPreloadCondition[models.Bicycle](bicycleNameFieldID, bicycleOwnerNameFieldID)

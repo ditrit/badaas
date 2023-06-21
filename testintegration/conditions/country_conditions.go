@@ -32,10 +32,13 @@ func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var countryNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func CountryName(expr badorm.Expression[string]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: countryNameFieldID,
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.Condition[models.Country] {
@@ -54,3 +57,5 @@ func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.Conditio
 		T2Field:       "ID",
 	}
 }
+
+var CountryPreload = badorm.NewPreloadCondition[models.Country](countryNameFieldID)

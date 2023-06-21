@@ -49,3 +49,5 @@ func Package2Package1(conditions ...badorm.Condition[package1.Package1]) badorm.
 		T2Field:       "ID",
 	}
 }
+
+var Package1Preload = badorm.NewPreloadCondition[package1.Package1]()

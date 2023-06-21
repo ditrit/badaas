@@ -48,3 +48,5 @@ func CityCountry(conditions ...badorm.Condition[hasone.Country]) badorm.Conditio
 		T2Field:       "ID",
 	}
 }
+
+var CountryPreload = badorm.NewPreloadCondition[hasone.Country]()

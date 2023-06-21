@@ -32,15 +32,23 @@ func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var sellerNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+
 func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, string]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
+		FieldIdentifier: sellerNameFieldID,
 	}
 }
+
+var sellerCompanyIdFieldID = badorm.FieldIdentifier{Field: "CompanyID"}
+
 func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.FieldIdentifier{Field: "CompanyID"},
+		FieldIdentifier: sellerCompanyIdFieldID,
 	}
 }
+
+var SellerPreload = badorm.NewPreloadCondition[models.Seller](sellerNameFieldID, sellerCompanyIdFieldID)

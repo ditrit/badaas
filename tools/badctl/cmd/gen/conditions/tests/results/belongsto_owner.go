@@ -32,3 +32,5 @@ func OwnerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+
+var OwnerPreload = badorm.NewPreloadCondition[belongsto.Owner]()
