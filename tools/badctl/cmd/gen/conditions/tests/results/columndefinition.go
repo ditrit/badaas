@@ -10,31 +10,31 @@ import (
 
 func ColumnDefinitionId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func ColumnDefinitionCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func ColumnDefinitionUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func ColumnDefinitionDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func ColumnDefinitionString(expr badorm.Expression[string]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, string]{
-		Column:     "string_something_else",
-		Expression: expr,
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Column: "string_something_else"},
 	}
 }

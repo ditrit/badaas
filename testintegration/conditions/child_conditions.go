@@ -10,26 +10,26 @@ import (
 
 func ChildId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Child] {
 	return badorm.FieldCondition[models.Child, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func ChildCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Child] {
 	return badorm.FieldCondition[models.Child, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func ChildUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Child] {
 	return badorm.FieldCondition[models.Child, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func ChildDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Child] {
 	return badorm.FieldCondition[models.Child, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.Condition[models.Child] {
@@ -42,8 +42,8 @@ func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.Conditi
 }
 func ChildParent1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Child] {
 	return badorm.FieldCondition[models.Child, badorm.UUID]{
-		Expression: expr,
-		Field:      "Parent1ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Parent1ID"},
 	}
 }
 func ChildParent2(conditions ...badorm.Condition[models.Parent2]) badorm.Condition[models.Child] {
@@ -56,7 +56,7 @@ func ChildParent2(conditions ...badorm.Condition[models.Parent2]) badorm.Conditi
 }
 func ChildParent2Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Child] {
 	return badorm.FieldCondition[models.Child, badorm.UUID]{
-		Expression: expr,
-		Field:      "Parent2ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Parent2ID"},
 	}
 }

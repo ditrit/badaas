@@ -413,31 +413,31 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesN
 
 // TODO que se genere automaticamente
 var ProductPreload = badorm.NewPreloadCondition[models.Product](
-	badorm.ColumnIdentifier{Column: "string_something_else"},
-	badorm.ColumnIdentifier{Field: "Int"},
-	badorm.ColumnIdentifier{Field: "IntPointer"},
-	badorm.ColumnIdentifier{Field: "Float"},
-	badorm.ColumnIdentifier{Field: "NullFloat"},
-	badorm.ColumnIdentifier{Field: "Bool"},
-	badorm.ColumnIdentifier{Field: "NullBool"},
-	badorm.ColumnIdentifier{Field: "ByteArray"},
-	badorm.ColumnIdentifier{Field: "MultiString"},
-	badorm.ColumnIdentifier{Field: "EmbeddedInt"},
-	badorm.ColumnIdentifier{Field: "Int", ColumnPrefix: "gorm_embedded_"},
+	badorm.FieldIdentifier{Column: "string_something_else"},
+	badorm.FieldIdentifier{Field: "Int"},
+	badorm.FieldIdentifier{Field: "IntPointer"},
+	badorm.FieldIdentifier{Field: "Float"},
+	badorm.FieldIdentifier{Field: "NullFloat"},
+	badorm.FieldIdentifier{Field: "Bool"},
+	badorm.FieldIdentifier{Field: "NullBool"},
+	badorm.FieldIdentifier{Field: "ByteArray"},
+	badorm.FieldIdentifier{Field: "MultiString"},
+	badorm.FieldIdentifier{Field: "EmbeddedInt"},
+	badorm.FieldIdentifier{Field: "Int", ColumnPrefix: "gorm_embedded_"},
 )
 
 var SellerPreload = badorm.NewPreloadCondition[models.Seller](
-	badorm.ColumnIdentifier{Field: "Name"},
-	badorm.ColumnIdentifier{Field: "CompanyID"},
+	badorm.FieldIdentifier{Field: "Name"},
+	badorm.FieldIdentifier{Field: "CompanyID"},
 )
 
 // TODO algo para poder hacer el preload completo?
 var Parent1Preload = badorm.NewPreloadCondition[models.Parent1](
-	badorm.ColumnIdentifier{Field: "ParentParentID"},
+	badorm.FieldIdentifier{Field: "ParentParentID"},
 )
 
 var Parent2Preload = badorm.NewPreloadCondition[models.Parent2](
-	badorm.ColumnIdentifier{Field: "ParentParentID"},
+	badorm.FieldIdentifier{Field: "ParentParentID"},
 )
 var ParentParentPreload = badorm.NewPreloadCondition[models.ParentParent]()
 

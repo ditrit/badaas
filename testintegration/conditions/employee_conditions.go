@@ -10,32 +10,32 @@ import (
 
 func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condition[models.Employee] {
@@ -48,7 +48,7 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condit
 }
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
-		Expression: expr,
-		Field:      "BossID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "BossID"},
 	}
 }

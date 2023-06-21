@@ -10,31 +10,31 @@ import (
 
 func GoEmbeddedId(expr badorm.Expression[uint]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, uint]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func GoEmbeddedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func GoEmbeddedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func GoEmbeddedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func GoEmbeddedEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, int]{
-		Expression: expr,
-		Field:      "EmbeddedInt",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "EmbeddedInt"},
 	}
 }

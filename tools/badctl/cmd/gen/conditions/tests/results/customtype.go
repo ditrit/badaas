@@ -10,31 +10,31 @@ import (
 
 func CustomTypeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func CustomTypeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func CustomTypeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func CustomTypeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func CustomTypeCustom(expr badorm.Expression[customtype.MultiString]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, customtype.MultiString]{
-		Expression: expr,
-		Field:      "Custom",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Custom"},
 	}
 }

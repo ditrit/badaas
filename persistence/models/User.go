@@ -15,6 +15,8 @@ type User struct {
 func UserEmailCondition(expr badorm.Expression[string]) badorm.WhereCondition[User] {
 	return badorm.FieldCondition[User, string]{
 		Expression: expr,
-		Field:      "Email",
+		FieldIdentifier: badorm.FieldIdentifier{
+			Field: "Email",
+		},
 	}
 }

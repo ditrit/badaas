@@ -10,26 +10,26 @@ import (
 
 func UserId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func UserCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func UserUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func UserDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func UserCreditCard(conditions ...badorm.Condition[overrideforeignkeyinverse.CreditCard]) badorm.Condition[overrideforeignkeyinverse.User] {

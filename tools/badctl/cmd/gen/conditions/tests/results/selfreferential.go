@@ -10,26 +10,26 @@ import (
 
 func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.Condition[selfreferential.Employee] {
@@ -42,7 +42,7 @@ func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) bado
 }
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, badorm.UUID]{
-		Expression: expr,
-		Field:      "BossID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "BossID"},
 	}
 }

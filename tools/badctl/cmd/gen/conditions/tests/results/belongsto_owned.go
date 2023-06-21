@@ -10,26 +10,26 @@ import (
 
 func OwnedId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func OwnedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func OwnedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func OwnedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Condition[belongsto.Owned] {
@@ -42,7 +42,7 @@ func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Conditio
 }
 func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
-		Expression: expr,
-		Field:      "OwnerID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "OwnerID"},
 	}
 }

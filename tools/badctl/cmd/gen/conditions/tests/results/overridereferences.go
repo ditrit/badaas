@@ -10,26 +10,26 @@ import (
 
 func PhoneId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm.Condition[overridereferences.Phone] {
@@ -42,7 +42,7 @@ func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm
 }
 func PhoneBrandName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferences.Phone] {
 	return badorm.FieldCondition[overridereferences.Phone, string]{
-		Expression: expr,
-		Field:      "BrandName",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "BrandName"},
 	}
 }

@@ -10,26 +10,26 @@ import (
 
 func BicycleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func BicycleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func BicycleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) badorm.Condition[overrideforeignkey.Bicycle] {
@@ -42,7 +42,7 @@ func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) bad
 }
 func BicycleOwnerSomethingId(expr badorm.Expression[string]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, string]{
-		Expression: expr,
-		Field:      "OwnerSomethingID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "OwnerSomethingID"},
 	}
 }

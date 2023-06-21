@@ -10,25 +10,25 @@ import (
 
 func UUIDModelId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[uuidmodel.UUIDModel] {
 	return badorm.FieldCondition[uuidmodel.UUIDModel, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func UUIDModelCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[uuidmodel.UUIDModel] {
 	return badorm.FieldCondition[uuidmodel.UUIDModel, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func UUIDModelUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[uuidmodel.UUIDModel] {
 	return badorm.FieldCondition[uuidmodel.UUIDModel, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func UUIDModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[uuidmodel.UUIDModel] {
 	return badorm.FieldCondition[uuidmodel.UUIDModel, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }

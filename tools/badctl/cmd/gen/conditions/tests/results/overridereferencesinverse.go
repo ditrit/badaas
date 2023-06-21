@@ -10,32 +10,32 @@ import (
 
 func ComputerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func ComputerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func ComputerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func ComputerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func ComputerName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }
 func ComputerProcessor(conditions ...badorm.Condition[overridereferencesinverse.Processor]) badorm.Condition[overridereferencesinverse.Computer] {

@@ -11,26 +11,26 @@ import (
 
 func Package1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func Package1CreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func Package1UpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func Package1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.Condition[package1.Package1] {

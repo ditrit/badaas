@@ -10,32 +10,32 @@ import (
 
 func PhoneId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[models.Phone] {
@@ -48,7 +48,7 @@ func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[m
 }
 func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
-		Expression: expr,
-		Field:      "BrandID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "BrandID"},
 	}
 }

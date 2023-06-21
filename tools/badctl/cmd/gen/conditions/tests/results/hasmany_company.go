@@ -10,26 +10,26 @@ import (
 
 func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasmany.Company] {
 	return badorm.FieldCondition[hasmany.Company, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[hasmany.Company] {
 	return badorm.FieldCondition[hasmany.Company, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[hasmany.Company] {
 	return badorm.FieldCondition[hasmany.Company, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[hasmany.Company] {
 	return badorm.FieldCondition[hasmany.Company, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.Condition[hasmany.Seller] {

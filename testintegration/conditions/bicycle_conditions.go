@@ -10,32 +10,32 @@ import (
 
 func BicycleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func BicycleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func BicycleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func BicycleName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Condition[models.Bicycle] {
@@ -48,7 +48,7 @@ func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Conditio
 }
 func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, string]{
-		Expression: expr,
-		Field:      "OwnerName",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "OwnerName"},
 	}
 }

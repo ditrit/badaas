@@ -11,13 +11,25 @@ import (
 
 const (
 	// badorm/condition.go
-	badORMCondition      = "Condition"
-	badORMFieldCondition = "FieldCondition"
-	badORMWhereCondition = "WhereCondition"
-	badORMJoinCondition  = "JoinCondition"
+	badORMCondition       = "Condition"
+	badORMFieldCondition  = "FieldCondition"
+	badORMWhereCondition  = "WhereCondition"
+	badORMJoinCondition   = "JoinCondition"
+	badORMFieldIdentifier = "FieldIdentifier"
+	IDFieldID             = "IDFieldID"
+	CreatedAtFieldID      = "CreatedAtFieldID"
+	UpdatedAtFieldID      = "UpdatedAtFieldID"
+	DeletedAtFieldID      = "DeletedAtFieldID"
 	// badorm/expression.go
 	badORMExpression = "Expression"
 )
+
+var constantFieldIdentifiers = map[string]*jen.Statement{
+	"ID":        jen.Qual(badORMPath, IDFieldID),
+	"CreatedAt": jen.Qual(badORMPath, CreatedAtFieldID),
+	"UpdatedAt": jen.Qual(badORMPath, UpdatedAtFieldID),
+	"DeletedAt": jen.Qual(badORMPath, DeletedAtFieldID),
+}
 
 type Condition struct {
 	codes   []jen.Code
@@ -173,20 +185,28 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
-	conditionValues := jen.Dict{
-		jen.Id("Expression"): jen.Id("expr"),
-	}
-	columnName := field.getColumnName()
+	fieldIdentifier := jen.Qual(
+		badORMPath, badORMFieldIdentifier,
+	)
 
-	if columnName != "" {
-		conditionValues[jen.Id("Column")] = jen.Lit(columnName)
+	if constantFieldIdentifier, ok := constantFieldIdentifiers[field.Name]; ok {
+		fieldIdentifier = constantFieldIdentifier
 	} else {
-		conditionValues[jen.Id("Field")] = jen.Lit(field.Name)
-	}
+		fieldIdentifierValues := jen.Dict{}
+		columnName := field.getColumnName()
 
-	columnPrefix := field.ColumnPrefix
-	if columnPrefix != "" {
-		conditionValues[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
+		if columnName != "" {
+			fieldIdentifierValues[jen.Id("Column")] = jen.Lit(columnName)
+		} else {
+			fieldIdentifierValues[jen.Id("Field")] = jen.Lit(field.Name)
+		}
+
+		columnPrefix := field.ColumnPrefix
+		if columnPrefix != "" {
+			fieldIdentifierValues[jen.Id("ColumnPrefix")] = jen.Lit(columnPrefix)
+		}
+
+		fieldIdentifier = fieldIdentifier.Values(fieldIdentifierValues)
 	}
 
 	condition.codes = append(
@@ -199,7 +219,10 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 			whereCondition,
 		).Block(
 			jen.Return(
-				fieldCondition.Clone().Values(conditionValues),
+				fieldCondition.Clone().Values(jen.Dict{
+					jen.Id("Expression"):      jen.Id("expr"),
+					jen.Id("FieldIdentifier"): fieldIdentifier,
+				}),
 			),
 		),
 	)

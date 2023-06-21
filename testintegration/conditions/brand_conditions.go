@@ -10,31 +10,31 @@ import (
 
 func BrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, uint]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func BrandCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func BrandUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func BrandDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func BrandName(expr badorm.Expression[string]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }

@@ -12,10 +12,10 @@ import (
 const DeletedAtField = "DeletedAt"
 
 var (
-	IDColumnID        = ColumnIdentifier{Field: "ID"}
-	CreatedAtColumnID = ColumnIdentifier{Field: "CreatedAt"}
-	UpdatedAtColumnID = ColumnIdentifier{Field: "UpdatedAt"}
-	DeletedAtColumnID = ColumnIdentifier{Field: DeletedAtField}
+	IDFieldID        = FieldIdentifier{Field: "ID"}
+	CreatedAtFieldID = FieldIdentifier{Field: "CreatedAt"}
+	UpdatedAtFieldID = FieldIdentifier{Field: "UpdatedAt"}
+	DeletedAtFieldID = FieldIdentifier{Field: DeletedAtField}
 )
 
 var ErrEmptyConditions = errors.New("condition must have at least one inner condition")
@@ -143,16 +143,13 @@ func NewConnectionCondition[T any](connector string, conditions ...WhereConditio
 	}
 }
 
-// TODO usar tambien en las conditions
-// poner en variables y reutilizar
-type ColumnIdentifier struct {
+type FieldIdentifier struct {
 	Column       string
 	Field        string
 	ColumnPrefix string
 }
 
-func (columnID ColumnIdentifier) ColumnName(db *gorm.DB, tableName string) string {
-	// TODO codigo repetido
+func (columnID FieldIdentifier) ColumnName(db *gorm.DB, tableName string) string {
 	columnName := columnID.Column
 	if columnName == "" {
 		columnName = db.NamingStrategy.ColumnName(tableName, columnID.Field)
@@ -164,7 +161,7 @@ func (columnID ColumnIdentifier) ColumnName(db *gorm.DB, tableName string) strin
 
 // TODO doc
 type PreloadCondition[T any] struct {
-	Columns []ColumnIdentifier
+	Fields []FieldIdentifier
 }
 
 //nolint:unused // see inside
@@ -174,8 +171,8 @@ func (condition PreloadCondition[T]) interfaceVerificationMethod(_ T) {
 }
 
 func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, tableName string) (*gorm.DB, error) {
-	for _, columnID := range condition.Columns {
-		columnName := columnID.ColumnName(query, tableName)
+	for _, fieldID := range condition.Fields {
+		columnName := fieldID.ColumnName(query, tableName)
 
 		// Remove first table name as GORM only adds it from the second join
 		_, attributePrefix, _ := strings.Cut(tableName, "__")
@@ -195,15 +192,15 @@ func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, tableName string) (
 }
 
 // TODO doc
-func NewPreloadCondition[T any](columns ...ColumnIdentifier) PreloadCondition[T] {
+func NewPreloadCondition[T any](fields ...FieldIdentifier) PreloadCondition[T] {
 	return PreloadCondition[T]{
-		Columns: append(
-			columns,
+		Fields: append(
+			fields,
 			// base model fields
-			IDColumnID,
-			CreatedAtColumnID,
-			UpdatedAtColumnID,
-			DeletedAtColumnID,
+			IDFieldID,
+			CreatedAtFieldID,
+			UpdatedAtFieldID,
+			DeletedAtFieldID,
 		),
 	}
 }
@@ -211,10 +208,8 @@ func NewPreloadCondition[T any](columns ...ColumnIdentifier) PreloadCondition[T]
 // Condition that verifies the value of a field,
 // using the Expression
 type FieldCondition[TObject any, TAtribute any] struct {
-	Field        string
-	Column       string
-	ColumnPrefix string
-	Expression   Expression[TAtribute]
+	FieldIdentifier FieldIdentifier
+	Expression      Expression[TAtribute]
 }
 
 //nolint:unused // see inside
@@ -247,19 +242,11 @@ func applyWhereCondition[T any](condition WhereCondition[T], query *gorm.DB, tab
 
 //nolint:unused // is used
 func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
-	return condition.Field == DeletedAtField
+	return condition.FieldIdentifier.Field == DeletedAtField
 }
 
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, tableName string) (string, []any, error) {
-	// TODO codigo repetido
-	columnName := condition.Column
-	if columnName == "" {
-		columnName = query.NamingStrategy.ColumnName(tableName, condition.Field)
-	}
-
-	// add column prefix and table name once we know the column name
-	columnName = tableName + "." + condition.ColumnPrefix + columnName
-
+	columnName := tableName + "." + condition.FieldIdentifier.ColumnName(query, tableName)
 	return condition.Expression.ToSQL(columnName)
 }
 

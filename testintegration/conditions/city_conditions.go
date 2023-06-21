@@ -10,37 +10,37 @@ import (
 
 func CityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }
 func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
-		Expression: expr,
-		Field:      "CountryID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "CountryID"},
 	}
 }

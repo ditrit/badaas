@@ -10,38 +10,38 @@ import (
 
 func SaleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func SaleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func SaleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func SaleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func SaleCode(expr badorm.Expression[int]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, int]{
-		Expression: expr,
-		Field:      "Code",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Code"},
 	}
 }
 func SaleDescription(expr badorm.Expression[string]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, string]{
-		Expression: expr,
-		Field:      "Description",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Description"},
 	}
 }
 func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Condition[models.Sale] {
@@ -54,8 +54,8 @@ func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Conditio
 }
 func SaleProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, badorm.UUID]{
-		Expression: expr,
-		Field:      "ProductID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "ProductID"},
 	}
 }
 func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[models.Sale] {
@@ -68,7 +68,7 @@ func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[
 }
 func SaleSellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
 	return badorm.FieldCondition[models.Sale, badorm.UUID]{
-		Expression: expr,
-		Field:      "SellerID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "SellerID"},
 	}
 }

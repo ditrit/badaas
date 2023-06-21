@@ -10,32 +10,32 @@ import (
 
 func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, string]{
-		Expression: expr,
-		Field:      "Name",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Name"},
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {

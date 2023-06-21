@@ -10,26 +10,26 @@ import (
 
 func Parent1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func Parent1CreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func Parent1UpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func Parent1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func Parent1ParentParent(conditions ...badorm.Condition[models.ParentParent]) badorm.Condition[models.Parent1] {
@@ -42,7 +42,7 @@ func Parent1ParentParent(conditions ...badorm.Condition[models.ParentParent]) ba
 }
 func Parent1ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, badorm.UUID]{
-		Expression: expr,
-		Field:      "ParentParentID",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "ParentParentID"},
 	}
 }

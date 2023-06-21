@@ -10,133 +10,133 @@ import (
 
 func BasicPointersId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, badorm.UUID]{
-		Expression: expr,
-		Field:      "ID",
+		Expression:      expr,
+		FieldIdentifier: badorm.IDFieldID,
 	}
 }
 func BasicPointersCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, time.Time]{
-		Expression: expr,
-		Field:      "CreatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.CreatedAtFieldID,
 	}
 }
 func BasicPointersUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, time.Time]{
-		Expression: expr,
-		Field:      "UpdatedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.UpdatedAtFieldID,
 	}
 }
 func BasicPointersDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, gorm.DeletedAt]{
-		Expression: expr,
-		Field:      "DeletedAt",
+		Expression:      expr,
+		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
 func BasicPointersBool(expr badorm.Expression[bool]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, bool]{
-		Expression: expr,
-		Field:      "Bool",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Bool"},
 	}
 }
 func BasicPointersInt(expr badorm.Expression[int]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int]{
-		Expression: expr,
-		Field:      "Int",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Int"},
 	}
 }
 func BasicPointersInt8(expr badorm.Expression[int8]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int8]{
-		Expression: expr,
-		Field:      "Int8",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Int8"},
 	}
 }
 func BasicPointersInt16(expr badorm.Expression[int16]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int16]{
-		Expression: expr,
-		Field:      "Int16",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Int16"},
 	}
 }
 func BasicPointersInt32(expr badorm.Expression[int32]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int32]{
-		Expression: expr,
-		Field:      "Int32",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Int32"},
 	}
 }
 func BasicPointersInt64(expr badorm.Expression[int64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int64]{
-		Expression: expr,
-		Field:      "Int64",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Int64"},
 	}
 }
 func BasicPointersUInt(expr badorm.Expression[uint]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint]{
-		Expression: expr,
-		Field:      "UInt",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "UInt"},
 	}
 }
 func BasicPointersUInt8(expr badorm.Expression[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint8]{
-		Expression: expr,
-		Field:      "UInt8",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "UInt8"},
 	}
 }
 func BasicPointersUInt16(expr badorm.Expression[uint16]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint16]{
-		Expression: expr,
-		Field:      "UInt16",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "UInt16"},
 	}
 }
 func BasicPointersUInt32(expr badorm.Expression[uint32]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint32]{
-		Expression: expr,
-		Field:      "UInt32",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "UInt32"},
 	}
 }
 func BasicPointersUInt64(expr badorm.Expression[uint64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint64]{
-		Expression: expr,
-		Field:      "UInt64",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "UInt64"},
 	}
 }
 func BasicPointersUIntptr(expr badorm.Expression[uintptr]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uintptr]{
-		Expression: expr,
-		Field:      "UIntptr",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "UIntptr"},
 	}
 }
 func BasicPointersFloat32(expr badorm.Expression[float32]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, float32]{
-		Expression: expr,
-		Field:      "Float32",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Float32"},
 	}
 }
 func BasicPointersFloat64(expr badorm.Expression[float64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, float64]{
-		Expression: expr,
-		Field:      "Float64",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Float64"},
 	}
 }
 func BasicPointersComplex64(expr badorm.Expression[complex64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, complex64]{
-		Expression: expr,
-		Field:      "Complex64",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Complex64"},
 	}
 }
 func BasicPointersComplex128(expr badorm.Expression[complex128]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, complex128]{
-		Expression: expr,
-		Field:      "Complex128",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Complex128"},
 	}
 }
 func BasicPointersString(expr badorm.Expression[string]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, string]{
-		Expression: expr,
-		Field:      "String",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "String"},
 	}
 }
 func BasicPointersByte(expr badorm.Expression[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint8]{
-		Expression: expr,
-		Field:      "Byte",
+		Expression:      expr,
+		FieldIdentifier: badorm.FieldIdentifier{Field: "Byte"},
 	}
 }
