@@ -72,6 +72,7 @@ func TestBaDORM(t *testing.T) {
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
 		fx.Provide(NewWhereConditionsIntTestSuite),
 		fx.Provide(NewJoinConditionsIntTestSuite),
+		fx.Provide(NewPreloadConditionsIntTestSuite),
 		fx.Provide(NewExpressionsIntTestSuite),
 
 		fx.Invoke(runBaDORMTestSuites),
@@ -83,6 +84,7 @@ func runBaDORMTestSuites(
 	tsCRUDUnsafeService *CRUDUnsafeServiceIntTestSuite,
 	tsWhereConditions *WhereConditionsIntTestSuite,
 	tsJoinConditions *JoinConditionsIntTestSuite,
+	tsPreloadConditions *PreloadConditionsIntTestSuite,
 	tsExpressions *ExpressionIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
@@ -90,6 +92,7 @@ func runBaDORMTestSuites(
 	suite.Run(tGlobal, tsCRUDUnsafeService)
 	suite.Run(tGlobal, tsWhereConditions)
 	suite.Run(tGlobal, tsJoinConditions)
+	suite.Run(tGlobal, tsPreloadConditions)
 	suite.Run(tGlobal, tsExpressions)
 
 	shutdowner.Shutdown()

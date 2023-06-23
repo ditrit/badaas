@@ -93,9 +93,7 @@ func (m Product) Equal(other Product) bool {
 type Seller struct {
 	badorm.UUIDModel
 
-	Name string
-	// TODO estas referencias contrarias andan, por lo que puedo eliminar lo que es crear el join inverso
-	// y entonces puedo pasar a usar join + where en lugar de crear el on a mano
+	Name      string
 	Company   *Company
 	CompanyID *badorm.UUID // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
@@ -110,8 +108,7 @@ type Sale struct {
 	Product   Product
 	ProductID badorm.UUID
 
-	// Sale HasOne Seller (Sale 0..* -> 0..1 Seller)
-	// TODO este comentario no se si esta bien, sigue siendo belongs to
+	// Sale belongsTo Seller (Sale 0..* -> 0..1 Seller)
 	Seller   *Seller
 	SellerID *badorm.UUID
 }

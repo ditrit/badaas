@@ -17,14 +17,14 @@ type WhereConditionsIntTestSuite struct {
 	CRUDServiceCommonIntTestSuite
 	crudProductService badorm.CRUDService[models.Product, badorm.UUID]
 	crudSaleService    badorm.CRUDService[models.Sale, badorm.UUID]
-	crudBrandService   badorm.CRUDService[models.Brand, uint]
+	crudBrandService   badorm.CRUDService[models.Brand, badorm.UIntID]
 }
 
 func NewWhereConditionsIntTestSuite(
 	db *gorm.DB,
 	crudProductService badorm.CRUDService[models.Product, badorm.UUID],
 	crudSaleService badorm.CRUDService[models.Sale, badorm.UUID],
-	crudBrandService badorm.CRUDService[models.Brand, uint],
+	crudBrandService badorm.CRUDService[models.Brand, badorm.UIntID],
 ) *WhereConditionsIntTestSuite {
 	return &WhereConditionsIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{

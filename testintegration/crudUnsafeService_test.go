@@ -17,8 +17,8 @@ type CRUDUnsafeServiceIntTestSuite struct {
 	crudCityService     badorm.CRUDUnsafeService[models.City, badorm.UUID]
 	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID]
 	crudBicycleService  badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID]
-	crudBrandService    badorm.CRUDUnsafeService[models.Brand, uint]
-	crudPhoneService    badorm.CRUDUnsafeService[models.Phone, uint]
+	crudBrandService    badorm.CRUDUnsafeService[models.Brand, badorm.UIntID]
+	crudPhoneService    badorm.CRUDUnsafeService[models.Phone, badorm.UIntID]
 }
 
 func NewCRUDUnsafeServiceIntTestSuite(
@@ -30,8 +30,8 @@ func NewCRUDUnsafeServiceIntTestSuite(
 	crudCityService badorm.CRUDUnsafeService[models.City, badorm.UUID],
 	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID],
 	crudBicycleService badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID],
-	crudBrandService badorm.CRUDUnsafeService[models.Brand, uint],
-	crudPhoneService badorm.CRUDUnsafeService[models.Phone, uint],
+	crudBrandService badorm.CRUDUnsafeService[models.Brand, badorm.UIntID],
+	crudPhoneService badorm.CRUDUnsafeService[models.Phone, badorm.UIntID],
 ) *CRUDUnsafeServiceIntTestSuite {
 	return &CRUDUnsafeServiceIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{

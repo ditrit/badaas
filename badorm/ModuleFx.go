@@ -46,9 +46,9 @@ func GetCRUDServiceModule[T any]() fx.Option {
 		return fx.Module(
 			moduleName,
 			// repository
-			fx.Provide(NewCRUDRepository[T, uint]),
+			fx.Provide(NewCRUDRepository[T, UIntID]),
 			// service
-			fx.Provide(NewCRUDService[T, uint]),
+			fx.Provide(NewCRUDService[T, UIntID]),
 		)
 	case KindNotBaDORMModel:
 		log.Printf("type %T is not a BaDORM Module\n", entity)
@@ -88,9 +88,9 @@ func GetCRUDUnsafeServiceModule[T any]() fx.Option {
 			// models
 			fx.Invoke(AddUnsafeModel[T]),
 			// repository
-			fx.Provide(NewCRUDUnsafeRepository[T, uint]),
+			fx.Provide(NewCRUDUnsafeRepository[T, UIntID]),
 			// service
-			fx.Provide(NewCRUDUnsafeService[T, uint]),
+			fx.Provide(NewCRUDUnsafeService[T, UIntID]),
 		)
 	case KindNotBaDORMModel:
 		log.Printf("type %T is not a BaDORM Module\n", entity)

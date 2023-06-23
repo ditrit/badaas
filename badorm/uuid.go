@@ -62,17 +62,33 @@ func (id *UUID) UnmarshalBinary(data []byte) error {
 }
 
 func (id *UUID) Scan(src interface{}) error {
-	return (*uuid.UUID)(id).Scan(src)
+	switch src := src.(type) {
+	case nil:
+		*id = NilUUID
+
+		return nil
+	default:
+		return (*uuid.UUID)(id).Scan(src)
+	}
+}
+
+func (id UUID) IsNil() bool {
+	return id == NilUUID
 }
 
 func (id UUID) GormValue(_ context.Context, db *gorm.DB) clause.Expr {
-	if len(id) == 0 {
+	if id == NilUUID {
 		return gorm.Expr("NULL")
 	}
 
 	switch db.Dialector.Name() {
 	case "mysql", "sqlserver":
-		binary, _ := id.MarshalBinary()
+		binary, err := id.MarshalBinary()
+		if err != nil {
+			db.AddError(err)
+			return clause.Expr{}
+		}
+
 		return gorm.Expr("?", binary)
 	default:
 		return gorm.Expr("?", id.String())
