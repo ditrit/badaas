@@ -26,7 +26,7 @@ type CRUDRoute struct {
 	Controller CRUDController
 }
 
-func NewCRUDController[T any](
+func NewCRUDController[T badorm.Model](
 	logger *zap.Logger,
 	crudService badorm.CRUDService[T, badorm.UUID],
 	crudUnsafeService badorm.CRUDUnsafeService[T, badorm.UUID],
@@ -46,7 +46,7 @@ func NewCRUDController[T any](
 }
 
 // The concrete implementation of the CRUDController
-type crudControllerImpl[T any] struct {
+type crudControllerImpl[T badorm.Model] struct {
 	logger            *zap.Logger
 	crudService       badorm.CRUDService[T, badorm.UUID]
 	crudUnsafeService badorm.CRUDUnsafeService[T, badorm.UUID]

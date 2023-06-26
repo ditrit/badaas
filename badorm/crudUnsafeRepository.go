@@ -9,7 +9,7 @@ import (
 
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID
-type CRUDUnsafeRepository[T any, ID BadaasID] interface {
+type CRUDUnsafeRepository[T Model, ID ModelID] interface {
 	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
 }
 
@@ -26,12 +26,12 @@ var (
 )
 
 // Implementation of the Generic CRUD Repository
-type CRUDUnsafeRepositoryImpl[T any, ID BadaasID] struct {
+type CRUDUnsafeRepositoryImpl[T Model, ID ModelID] struct {
 	CRUDUnsafeRepository[T, ID]
 }
 
 // Constructor of the Generic CRUD Repository
-func NewCRUDUnsafeRepository[T any, ID BadaasID]() CRUDUnsafeRepository[T, ID] {
+func NewCRUDUnsafeRepository[T Model, ID ModelID]() CRUDUnsafeRepository[T, ID] {
 	return &CRUDUnsafeRepositoryImpl[T, ID]{}
 }
 

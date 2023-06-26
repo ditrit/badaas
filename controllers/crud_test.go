@@ -19,7 +19,7 @@ import (
 // ----------------------- GetObject -----------------------
 
 type Model struct {
-	ID badorm.UUID
+	badorm.UUIDModel
 }
 
 func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {

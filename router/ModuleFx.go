@@ -70,7 +70,7 @@ var EAVRoutesModule = fx.Module(
 	),
 )
 
-func GetCRUDRoutesModule[T any]() fx.Option {
+func GetCRUDRoutesModule[T badorm.Model]() fx.Option {
 	typeName := fmt.Sprintf("%T", *new(T))
 
 	return fx.Module(

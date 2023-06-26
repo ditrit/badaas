@@ -5,11 +5,12 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetCRUD[T any, ID BadaasID](db *gorm.DB) (CRUDService[T, ID], CRUDRepository[T, ID]) {
+func GetCRUD[T Model, ID ModelID](db *gorm.DB) (CRUDService[T, ID], CRUDRepository[T, ID]) {
 	repository := NewCRUDRepository[T, ID]()
 	return NewCRUDService(db, repository), repository
 }
 
+// TODO auto migracion no obligatoria
 func autoMigrate(modelsLists [][]any, db *gorm.DB) error {
 	allModels := pie.Flat(modelsLists)
 	return db.AutoMigrate(allModels...)

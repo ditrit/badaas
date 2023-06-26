@@ -10,7 +10,7 @@ import (
 
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID
-type CRUDRepository[T any, ID BadaasID] interface {
+type CRUDRepository[T Model, ID ModelID] interface {
 	// create
 	Create(tx *gorm.DB, entity *T) error
 	// read
@@ -30,12 +30,12 @@ var (
 )
 
 // Implementation of the Generic CRUD Repository
-type CRUDRepositoryImpl[T any, ID BadaasID] struct {
+type CRUDRepositoryImpl[T Model, ID ModelID] struct {
 	CRUDRepository[T, ID]
 }
 
 // Constructor of the Generic CRUD Repository
-func NewCRUDRepository[T any, ID BadaasID]() CRUDRepository[T, ID] {
+func NewCRUDRepository[T Model, ID ModelID]() CRUDRepository[T, ID] {
 	return &CRUDRepositoryImpl[T, ID]{}
 }
 

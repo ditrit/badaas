@@ -24,7 +24,7 @@ var BaDORMModule = fx.Module(
 	),
 )
 
-func GetCRUDServiceModule[T any]() fx.Option {
+func GetCRUDServiceModule[T Model]() fx.Option {
 	entity := *new(T)
 
 	moduleName := fmt.Sprintf(
@@ -62,7 +62,7 @@ func failNotBadORMModule() error {
 	return fmt.Errorf("type is not a BaDORM Module")
 }
 
-func GetCRUDUnsafeServiceModule[T any]() fx.Option {
+func GetCRUDUnsafeServiceModule[T Model]() fx.Option {
 	entity := *new(T)
 
 	moduleName := fmt.Sprintf(
@@ -108,7 +108,7 @@ const (
 	KindNotBaDORMModel
 )
 
-func getBaDORMModelKind(entity any) modelKind {
+func getBaDORMModelKind(entity Model) modelKind {
 	entityType := getEntityType(entity)
 
 	_, isUUIDModel := entityType.FieldByName("UUIDModel")
@@ -126,7 +126,7 @@ func getBaDORMModelKind(entity any) modelKind {
 
 var modelsMapping = map[string]reflect.Type{}
 
-func AddUnsafeModel[T any]() {
+func AddUnsafeModel[T Model]() {
 	entity := *new(T)
 	entityType := reflect.TypeOf(entity)
 	modelsMapping[entityType.Name()] = entityType

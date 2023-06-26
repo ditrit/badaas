@@ -7,11 +7,14 @@ import (
 )
 
 // supported types for model identifier
-// TODO cambiar el nombre
-type BadaasID interface {
+type ModelID interface {
 	UIntID | UUID
 
 	IsNil() bool
+}
+
+type Model interface {
+	IsLoaded() bool
 }
 
 // Base Model for gorm
