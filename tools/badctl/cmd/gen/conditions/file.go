@@ -71,6 +71,7 @@ func (file File) addConditionsForEachField(fields []Field) {
 		getRelativePackagePath(file.destPkg, file.objectType),
 		file.objectType.Name(),
 	)
+
 	preloadAttributesCondition := jen.Var().Id(
 		getPreloadAttributesName(objectName),
 	).Op("=").Add(jen.Qual(
@@ -80,20 +81,21 @@ func (file File) addConditionsForEachField(fields []Field) {
 	)
 	fieldIdentifiers := []jen.Code{}
 
-	preloadAllCondition := jen.Var().Id(
+	preloadRelationsCondition := jen.Var().Id(
 		objectName + "PreloadRelations",
 	).Op("=").Index().Add(jen.Qual(
 		badORMPath, badORMCondition,
 	)).Types(
 		objectQual,
 	)
-	preloads := []jen.Code{}
+	relationPreloads := []jen.Code{}
 
 	for _, condition := range conditions {
 		for _, code := range condition.codes {
 			file.jenFile.Add(code)
 		}
 
+		// add all field names to the list of fields of the preload condition
 		if condition.fieldIdentifier != "" {
 			fieldIdentifiers = append(
 				fieldIdentifiers,
@@ -101,16 +103,17 @@ func (file File) addConditionsForEachField(fields []Field) {
 			)
 		}
 
+		// add the preload to the list of all possible preloads
 		if condition.preloadName != "" {
-			preloads = append(
-				preloads,
+			relationPreloads = append(
+				relationPreloads,
 				jen.Qual("", condition.preloadName),
 			)
 		}
 	}
 
 	file.jenFile.Add(preloadAttributesCondition.Call(fieldIdentifiers...))
-	file.jenFile.Add(preloadAllCondition.Values(preloads...))
+	file.jenFile.Add(preloadRelationsCondition.Values(relationPreloads...))
 }
 
 func getPreloadAttributesName(objectName string) string {

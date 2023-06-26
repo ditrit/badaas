@@ -18,6 +18,9 @@ func VerifyStructLoaded[T BadORMModel](toVerify *T) (*T, error) {
 }
 
 func VerifyPointerLoaded[TModel BadORMModel, TID BadaasID](id *TID, toVerify *TModel) (*TModel, error) {
+	// if id == nil the relation is null
+	// if (*id).IsNil(), id is loaded from a null
+	// if toVerify != nil, the relation is loaded and not null
 	if id != nil && !(*id).IsNil() && toVerify == nil {
 		return nil, ErrRelationNotLoaded
 	}

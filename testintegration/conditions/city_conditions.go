@@ -43,10 +43,11 @@ func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City]
 }
 func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.Condition[models.City] {
 	return badorm.JoinCondition[models.City, models.Country]{
-		Conditions:    conditions,
-		RelationField: "Country",
-		T1Field:       "CountryID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Country",
+		T1Field:            "CountryID",
+		T1PreloadCondition: CityPreloadAttributes,
+		T2Field:            "ID",
 	}
 }
 

@@ -1,6 +1,8 @@
 package testintegration
 
 import (
+	"errors"
+
 	"gorm.io/gorm"
 	"gotest.tools/assert"
 
@@ -63,9 +65,30 @@ func (ts *PreloadConditionsIntTestSuite) TestNoPreloadReturnsErrorOnGetRelation(
 	_, err = saleLoaded.GetProduct()
 	ts.ErrorIs(err, badorm.ErrRelationNotLoaded)
 
-	ts.Nil(saleLoaded.Seller)       // is nil but we cant determine why directly
+	ts.Nil(saleLoaded.Seller)       // is nil but we cant determine why directly (not loaded or really null)
 	_, err = saleLoaded.GetSeller() // GetSeller give us that information
 	ts.ErrorIs(err, badorm.ErrRelationNotLoaded)
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestNoPreloadWhenItsNullKnowsItsReallyNull() {
+	product := ts.createProduct("a_string", 1, 0.0, false, nil)
+	sale := ts.createSale(10, product, nil)
+
+	entities, err := ts.crudSaleService.GetEntities()
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{sale}, entities)
+
+	saleLoaded := entities[0]
+
+	ts.False(saleLoaded.Product.IsLoaded())
+	_, err = saleLoaded.GetProduct()
+	ts.ErrorIs(err, badorm.ErrRelationNotLoaded)
+
+	ts.Nil(saleLoaded.Seller)                 // is nil but we cant determine why directly (not loaded or really null)
+	saleSeller, err := saleLoaded.GetSeller() // GetSeller give us that information
+	ts.Nil(err)
+	ts.Nil(saleSeller)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadWithoutWhereConditionDoesNotFilter() {
@@ -86,6 +109,115 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadWithoutWhereConditionDoesNot
 	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
 		saleSeller, err := sale.GetSeller()
 		return err == nil && saleSeller.Equal(*seller1)
+	}))
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		// in this case sale.Seller will also be nil
+		// but we can now it's really null in the db because err is nil
+		saleSeller, err := sale.GetSeller()
+		return err == nil && saleSeller == nil
+	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadNullableAtSecondLevel() {
+	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	company := ts.createCompany("ditrit")
+
+	withCompany := ts.createSeller("with", company)
+	withoutCompany := ts.createSeller("without", nil)
+
+	sale1 := ts.createSale(0, product1, withoutCompany)
+	sale2 := ts.createSale(0, product2, withCompany)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleSeller(
+			conditions.SellerPreloadCompany,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{sale1, sale2}, entities)
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		if err != nil {
+			return false
+		}
+
+		sellerCompany, err := saleSeller.GetCompany()
+		return err == nil && saleSeller.Name == "with" && sellerCompany != nil && sellerCompany.Equal(*company)
+	}))
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		if err != nil {
+			return false
+		}
+
+		sellerCompany, err := saleSeller.GetCompany()
+		return err == nil && saleSeller.Name == "without" && sellerCompany == nil
+	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestNoPreloadNullableAtSecondLevel() {
+	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	company := ts.createCompany("ditrit")
+
+	withCompany := ts.createSeller("with", company)
+	withoutCompany := ts.createSeller("without", nil)
+
+	sale1 := ts.createSale(0, product1, withoutCompany)
+	sale2 := ts.createSale(0, product2, withCompany)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SalePreloadSeller,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{sale1, sale2}, entities)
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		if err != nil {
+			return false
+		}
+
+		// the not null one is not loaded
+		sellerCompany, err := saleSeller.GetCompany()
+		return errors.Is(err, badorm.ErrRelationNotLoaded) && sellerCompany == nil
+	}))
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		if err != nil {
+			return false
+		}
+
+		// we can be sure the null one is null
+		sellerCompany, err := saleSeller.GetCompany()
+		return err == nil && sellerCompany == nil
+	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadWithoutWhereConditionDoesNotFilterAtSecondLevel() {
+	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	seller1 := ts.createSeller("franco", nil)
+
+	withSeller := ts.createSale(0, product1, seller1)
+	withoutSeller := ts.createSale(0, product2, nil)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleSeller(
+			conditions.SellerPreloadCompany,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{withSeller, withoutSeller}, entities)
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		return err == nil && saleSeller.Equal(*seller1) && saleSeller.Company == nil
 	}))
 	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
 		// in this case sale.Seller will also be nil

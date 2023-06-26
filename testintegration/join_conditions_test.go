@@ -370,7 +370,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleSeller(
 			conditions.SellerCompany(
-				badorm.NewUnsafeCondition[models.Company]("%s.name = sales__Seller.name", []any{}),
+				badorm.NewUnsafeCondition[models.Company]("%s.name = Seller.name", []any{}),
 			),
 		),
 	)

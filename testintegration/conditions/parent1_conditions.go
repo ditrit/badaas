@@ -34,10 +34,11 @@ func Parent1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 }
 func Parent1ParentParent(conditions ...badorm.Condition[models.ParentParent]) badorm.Condition[models.Parent1] {
 	return badorm.JoinCondition[models.Parent1, models.ParentParent]{
-		Conditions:    conditions,
-		RelationField: "ParentParent",
-		T1Field:       "ParentParentID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "ParentParent",
+		T1Field:            "ParentParentID",
+		T1PreloadCondition: Parent1PreloadAttributes,
+		T2Field:            "ID",
 	}
 }
 

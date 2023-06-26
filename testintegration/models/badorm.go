@@ -31,6 +31,10 @@ func (m Phone) GetBrand() (*Brand, error) {
 	return badorm.VerifyStructLoaded[Brand](&m.Brand)
 }
 
+func (m Seller) GetCompany() (*Company, error) {
+	return badorm.VerifyPointerLoaded[Company](m.CompanyID, m.Company)
+}
+
 // TODO como hago esto cuando este objeto no tiene el fk
 // por ejemplo el country, por ahora podria hacer lo que hice con el product
 // porque es un struct, pero la idea es pasar todo a pointer

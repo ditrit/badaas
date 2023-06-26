@@ -43,10 +43,11 @@ func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Sel
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {
 	return badorm.JoinCondition[models.Seller, models.Company]{
-		Conditions:    conditions,
-		RelationField: "Company",
-		T1Field:       "CompanyID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Company",
+		T1Field:            "CompanyID",
+		T1PreloadCondition: SellerPreloadAttributes,
+		T2Field:            "ID",
 	}
 }
 
