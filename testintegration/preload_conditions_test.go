@@ -158,6 +158,47 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadNullableAtSecondLevel() {
 	}))
 }
 
+func (ts *PreloadConditionsIntTestSuite) TestPreloadAtSecondLevelWorksWithManualPreload() {
+	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
+	product2 := ts.createProduct("", 2, 0.0, false, nil)
+
+	company := ts.createCompany("ditrit")
+
+	withCompany := ts.createSeller("with", company)
+	withoutCompany := ts.createSeller("without", nil)
+
+	sale1 := ts.createSale(0, product1, withoutCompany)
+	sale2 := ts.createSale(0, product2, withCompany)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleSeller(
+			conditions.SellerPreloadAttributes,
+			conditions.SellerPreloadCompany,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{sale1, sale2}, entities)
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		if err != nil {
+			return false
+		}
+
+		sellerCompany, err := saleSeller.GetCompany()
+		return err == nil && saleSeller.Name == "with" && sellerCompany != nil && sellerCompany.Equal(*company)
+	}))
+	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
+		saleSeller, err := sale.GetSeller()
+		if err != nil {
+			return false
+		}
+
+		sellerCompany, err := saleSeller.GetCompany()
+		return err == nil && saleSeller.Name == "without" && sellerCompany == nil
+	}))
+}
+
 func (ts *PreloadConditionsIntTestSuite) TestNoPreloadNullableAtSecondLevel() {
 	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
@@ -533,11 +574,9 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond(
 
 	entities, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
-			conditions.Parent1PreloadAttributes,
 			conditions.Parent1PreloadParentParent,
 		),
 		conditions.ChildParent2(
-			conditions.Parent2PreloadAttributes,
 			conditions.Parent2PreloadParentParent,
 		),
 	)

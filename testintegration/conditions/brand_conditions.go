@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func BrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Brand] {
-	return badorm.FieldCondition[models.Brand, uint]{
+func BrandId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models.Brand] {
+	return badorm.FieldCondition[models.Brand, badorm.UIntID]{
 		Expression:      expr,
 		FieldIdentifier: badorm.IDFieldID,
 	}

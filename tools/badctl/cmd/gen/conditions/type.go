@@ -10,7 +10,10 @@ import (
 )
 
 // badorm/baseModels.go
-var badORMModels = []string{"github.com/ditrit/badaas/badorm.UUIDModel", "github.com/ditrit/badaas/badorm.UIntModel", "gorm.io/gorm.Model"}
+var badORMModels = []string{
+	badORMPath + "." + uuidModel,
+	badORMPath + "." + uIntModel,
+}
 
 type Type struct {
 	types.Type

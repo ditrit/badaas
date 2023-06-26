@@ -22,6 +22,10 @@ const (
 	DeletedAtFieldID      = "DeletedAtFieldID"
 	// badorm/expression.go
 	badORMExpression = "Expression"
+	// badorm/baseModels.go
+	uIntID    = "UIntID"
+	uuidModel = "UUIDModel"
+	uIntModel = "UIntModel"
 )
 
 var constantFieldIdentifiers = map[string]*jen.Statement{
@@ -117,7 +121,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 		condition.generateForBadormModel(objectType, field)
 	} else {
 		// field is not a BaDORM Model
-		if field.Type.IsGormCustomType() || field.TypeString() == "time.Time" {
+		if field.Type.IsGormCustomType() || field.TypeString() == "time.Time" || field.TypeString() == badORMPath+"."+uIntID {
 			// field is a Gorm Custom type (implements Scanner and Valuer interfaces)
 			// or a named type supported by gorm (time.Time, gorm.DeletedAt)
 			condition.param.ToCustomType(condition.destPkg, field.Type)

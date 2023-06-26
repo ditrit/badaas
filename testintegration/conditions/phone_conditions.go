@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func PhoneId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
-	return badorm.FieldCondition[models.Phone, uint]{
+func PhoneId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models.Phone] {
+	return badorm.FieldCondition[models.Phone, badorm.UIntID]{
 		Expression:      expr,
 		FieldIdentifier: badorm.IDFieldID,
 	}
