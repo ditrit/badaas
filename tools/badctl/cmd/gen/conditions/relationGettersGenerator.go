@@ -15,7 +15,6 @@ const (
 	badORMVerifyPointerWithIDLoaded = "VerifyPointerWithIDLoaded"
 )
 
-// TODO codigo repetido con el conditions generator
 type RelationGettersGenerator struct {
 	object     types.Object
 	objectType Type
@@ -29,62 +28,76 @@ func NewRelationGettersGenerator(object types.Object) *RelationGettersGenerator 
 }
 
 // Add conditions for an object in the file
-func (generator RelationGettersGenerator) GenerateInto(file *File) error {
-	// TODO codigo repetido con file
+func (generator RelationGettersGenerator) Into(file *File) error {
 	fields, _ := getFields(generator.objectType)
+	file.Add(generator.ForEachField(file, fields)...)
+
+	return nil
+}
+
+func (generator RelationGettersGenerator) ForEachField(file *File, fields []Field) []jen.Code {
 	relationGetters := []jen.Code{}
 
 	for _, field := range fields {
 		if field.Embedded {
-			// TODO
+			relationGetters = append(
+				relationGetters,
+				generateForEmbeddedField[jen.Code](
+					file,
+					field,
+					generator,
+				)...,
+			)
 		} else {
-			// TODO codigo repetido con condition.go
-			switch fieldType := field.GetType().(type) {
-			case *types.Named:
-				// the field is a named type (user defined structs)
-				_, err := field.Type.BadORMModelStruct()
-
-				if err == nil {
-					// field is a BaDORM Model
-					relationGetters = append(
-						relationGetters,
-						generator.verifyStruct(field),
-					)
-				}
-			case *types.Pointer:
-				// the field is a pointer
-				_, err := field.ChangeType(fieldType.Elem()).Type.BadORMModelStruct()
-
-				if err == nil {
-					// field is a BaDORM Model
-					fk, err := generator.objectType.GetFK(field)
-					if err != nil {
-						log.Logger.Debugf("unhandled: field is a pointer and object not has the fk: %T", fieldType)
-						continue
-					}
-
-					switch fk.GetType().(type) {
-					// TODO verificar que sea de los ids correctos?
-					// TODO basics para strings y eso?
-					case *types.Named:
-						relationGetters = append(
-							relationGetters,
-							generator.verifyPointerWithID(field),
-						)
-					case *types.Pointer:
-						relationGetters = append(
-							relationGetters,
-							generator.verifyPointer(field),
-						)
-					}
-				}
-			default:
-				log.Logger.Debugf("struct field type not handled: %T", fieldType)
+			getterForField := generator.generateForField(field)
+			if getterForField != nil {
+				relationGetters = append(relationGetters, getterForField)
 			}
 		}
 	}
 
-	file.Add(relationGetters...)
+	return relationGetters
+}
+
+func (generator RelationGettersGenerator) generateForField(field Field) jen.Code {
+	switch fieldType := field.GetType().(type) {
+	case *types.Named:
+		// the field is a named type (user defined structs)
+		_, err := field.Type.BadORMModelStruct()
+		if err == nil {
+			// field is a BaDORM Model
+			return generator.verifyStruct(field)
+		}
+	case *types.Pointer:
+		// the field is a pointer
+		return generator.generateForPointer(field.ChangeType(fieldType.Elem()))
+	default:
+		log.Logger.Debugf("struct field type not handled: %T", fieldType)
+	}
+
+	return nil
+}
+
+func (generator RelationGettersGenerator) generateForPointer(field Field) jen.Code {
+	_, err := field.Type.BadORMModelStruct()
+	if err == nil {
+		// field is a pointer to BaDORM Model
+		fk, err := generator.objectType.GetFK(field)
+		if err != nil {
+			log.Logger.Debugf("unhandled: field is a pointer and object not has the fk: %s", field.Type)
+			return nil
+		}
+
+		switch fk.GetType().(type) {
+		// TODO verificar que sea de los ids correctos?
+		// TODO basics para strings y eso?
+		case *types.Named:
+			return generator.verifyPointerWithID(field)
+		case *types.Pointer:
+			// the fk is a pointer
+			return generator.verifyPointer(field)
+		}
+	}
 
 	return nil
 }

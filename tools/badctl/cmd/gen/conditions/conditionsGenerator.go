@@ -1,13 +1,10 @@
 package conditions
 
 import (
-	"errors"
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
-	"github.com/elliotchance/pie/v2"
 
-	"github.com/ditrit/badaas/tools/badctl/cmd/cmderrors"
 	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 )
 
@@ -26,7 +23,7 @@ func NewConditionsGenerator(object types.Object) *ConditionsGenerator {
 }
 
 // Add conditions for an object in the file
-func (cg ConditionsGenerator) AddConditions(file *File) error {
+func (cg ConditionsGenerator) Into(file *File) error {
 	fields, err := getFields(cg.objectType)
 	if err != nil {
 		return err
@@ -41,7 +38,7 @@ func (cg ConditionsGenerator) AddConditions(file *File) error {
 
 // Add one condition for each field of the object
 func (cg ConditionsGenerator) addConditionsForEachField(file *File, fields []Field) {
-	conditions := cg.generateConditionsForEachField(file, fields)
+	conditions := cg.ForEachField(file, fields)
 
 	objectName := cg.object.Name()
 	objectQual := jen.Qual(
@@ -96,49 +93,27 @@ func getPreloadAttributesName(objectName string) string {
 }
 
 // Generate the conditions for each of the object's fields
-func (cg ConditionsGenerator) generateConditionsForEachField(file *File, fields []Field) []*Condition {
-	conditions := []*Condition{}
+func (cg ConditionsGenerator) ForEachField(file *File, fields []Field) []Condition {
+	conditions := []Condition{}
 
 	for _, field := range fields {
 		log.Logger.Debugf("Generating condition for field %q", field.Name)
 
 		if field.Embedded {
-			conditions = append(conditions, cg.generateEmbeddedConditions(
-				file,
-				field,
-			)...)
+			conditions = append(
+				conditions,
+				generateForEmbeddedField[Condition](
+					file,
+					field,
+					cg,
+				)...,
+			)
 		} else {
-			conditions = append(conditions, NewCondition(
+			conditions = append(conditions, *NewCondition(
 				file.destPkg, cg.objectType, field,
 			))
 		}
 	}
 
 	return conditions
-}
-
-// Generate conditions for a embedded field
-// it will generate a condition for each of the field of the embedded field's type
-func (cg ConditionsGenerator) generateEmbeddedConditions(file *File, field Field) []*Condition {
-	embeddedStructType, ok := field.Type.Underlying().(*types.Struct)
-	if !ok {
-		cmderrors.FailErr(errors.New("unreachable! embedded objects are always structs"))
-	}
-
-	fields, err := getStructFields(embeddedStructType)
-	if err != nil {
-		// embedded field's type has not fields
-		return []*Condition{}
-	}
-
-	if !isBadORMBaseModel(field.TypeString()) {
-		fields = pie.Map(fields, func(embeddedField Field) Field {
-			embeddedField.ColumnPrefix = field.Tags.getEmbeddedPrefix()
-			embeddedField.NamePrefix = field.Name
-
-			return embeddedField
-		})
-	}
-
-	return cg.generateConditionsForEachField(file, fields)
 }

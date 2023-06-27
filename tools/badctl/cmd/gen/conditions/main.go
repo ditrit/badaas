@@ -71,8 +71,7 @@ func generateConditionsForPkg(destPkg string, pkgPath string, pkg *packages.Pack
 		object := getObject(pkg, name)
 		if object != nil {
 			generateConditionsForObject(destPkg, object)
-			// TODO ver que onda este error
-			_ = NewRelationGettersGenerator(object).GenerateInto(relationGettersFile)
+			_ = NewRelationGettersGenerator(object).Into(relationGettersFile)
 		}
 	}
 
@@ -88,7 +87,7 @@ func generateConditionsForObject(destPkg string, object types.Object) {
 		strcase.ToSnake(object.Name())+"_conditions.go",
 	)
 
-	err := NewConditionsGenerator(object).AddConditions(file)
+	err := NewConditionsGenerator(object).Into(file)
 	if err != nil {
 		// object is not a BaDORM model, do not generate conditions
 		return
