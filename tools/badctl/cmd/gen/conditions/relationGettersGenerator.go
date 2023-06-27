@@ -29,7 +29,13 @@ func NewRelationGettersGenerator(object types.Object) *RelationGettersGenerator 
 
 // Add conditions for an object in the file
 func (generator RelationGettersGenerator) Into(file *File) error {
-	fields, _ := getFields(generator.objectType)
+	fields, err := getFields(generator.objectType)
+	if err != nil {
+		return err
+	}
+
+	log.Logger.Infof("Generating relation getters for type %q in %s", generator.object.Name(), file.name)
+
 	file.Add(generator.ForEachField(file, fields)...)
 
 	return nil
@@ -65,6 +71,7 @@ func (generator RelationGettersGenerator) generateForField(field Field) jen.Code
 		// the field is a named type (user defined structs)
 		_, err := field.Type.BadORMModelStruct()
 		if err == nil {
+			log.Logger.Debugf("Generating relation getter for type %q and field %s", generator.object.Name(), field.Name)
 			// field is a BaDORM Model
 			return generator.verifyStruct(field)
 		}
@@ -87,6 +94,8 @@ func (generator RelationGettersGenerator) generateForPointer(field Field) jen.Co
 			log.Logger.Debugf("unhandled: field is a pointer and object not has the fk: %s", field.Type)
 			return nil
 		}
+
+		log.Logger.Debugf("Generating relation getter for type %q and field %s", generator.object.Name(), field.Name)
 
 		switch fk.GetType().(type) {
 		// TODO verificar que sea de los ids correctos?
