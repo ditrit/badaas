@@ -3,10 +3,9 @@ package testintegration
 import (
 	"errors"
 
+	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
 	"gotest.tools/assert"
-
-	"github.com/elliotchance/pie/v2"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/conditions"
@@ -258,7 +257,13 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadWithoutWhereConditionDoesNot
 	EqualList(&ts.Suite, []*models.Sale{withSeller, withoutSeller}, entities)
 	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
 		saleSeller, err := sale.GetSeller()
-		return err == nil && saleSeller.Equal(*seller1) && saleSeller.Company == nil
+		if saleSeller == nil || err != nil {
+			return false
+		}
+
+		sellerCompany, err := saleSeller.GetCompany()
+
+		return err == nil && saleSeller.Equal(*seller1) && sellerCompany == nil
 	}))
 	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
 		// in this case sale.Seller will also be nil
@@ -291,7 +296,6 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadUIntModel() {
 	}))
 }
 
-// TODO pasar todo el resto de lugares a usar el get en lugar de directo
 func (ts *PreloadConditionsIntTestSuite) TestPreloadWithWhereConditionFilters() {
 	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
 	product1.EmbeddedInt = 1
@@ -313,10 +317,12 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadWithWhereConditionFilters() 
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
-	assert.DeepEqual(ts.T(), *product1, entities[0].Product)
-	ts.Equal("a_string", entities[0].Product.String)
-	ts.Equal(1, entities[0].Product.EmbeddedInt)
-	ts.Equal(2, entities[0].Product.GormEmbedded.Int)
+	saleProduct, err := entities[0].GetProduct()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), product1, saleProduct)
+	ts.Equal("a_string", saleProduct.String)
+	ts.Equal(1, saleProduct.EmbeddedInt)
+	ts.Equal(2, saleProduct.GormEmbedded.Int)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadOneToOne() {
@@ -337,11 +343,36 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadOneToOne() {
 
 	EqualList(&ts.Suite, []*models.City{&capital1, &capital2}, entities)
 	ts.True(pie.Any(entities, func(city *models.City) bool {
-		return city.Country.Equal(*country1)
+		cityCountry, err := city.GetCountry()
+		if err != nil {
+			return false
+		}
+
+		return cityCountry.Equal(*country1)
 	}))
 	ts.True(pie.Any(entities, func(city *models.City) bool {
-		return city.Country.Equal(*country2)
+		cityCountry, err := city.GetCountry()
+		if err != nil {
+			return false
+		}
+
+		return cityCountry.Equal(*country2)
 	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestNoPreloadOneToOne() {
+	capital1 := models.City{
+		Name: "Buenos Aires",
+	}
+
+	ts.createCountry("Argentina", capital1)
+
+	entities, err := ts.crudCityService.GetEntities()
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.City{&capital1}, entities)
+	_, err = entities[0].GetCountry()
+	ts.ErrorIs(err, badorm.ErrRelationNotLoaded)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadOneToOneReversed() {
@@ -362,10 +393,12 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadOneToOneReversed() {
 
 	EqualList(&ts.Suite, []*models.Country{country1, country2}, entities)
 	ts.True(pie.Any(entities, func(country *models.Country) bool {
-		return country.Capital.Equal(capital1)
+		countryCapital, err := country.GetCapital()
+		return err == nil && countryCapital.Equal(capital1)
 	}))
 	ts.True(pie.Any(entities, func(country *models.Country) bool {
-		return country.Capital.Equal(capital2)
+		countryCapital, err := country.GetCapital()
+		return err == nil && countryCapital.Equal(capital2)
 	}))
 }
 
@@ -383,10 +416,12 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadHasManyReversed() {
 
 	EqualList(&ts.Suite, []*models.Seller{seller1, seller2}, entities)
 	ts.True(pie.Any(entities, func(seller *models.Seller) bool {
-		return seller.Company.Equal(*company1)
+		sellerCompany, err := seller.GetCompany()
+		return err == nil && sellerCompany.Equal(*company1)
 	}))
 	ts.True(pie.Any(entities, func(seller *models.Seller) bool {
-		return seller.Company.Equal(*company2)
+		sellerCompany, err := seller.GetCompany()
+		return err == nil && sellerCompany.Equal(*company2)
 	}))
 }
 
@@ -415,8 +450,13 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadDifferentEntitiesWithConditi
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
-	assert.DeepEqual(ts.T(), *product1, entities[0].Product)
-	assert.DeepEqual(ts.T(), seller1, entities[0].Seller)
+	saleProduct, err := entities[0].GetProduct()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), product1, saleProduct)
+
+	saleSeller, err := entities[0].GetSeller()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), seller1, saleSeller)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadDifferentEntitiesWithoutConditions() {
@@ -443,8 +483,13 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadDifferentEntitiesWithoutCond
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Child{child}, entities)
-	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
-	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
+	childParent1, err := entities[0].GetParent1()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent1, childParent1)
+
+	childParent2, err := entities[0].GetParent2()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent2, childParent2)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadRelations() {
@@ -470,8 +515,13 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadRelations() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Child{child}, entities)
-	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
-	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
+	childParent1, err := entities[0].GetParent1()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent1, childParent1)
+
+	childParent2, err := entities[0].GetParent2()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent2, childParent2)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutCondition() {
@@ -500,8 +550,13 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutC
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Child{child}, entities)
-	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
-	assert.DeepEqual(ts.T(), *parentParent, entities[0].Parent1.ParentParent)
+	childParent1, err := entities[0].GetParent1()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent1, childParent1)
+
+	childParentParent, err := childParent1.GetParentParent()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parentParent, childParentParent)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithCondition() {
@@ -551,8 +606,13 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithCond
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Child{child1}, entities)
-	assert.DeepEqual(ts.T(), *parent11, entities[0].Parent1)
-	assert.DeepEqual(ts.T(), *parentParent1, entities[0].Parent1.ParentParent)
+	childParent1, err := entities[0].GetParent1()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent11, childParent1)
+
+	childParentParent, err := childParent1.GetParentParent()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parentParent1, childParentParent)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond() {
@@ -583,8 +643,19 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond(
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Child{child}, entities)
-	assert.DeepEqual(ts.T(), *parent1, entities[0].Parent1)
-	assert.DeepEqual(ts.T(), *parent2, entities[0].Parent2)
-	assert.DeepEqual(ts.T(), *parentParent, entities[0].Parent1.ParentParent)
-	assert.DeepEqual(ts.T(), *parentParent, entities[0].Parent2.ParentParent)
+	childParent1, err := entities[0].GetParent1()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent1, childParent1)
+
+	childParent2, err := entities[0].GetParent2()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parent2, childParent2)
+
+	childParent1Parent, err := childParent1.GetParentParent()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parentParent, childParent1Parent)
+
+	childParent2Parent, err := childParent2.GetParentParent()
+	ts.Nil(err)
+	assert.DeepEqual(ts.T(), parentParent, childParent2Parent)
 }

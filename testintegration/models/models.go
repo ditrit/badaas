@@ -131,15 +131,9 @@ type Country struct {
 type City struct {
 	badorm.UUIDModel
 
-	Name    string
-	Country *Country
-	// TODO aca no me esta creando el unique index, por lo que podria haber muchos que mapeen al mismo country
-	// pero esto pasa igual por mas que saque la referencia, es un problema que gorm lo hace mal
-	// TODO tampoco le pone notNull a las cosas que no son punteros, por lo que podria crear clases para directamente
-	// poder hacer hasone y otras relaciones bien, pero no se si pueda, sino será cuestion de hacer una buena documentacion
-	// ya que la de gorm no es muy clara
-	// TODO mirar si para el save si anda la referencia, para el create ya vi que no
-	CountryID badorm.UUID //`gorm:"unique"` // Country HasOne City (Country 1 -> 1 City)
+	Name      string
+	Country   *Country
+	CountryID badorm.UUID // Country HasOne City (Country 1 -> 1 City)
 }
 
 func (m Country) Equal(other Country) bool {

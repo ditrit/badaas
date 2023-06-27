@@ -354,7 +354,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsMultipleTimes() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
+func (ts *JoinConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)
 
@@ -379,7 +379,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesNothing() {
+func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesNothing() {
 	product1 := ts.createProduct("", 1, 0.0, false, nil)
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
 
@@ -396,7 +396,7 @@ func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakes
 	EqualList(&ts.Suite, []*models.Sale{match1, match2}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesNothing() {
+func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesNothing() {
 	_, err := ts.crudSaleService.GetEntities(
 		conditions.SaleProduct(
 			badorm.Not[models.Product](),

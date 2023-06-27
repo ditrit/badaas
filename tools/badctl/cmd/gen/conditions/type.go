@@ -1,12 +1,15 @@
 package conditions
 
 import (
+	"errors"
 	"fmt"
 	"go/types"
 	"regexp"
 	"strings"
 
 	"github.com/elliotchance/pie/v2"
+
+	"github.com/ditrit/badaas/utils"
 )
 
 // badorm/baseModels.go
@@ -14,6 +17,8 @@ var badORMModels = []string{
 	badORMPath + "." + uuidModel,
 	badORMPath + "." + uIntModel,
 }
+
+var ErrFkNotInTypeFields = errors.New("fk not in type's fields")
 
 type Type struct {
 	types.Type
@@ -67,17 +72,23 @@ func isBadORMBaseModel(fieldName string) bool {
 	return pie.Contains(badORMModels, fieldName)
 }
 
-// Returns true is the type has a foreign key to the field's object
+// Returns the fk field of the type to the "field"'s object
 // (another field that references that object)
-func (t Type) HasFK(field Field) (bool, error) {
+func (t Type) GetFK(field Field) (*Field, error) {
 	objectFields, err := getFields(t)
 	if err != nil {
-		return false, err
+		return nil, err
 	}
 
-	return pie.Any(objectFields, func(otherField Field) bool {
-		return otherField.Name == field.getFKAttribute()
-	}), nil
+	fk := utils.FindFirst(objectFields, func(otherField Field) bool {
+		return strings.EqualFold(otherField.Name, field.getFKAttribute())
+	})
+
+	if fk == nil {
+		return nil, ErrFkNotInTypeFields
+	}
+
+	return fk, nil
 }
 
 var (

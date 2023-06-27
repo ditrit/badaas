@@ -137,15 +137,15 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 
 // Generate condition between object and field when the field is a BaDORM Model
 func (condition *Condition) generateForBadormModel(objectType Type, field Field) {
-	hasFK, _ := objectType.HasFK(field)
-	if hasFK {
-		// belongsTo relation
+	_, err := objectType.GetFK(field)
+	if err == nil {
+		// has the fk -> belongsTo relation
 		condition.generateJoinWithFK(
 			objectType,
 			field,
 		)
 	} else {
-		// hasOne relation
+		// has not the fk -> hasOne relation
 		condition.generateJoinWithoutFK(
 			objectType,
 			field,
