@@ -24,6 +24,7 @@ const (
 	badORMExpression = "Expression"
 	// badorm/baseModels.go
 	uIntID    = "UIntID"
+	uuid      = "UUID"
 	uuidModel = "UUIDModel"
 	uIntModel = "UIntModel"
 )
@@ -121,7 +122,7 @@ func (condition *Condition) generateForNamedType(objectType Type, field Field) {
 		condition.generateForBadormModel(objectType, field)
 	} else {
 		// field is not a BaDORM Model
-		if field.Type.IsGormCustomType() || field.TypeString() == "time.Time" || field.TypeString() == badORMPath+"."+uIntID {
+		if field.Type.IsGormCustomType() || field.TypeString() == "time.Time" || field.IsBadORMID() {
 			// field is a Gorm Custom type (implements Scanner and Valuer interfaces)
 			// or a named type supported by gorm (time.Time, gorm.DeletedAt)
 			condition.param.ToCustomType(condition.destPkg, field.Type)

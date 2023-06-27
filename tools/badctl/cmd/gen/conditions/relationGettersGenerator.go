@@ -98,10 +98,10 @@ func (generator RelationGettersGenerator) generateForPointer(field Field) jen.Co
 		log.Logger.Debugf("Generating relation getter for type %q and field %s", generator.object.Name(), field.Name)
 
 		switch fk.GetType().(type) {
-		// TODO verificar que sea de los ids correctos?
-		// TODO basics para strings y eso?
 		case *types.Named:
-			return generator.verifyPointerWithID(field)
+			if fk.IsBadORMID() {
+				return generator.verifyPointerWithID(field)
+			}
 		case *types.Pointer:
 			// the fk is a pointer
 			return generator.verifyPointer(field)

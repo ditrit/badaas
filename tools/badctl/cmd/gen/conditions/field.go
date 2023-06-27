@@ -3,7 +3,15 @@ package conditions
 import (
 	"errors"
 	"go/types"
+
+	"github.com/elliotchance/pie/v2"
 )
+
+// badorm/baseModels.go
+var badORMIDs = []string{
+	badORMPath + "." + uIntID,
+	badORMPath + "." + uuid,
+}
 
 type Field struct {
 	Name         string
@@ -82,6 +90,10 @@ func (field Field) ChangeType(newType types.Type) Field {
 		Type: Type{newType},
 		Tags: field.Tags,
 	}
+}
+
+func (field Field) IsBadORMID() bool {
+	return pie.Contains(badORMIDs, field.TypeString())
 }
 
 // Get fields of a BaDORM model
