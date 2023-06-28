@@ -41,7 +41,7 @@ func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.E
 		FieldIdentifier: employeeNameFieldID,
 	}
 }
-func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.Condition[models.Employee] {
+func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.IJoinCondition[models.Employee] {
 	return badorm.JoinCondition[models.Employee, models.Employee]{
 		Conditions:         conditions,
 		RelationField:      "Boss",

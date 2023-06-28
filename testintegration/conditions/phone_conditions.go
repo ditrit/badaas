@@ -41,7 +41,7 @@ func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phon
 		FieldIdentifier: phoneNameFieldID,
 	}
 }
-func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.Condition[models.Phone] {
+func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.IJoinCondition[models.Phone] {
 	return badorm.JoinCondition[models.Phone, models.Brand]{
 		Conditions:         conditions,
 		RelationField:      "Brand",

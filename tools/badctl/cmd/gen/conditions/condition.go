@@ -15,6 +15,7 @@ const (
 	badORMFieldCondition  = "FieldCondition"
 	badORMWhereCondition  = "WhereCondition"
 	badORMJoinCondition   = "JoinCondition"
+	badORMIJoinCondition  = "IJoinCondition"
 	badORMFieldIdentifier = "FieldIdentifier"
 	IDFieldID             = "IDFieldID"
 	CreatedAtFieldID      = "CreatedAtFieldID"
@@ -277,8 +278,8 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
-	badormT1Condition := jen.Qual(
-		badORMPath, badORMCondition,
+	badormT1IJoinCondition := jen.Qual(
+		badORMPath, badORMIJoinCondition,
 	).Types(t1)
 	badormT2Condition := jen.Qual(
 		badORMPath, badORMCondition,
@@ -296,7 +297,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 		).Params(
 			jen.Id("conditions").Op("...").Add(badormT2Condition),
 		).Add(
-			badormT1Condition,
+			badormT1IJoinCondition,
 		).Block(
 			jen.Return(
 				badormJoinCondition.Values(jen.Dict{

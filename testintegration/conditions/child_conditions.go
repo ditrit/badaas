@@ -32,7 +32,7 @@ func ChildDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.Condition[models.Child] {
+func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.IJoinCondition[models.Child] {
 	return badorm.JoinCondition[models.Child, models.Parent1]{
 		Conditions:         conditions,
 		RelationField:      "Parent1",
@@ -51,7 +51,7 @@ func ChildParent1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[m
 		FieldIdentifier: childParent1IdFieldID,
 	}
 }
-func ChildParent2(conditions ...badorm.Condition[models.Parent2]) badorm.Condition[models.Child] {
+func ChildParent2(conditions ...badorm.Condition[models.Parent2]) badorm.IJoinCondition[models.Child] {
 	return badorm.JoinCondition[models.Child, models.Parent2]{
 		Conditions:         conditions,
 		RelationField:      "Parent2",

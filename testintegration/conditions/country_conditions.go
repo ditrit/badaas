@@ -41,7 +41,7 @@ func CountryName(expr badorm.Expression[string]) badorm.WhereCondition[models.Co
 		FieldIdentifier: countryNameFieldID,
 	}
 }
-func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.Condition[models.Country] {
+func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.IJoinCondition[models.Country] {
 	return badorm.JoinCondition[models.Country, models.City]{
 		Conditions:         conditions,
 		RelationField:      "Capital",

@@ -50,7 +50,7 @@ func SaleDescription(expr badorm.Expression[string]) badorm.WhereCondition[model
 		FieldIdentifier: saleDescriptionFieldID,
 	}
 }
-func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.Condition[models.Sale] {
+func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.IJoinCondition[models.Sale] {
 	return badorm.JoinCondition[models.Sale, models.Product]{
 		Conditions:         conditions,
 		RelationField:      "Product",
@@ -69,7 +69,7 @@ func SaleProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[mo
 		FieldIdentifier: saleProductIdFieldID,
 	}
 }
-func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.Condition[models.Sale] {
+func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.IJoinCondition[models.Sale] {
 	return badorm.JoinCondition[models.Sale, models.Seller]{
 		Conditions:         conditions,
 		RelationField:      "Seller",

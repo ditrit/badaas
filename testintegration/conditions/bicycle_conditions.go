@@ -41,7 +41,7 @@ func BicycleName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bi
 		FieldIdentifier: bicycleNameFieldID,
 	}
 }
-func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.Condition[models.Bicycle] {
+func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.IJoinCondition[models.Bicycle] {
 	return badorm.JoinCondition[models.Bicycle, models.Person]{
 		Conditions:         conditions,
 		RelationField:      "Owner",

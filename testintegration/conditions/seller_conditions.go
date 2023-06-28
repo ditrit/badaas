@@ -41,7 +41,7 @@ func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Sel
 		FieldIdentifier: sellerNameFieldID,
 	}
 }
-func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.Condition[models.Seller] {
+func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.IJoinCondition[models.Seller] {
 	return badorm.JoinCondition[models.Seller, models.Company]{
 		Conditions:         conditions,
 		RelationField:      "Company",
@@ -60,7 +60,6 @@ func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[
 		FieldIdentifier: sellerCompanyIdFieldID,
 	}
 }
-// TODO hacer este cambio en todos los generados
 func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.IJoinCondition[models.Seller] {
 	return badorm.JoinCondition[models.Seller, models.University]{
 		Conditions:         conditions,
