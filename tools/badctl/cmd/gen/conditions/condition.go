@@ -11,16 +11,17 @@ import (
 
 const (
 	// badorm/condition.go
-	badORMCondition       = "Condition"
-	badORMFieldCondition  = "FieldCondition"
-	badORMWhereCondition  = "WhereCondition"
-	badORMJoinCondition   = "JoinCondition"
-	badORMIJoinCondition  = "IJoinCondition"
-	badORMFieldIdentifier = "FieldIdentifier"
-	IDFieldID             = "IDFieldID"
-	CreatedAtFieldID      = "CreatedAtFieldID"
-	UpdatedAtFieldID      = "UpdatedAtFieldID"
-	DeletedAtFieldID      = "DeletedAtFieldID"
+	badORMCondition            = "Condition"
+	badORMFieldCondition       = "FieldCondition"
+	badORMWhereCondition       = "WhereCondition"
+	badORMJoinCondition        = "JoinCondition"
+	badORMIJoinCondition       = "IJoinCondition"
+	badORMFieldIdentifier      = "FieldIdentifier"
+	badORMNewCollectionPreload = "NewCollectionPreloadCondition"
+	IDFieldID                  = "IDFieldID"
+	CreatedAtFieldID           = "CreatedAtFieldID"
+	UpdatedAtFieldID           = "UpdatedAtFieldID"
+	DeletedAtFieldID           = "DeletedAtFieldID"
 	// badorm/expression.go
 	badORMExpression = "Expression"
 	// badorm/baseModels.go
@@ -109,6 +110,12 @@ func (condition *Condition) generateForSlice(objectType Type, field Field) {
 			objectType,
 			field.ChangeType(elemType.Elem()),
 		)
+	case *types.Named:
+		_, err := field.Type.BadORMModelStruct()
+		if err == nil {
+			// field is a BaDORM Model
+			condition.generateCollectionPreload(objectType, field)
+		}
 	default:
 		log.Logger.Debugf("struct field list elem type not handled: %T", elemType)
 	}
@@ -312,7 +319,7 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 	)
 
 	// preload for the relation
-	preloadName := objectType.Name() + "Preload" + field.Name
+	preloadName := getPreloadRelationName(objectType, field)
 	condition.codes = append(
 		condition.codes,
 		jen.Var().Id(
@@ -322,6 +329,56 @@ func (condition *Condition) generateJoin(objectType Type, field Field, t1Field, 
 		),
 	)
 	condition.preloadName = preloadName
+}
+
+func getPreloadRelationName(objectType Type, field Field) string {
+	return objectType.Name() + "Preload" + field.Name
+}
+
+func (condition *Condition) generateCollectionPreload(objectType Type, field Field) {
+	t1 := jen.Qual(
+		getRelativePackagePath(condition.destPkg, objectType),
+		objectType.Name(),
+	)
+
+	t2 := jen.Qual(
+		getRelativePackagePath(condition.destPkg, field.Type),
+		field.TypeName(),
+	)
+
+	badormT1Condition := jen.Qual(
+		badORMPath, badORMCondition,
+	).Types(t1)
+	badormT2IJoinCondition := jen.Qual(
+		badORMPath, badORMIJoinCondition,
+	).Types(t2)
+	badormNewCollectionPreload := jen.Qual(
+		badORMPath, badORMNewCollectionPreload,
+	).Types(
+		t1, t2,
+	)
+
+	preloadName := getPreloadRelationName(objectType, field)
+
+	condition.codes = append(
+		condition.codes,
+		jen.Func().Id(
+			preloadName,
+		).Params(
+			jen.Id("nestedPreloads").Op("...").Add(badormT2IJoinCondition),
+		).Add(
+			badormT1Condition,
+		).Block(
+			jen.Return(
+				badormNewCollectionPreload.Call(
+					jen.Lit(field.Name),
+					jen.Id("nestedPreloads"),
+				),
+			),
+		),
+	)
+
+	condition.preloadName = preloadName + "()"
 }
 
 // Generate condition names

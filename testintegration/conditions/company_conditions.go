@@ -41,6 +41,9 @@ func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Co
 		FieldIdentifier: companyNameFieldID,
 	}
 }
+func CompanyPreloadSellers(nestedPreloads ...badorm.IJoinCondition[models.Seller]) badorm.Condition[models.Company] {
+	return badorm.NewCollectionPreloadCondition[models.Company, models.Seller]("Sellers", nestedPreloads)
+}
 
 var CompanyPreloadAttributes = badorm.NewPreloadCondition[models.Company](companyNameFieldID)
-var CompanyPreloadRelations = []badorm.Condition[models.Company]{}
+var CompanyPreloadRelations = []badorm.Condition[models.Company]{CompanyPreloadSellers()}

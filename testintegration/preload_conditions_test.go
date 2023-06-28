@@ -664,21 +664,13 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond(
 	assert.DeepEqual(ts.T(), parentParent, childParent2Parent)
 }
 
-// TODO generacion automatica
-func CompanyPreloadSellers(nestedPreloads ...badorm.IJoinCondition[models.Seller]) badorm.Condition[models.Company] {
-	return badorm.NewCollectionPreloadCondition[models.Company, models.Seller](
-		"Sellers",
-		nestedPreloads,
-	)
-}
-
 func (ts *PreloadConditionsIntTestSuite) TestPreloadList() {
 	company := ts.createCompany("ditrit")
 	seller1 := ts.createSeller("1", company)
 	seller2 := ts.createSeller("2", company)
 
 	entities, err := ts.crudCompanyService.GetEntities(
-		CompanyPreloadSellers(),
+		conditions.CompanyPreloadSellers(),
 	)
 	ts.Nil(err)
 
@@ -703,7 +695,7 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributes() {
 	ts.Nil(err)
 
 	entities, err := ts.crudCompanyService.GetEntities(
-		CompanyPreloadSellers(
+		conditions.CompanyPreloadSellers(
 			conditions.SellerPreloadUniversity,
 		),
 	)
@@ -750,7 +742,7 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadMultipleListsAndNestedAttrib
 	ts.Nil(err)
 
 	entities, err := ts.crudCompanyService.GetEntities(
-		CompanyPreloadSellers(
+		conditions.CompanyPreloadSellers(
 			conditions.SellerPreloadUniversity,
 		),
 	)
