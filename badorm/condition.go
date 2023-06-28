@@ -18,7 +18,10 @@ var (
 	DeletedAtFieldID = FieldIdentifier{Field: DeletedAtField}
 )
 
-var ErrEmptyConditions = errors.New("condition must have at least one inner condition")
+var (
+	ErrEmptyConditions     = errors.New("condition must have at least one inner condition")
+	ErrOnlyPreloadsAllowed = errors.New("only conditions that do a preload are allowed")
+)
 
 type Table struct {
 	Name    string
@@ -235,7 +238,7 @@ func NewPreloadCondition[T Model](fields ...FieldIdentifier) PreloadCondition[T]
 // TODO doc
 type CollectionPreloadCondition[T1 Model, T2 Model] struct {
 	CollectionField string
-	NestedPreloads  *Condition[T2]
+	NestedPreloads  []IJoinCondition[T2]
 }
 
 //nolint:unused // see inside
@@ -245,38 +248,46 @@ func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(
 }
 
 func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
-	if condition.NestedPreloads == nil {
+	if len(condition.NestedPreloads) == 0 {
 		return query.Preload(condition.CollectionField), nil
-	}
-
-	initialTableName, err := getTableName(query, *new(T2))
-	if err != nil {
-		return nil, err
 	}
 
 	return query.Preload(
 		condition.CollectionField,
 		func(db *gorm.DB) *gorm.DB {
-			// TODO verificar que sea realmente solo preloads?
-			db = db.Select(initialTableName + ".*")
-			db, err := (*condition.NestedPreloads).ApplyTo(
-				db,
-				Table{
-					Name:    initialTableName,
-					Alias:   initialTableName,
-					Initial: true,
+			preloadsAsCondition := pie.Map(
+				condition.NestedPreloads,
+				func(joinCondition IJoinCondition[T2]) Condition[T2] {
+					return joinCondition
 				},
 			)
+
+			query, err := applyConditionsToQuery[T2](db, preloadsAsCondition)
 			if err != nil {
 				_ = db.AddError(err)
 				return db
 			}
 
-			return db
+			return query
 			// TODO se podria hacer que el join si el solo preload haga esto y a la verga, asi me ahorro el select, la table y eso
 			// return db.Joins("University")
 		},
 	), nil
+}
+
+// TODO doc
+func NewCollectionPreloadCondition[T1 Model, T2 Model](collectionField string, nestedPreloads []IJoinCondition[T2]) Condition[T1] {
+	// TODO verificar que no haga filtros?
+	if pie.Any(nestedPreloads, func(nestedPreload IJoinCondition[T2]) bool {
+		return !nestedPreload.makesPreload()
+	}) {
+		return NewInvalidCondition[T1](ErrOnlyPreloadsAllowed)
+	}
+
+	return CollectionPreloadCondition[T1, T2]{
+		CollectionField: collectionField,
+		NestedPreloads:  nestedPreloads,
+	}
 }
 
 // Condition that verifies the value of a field,

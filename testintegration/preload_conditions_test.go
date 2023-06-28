@@ -664,19 +664,12 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond(
 	assert.DeepEqual(ts.T(), parentParent, childParent2Parent)
 }
 
-func CompanyPreloadSellers(nestedPreloads ...badorm.Condition[models.Seller]) badorm.CollectionPreloadCondition[models.Company, models.Seller] {
-	// TODO poner esto en un constructor
-	var nestedPreload *badorm.Condition[models.Seller]
-	if len(nestedPreloads) == 0 {
-		nestedPreload = nil
-	} else if len(nestedPreloads) == 1 {
-		nestedPreload = &nestedPreloads[0]
-	}
-	// TODO si me pones mas te doy error
-	return badorm.CollectionPreloadCondition[models.Company, models.Seller]{
-		CollectionField: "Sellers",
-		NestedPreloads:  nestedPreload,
-	}
+// TODO generacion automatica
+func CompanyPreloadSellers(nestedPreloads ...badorm.IJoinCondition[models.Seller]) badorm.Condition[models.Company] {
+	return badorm.NewCollectionPreloadCondition[models.Company, models.Seller](
+		"Sellers",
+		nestedPreloads,
+	)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadList() {

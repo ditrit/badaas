@@ -60,7 +60,8 @@ func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[
 		FieldIdentifier: sellerCompanyIdFieldID,
 	}
 }
-func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.Condition[models.Seller] {
+// TODO hacer este cambio en todos los generados
+func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.IJoinCondition[models.Seller] {
 	return badorm.JoinCondition[models.Seller, models.University]{
 		Conditions:         conditions,
 		RelationField:      "University",
