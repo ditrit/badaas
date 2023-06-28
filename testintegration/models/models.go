@@ -90,12 +90,25 @@ func (m Product) Equal(other Product) bool {
 	return m.ID == other.ID
 }
 
+type University struct {
+	badorm.UUIDModel
+
+	Name string
+}
+
+func (m University) Equal(other University) bool {
+	return m.ID == other.ID
+}
+
 type Seller struct {
 	badorm.UUIDModel
 
 	Name      string
 	Company   *Company
 	CompanyID *badorm.UUID // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
+
+	University   *University
+	UniversityID *badorm.UUID
 }
 
 type Sale struct {

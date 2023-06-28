@@ -39,3 +39,6 @@ func (m Sale) GetSeller() (*Seller, error) {
 func (m Seller) GetCompany() (*Company, error) {
 	return badorm.VerifyPointerLoaded[Company](m.CompanyID, m.Company)
 }
+func (m Seller) GetUniversity() (*University, error) {
+	return badorm.VerifyPointerLoaded[University](m.UniversityID, m.University)
+}

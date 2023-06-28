@@ -46,6 +46,7 @@ func TestBaDORM(t *testing.T) {
 		}),
 
 		badorm.GetCRUDServiceModule[models.Seller](),
+		badorm.GetCRUDServiceModule[models.Company](),
 		badorm.GetCRUDServiceModule[models.Product](),
 		badorm.GetCRUDServiceModule[models.Sale](),
 		badorm.GetCRUDServiceModule[models.City](),

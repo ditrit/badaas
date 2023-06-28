@@ -60,6 +60,25 @@ func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[
 		FieldIdentifier: sellerCompanyIdFieldID,
 	}
 }
+func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.Condition[models.Seller] {
+	return badorm.JoinCondition[models.Seller, models.University]{
+		Conditions:         conditions,
+		RelationField:      "University",
+		T1Field:            "UniversityID",
+		T1PreloadCondition: SellerPreloadAttributes,
+		T2Field:            "ID",
+	}
+}
 
-var SellerPreloadAttributes = badorm.NewPreloadCondition[models.Seller](sellerNameFieldID, sellerCompanyIdFieldID)
-var SellerPreloadRelations = []badorm.Condition[models.Seller]{SellerPreloadCompany}
+var SellerPreloadUniversity = SellerUniversity(UniversityPreloadAttributes)
+var sellerUniversityIdFieldID = badorm.FieldIdentifier{Field: "UniversityID"}
+
+func SellerUniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
+	return badorm.FieldCondition[models.Seller, badorm.UUID]{
+		Expression:      expr,
+		FieldIdentifier: sellerUniversityIdFieldID,
+	}
+}
+
+var SellerPreloadAttributes = badorm.NewPreloadCondition[models.Seller](sellerNameFieldID, sellerCompanyIdFieldID, sellerUniversityIdFieldID)
+var SellerPreloadRelations = []badorm.Condition[models.Seller]{SellerPreloadCompany, SellerPreloadUniversity}

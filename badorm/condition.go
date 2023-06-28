@@ -232,6 +232,53 @@ func NewPreloadCondition[T Model](fields ...FieldIdentifier) PreloadCondition[T]
 	}
 }
 
+// TODO doc
+type CollectionPreloadCondition[T1 Model, T2 Model] struct {
+	CollectionField string
+	NestedPreloads  *Condition[T2]
+}
+
+//nolint:unused // see inside
+func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(_ T1) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T1]
+}
+
+func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+	if condition.NestedPreloads == nil {
+		return query.Preload(condition.CollectionField), nil
+	}
+
+	initialTableName, err := getTableName(query, *new(T2))
+	if err != nil {
+		return nil, err
+	}
+
+	return query.Preload(
+		condition.CollectionField,
+		func(db *gorm.DB) *gorm.DB {
+			// TODO verificar que sea realmente solo preloads?
+			db = db.Select(initialTableName + ".*")
+			db, err := (*condition.NestedPreloads).ApplyTo(
+				db,
+				Table{
+					Name:    initialTableName,
+					Alias:   initialTableName,
+					Initial: true,
+				},
+			)
+			if err != nil {
+				_ = db.AddError(err)
+				return db
+			}
+
+			return db
+			// TODO se podria hacer que el join si el solo preload haga esto y a la verga, asi me ahorro el select, la table y eso
+			// return db.Joins("University")
+		},
+	), nil
+}
+
 // Condition that verifies the value of a field,
 // using the Expression
 type FieldCondition[TObject Model, TAtribute any] struct {
@@ -413,17 +460,11 @@ func (condition JoinCondition[T1, T2]) getSQLJoin(
 // Divides a list of conditions by its type: WhereConditions and JoinConditions
 func divideConditionsByType[T Model](
 	conditions []Condition[T],
-) (whereConditions []WhereCondition[T], joinConditions []IJoinCondition[T], preloadCondition *PreloadCondition[T]) {
+) (whereConditions []WhereCondition[T], joinConditions []IJoinCondition[T], preloadCondition Condition[T]) {
 	for _, condition := range conditions {
 		possibleWhereCondition, ok := condition.(WhereCondition[T])
 		if ok {
 			whereConditions = append(whereConditions, possibleWhereCondition)
-			continue
-		}
-
-		possiblePreloadCondition, ok := condition.(PreloadCondition[T])
-		if ok {
-			preloadCondition = &possiblePreloadCondition
 			continue
 		}
 
@@ -432,6 +473,8 @@ func divideConditionsByType[T Model](
 			joinConditions = append(joinConditions, possibleJoinCondition)
 			continue
 		}
+
+		preloadCondition = condition
 	}
 
 	return

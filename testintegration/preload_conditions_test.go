@@ -10,11 +10,13 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
+	"github.com/ditrit/badaas/utils"
 )
 
 type PreloadConditionsIntTestSuite struct {
 	CRUDServiceCommonIntTestSuite
 	crudSaleService     badorm.CRUDService[models.Sale, badorm.UUID]
+	crudCompanyService  badorm.CRUDService[models.Company, badorm.UUID]
 	crudSellerService   badorm.CRUDService[models.Seller, badorm.UUID]
 	crudCountryService  badorm.CRUDService[models.Country, badorm.UUID]
 	crudCityService     badorm.CRUDService[models.City, badorm.UUID]
@@ -26,6 +28,7 @@ type PreloadConditionsIntTestSuite struct {
 func NewPreloadConditionsIntTestSuite(
 	db *gorm.DB,
 	crudSaleService badorm.CRUDService[models.Sale, badorm.UUID],
+	crudCompanyService badorm.CRUDService[models.Company, badorm.UUID],
 	crudSellerService badorm.CRUDService[models.Seller, badorm.UUID],
 	crudCountryService badorm.CRUDService[models.Country, badorm.UUID],
 	crudCityService badorm.CRUDService[models.City, badorm.UUID],
@@ -38,6 +41,7 @@ func NewPreloadConditionsIntTestSuite(
 			db: db,
 		},
 		crudSaleService:    crudSaleService,
+		crudCompanyService: crudCompanyService,
 		crudSellerService:  crudSellerService,
 		crudCountryService: crudCountryService,
 		crudCityService:    crudCityService,
@@ -658,4 +662,137 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond(
 	childParent2Parent, err := childParent2.GetParentParent()
 	ts.Nil(err)
 	assert.DeepEqual(ts.T(), parentParent, childParent2Parent)
+}
+
+func CompanyPreloadSellers(nestedPreloads ...badorm.Condition[models.Seller]) badorm.CollectionPreloadCondition[models.Company, models.Seller] {
+	// TODO poner esto en un constructor
+	var nestedPreload *badorm.Condition[models.Seller]
+	if len(nestedPreloads) == 0 {
+		nestedPreload = nil
+	} else if len(nestedPreloads) == 1 {
+		nestedPreload = &nestedPreloads[0]
+	}
+	// TODO si me pones mas te doy error
+	return badorm.CollectionPreloadCondition[models.Company, models.Seller]{
+		CollectionField: "Sellers",
+		NestedPreloads:  nestedPreload,
+	}
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadList() {
+	company := ts.createCompany("ditrit")
+	seller1 := ts.createSeller("1", company)
+	seller2 := ts.createSeller("2", company)
+
+	entities, err := ts.crudCompanyService.GetEntities(
+		CompanyPreloadSellers(),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Company{company}, entities)
+	// TODO tener el getter
+	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, entities[0].Sellers)
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributes() {
+	company := ts.createCompany("ditrit")
+
+	university1 := ts.createUniversity("uni1")
+	seller1 := ts.createSeller("1", company)
+	seller1.University = university1
+	err := ts.db.Save(seller1).Error
+	ts.Nil(err)
+
+	university2 := ts.createUniversity("uni1")
+	seller2 := ts.createSeller("2", company)
+	seller2.University = university2
+	err = ts.db.Save(seller2).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudCompanyService.GetEntities(
+		CompanyPreloadSellers(
+			conditions.SellerPreloadUniversity,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Company{company}, entities)
+	// TODO tener el getter
+	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, entities[0].Sellers)
+
+	ts.True(pie.Any(entities[0].Sellers, func(seller models.Seller) bool {
+		sellerUniversity, err := seller.GetUniversity()
+		return err == nil && sellerUniversity.Equal(*university1)
+	}))
+	ts.True(pie.Any(entities[0].Sellers, func(seller models.Seller) bool {
+		sellerUniversity, err := seller.GetUniversity()
+		return err == nil && sellerUniversity.Equal(*university2)
+	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadMultipleListsAndNestedAttributes() {
+	company1 := ts.createCompany("ditrit")
+	company2 := ts.createCompany("orness")
+
+	university1 := ts.createUniversity("uni1")
+	seller1 := ts.createSeller("1", company1)
+	seller1.University = university1
+	err := ts.db.Save(seller1).Error
+	ts.Nil(err)
+
+	university2 := ts.createUniversity("uni1")
+	seller2 := ts.createSeller("2", company1)
+	seller2.University = university2
+	err = ts.db.Save(seller2).Error
+	ts.Nil(err)
+
+	seller3 := ts.createSeller("3", company2)
+	seller3.University = university1
+	err = ts.db.Save(seller3).Error
+	ts.Nil(err)
+
+	seller4 := ts.createSeller("4", company2)
+	seller4.University = university2
+	err = ts.db.Save(seller4).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudCompanyService.GetEntities(
+		CompanyPreloadSellers(
+			conditions.SellerPreloadUniversity,
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Company{company1, company2}, entities)
+
+	company1Loaded := *utils.FindFirst(entities, func(company *models.Company) bool {
+		return company.Equal(*company1)
+	})
+	company2Loaded := *utils.FindFirst(entities, func(company *models.Company) bool {
+		return company.Equal(*company2)
+	})
+
+	// TODO tener el getter
+	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, company1Loaded.Sellers)
+
+	ts.True(pie.Any(company1Loaded.Sellers, func(seller models.Seller) bool {
+		sellerUniversity, err := seller.GetUniversity()
+		return err == nil && sellerUniversity.Equal(*university1)
+	}))
+	ts.True(pie.Any(company1Loaded.Sellers, func(seller models.Seller) bool {
+		sellerUniversity, err := seller.GetUniversity()
+		return err == nil && sellerUniversity.Equal(*university2)
+	}))
+
+	// TODO tener el getter
+	EqualList(&ts.Suite, []models.Seller{*seller3, *seller4}, company2Loaded.Sellers)
+
+	ts.True(pie.Any(company2Loaded.Sellers, func(seller models.Seller) bool {
+		sellerUniversity, err := seller.GetUniversity()
+		return err == nil && sellerUniversity.Equal(*university1)
+	}))
+	ts.True(pie.Any(company2Loaded.Sellers, func(seller models.Seller) bool {
+		sellerUniversity, err := seller.GetUniversity()
+		return err == nil && sellerUniversity.Equal(*university2)
+	}))
 }
