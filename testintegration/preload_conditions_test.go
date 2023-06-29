@@ -788,12 +788,14 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadMultipleListsAndNestedAttrib
 	ts.Nil(err)
 	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, company1Sellers)
 
+	var sellerUniversity *models.University
+
 	ts.True(pie.Any(*company1Loaded.Sellers, func(seller models.Seller) bool {
-		sellerUniversity, err := seller.GetUniversity()
+		sellerUniversity, err = seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university1)
 	}))
 	ts.True(pie.Any(*company1Loaded.Sellers, func(seller models.Seller) bool {
-		sellerUniversity, err := seller.GetUniversity()
+		sellerUniversity, err = seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university2)
 	}))
 

@@ -85,7 +85,7 @@ func (id UUID) GormValue(_ context.Context, db *gorm.DB) clause.Expr {
 	case "mysql", "sqlserver":
 		binary, err := id.MarshalBinary()
 		if err != nil {
-			db.AddError(err)
+			_ = db.AddError(err)
 			return clause.Expr{}
 		}
 

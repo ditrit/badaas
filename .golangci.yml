@@ -223,6 +223,7 @@ issues:
         - goconst
         - noctx
         - gomnd
+        - unparam
     # We need to use the deprecated module since the jsonpb replacement is not backwards compatible.
     - linters:
         - staticcheck

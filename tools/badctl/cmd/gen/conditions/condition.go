@@ -190,7 +190,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 	if constantFieldIdentifier, ok := constantFieldIdentifiers[field.Name]; ok {
 		fieldIdentifier = constantFieldIdentifier
 	} else {
-		fieldIdentifier = condition.createFieldIdentifier(objectType, field, conditionName)
+		fieldIdentifier = condition.createFieldIdentifier(field, conditionName)
 	}
 
 	condition.codes = append(
@@ -214,7 +214,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 
 // create a variable containing the definition of the field identifier
 // to use it in the where condition and in the preload condition
-func (condition *Condition) createFieldIdentifier(objectType Type, field Field, conditionName string) *jen.Statement {
+func (condition *Condition) createFieldIdentifier(field Field, conditionName string) *jen.Statement {
 	fieldIdentifierValues := jen.Dict{}
 	columnName := field.getColumnName()
 

@@ -10,20 +10,20 @@ import (
 
 const badORMNewPreloadCondition = "NewPreloadCondition"
 
-type ConditionsGenerator struct {
+type CodeConditionsGenerator struct {
 	object     types.Object
 	objectType Type
 }
 
-func NewConditionsGenerator(object types.Object) *ConditionsGenerator {
-	return &ConditionsGenerator{
+func NewConditionsGenerator(object types.Object) *CodeConditionsGenerator {
+	return &CodeConditionsGenerator{
 		object:     object,
 		objectType: Type{object.Type()},
 	}
 }
 
 // Add conditions for an object in the file
-func (cg ConditionsGenerator) Into(file *File) error {
+func (cg CodeConditionsGenerator) Into(file *File) error {
 	fields, err := getFields(cg.objectType)
 	if err != nil {
 		return err
@@ -37,7 +37,7 @@ func (cg ConditionsGenerator) Into(file *File) error {
 }
 
 // Add one condition for each field of the object
-func (cg ConditionsGenerator) addConditionsForEachField(file *File, fields []Field) {
+func (cg CodeConditionsGenerator) addConditionsForEachField(file *File, fields []Field) {
 	conditions := cg.ForEachField(file, fields)
 
 	objectName := cg.object.Name()
@@ -93,7 +93,7 @@ func getPreloadAttributesName(objectName string) string {
 }
 
 // Generate the conditions for each of the object's fields
-func (cg ConditionsGenerator) ForEachField(file *File, fields []Field) []Condition {
+func (cg CodeConditionsGenerator) ForEachField(file *File, fields []Field) []Condition {
 	conditions := []Condition{}
 
 	for _, field := range fields {

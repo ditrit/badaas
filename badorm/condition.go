@@ -247,7 +247,7 @@ func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(
 	// that an object is of type Condition[T1]
 }
 
-func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, _ Table) (*gorm.DB, error) {
 	if len(condition.NestedPreloads) == 0 {
 		return query.Preload(condition.CollectionField), nil
 	}
@@ -369,6 +369,8 @@ func (condition JoinCondition[T1, T2]) makesPreload() bool {
 }
 
 // Returns true if the condition of nay nested condition applies a filter (has where conditions)
+//
+//nolint:unused // is used
 func (condition JoinCondition[T1, T2]) makesFilter() bool {
 	whereConditions, joinConditions, _ := divideConditionsByType(condition.Conditions)
 

@@ -2,7 +2,7 @@ package badorm
 
 import "errors"
 
-var ErrRelationNotLoaded = errors.New("Relation not loaded")
+var ErrRelationNotLoaded = errors.New("relation not loaded")
 
 func VerifyStructLoaded[T Model](toVerify *T) (*T, error) {
 	if toVerify == nil || !(*toVerify).IsLoaded() {
