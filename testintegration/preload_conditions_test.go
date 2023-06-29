@@ -810,3 +810,24 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadMultipleListsAndNestedAttrib
 		return err == nil && sellerUniversity.Equal(*university2)
 	}))
 }
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributesWithFiltersReturnsError() {
+	_, err := ts.crudCompanyService.GetEntities(
+		conditions.CompanyPreloadSellers(
+			conditions.SellerUniversity(
+				conditions.UniversityPreloadAttributes,
+				conditions.UniversityId(badorm.Eq(badorm.NilUUID)),
+			),
+		),
+	)
+	ts.ErrorIs(err, badorm.ErrOnlyPreloadsAllowed)
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributesWithoutPreloadReturnsError() {
+	_, err := ts.crudCompanyService.GetEntities(
+		conditions.CompanyPreloadSellers(
+			conditions.SellerUniversity(),
+		),
+	)
+	ts.ErrorIs(err, badorm.ErrOnlyPreloadsAllowed)
+}

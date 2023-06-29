@@ -269,17 +269,14 @@ func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, tabl
 			}
 
 			return query
-			// TODO se podria hacer que el join si el solo preload haga esto y a la verga, asi me ahorro el select, la table y eso
-			// return db.Joins("University")
 		},
 	), nil
 }
 
 // TODO doc
 func NewCollectionPreloadCondition[T1 Model, T2 Model](collectionField string, nestedPreloads []IJoinCondition[T2]) Condition[T1] {
-	// TODO verificar que no haga filtros?
 	if pie.Any(nestedPreloads, func(nestedPreload IJoinCondition[T2]) bool {
-		return !nestedPreload.makesPreload()
+		return !nestedPreload.makesPreload() || nestedPreload.makesFilter()
 	}) {
 		return NewInvalidCondition[T1](ErrOnlyPreloadsAllowed)
 	}
@@ -341,6 +338,9 @@ type IJoinCondition[T Model] interface {
 
 	// Returns true if this condition or any nested condition makes a preload
 	makesPreload() bool
+
+	// Returns true if the condition of nay nested condition applies a filter (has where conditions)
+	makesFilter() bool
 }
 
 // Condition that joins with other table
@@ -365,6 +365,15 @@ func (condition JoinCondition[T1, T2]) makesPreload() bool {
 
 	return t2PreloadCondition != nil || pie.Any(joinConditions, func(cond IJoinCondition[T2]) bool {
 		return cond.makesPreload()
+	})
+}
+
+// Returns true if the condition of nay nested condition applies a filter (has where conditions)
+func (condition JoinCondition[T1, T2]) makesFilter() bool {
+	whereConditions, joinConditions, _ := divideConditionsByType(condition.Conditions)
+
+	return len(whereConditions) != 0 || pie.Any(joinConditions, func(cond IJoinCondition[T2]) bool {
+		return cond.makesFilter()
 	})
 }
 
