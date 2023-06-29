@@ -9,11 +9,11 @@ import (
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 
-	"github.com/ditrit/badaas/tools/badctl/cmd/utils"
+	"github.com/ditrit/badaas/tools/badctl/cmd/testutils"
 )
 
 func TestGenCockroach(t *testing.T) {
-	generateDockerFiles(nil, nil)
+	GenerateDockerFiles(nil, nil)
 	checkFilesExist(t)
 	checkDBPort(t, 26257)
 	teardown()
@@ -21,21 +21,21 @@ func TestGenCockroach(t *testing.T) {
 
 func TestGenPostgres(t *testing.T) {
 	viper.Set(DBProviderKey, Postgres)
-	generateDockerFiles(nil, nil)
+	GenerateDockerFiles(nil, nil)
 	checkFilesExist(t)
-	utils.CheckFileExists(t, "badaas/docker/db/init.sql")
+	testutils.CheckFileExists(t, "badaas/docker/db/init.sql")
 	checkDBPort(t, 5432)
 
 	teardown()
 }
 
 func checkFilesExist(t *testing.T) {
-	utils.CheckFileExists(t, ".dockerignore")
-	utils.CheckFileExists(t, "Makefile")
-	utils.CheckFileExists(t, "badaas/config/badaas.yml")
-	utils.CheckFileExists(t, "badaas/docker/api/docker-compose.yml")
-	utils.CheckFileExists(t, "badaas/docker/api/Dockerfile")
-	utils.CheckFileExists(t, "badaas/docker/db/docker-compose.yml")
+	testutils.CheckFileExists(t, ".dockerignore")
+	testutils.CheckFileExists(t, "Makefile")
+	testutils.CheckFileExists(t, "badaas/config/badaas.yml")
+	testutils.CheckFileExists(t, "badaas/docker/api/docker-compose.yml")
+	testutils.CheckFileExists(t, "badaas/docker/api/Dockerfile")
+	testutils.CheckFileExists(t, "badaas/docker/db/docker-compose.yml")
 }
 
 func checkDBPort(t *testing.T, port int) {
@@ -60,7 +60,7 @@ func checkDBPort(t *testing.T, port int) {
 }
 
 func teardown() {
-	utils.RemoveFile(".dockerignore")
-	utils.RemoveFile("Makefile")
-	utils.RemoveFile("badaas")
+	testutils.RemoveFile(".dockerignore")
+	testutils.RemoveFile("Makefile")
+	testutils.RemoveFile("badaas")
 }

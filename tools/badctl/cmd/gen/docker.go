@@ -26,7 +26,7 @@ var genDockerCmd = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 	Use:   "docker",
 	Short: "Generate files and configurations necessary to use BadAss over Docker",
 	Long:  `gen is the command you can use to generate the files and configurations necessary for your project to use BadAss in a simple way.`,
-	Run:   generateDockerFiles,
+	Run:   GenerateDockerFiles,
 })
 
 const destBadaasDir = "badaas"
@@ -80,7 +80,7 @@ func init() {
 	)
 }
 
-func generateDockerFiles(_ *cobra.Command, _ []string) {
+func GenerateDockerFiles(_ *cobra.Command, _ []string) {
 	sourceDockerDir := "docker"
 	destDockerDir := filepath.Join(destBadaasDir, "docker")
 

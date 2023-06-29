@@ -9,7 +9,7 @@ import (
 	"github.com/spf13/viper"
 	"gotest.tools/assert"
 
-	"github.com/ditrit/badaas/tools/badctl/cmd/utils"
+	"github.com/ditrit/badaas/tools/badctl/cmd/testutils"
 )
 
 const chunkSize = 100000
@@ -18,70 +18,70 @@ func TestUIntModel(t *testing.T) {
 	doTest(t, "./tests/uintmodel", []Comparison{
 		{Have: "uint_model_conditions.go", Expected: "./tests/results/uintmodel.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/uintmodel/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/uintmodel/badorm.go")
 }
 
 func TestUUIDModel(t *testing.T) {
 	doTest(t, "./tests/uuidmodel", []Comparison{
 		{Have: "uuid_model_conditions.go", Expected: "./tests/results/uuidmodel.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/uuidmodel/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/uuidmodel/badorm.go")
 }
 
 func TestBasicTypes(t *testing.T) {
 	doTest(t, "./tests/basictypes", []Comparison{
 		{Have: "basic_types_conditions.go", Expected: "./tests/results/basictypes.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/basictypes/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/basictypes/badorm.go")
 }
 
 func TestBasicPointers(t *testing.T) {
 	doTest(t, "./tests/basicpointers", []Comparison{
 		{Have: "basic_pointers_conditions.go", Expected: "./tests/results/basicpointers.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/basicpointers/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/basicpointers/badorm.go")
 }
 
 func TestBasicSlices(t *testing.T) {
 	doTest(t, "./tests/basicslices", []Comparison{
 		{Have: "basic_slices_conditions.go", Expected: "./tests/results/basicslices.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/basicslices/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/basicslices/badorm.go")
 }
 
 func TestBasicSlicesPointer(t *testing.T) {
 	doTest(t, "./tests/basicslicespointer", []Comparison{
 		{Have: "basic_slices_pointer_conditions.go", Expected: "./tests/results/basicslicespointer.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/basicslicespointer/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/basicslicespointer/badorm.go")
 }
 
 func TestGoEmbedded(t *testing.T) {
 	doTest(t, "./tests/goembedded", []Comparison{
 		{Have: "go_embedded_conditions.go", Expected: "./tests/results/goembedded.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/goembedded/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/goembedded/badorm.go")
 }
 
 func TestGormEmbedded(t *testing.T) {
 	doTest(t, "./tests/gormembedded", []Comparison{
 		{Have: "gorm_embedded_conditions.go", Expected: "./tests/results/gormembedded.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/gormembedded/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/gormembedded/badorm.go")
 }
 
 func TestCustomType(t *testing.T) {
 	doTest(t, "./tests/customtype", []Comparison{
 		{Have: "custom_type_conditions.go", Expected: "./tests/results/customtype.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/customtype/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/customtype/badorm.go")
 }
 
 func TestColumnDefinition(t *testing.T) {
 	doTest(t, "./tests/columndefinition", []Comparison{
 		{Have: "column_definition_conditions.go", Expected: "./tests/results/columndefinition.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/columndefinition/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/columndefinition/badorm.go")
 }
 
 func TestBelongsTo(t *testing.T) {
@@ -131,7 +131,7 @@ func TestMultiplePackage(t *testing.T) {
 	doTest(t, "./tests/multiplepackage/package2", []Comparison{
 		{Have: "package2_conditions.go", Expected: "./tests/results/multiplepackage_package2.go"},
 	})
-	utils.CheckFileNotExists(t, "./tests/multiplepackage/package2/badorm.go")
+	testutils.CheckFileNotExists(t, "./tests/multiplepackage/package2/badorm.go")
 }
 
 func TestOverrideForeignKey(t *testing.T) {
@@ -173,7 +173,7 @@ type Comparison struct {
 
 func doTest(t *testing.T, sourcePkg string, comparisons []Comparison) {
 	viper.Set(DestPackageKey, "conditions")
-	generateConditions(nil, []string{sourcePkg})
+	GenerateConditions(nil, []string{sourcePkg})
 
 	for _, comparison := range comparisons {
 		checkFilesEqual(t, comparison.Have, comparison.Expected)
@@ -181,8 +181,8 @@ func doTest(t *testing.T, sourcePkg string, comparisons []Comparison) {
 }
 
 func checkFilesEqual(t *testing.T, file1, file2 string) {
-	stat1 := utils.CheckFileExists(t, file1)
-	stat2 := utils.CheckFileExists(t, file2)
+	stat1 := testutils.CheckFileExists(t, file1)
+	stat2 := testutils.CheckFileExists(t, file2)
 
 	// do inputs at least have the same size?
 	assert.Equal(t, stat1.Size(), stat2.Size(), "File lens are not equal")
@@ -223,5 +223,5 @@ func checkFilesEqual(t *testing.T, file1, file2 string) {
 		}
 	}
 
-	utils.RemoveFile(file1)
+	testutils.RemoveFile(file1)
 }
