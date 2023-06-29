@@ -32,15 +32,17 @@ func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) badorm.Condition[overrideforeignkey.Bicycle] {
+func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) badorm.IJoinCondition[overrideforeignkey.Bicycle] {
 	return badorm.JoinCondition[overrideforeignkey.Bicycle, overrideforeignkey.Person]{
-		Conditions:    conditions,
-		RelationField: "Owner",
-		T1Field:       "OwnerSomethingID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Owner",
+		T1Field:            "OwnerSomethingID",
+		T1PreloadCondition: BicyclePreloadAttributes,
+		T2Field:            "ID",
 	}
 }
 
+var BicyclePreloadOwner = BicycleOwner(PersonPreloadAttributes)
 var bicycleOwnerSomethingIdFieldID = badorm.FieldIdentifier{Field: "OwnerSomethingID"}
 
 func BicycleOwnerSomethingId(expr badorm.Expression[string]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
@@ -50,4 +52,5 @@ func BicycleOwnerSomethingId(expr badorm.Expression[string]) badorm.WhereConditi
 	}
 }
 
-var BicyclePreload = badorm.NewPreloadCondition[overrideforeignkey.Bicycle](bicycleOwnerSomethingIdFieldID)
+var BicyclePreloadAttributes = badorm.NewPreloadCondition[overrideforeignkey.Bicycle](bicycleOwnerSomethingIdFieldID)
+var BicyclePreloadRelations = []badorm.Condition[overrideforeignkey.Bicycle]{BicyclePreloadOwner}

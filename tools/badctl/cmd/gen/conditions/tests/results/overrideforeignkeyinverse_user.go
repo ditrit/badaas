@@ -32,21 +32,16 @@ func UserDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func UserCreditCard(conditions ...badorm.Condition[overrideforeignkeyinverse.CreditCard]) badorm.Condition[overrideforeignkeyinverse.User] {
+func UserCreditCard(conditions ...badorm.Condition[overrideforeignkeyinverse.CreditCard]) badorm.IJoinCondition[overrideforeignkeyinverse.User] {
 	return badorm.JoinCondition[overrideforeignkeyinverse.User, overrideforeignkeyinverse.CreditCard]{
-		Conditions:    conditions,
-		RelationField: "CreditCard",
-		T1Field:       "ID",
-		T2Field:       "UserReference",
-	}
-}
-func CreditCardUser(conditions ...badorm.Condition[overrideforeignkeyinverse.User]) badorm.Condition[overrideforeignkeyinverse.CreditCard] {
-	return badorm.JoinCondition[overrideforeignkeyinverse.CreditCard, overrideforeignkeyinverse.User]{
-		Conditions:    conditions,
-		RelationField: "User",
-		T1Field:       "UserReference",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "CreditCard",
+		T1Field:            "ID",
+		T1PreloadCondition: UserPreloadAttributes,
+		T2Field:            "UserReference",
 	}
 }
 
-var UserPreload = badorm.NewPreloadCondition[overrideforeignkeyinverse.User]()
+var UserPreloadCreditCard = UserCreditCard(CreditCardPreloadAttributes)
+var UserPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkeyinverse.User]()
+var UserPreloadRelations = []badorm.Condition[overrideforeignkeyinverse.User]{UserPreloadCreditCard}

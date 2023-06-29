@@ -18,56 +18,73 @@ func TestUIntModel(t *testing.T) {
 	doTest(t, "./tests/uintmodel", []Comparison{
 		{Have: "uint_model_conditions.go", Expected: "./tests/results/uintmodel.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/uintmodel/badorm.go")
 }
 
 func TestUUIDModel(t *testing.T) {
 	doTest(t, "./tests/uuidmodel", []Comparison{
 		{Have: "uuid_model_conditions.go", Expected: "./tests/results/uuidmodel.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/uuidmodel/badorm.go")
 }
 
 func TestBasicTypes(t *testing.T) {
 	doTest(t, "./tests/basictypes", []Comparison{
 		{Have: "basic_types_conditions.go", Expected: "./tests/results/basictypes.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/basictypes/badorm.go")
 }
 
 func TestBasicPointers(t *testing.T) {
 	doTest(t, "./tests/basicpointers", []Comparison{
 		{Have: "basic_pointers_conditions.go", Expected: "./tests/results/basicpointers.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/basicpointers/badorm.go")
 }
 
 func TestBasicSlices(t *testing.T) {
 	doTest(t, "./tests/basicslices", []Comparison{
 		{Have: "basic_slices_conditions.go", Expected: "./tests/results/basicslices.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/basicslices/badorm.go")
 }
 
 func TestBasicSlicesPointer(t *testing.T) {
 	doTest(t, "./tests/basicslicespointer", []Comparison{
 		{Have: "basic_slices_pointer_conditions.go", Expected: "./tests/results/basicslicespointer.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/basicslicespointer/badorm.go")
 }
 
 func TestGoEmbedded(t *testing.T) {
 	doTest(t, "./tests/goembedded", []Comparison{
 		{Have: "go_embedded_conditions.go", Expected: "./tests/results/goembedded.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/goembedded/badorm.go")
 }
 
 func TestGormEmbedded(t *testing.T) {
 	doTest(t, "./tests/gormembedded", []Comparison{
 		{Have: "gorm_embedded_conditions.go", Expected: "./tests/results/gormembedded.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/gormembedded/badorm.go")
 }
 
 func TestCustomType(t *testing.T) {
 	doTest(t, "./tests/customtype", []Comparison{
 		{Have: "custom_type_conditions.go", Expected: "./tests/results/customtype.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/customtype/badorm.go")
 }
 
+func TestColumnDefinition(t *testing.T) {
+	doTest(t, "./tests/columndefinition", []Comparison{
+		{Have: "column_definition_conditions.go", Expected: "./tests/results/columndefinition.go"},
+	})
+	utils.CheckFileNotExists(t, "./tests/columndefinition/badorm.go")
+}
+
+// TODO verificacion de los badorm relation getters
 func TestBelongsTo(t *testing.T) {
 	doTest(t, "./tests/belongsto", []Comparison{
 		{Have: "owner_conditions.go", Expected: "./tests/results/belongsto_owner.go"},
@@ -96,41 +113,40 @@ func TestSelfReferential(t *testing.T) {
 }
 
 func TestMultiplePackage(t *testing.T) {
+	// TODO hacer los dos paquetes a la vez porque sino el badorm se rompe
 	doTest(t, "./tests/multiplepackage/package1", []Comparison{
 		{Have: "package1_conditions.go", Expected: "./tests/results/multiplepackage_package1.go"},
 	})
-}
-
-func TestColumnDefinition(t *testing.T) {
-	doTest(t, "./tests/columndefinition", []Comparison{
-		{Have: "column_definition_conditions.go", Expected: "./tests/results/columndefinition.go"},
+	doTest(t, "./tests/multiplepackage/package2", []Comparison{
+		{Have: "package2_conditions.go", Expected: "./tests/results/multiplepackage_package2.go"},
 	})
 }
 
 func TestOverrideForeignKey(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkey", []Comparison{
-		{Have: "bicycle_conditions.go", Expected: "./tests/results/overrideforeignkey.go"},
+		{Have: "bicycle_conditions.go", Expected: "./tests/results/overrideforeignkey_bicycle.go"},
+		{Have: "person_conditions.go", Expected: "./tests/results/overrideforeignkey_person.go"},
 	})
-	utils.RemoveFile("person_conditions.go")
 }
 
 func TestOverrideReferences(t *testing.T) {
 	doTest(t, "./tests/overridereferences", []Comparison{
-		{Have: "phone_conditions.go", Expected: "./tests/results/overridereferences.go"},
+		{Have: "phone_conditions.go", Expected: "./tests/results/overridereferences_phone.go"},
+		{Have: "brand_conditions.go", Expected: "./tests/results/overridereferences_brand.go"},
 	})
-	utils.RemoveFile("brand_conditions.go")
 }
 
 func TestOverrideForeignKeyInverse(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkeyinverse", []Comparison{
-		{Have: "user_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse.go"},
+		{Have: "user_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse_user.go"},
+		{Have: "credit_card_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse_credit_card.go"},
 	})
-	utils.RemoveFile("credit_card_conditions.go")
 }
 
 func TestOverrideReferencesInverse(t *testing.T) {
 	doTest(t, "./tests/overridereferencesinverse", []Comparison{
-		{Have: "computer_conditions.go", Expected: "./tests/results/overridereferencesinverse.go"},
+		{Have: "computer_conditions.go", Expected: "./tests/results/overridereferencesinverse_computer.go"},
+		{Have: "processor_conditions.go", Expected: "./tests/results/overridereferencesinverse_processor.go"},
 	})
 	utils.RemoveFile("processor_conditions.go")
 }

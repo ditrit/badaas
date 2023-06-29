@@ -195,4 +195,5 @@ func BasicPointersByte(expr badorm.Expression[uint8]) badorm.WhereCondition[basi
 	}
 }
 
-var BasicPointersPreload = badorm.NewPreloadCondition[basicpointers.BasicPointers](basicPointersBoolFieldID, basicPointersIntFieldID, basicPointersInt8FieldID, basicPointersInt16FieldID, basicPointersInt32FieldID, basicPointersInt64FieldID, basicPointersUIntFieldID, basicPointersUInt8FieldID, basicPointersUInt16FieldID, basicPointersUInt32FieldID, basicPointersUInt64FieldID, basicPointersUIntptrFieldID, basicPointersFloat32FieldID, basicPointersFloat64FieldID, basicPointersComplex64FieldID, basicPointersComplex128FieldID, basicPointersStringFieldID, basicPointersByteFieldID)
+var BasicPointersPreloadAttributes = badorm.NewPreloadCondition[basicpointers.BasicPointers](basicPointersBoolFieldID, basicPointersIntFieldID, basicPointersInt8FieldID, basicPointersInt16FieldID, basicPointersInt32FieldID, basicPointersInt64FieldID, basicPointersUIntFieldID, basicPointersUInt8FieldID, basicPointersUInt16FieldID, basicPointersUInt32FieldID, basicPointersUInt64FieldID, basicPointersUIntptrFieldID, basicPointersFloat32FieldID, basicPointersFloat64FieldID, basicPointersComplex64FieldID, basicPointersComplex128FieldID, basicPointersStringFieldID, basicPointersByteFieldID)
+var BasicPointersPreloadRelations = []badorm.Condition[basicpointers.BasicPointers]{}

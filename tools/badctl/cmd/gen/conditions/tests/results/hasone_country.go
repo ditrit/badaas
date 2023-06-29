@@ -32,21 +32,16 @@ func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func CountryCapital(conditions ...badorm.Condition[hasone.City]) badorm.Condition[hasone.Country] {
+func CountryCapital(conditions ...badorm.Condition[hasone.City]) badorm.IJoinCondition[hasone.Country] {
 	return badorm.JoinCondition[hasone.Country, hasone.City]{
-		Conditions:    conditions,
-		RelationField: "Capital",
-		T1Field:       "ID",
-		T2Field:       "CountryID",
-	}
-}
-func CityCountry(conditions ...badorm.Condition[hasone.Country]) badorm.Condition[hasone.City] {
-	return badorm.JoinCondition[hasone.City, hasone.Country]{
-		Conditions:    conditions,
-		RelationField: "Country",
-		T1Field:       "CountryID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Capital",
+		T1Field:            "ID",
+		T1PreloadCondition: CountryPreloadAttributes,
+		T2Field:            "CountryID",
 	}
 }
 
-var CountryPreload = badorm.NewPreloadCondition[hasone.Country]()
+var CountryPreloadCapital = CountryCapital(CityPreloadAttributes)
+var CountryPreloadAttributes = badorm.NewPreloadCondition[hasone.Country]()
+var CountryPreloadRelations = []badorm.Condition[hasone.Country]{CountryPreloadCapital}

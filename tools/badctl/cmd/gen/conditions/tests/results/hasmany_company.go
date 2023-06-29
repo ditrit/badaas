@@ -32,13 +32,9 @@ func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.Condition[hasmany.Seller] {
-	return badorm.JoinCondition[hasmany.Seller, hasmany.Company]{
-		Conditions:    conditions,
-		RelationField: "Company",
-		T1Field:       "CompanyID",
-		T2Field:       "ID",
-	}
+func CompanyPreloadSellers(nestedPreloads ...badorm.IJoinCondition[hasmany.Seller]) badorm.Condition[hasmany.Company] {
+	return badorm.NewCollectionPreloadCondition[hasmany.Company, hasmany.Seller]("Sellers", nestedPreloads)
 }
 
-var CompanyPreload = badorm.NewPreloadCondition[hasmany.Company]()
+var CompanyPreloadAttributes = badorm.NewPreloadCondition[hasmany.Company]()
+var CompanyPreloadRelations = []badorm.Condition[hasmany.Company]{CompanyPreloadSellers()}

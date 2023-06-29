@@ -61,6 +61,8 @@ func generateConditions(_ *cobra.Command, args []string) {
 	}
 }
 
+// TODO BasicSlicesPreloadRelations solo si tiene alguna relacion
+
 // Generates a file with conditions for each BaDORM model in the package
 func generateConditionsForPkg(destPkg string, pkgPath string, pkg *packages.Package) {
 	log.Logger.Infof("Generating conditions for types in package %q", pkg.Types.Name())

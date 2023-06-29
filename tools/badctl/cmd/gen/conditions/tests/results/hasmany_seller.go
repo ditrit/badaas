@@ -42,4 +42,5 @@ func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[
 	}
 }
 
-var SellerPreload = badorm.NewPreloadCondition[hasmany.Seller](sellerCompanyIdFieldID)
+var SellerPreloadAttributes = badorm.NewPreloadCondition[hasmany.Seller](sellerCompanyIdFieldID)
+var SellerPreloadRelations = []badorm.Condition[hasmany.Seller]{}

@@ -32,15 +32,17 @@ func OwnedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.Condition[belongsto.Owned] {
+func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.IJoinCondition[belongsto.Owned] {
 	return badorm.JoinCondition[belongsto.Owned, belongsto.Owner]{
-		Conditions:    conditions,
-		RelationField: "Owner",
-		T1Field:       "OwnerID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Owner",
+		T1Field:            "OwnerID",
+		T1PreloadCondition: OwnedPreloadAttributes,
+		T2Field:            "ID",
 	}
 }
 
+var OwnedPreloadOwner = OwnedOwner(OwnerPreloadAttributes)
 var ownedOwnerIdFieldID = badorm.FieldIdentifier{Field: "OwnerID"}
 
 func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
@@ -50,4 +52,5 @@ func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[bel
 	}
 }
 
-var OwnedPreload = badorm.NewPreloadCondition[belongsto.Owned](ownedOwnerIdFieldID)
+var OwnedPreloadAttributes = badorm.NewPreloadCondition[belongsto.Owned](ownedOwnerIdFieldID)
+var OwnedPreloadRelations = []badorm.Condition[belongsto.Owned]{OwnedPreloadOwner}

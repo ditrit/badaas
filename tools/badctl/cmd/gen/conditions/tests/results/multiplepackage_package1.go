@@ -33,21 +33,16 @@ func Package1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.Condition[package1.Package1] {
+func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.IJoinCondition[package1.Package1] {
 	return badorm.JoinCondition[package1.Package1, package2.Package2]{
-		Conditions:    conditions,
-		RelationField: "Package2",
-		T1Field:       "ID",
-		T2Field:       "Package1ID",
-	}
-}
-func Package2Package1(conditions ...badorm.Condition[package1.Package1]) badorm.Condition[package2.Package2] {
-	return badorm.JoinCondition[package2.Package2, package1.Package1]{
-		Conditions:    conditions,
-		RelationField: "Package1",
-		T1Field:       "Package1ID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Package2",
+		T1Field:            "ID",
+		T1PreloadCondition: Package1PreloadAttributes,
+		T2Field:            "Package1ID",
 	}
 }
 
-var Package1Preload = badorm.NewPreloadCondition[package1.Package1]()
+var Package1PreloadPackage2 = Package1Package2(Package2PreloadAttributes)
+var Package1PreloadAttributes = badorm.NewPreloadCondition[package1.Package1]()
+var Package1PreloadRelations = []badorm.Condition[package1.Package1]{Package1PreloadPackage2}

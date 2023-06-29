@@ -42,4 +42,5 @@ func CustomTypeCustom(expr badorm.Expression[customtype.MultiString]) badorm.Whe
 	}
 }
 
-var CustomTypePreload = badorm.NewPreloadCondition[customtype.CustomType](customTypeCustomFieldID)
+var CustomTypePreloadAttributes = badorm.NewPreloadCondition[customtype.CustomType](customTypeCustomFieldID)
+var CustomTypePreloadRelations = []badorm.Condition[customtype.CustomType]{}

@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func UintModelId(expr badorm.Expression[uint]) badorm.WhereCondition[uintmodel.UintModel] {
-	return badorm.FieldCondition[uintmodel.UintModel, uint]{
+func UintModelId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.FieldCondition[uintmodel.UintModel, badorm.UIntID]{
 		Expression:      expr,
 		FieldIdentifier: badorm.IDFieldID,
 	}
@@ -33,4 +33,5 @@ func UintModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCond
 	}
 }
 
-var UintModelPreload = badorm.NewPreloadCondition[uintmodel.UintModel]()
+var UintModelPreloadAttributes = badorm.NewPreloadCondition[uintmodel.UintModel]()
+var UintModelPreloadRelations = []badorm.Condition[uintmodel.UintModel]{}

@@ -8,8 +8,8 @@ import (
 	"time"
 )
 
-func GormEmbeddedId(expr badorm.Expression[uint]) badorm.WhereCondition[gormembedded.GormEmbedded] {
-	return badorm.FieldCondition[gormembedded.GormEmbedded, uint]{
+func GormEmbeddedId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[gormembedded.GormEmbedded] {
+	return badorm.FieldCondition[gormembedded.GormEmbedded, badorm.UIntID]{
 		Expression:      expr,
 		FieldIdentifier: badorm.IDFieldID,
 	}
@@ -63,4 +63,5 @@ func GormEmbeddedGormEmbeddedNoPrefixInt(expr badorm.Expression[int]) badorm.Whe
 	}
 }
 
-var GormEmbeddedPreload = badorm.NewPreloadCondition[gormembedded.GormEmbedded](gormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedNoPrefixIntFieldID)
+var GormEmbeddedPreloadAttributes = badorm.NewPreloadCondition[gormembedded.GormEmbedded](gormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedNoPrefixIntFieldID)
+var GormEmbeddedPreloadRelations = []badorm.Condition[gormembedded.GormEmbedded]{}

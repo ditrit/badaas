@@ -42,4 +42,5 @@ func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[ha
 	}
 }
 
-var CityPreload = badorm.NewPreloadCondition[hasone.City](cityCountryIdFieldID)
+var CityPreloadAttributes = badorm.NewPreloadCondition[hasone.City](cityCountryIdFieldID)
+var CityPreloadRelations = []badorm.Condition[hasone.City]{}

@@ -32,15 +32,17 @@ func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.Condition[selfreferential.Employee] {
+func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.IJoinCondition[selfreferential.Employee] {
 	return badorm.JoinCondition[selfreferential.Employee, selfreferential.Employee]{
-		Conditions:    conditions,
-		RelationField: "Boss",
-		T1Field:       "BossID",
-		T2Field:       "ID",
+		Conditions:         conditions,
+		RelationField:      "Boss",
+		T1Field:            "BossID",
+		T1PreloadCondition: EmployeePreloadAttributes,
+		T2Field:            "ID",
 	}
 }
 
+var EmployeePreloadBoss = EmployeeBoss(EmployeePreloadAttributes)
 var employeeBossIdFieldID = badorm.FieldIdentifier{Field: "BossID"}
 
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
@@ -50,4 +52,5 @@ func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[s
 	}
 }
 
-var EmployeePreload = badorm.NewPreloadCondition[selfreferential.Employee](employeeBossIdFieldID)
+var EmployeePreloadAttributes = badorm.NewPreloadCondition[selfreferential.Employee](employeeBossIdFieldID)
+var EmployeePreloadRelations = []badorm.Condition[selfreferential.Employee]{EmployeePreloadBoss}

@@ -37,3 +37,4 @@ badctl
 
 # test results
 tools/badctl/cmd/gen/conditions/*_conditions.go
+tools/badctl/cmd/gen/conditions/tests/**/badorm.go

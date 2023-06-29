@@ -7,9 +7,10 @@ import (
 )
 
 type File struct {
-	destPkg string
-	jenFile *jen.File
-	name    string
+	destPkg    string
+	jenFile    *jen.File
+	name       string
+	codesAdded bool
 }
 
 func NewFile(destPkg, name string) *File {
@@ -26,7 +27,11 @@ func NewFile(destPkg, name string) *File {
 	}
 }
 
-func (file File) Add(codes ...jen.Code) {
+func (file *File) Add(codes ...jen.Code) {
+	if len(codes) > 0 {
+		file.codesAdded = true
+	}
+
 	for _, code := range codes {
 		file.jenFile.Add(code)
 	}
@@ -34,5 +39,9 @@ func (file File) Add(codes ...jen.Code) {
 
 // Write generated file
 func (file File) Save() error {
-	return file.jenFile.Save(file.name)
+	if file.codesAdded {
+		return file.jenFile.Save(file.name)
+	}
+
+	return nil
 }

@@ -32,15 +32,17 @@ func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
-func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm.Condition[overridereferences.Phone] {
+func PhoneBrand(conditions ...badorm.Condition[overridereferences.Brand]) badorm.IJoinCondition[overridereferences.Phone] {
 	return badorm.JoinCondition[overridereferences.Phone, overridereferences.Brand]{
-		Conditions:    conditions,
-		RelationField: "Brand",
-		T1Field:       "BrandName",
-		T2Field:       "Name",
+		Conditions:         conditions,
+		RelationField:      "Brand",
+		T1Field:            "BrandName",
+		T1PreloadCondition: PhonePreloadAttributes,
+		T2Field:            "Name",
 	}
 }
 
+var PhonePreloadBrand = PhoneBrand(BrandPreloadAttributes)
 var phoneBrandNameFieldID = badorm.FieldIdentifier{Field: "BrandName"}
 
 func PhoneBrandName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferences.Phone] {
@@ -50,4 +52,5 @@ func PhoneBrandName(expr badorm.Expression[string]) badorm.WhereCondition[overri
 	}
 }
 
-var PhonePreload = badorm.NewPreloadCondition[overridereferences.Phone](phoneBrandNameFieldID)
+var PhonePreloadAttributes = badorm.NewPreloadCondition[overridereferences.Phone](phoneBrandNameFieldID)
+var PhonePreloadRelations = []badorm.Condition[overridereferences.Phone]{PhonePreloadBrand}
