@@ -62,14 +62,7 @@ func (id *UUID) UnmarshalBinary(data []byte) error {
 }
 
 func (id *UUID) Scan(src interface{}) error {
-	switch src := src.(type) {
-	case nil:
-		*id = NilUUID
-
-		return nil
-	default:
-		return (*uuid.UUID)(id).Scan(src)
-	}
+	return (*uuid.UUID)(id).Scan(src)
 }
 
 func (id UUID) IsNil() bool {
