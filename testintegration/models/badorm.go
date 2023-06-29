@@ -15,6 +15,9 @@ func (m Child) GetParent2() (*Parent2, error) {
 func (m City) GetCountry() (*Country, error) {
 	return badorm.VerifyPointerWithIDLoaded[Country](m.CountryID, m.Country)
 }
+func (m Company) GetSellers() ([]Seller, error) {
+	return badorm.VerifyCollectionLoaded[Seller](m.Sellers)
+}
 func (m Country) GetCapital() (*City, error) {
 	return badorm.VerifyStructLoaded[City](&m.Capital)
 }

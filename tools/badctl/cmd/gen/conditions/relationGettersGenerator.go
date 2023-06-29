@@ -13,6 +13,7 @@ const (
 	badORMVerifyStructLoaded        = "VerifyStructLoaded"
 	badORMVerifyPointerLoaded       = "VerifyPointerLoaded"
 	badORMVerifyPointerWithIDLoaded = "VerifyPointerWithIDLoaded"
+	badORMVerifyCollectionLoaded    = "VerifyCollectionLoaded"
 )
 
 type RelationGettersGenerator struct {
@@ -86,26 +87,48 @@ func (generator RelationGettersGenerator) generateForField(field Field) jen.Code
 }
 
 func (generator RelationGettersGenerator) generateForPointer(field Field) jen.Code {
-	_, err := field.Type.BadORMModelStruct()
-	if err == nil {
-		// field is a pointer to BaDORM Model
-		fk, err := generator.objectType.GetFK(field)
-		if err != nil {
-			log.Logger.Debugf("unhandled: field is a pointer and object not has the fk: %s", field.Type)
-			return nil
-		}
-
-		log.Logger.Debugf("Generating relation getter for type %q and field %s", generator.object.Name(), field.Name)
-
-		switch fk.GetType().(type) {
-		case *types.Named:
-			if fk.IsBadORMID() {
-				return generator.verifyPointerWithID(field)
+	switch fieldType := field.GetType().(type) {
+	case *types.Named:
+		_, err := field.Type.BadORMModelStruct()
+		if err == nil {
+			// field is a pointer to BaDORM Model
+			fk, err := generator.objectType.GetFK(field)
+			if err != nil {
+				log.Logger.Debugf("unhandled: field is a pointer and object not has the fk: %s", field.Type)
+				return nil
 			}
-		case *types.Pointer:
-			// the fk is a pointer
-			return generator.verifyPointer(field)
+
+			log.Logger.Debugf("Generating relation getter for type %q and field %s", generator.object.Name(), field.Name)
+
+			switch fk.GetType().(type) {
+			case *types.Named:
+				if fk.IsBadORMID() {
+					return generator.verifyPointerWithID(field)
+				}
+			case *types.Pointer:
+				// the fk is a pointer
+				return generator.verifyPointer(field)
+			}
 		}
+	case *types.Slice:
+		return generator.generateForSlicePointer(field.ChangeType(fieldType.Elem()))
+	}
+
+	return nil
+}
+
+func (generator RelationGettersGenerator) generateForSlicePointer(field Field) jen.Code {
+	switch fieldType := field.GetType().(type) {
+	case *types.Named:
+		_, err := field.Type.BadORMModelStruct()
+		if err == nil {
+			// field is a pointer to a slice of BaDORM Model
+			return generator.verifyCollection(field)
+		}
+	case *types.Pointer:
+		return generator.generateForSlicePointer(
+			field.ChangeType(fieldType.Elem()),
+		)
 	}
 
 	return nil
@@ -119,6 +142,7 @@ func (generator RelationGettersGenerator) verifyStruct(field Field) *jen.Stateme
 	return generator.verifyCommon(
 		field,
 		badORMVerifyStructLoaded,
+		jen.Op("*"),
 		jen.Op("&").Id("m").Op(".").Id(field.Name),
 	)
 }
@@ -131,22 +155,38 @@ func (generator RelationGettersGenerator) verifyPointerWithID(field Field) *jen.
 	return generator.verifyPointerCommon(field, badORMVerifyPointerWithIDLoaded)
 }
 
+func (generator RelationGettersGenerator) verifyCollection(field Field) jen.Code {
+	return generator.verifyCommon(
+		field,
+		badORMVerifyCollectionLoaded,
+		// TODO verificar que antes tanto para *[] como para *[]*
+		jen.Index(),
+		jen.Id("m").Op(".").Id(field.Name),
+	)
+}
+
 func (generator RelationGettersGenerator) verifyPointerCommon(field Field, verifyFunc string) *jen.Statement {
 	return generator.verifyCommon(
 		field,
 		verifyFunc,
+		jen.Op("*"),
 		jen.Id("m").Op(".").Id(field.Name+"ID"),
 		jen.Id("m").Op(".").Id(field.Name),
 	)
 }
 
-func (generator RelationGettersGenerator) verifyCommon(field Field, verifyFunc string, callParams ...jen.Code) *jen.Statement {
+func (generator RelationGettersGenerator) verifyCommon(
+	field Field,
+	verifyFunc string,
+	returnType *jen.Statement,
+	callParams ...jen.Code,
+) *jen.Statement {
 	return jen.Func().Parens(
 		jen.Id("m").Id(generator.object.Name()),
 	).Id(getGetterName(field)).Params().Add(
 		jen.Parens(
 			jen.List(
-				jen.Op("*").Qual(
+				returnType.Qual(
 					getRelativePackagePath(
 						generator.object.Pkg().Name(),
 						field.Type,

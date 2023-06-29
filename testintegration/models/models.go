@@ -15,9 +15,8 @@ import (
 type Company struct {
 	badorm.UUIDModel
 
-	Name string
-	// TODO preload de esto
-	Sellers []Seller // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
+	Name    string
+	Sellers *[]Seller // Company HasMany Sellers (Company 0..1 -> 0..* Seller)
 }
 
 func (m Company) Equal(other Company) bool {

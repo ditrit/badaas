@@ -664,7 +664,7 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond(
 	assert.DeepEqual(ts.T(), parentParent, childParent2Parent)
 }
 
-func (ts *PreloadConditionsIntTestSuite) TestPreloadList() {
+func (ts *PreloadConditionsIntTestSuite) TestPreloadCollection() {
 	company := ts.createCompany("ditrit")
 	seller1 := ts.createSeller("1", company)
 	seller2 := ts.createSeller("2", company)
@@ -675,8 +675,34 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadList() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Company{company}, entities)
-	// TODO tener el getter
-	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, entities[0].Sellers)
+	companySellers, err := entities[0].GetSellers()
+	ts.Nil(err)
+	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, companySellers)
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadEmptyCollection() {
+	company := ts.createCompany("ditrit")
+
+	entities, err := ts.crudCompanyService.GetEntities(
+		conditions.CompanyPreloadSellers(),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Company{company}, entities)
+	companySellers, err := entities[0].GetSellers()
+	ts.Nil(err)
+	EqualList(&ts.Suite, []models.Seller{}, companySellers)
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestNoPreloadCollection() {
+	company := ts.createCompany("ditrit")
+
+	entities, err := ts.crudCompanyService.GetEntities()
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Company{company}, entities)
+	_, err = entities[0].GetSellers()
+	ts.ErrorIs(err, badorm.ErrRelationNotLoaded)
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributes() {
@@ -702,14 +728,15 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributes() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Company{company}, entities)
-	// TODO tener el getter
-	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, entities[0].Sellers)
+	companySellers, err := entities[0].GetSellers()
+	ts.Nil(err)
+	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, companySellers)
 
-	ts.True(pie.Any(entities[0].Sellers, func(seller models.Seller) bool {
+	ts.True(pie.Any(*entities[0].Sellers, func(seller models.Seller) bool {
 		sellerUniversity, err := seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university1)
 	}))
-	ts.True(pie.Any(entities[0].Sellers, func(seller models.Seller) bool {
+	ts.True(pie.Any(*entities[0].Sellers, func(seller models.Seller) bool {
 		sellerUniversity, err := seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university2)
 	}))
@@ -757,26 +784,28 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadMultipleListsAndNestedAttrib
 		return company.Equal(*company2)
 	})
 
-	// TODO tener el getter
-	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, company1Loaded.Sellers)
+	company1Sellers, err := company1Loaded.GetSellers()
+	ts.Nil(err)
+	EqualList(&ts.Suite, []models.Seller{*seller1, *seller2}, company1Sellers)
 
-	ts.True(pie.Any(company1Loaded.Sellers, func(seller models.Seller) bool {
+	ts.True(pie.Any(*company1Loaded.Sellers, func(seller models.Seller) bool {
 		sellerUniversity, err := seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university1)
 	}))
-	ts.True(pie.Any(company1Loaded.Sellers, func(seller models.Seller) bool {
+	ts.True(pie.Any(*company1Loaded.Sellers, func(seller models.Seller) bool {
 		sellerUniversity, err := seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university2)
 	}))
 
-	// TODO tener el getter
-	EqualList(&ts.Suite, []models.Seller{*seller3, *seller4}, company2Loaded.Sellers)
+	company2Sellers, err := company2Loaded.GetSellers()
+	ts.Nil(err)
+	EqualList(&ts.Suite, []models.Seller{*seller3, *seller4}, company2Sellers)
 
-	ts.True(pie.Any(company2Loaded.Sellers, func(seller models.Seller) bool {
+	ts.True(pie.Any(*company2Loaded.Sellers, func(seller models.Seller) bool {
 		sellerUniversity, err := seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university1)
 	}))
-	ts.True(pie.Any(company2Loaded.Sellers, func(seller models.Seller) bool {
+	ts.True(pie.Any(*company2Loaded.Sellers, func(seller models.Seller) bool {
 		sellerUniversity, err := seller.GetUniversity()
 		return err == nil && sellerUniversity.Equal(*university2)
 	}))
