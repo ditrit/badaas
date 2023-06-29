@@ -40,12 +40,11 @@ func NewPreloadConditionsIntTestSuite(
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
 			db: db,
 		},
-		crudSaleService:    crudSaleService,
-		crudCompanyService: crudCompanyService,
-		crudSellerService:  crudSellerService,
-		crudCountryService: crudCountryService,
-		crudCityService:    crudCityService,
-		// TODO hacer algun test de self reference preload
+		crudSaleService:     crudSaleService,
+		crudCompanyService:  crudCompanyService,
+		crudSellerService:   crudSellerService,
+		crudCountryService:  crudCountryService,
+		crudCityService:     crudCityService,
 		crudEmployeeService: crudEmployeeService,
 		crudChildService:    crudChildService,
 		crudPhoneService:    crudPhoneService,
@@ -298,6 +297,62 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadUIntModel() {
 		phoneBrand, err := phone.GetBrand()
 		return err == nil && phoneBrand.Equal(*brand2)
 	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadSelfReferential() {
+	boss1 := &models.Employee{
+		Name: "Xavier",
+	}
+
+	employee1 := ts.createEmployee("franco", boss1)
+	employee2 := ts.createEmployee("pierre", nil)
+
+	entities, err := ts.crudEmployeeService.GetEntities(
+		conditions.EmployeePreloadBoss,
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Employee{boss1, employee1, employee2}, entities)
+
+	ts.True(pie.Any(entities, func(employee *models.Employee) bool {
+		employeeBoss, err := employee.GetBoss()
+		return err == nil && employeeBoss != nil && employeeBoss.Equal(*boss1)
+	}))
+	ts.True(pie.Any(entities, func(employee *models.Employee) bool {
+		employeeBoss, err := employee.GetBoss()
+		return err == nil && employeeBoss == nil
+	}))
+}
+
+func (ts *PreloadConditionsIntTestSuite) TestPreloadSelfReferentialAtSecondLevel() {
+	bossBoss := &models.Employee{
+		Name: "Xavier",
+	}
+	boss := &models.Employee{
+		Name: "Vincent",
+		Boss: bossBoss,
+	}
+	employee := ts.createEmployee("franco", boss)
+
+	entities, err := ts.crudEmployeeService.GetEntities(
+		conditions.EmployeeBoss(
+			conditions.EmployeeBoss(
+				conditions.EmployeePreloadAttributes,
+			),
+		),
+		conditions.EmployeeName(badorm.Eq("franco")),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Employee{employee}, entities)
+
+	bossLoaded, err := entities[0].GetBoss()
+	ts.Nil(err)
+	ts.True(bossLoaded.Equal(*boss))
+
+	bossBossLoaded, err := bossLoaded.GetBoss()
+	ts.Nil(err)
+	ts.True(bossBossLoaded.Equal(*bossBoss))
 }
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadWithWhereConditionFilters() {
