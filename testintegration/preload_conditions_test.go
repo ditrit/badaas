@@ -111,7 +111,7 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadWithoutWhereConditionDoesNot
 	EqualList(&ts.Suite, []*models.Sale{withSeller, withoutSeller}, entities)
 	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
 		saleSeller, err := sale.GetSeller()
-		return err == nil && saleSeller.Equal(*seller1)
+		return err == nil && saleSeller != nil && saleSeller.Equal(*seller1)
 	}))
 	ts.True(pie.Any(entities, func(sale *models.Sale) bool {
 		// in this case sale.Seller will also be nil
