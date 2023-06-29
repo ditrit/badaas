@@ -84,11 +84,11 @@ func TestColumnDefinition(t *testing.T) {
 	utils.CheckFileNotExists(t, "./tests/columndefinition/badorm.go")
 }
 
-// TODO verificacion de los badorm relation getters
 func TestBelongsTo(t *testing.T) {
 	doTest(t, "./tests/belongsto", []Comparison{
 		{Have: "owner_conditions.go", Expected: "./tests/results/belongsto_owner.go"},
 		{Have: "owned_conditions.go", Expected: "./tests/results/belongsto_owned.go"},
+		{Have: "./tests/belongsto/badorm.go", Expected: "./tests/belongsto/badorm_result.go"},
 	})
 }
 
@@ -96,6 +96,7 @@ func TestHasOne(t *testing.T) {
 	doTest(t, "./tests/hasone", []Comparison{
 		{Have: "country_conditions.go", Expected: "./tests/results/hasone_country.go"},
 		{Have: "city_conditions.go", Expected: "./tests/results/hasone_city.go"},
+		{Have: "./tests/hasone/badorm.go", Expected: "./tests/hasone/badorm_result.go"},
 	})
 }
 
@@ -103,29 +104,41 @@ func TestHasMany(t *testing.T) {
 	doTest(t, "./tests/hasmany", []Comparison{
 		{Have: "company_conditions.go", Expected: "./tests/results/hasmany_company.go"},
 		{Have: "seller_conditions.go", Expected: "./tests/results/hasmany_seller.go"},
+		{Have: "./tests/hasmany/badorm.go", Expected: "./tests/hasmany/badorm_result.go"},
+	})
+}
+
+func TestHasManyWithPointers(t *testing.T) {
+	doTest(t, "./tests/hasmanywithpointers", []Comparison{
+		{Have: "company_with_pointers_conditions.go", Expected: "./tests/results/hasmanywithpointers_company.go"},
+		{Have: "seller_in_pointers_conditions.go", Expected: "./tests/results/hasmanywithpointers_seller.go"},
+		{Have: "./tests/hasmanywithpointers/badorm.go", Expected: "./tests/hasmanywithpointers/badorm_result.go"},
 	})
 }
 
 func TestSelfReferential(t *testing.T) {
 	doTest(t, "./tests/selfreferential", []Comparison{
 		{Have: "employee_conditions.go", Expected: "./tests/results/selfreferential.go"},
+		{Have: "./tests/selfreferential/badorm.go", Expected: "./tests/selfreferential/badorm_result.go"},
 	})
 }
 
 func TestMultiplePackage(t *testing.T) {
-	// TODO hacer los dos paquetes a la vez porque sino el badorm se rompe
 	doTest(t, "./tests/multiplepackage/package1", []Comparison{
 		{Have: "package1_conditions.go", Expected: "./tests/results/multiplepackage_package1.go"},
+		{Have: "./tests/multiplepackage/package1/badorm.go", Expected: "./tests/multiplepackage/package1/badorm_result.go"},
 	})
 	doTest(t, "./tests/multiplepackage/package2", []Comparison{
 		{Have: "package2_conditions.go", Expected: "./tests/results/multiplepackage_package2.go"},
 	})
+	utils.CheckFileNotExists(t, "./tests/multiplepackage/package2/badorm.go")
 }
 
 func TestOverrideForeignKey(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkey", []Comparison{
 		{Have: "bicycle_conditions.go", Expected: "./tests/results/overrideforeignkey_bicycle.go"},
 		{Have: "person_conditions.go", Expected: "./tests/results/overrideforeignkey_person.go"},
+		{Have: "./tests/overrideforeignkey/badorm.go", Expected: "./tests/overrideforeignkey/badorm_result.go"},
 	})
 }
 
@@ -133,6 +146,7 @@ func TestOverrideReferences(t *testing.T) {
 	doTest(t, "./tests/overridereferences", []Comparison{
 		{Have: "phone_conditions.go", Expected: "./tests/results/overridereferences_phone.go"},
 		{Have: "brand_conditions.go", Expected: "./tests/results/overridereferences_brand.go"},
+		{Have: "./tests/overridereferences/badorm.go", Expected: "./tests/overridereferences/badorm_result.go"},
 	})
 }
 
@@ -140,6 +154,7 @@ func TestOverrideForeignKeyInverse(t *testing.T) {
 	doTest(t, "./tests/overrideforeignkeyinverse", []Comparison{
 		{Have: "user_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse_user.go"},
 		{Have: "credit_card_conditions.go", Expected: "./tests/results/overrideforeignkeyinverse_credit_card.go"},
+		{Have: "./tests/overrideforeignkeyinverse/badorm.go", Expected: "./tests/overrideforeignkeyinverse/badorm_result.go"},
 	})
 }
 
@@ -147,8 +162,8 @@ func TestOverrideReferencesInverse(t *testing.T) {
 	doTest(t, "./tests/overridereferencesinverse", []Comparison{
 		{Have: "computer_conditions.go", Expected: "./tests/results/overridereferencesinverse_computer.go"},
 		{Have: "processor_conditions.go", Expected: "./tests/results/overridereferencesinverse_processor.go"},
+		{Have: "./tests/overridereferencesinverse/badorm.go", Expected: "./tests/overridereferencesinverse/badorm_result.go"},
 	})
-	utils.RemoveFile("processor_conditions.go")
 }
 
 type Comparison struct {

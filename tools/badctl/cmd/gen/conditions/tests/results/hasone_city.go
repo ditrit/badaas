@@ -32,7 +32,17 @@ func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition
 		FieldIdentifier: badorm.DeletedAtFieldID,
 	}
 }
+func CityCountry(conditions ...badorm.Condition[hasone.Country]) badorm.IJoinCondition[hasone.City] {
+	return badorm.JoinCondition[hasone.City, hasone.Country]{
+		Conditions:         conditions,
+		RelationField:      "Country",
+		T1Field:            "CountryID",
+		T1PreloadCondition: CityPreloadAttributes,
+		T2Field:            "ID",
+	}
+}
 
+var CityPreloadCountry = CityCountry(CountryPreloadAttributes)
 var cityCountryIdFieldID = badorm.FieldIdentifier{Field: "CountryID"}
 
 func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasone.City] {
@@ -43,4 +53,4 @@ func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[ha
 }
 
 var CityPreloadAttributes = badorm.NewPreloadCondition[hasone.City](cityCountryIdFieldID)
-var CityPreloadRelations = []badorm.Condition[hasone.City]{}
+var CityPreloadRelations = []badorm.Condition[hasone.City]{CityPreloadCountry}

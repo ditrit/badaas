@@ -11,5 +11,6 @@ type Country struct {
 type City struct {
 	badorm.UUIDModel
 
+	Country   *Country
 	CountryID badorm.UUID // Country HasOne City (Country 1 -> 1 City)
 }

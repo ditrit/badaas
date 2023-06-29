@@ -111,23 +111,27 @@ func (generator RelationGettersGenerator) generateForPointer(field Field) jen.Co
 			}
 		}
 	case *types.Slice:
-		return generator.generateForSlicePointer(field.ChangeType(fieldType.Elem()))
+		return generator.generateForSlicePointer(
+			field.ChangeType(fieldType.Elem()),
+			nil,
+		)
 	}
 
 	return nil
 }
 
-func (generator RelationGettersGenerator) generateForSlicePointer(field Field) jen.Code {
+func (generator RelationGettersGenerator) generateForSlicePointer(field Field, fieldTypePrefix *jen.Statement) jen.Code {
 	switch fieldType := field.GetType().(type) {
 	case *types.Named:
 		_, err := field.Type.BadORMModelStruct()
 		if err == nil {
 			// field is a pointer to a slice of BaDORM Model
-			return generator.verifyCollection(field)
+			return generator.verifyCollection(field, fieldTypePrefix)
 		}
 	case *types.Pointer:
 		return generator.generateForSlicePointer(
 			field.ChangeType(fieldType.Elem()),
+			jen.Op("*"),
 		)
 	}
 
@@ -143,6 +147,7 @@ func (generator RelationGettersGenerator) verifyStruct(field Field) *jen.Stateme
 		field,
 		badORMVerifyStructLoaded,
 		jen.Op("*"),
+		nil,
 		jen.Op("&").Id("m").Op(".").Id(field.Name),
 	)
 }
@@ -155,12 +160,12 @@ func (generator RelationGettersGenerator) verifyPointerWithID(field Field) *jen.
 	return generator.verifyPointerCommon(field, badORMVerifyPointerWithIDLoaded)
 }
 
-func (generator RelationGettersGenerator) verifyCollection(field Field) jen.Code {
+func (generator RelationGettersGenerator) verifyCollection(field Field, fieldTypePrefix *jen.Statement) jen.Code {
 	return generator.verifyCommon(
 		field,
 		badORMVerifyCollectionLoaded,
-		// TODO verificar que antes tanto para *[] como para *[]*
 		jen.Index(),
+		fieldTypePrefix,
 		jen.Id("m").Op(".").Id(field.Name),
 	)
 }
@@ -170,6 +175,7 @@ func (generator RelationGettersGenerator) verifyPointerCommon(field Field, verif
 		field,
 		verifyFunc,
 		jen.Op("*"),
+		nil,
 		jen.Id("m").Op(".").Id(field.Name+"ID"),
 		jen.Id("m").Op(".").Id(field.Name),
 	)
@@ -179,21 +185,27 @@ func (generator RelationGettersGenerator) verifyCommon(
 	field Field,
 	verifyFunc string,
 	returnType *jen.Statement,
+	fieldTypePrefix *jen.Statement,
 	callParams ...jen.Code,
 ) *jen.Statement {
+	fieldType := jen.Qual(
+		getRelativePackagePath(
+			generator.object.Pkg().Name(),
+			field.Type,
+		),
+		field.TypeName(),
+	)
+
+	if fieldTypePrefix != nil {
+		fieldType = fieldTypePrefix.Add(fieldType)
+	}
+
 	return jen.Func().Parens(
 		jen.Id("m").Id(generator.object.Name()),
 	).Id(getGetterName(field)).Params().Add(
 		jen.Parens(
 			jen.List(
-				returnType.Qual(
-					getRelativePackagePath(
-						generator.object.Pkg().Name(),
-						field.Type,
-					),
-					field.TypeName(),
-				),
-
+				returnType.Add(fieldType),
 				jen.Id("error"),
 			),
 		),
@@ -203,7 +215,7 @@ func (generator RelationGettersGenerator) verifyCommon(
 				badORMPath,
 				verifyFunc,
 			).Types(
-				jen.Id(field.TypeName()),
+				fieldType,
 			).Call(
 				callParams...,
 			),
