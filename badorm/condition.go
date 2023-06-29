@@ -9,13 +9,13 @@ import (
 	"gorm.io/gorm"
 )
 
-const DeletedAtField = "DeletedAt"
+const deletedAtField = "DeletedAt"
 
 var (
 	IDFieldID        = FieldIdentifier{Field: "ID"}
 	CreatedAtFieldID = FieldIdentifier{Field: "CreatedAt"}
 	UpdatedAtFieldID = FieldIdentifier{Field: "UpdatedAt"}
-	DeletedAtFieldID = FieldIdentifier{Field: DeletedAtField}
+	DeletedAtFieldID = FieldIdentifier{Field: deletedAtField}
 )
 
 var (
@@ -29,11 +29,13 @@ type Table struct {
 	Initial bool
 }
 
+// Returns true if the Table is the initial table in a query
 func (t Table) IsInitial() bool {
 	return t.Initial
 }
 
-func (t Table) DeliverTable(query *gorm.DB, model any, relationName string) (Table, error) {
+// Returns the related Table corresponding to the model
+func (t Table) DeliverTable(query *gorm.DB, model Model, relationName string) (Table, error) {
 	// get the name of the table for the model
 	tableName, err := getTableName(query, model)
 	if err != nil {
@@ -193,7 +195,7 @@ func (columnID FieldIdentifier) ColumnName(db *gorm.DB, table Table) string {
 	return columnID.ColumnPrefix + columnName
 }
 
-// TODO doc
+// Condition used to the preload the attributes of a model
 type PreloadCondition[T Model] struct {
 	Fields []FieldIdentifier
 }
@@ -221,7 +223,7 @@ func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, table Table) (*gorm
 	return query, nil
 }
 
-// TODO doc
+// Condition used to the preload the attributes of a model
 func NewPreloadCondition[T Model](fields ...FieldIdentifier) PreloadCondition[T] {
 	return PreloadCondition[T]{
 		Fields: append(
@@ -235,10 +237,11 @@ func NewPreloadCondition[T Model](fields ...FieldIdentifier) PreloadCondition[T]
 	}
 }
 
-// TODO doc
+// Condition used to the preload a collection of models of a model
 type CollectionPreloadCondition[T1 Model, T2 Model] struct {
 	CollectionField string
-	NestedPreloads  []IJoinCondition[T2]
+	// For each model in the collection we can preload its relations
+	NestedPreloads []IJoinCondition[T2]
 }
 
 //nolint:unused // see inside
@@ -255,6 +258,7 @@ func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, _ Ta
 	return query.Preload(
 		condition.CollectionField,
 		func(db *gorm.DB) *gorm.DB {
+			// apply NestedPreloads
 			preloadsAsCondition := pie.Map(
 				condition.NestedPreloads,
 				func(joinCondition IJoinCondition[T2]) Condition[T2] {
@@ -273,7 +277,7 @@ func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, _ Ta
 	), nil
 }
 
-// TODO doc
+// Condition used to the preload a collection of models of a model
 func NewCollectionPreloadCondition[T1 Model, T2 Model](collectionField string, nestedPreloads []IJoinCondition[T2]) Condition[T1] {
 	if pie.Any(nestedPreloads, func(nestedPreload IJoinCondition[T2]) bool {
 		return !nestedPreload.makesPreload() || nestedPreload.makesFilter()
@@ -324,7 +328,7 @@ func applyWhereCondition[T Model](condition WhereCondition[T], query *gorm.DB, t
 
 //nolint:unused // is used
 func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
-	return condition.FieldIdentifier.Field == DeletedAtField
+	return condition.FieldIdentifier.Field == deletedAtField
 }
 
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table Table) (string, []any, error) {
