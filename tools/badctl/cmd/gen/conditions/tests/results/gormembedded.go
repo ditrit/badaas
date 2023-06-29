@@ -64,4 +64,3 @@ func GormEmbeddedGormEmbeddedNoPrefixInt(expr badorm.Expression[int]) badorm.Whe
 }
 
 var GormEmbeddedPreloadAttributes = badorm.NewPreloadCondition[gormembedded.GormEmbedded](gormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedIntFieldID, gormEmbeddedGormEmbeddedNoPrefixIntFieldID)
-var GormEmbeddedPreloadRelations = []badorm.Condition[gormembedded.GormEmbedded]{}

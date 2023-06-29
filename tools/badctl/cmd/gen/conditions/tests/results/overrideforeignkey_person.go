@@ -34,4 +34,3 @@ func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditi
 }
 
 var PersonPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkey.Person]()
-var PersonPreloadRelations = []badorm.Condition[overrideforeignkey.Person]{}

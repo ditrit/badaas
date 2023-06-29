@@ -43,4 +43,3 @@ func ProcessorComputerName(expr badorm.Expression[string]) badorm.WhereCondition
 }
 
 var ProcessorPreloadAttributes = badorm.NewPreloadCondition[overridereferencesinverse.Processor](processorComputerNameFieldID)
-var ProcessorPreloadRelations = []badorm.Condition[overridereferencesinverse.Processor]{}

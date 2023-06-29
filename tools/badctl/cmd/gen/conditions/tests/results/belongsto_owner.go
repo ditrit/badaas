@@ -34,4 +34,3 @@ func OwnerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 }
 
 var OwnerPreloadAttributes = badorm.NewPreloadCondition[belongsto.Owner]()
-var OwnerPreloadRelations = []badorm.Condition[belongsto.Owner]{}

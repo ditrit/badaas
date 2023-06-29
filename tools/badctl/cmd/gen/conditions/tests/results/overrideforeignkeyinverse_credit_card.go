@@ -43,4 +43,3 @@ func CreditCardUserReference(expr badorm.Expression[badorm.UUID]) badorm.WhereCo
 }
 
 var CreditCardPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkeyinverse.CreditCard](creditCardUserReferenceFieldID)
-var CreditCardPreloadRelations = []badorm.Condition[overrideforeignkeyinverse.CreditCard]{}

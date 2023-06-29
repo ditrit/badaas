@@ -34,4 +34,3 @@ func UintModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCond
 }
 
 var UintModelPreloadAttributes = badorm.NewPreloadCondition[uintmodel.UintModel]()
-var UintModelPreloadRelations = []badorm.Condition[uintmodel.UintModel]{}

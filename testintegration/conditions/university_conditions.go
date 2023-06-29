@@ -43,4 +43,3 @@ func UniversityName(expr badorm.Expression[string]) badorm.WhereCondition[models
 }
 
 var UniversityPreloadAttributes = badorm.NewPreloadCondition[models.University](universityNameFieldID)
-var UniversityPreloadRelations = []badorm.Condition[models.University]{}

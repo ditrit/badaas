@@ -43,4 +43,3 @@ func ColumnDefinitionString(expr badorm.Expression[string]) badorm.WhereConditio
 }
 
 var ColumnDefinitionPreloadAttributes = badorm.NewPreloadCondition[columndefinition.ColumnDefinition](columnDefinitionStringFieldID)
-var ColumnDefinitionPreloadRelations = []badorm.Condition[columndefinition.ColumnDefinition]{}

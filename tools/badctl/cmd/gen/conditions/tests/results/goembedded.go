@@ -52,4 +52,3 @@ func GoEmbeddedToBeEmbeddedInt(expr badorm.Expression[int]) badorm.WhereConditio
 }
 
 var GoEmbeddedPreloadAttributes = badorm.NewPreloadCondition[goembedded.GoEmbedded](goEmbeddedIntFieldID, goEmbeddedToBeEmbeddedIntFieldID)
-var GoEmbeddedPreloadRelations = []badorm.Condition[goembedded.GoEmbedded]{}

@@ -85,7 +85,10 @@ func (cg CodeConditionsGenerator) addConditionsForEachField(file *File, fields [
 	}
 
 	file.Add(preloadAttributesCondition.Call(fieldIdentifiers...))
-	file.Add(preloadRelationsCondition.Values(relationPreloads...))
+
+	if len(relationPreloads) > 0 {
+		file.Add(preloadRelationsCondition.Values(relationPreloads...))
+	}
 }
 
 func getPreloadAttributesName(objectName string) string {

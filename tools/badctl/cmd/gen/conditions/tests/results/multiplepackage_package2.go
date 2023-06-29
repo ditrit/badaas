@@ -43,4 +43,3 @@ func Package2Package1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereConditi
 }
 
 var Package2PreloadAttributes = badorm.NewPreloadCondition[package2.Package2](package2Package1IdFieldID)
-var Package2PreloadRelations = []badorm.Condition[package2.Package2]{}

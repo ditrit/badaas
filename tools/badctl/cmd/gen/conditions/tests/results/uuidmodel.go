@@ -34,4 +34,3 @@ func UUIDModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCond
 }
 
 var UUIDModelPreloadAttributes = badorm.NewPreloadCondition[uuidmodel.UUIDModel]()
-var UUIDModelPreloadRelations = []badorm.Condition[uuidmodel.UUIDModel]{}

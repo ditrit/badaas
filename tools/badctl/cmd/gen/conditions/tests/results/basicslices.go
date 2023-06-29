@@ -196,4 +196,3 @@ func BasicSlicesByte(expr badorm.Expression[[]uint8]) badorm.WhereCondition[basi
 }
 
 var BasicSlicesPreloadAttributes = badorm.NewPreloadCondition[basicslices.BasicSlices](basicSlicesBoolFieldID, basicSlicesIntFieldID, basicSlicesInt8FieldID, basicSlicesInt16FieldID, basicSlicesInt32FieldID, basicSlicesInt64FieldID, basicSlicesUIntFieldID, basicSlicesUInt8FieldID, basicSlicesUInt16FieldID, basicSlicesUInt32FieldID, basicSlicesUInt64FieldID, basicSlicesUIntptrFieldID, basicSlicesFloat32FieldID, basicSlicesFloat64FieldID, basicSlicesComplex64FieldID, basicSlicesComplex128FieldID, basicSlicesStringFieldID, basicSlicesByteFieldID)
-var BasicSlicesPreloadRelations = []badorm.Condition[basicslices.BasicSlices]{}

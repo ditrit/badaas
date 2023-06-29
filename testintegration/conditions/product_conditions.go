@@ -137,4 +137,3 @@ func ProductGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[m
 }
 
 var ProductPreloadAttributes = badorm.NewPreloadCondition[models.Product](productStringFieldID, productIntFieldID, productIntPointerFieldID, productFloatFieldID, productNullFloatFieldID, productBoolFieldID, productNullBoolFieldID, productByteArrayFieldID, productMultiStringFieldID, productToBeEmbeddedEmbeddedIntFieldID, productGormEmbeddedIntFieldID)
-var ProductPreloadRelations = []badorm.Condition[models.Product]{}

@@ -43,4 +43,3 @@ func ParentParentName(expr badorm.Expression[string]) badorm.WhereCondition[mode
 }
 
 var ParentParentPreloadAttributes = badorm.NewPreloadCondition[models.ParentParent](parentParentNameFieldID)
-var ParentParentPreloadRelations = []badorm.Condition[models.ParentParent]{}

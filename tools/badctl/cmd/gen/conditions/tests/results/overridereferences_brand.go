@@ -43,4 +43,3 @@ func BrandName(expr badorm.Expression[string]) badorm.WhereCondition[overrideref
 }
 
 var BrandPreloadAttributes = badorm.NewPreloadCondition[overridereferences.Brand](brandNameFieldID)
-var BrandPreloadRelations = []badorm.Condition[overridereferences.Brand]{}
