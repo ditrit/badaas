@@ -23,44 +23,11 @@ var (
 	ErrOnlyPreloadsAllowed = errors.New("only conditions that do a preload are allowed")
 )
 
-type Table struct {
-	Name    string
-	Alias   string
-	Initial bool
-}
-
-// Returns true if the Table is the initial table in a query
-func (t Table) IsInitial() bool {
-	return t.Initial
-}
-
-// Returns the related Table corresponding to the model
-func (t Table) DeliverTable(query *gorm.DB, model Model, relationName string) (Table, error) {
-	// get the name of the table for the model
-	tableName, err := getTableName(query, model)
-	if err != nil {
-		return Table{}, err
-	}
-
-	// add a suffix to avoid tables with the same name when joining
-	// the same table more than once
-	tableAlias := relationName
-	if !t.IsInitial() {
-		tableAlias = t.Alias + "__" + relationName
-	}
-
-	return Table{
-		Name:    tableName,
-		Alias:   tableAlias,
-		Initial: false,
-	}, nil
-}
-
 type Condition[T Model] interface {
 	// Applies the condition to the "query"
 	// using the "tableName" as name for the table holding
 	// the data for object of type T
-	ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error)
+	ApplyTo(query *query, table Table) error
 
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T],
@@ -75,7 +42,7 @@ type WhereCondition[T Model] interface {
 	Condition[T]
 
 	// Get the sql string and values to use in the query
-	GetSQL(query *gorm.DB, table Table) (string, []any, error)
+	GetSQL(query *query, table Table) (string, []any, error)
 
 	// Returns true if the DeletedAt column if affected by the condition
 	// If no condition affects the DeletedAt, the verification that it's null will be added automatically
@@ -95,11 +62,11 @@ func (condition ContainerCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition ContainerCondition[T]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+func (condition ContainerCondition[T]) ApplyTo(query *query, table Table) error {
 	return applyWhereCondition[T](condition, query, table)
 }
 
-func (condition ContainerCondition[T]) GetSQL(query *gorm.DB, table Table) (string, []any, error) {
+func (condition ContainerCondition[T]) GetSQL(query *query, table Table) (string, []any, error) {
 	sqlString, values, err := condition.ConnectionCondition.GetSQL(query, table)
 	if err != nil {
 		return "", nil, err
@@ -141,11 +108,11 @@ func (condition ConnectionCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition ConnectionCondition[T]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+func (condition ConnectionCondition[T]) ApplyTo(query *query, table Table) error {
 	return applyWhereCondition[T](condition, query, table)
 }
 
-func (condition ConnectionCondition[T]) GetSQL(query *gorm.DB, table Table) (string, []any, error) {
+func (condition ConnectionCondition[T]) GetSQL(query *query, table Table) (string, []any, error) {
 	sqlStrings := []string{}
 	values := []any{}
 
@@ -179,22 +146,6 @@ func NewConnectionCondition[T Model](connector string, conditions ...WhereCondit
 	}
 }
 
-type FieldIdentifier struct {
-	Column       string
-	Field        string
-	ColumnPrefix string
-}
-
-func (columnID FieldIdentifier) ColumnName(db *gorm.DB, table Table) string {
-	columnName := columnID.Column
-	if columnName == "" {
-		columnName = db.NamingStrategy.ColumnName(table.Name, columnID.Field)
-	}
-
-	// add column prefix and table name once we know the column name
-	return columnID.ColumnPrefix + columnName
-}
-
 // Condition used to the preload the attributes of a model
 type PreloadCondition[T Model] struct {
 	Fields []FieldIdentifier
@@ -206,21 +157,12 @@ func (condition PreloadCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition PreloadCondition[T]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+func (condition PreloadCondition[T]) ApplyTo(query *query, table Table) error {
 	for _, fieldID := range condition.Fields {
-		columnName := fieldID.ColumnName(query, table)
-
-		query.Statement.Selects = append(
-			query.Statement.Selects,
-			fmt.Sprintf(
-				"%[1]s.%[2]s AS \"%[1]s__%[2]s\"", // name used by gorm to load the fields inside the models
-				table.Alias,
-				columnName,
-			),
-		)
+		query.AddSelect(table, fieldID)
 	}
 
-	return query, nil
+	return nil
 }
 
 // Condition used to the preload the attributes of a model
@@ -250,12 +192,13 @@ func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(
 	// that an object is of type Condition[T1]
 }
 
-func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, _ Table) (*gorm.DB, error) {
+func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(queryV *query, _ Table) error {
 	if len(condition.NestedPreloads) == 0 {
-		return query.Preload(condition.CollectionField), nil
+		queryV.Preload(condition.CollectionField)
+		return nil
 	}
 
-	return query.Preload(
+	queryV.Preload(
 		condition.CollectionField,
 		func(db *gorm.DB) *gorm.DB {
 			// apply NestedPreloads
@@ -266,15 +209,19 @@ func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *gorm.DB, _ Ta
 				},
 			)
 
-			query, err := applyConditionsToQuery[T2](db, preloadsAsCondition)
+			preloadInternalQuery := &query{gormDB: db}
+
+			err := applyConditionsToQuery[T2](preloadInternalQuery, preloadsAsCondition)
 			if err != nil {
 				_ = db.AddError(err)
 				return db
 			}
 
-			return query
+			return preloadInternalQuery.gormDB
 		},
-	), nil
+	)
+
+	return nil
 }
 
 // Condition used to the preload a collection of models of a model
@@ -306,24 +253,26 @@ func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(
 
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
-func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *query, table Table) error {
 	return applyWhereCondition[TObject](condition, query, table)
 }
 
-func applyWhereCondition[T Model](condition WhereCondition[T], query *gorm.DB, table Table) (*gorm.DB, error) {
+func applyWhereCondition[T Model](condition WhereCondition[T], query *query, table Table) error {
 	sql, values, err := condition.GetSQL(query, table)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if condition.affectsDeletedAt() {
-		query = query.Unscoped()
+		query.Unscoped()
 	}
 
-	return query.Where(
+	query.Where(
 		sql,
 		values...,
-	), nil
+	)
+
+	return nil
 }
 
 //nolint:unused // is used
@@ -331,9 +280,11 @@ func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
 	return condition.FieldIdentifier.Field == deletedAtField
 }
 
-func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *gorm.DB, table Table) (string, []any, error) {
-	columnName := table.Alias + "." + condition.FieldIdentifier.ColumnName(query, table)
-	return condition.Expression.ToSQL(columnName)
+func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *query, table Table) (string, []any, error) {
+	return condition.Expression.ToSQL(
+		query,
+		condition.FieldIdentifier.ColumnSQL(query, table),
+	)
 }
 
 // Interface of a join condition that joins T with any other model
@@ -386,14 +337,14 @@ func (condition JoinCondition[T1, T2]) makesFilter() bool {
 // Applies a join between the tables of T1 and T2
 // previousTableName is the name of the table of T1
 // It also applies the nested conditions
-func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, t1Table Table) (*gorm.DB, error) {
+func (condition JoinCondition[T1, T2]) ApplyTo(query *query, t1Table Table) error {
 	whereConditions, joinConditions, t2PreloadCondition := divideConditionsByType(condition.Conditions)
 
 	// get the sql to do the join with T2
 	// if it's only a preload use a left join
 	t2Table, err := t1Table.DeliverTable(query, *new(T2), condition.RelationField)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	makesPreload := condition.makesPreload()
@@ -407,9 +358,10 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, t1Table Table) (*
 	// apply WhereConditions to the join in the "on" clause
 	connectionCondition := And(whereConditions...)
 
+	// TODO aca es donde tengo que mandar la lista correcta
 	onQuery, onValues, err := connectionCondition.GetSQL(query, t2Table)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if onQuery != "" {
@@ -424,7 +376,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, t1Table Table) (*
 	}
 
 	// add the join to the query
-	query = query.Joins(joinQuery, onValues...)
+	query.Joins(joinQuery, onValues...)
 
 	// apply T1 preload condition
 	// if this condition has a T2 preload condition
@@ -432,36 +384,36 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *gorm.DB, t1Table Table) (*
 	// and this is not first level (T1 is the type of the repository)
 	// because T1 is always loaded in that case
 	if makesPreload && !t1Table.IsInitial() {
-		query, err = condition.T1PreloadCondition.ApplyTo(query, t1Table)
+		err = condition.T1PreloadCondition.ApplyTo(query, t1Table)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	// apply T2 preload condition
 	if t2PreloadCondition != nil {
-		query, err = t2PreloadCondition.ApplyTo(query, t2Table)
+		err = t2PreloadCondition.ApplyTo(query, t2Table)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
 	// apply nested joins
 	for _, joinCondition := range joinConditions {
-		query, err = joinCondition.ApplyTo(query, t2Table)
+		err = joinCondition.ApplyTo(query, t2Table)
 		if err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return query, nil
+	return nil
 }
 
 // Returns the SQL string to do a join between T1 and T2
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
 func (condition JoinCondition[T1, T2]) getSQLJoin(
-	query *gorm.DB,
+	query *query,
 	t1Table Table,
 	t2Table Table,
 	isLeftJoin bool,
@@ -476,9 +428,9 @@ func (condition JoinCondition[T1, T2]) getSQLJoin(
 		`,
 		t2Table.Name,
 		t2Table.Alias,
-		query.NamingStrategy.ColumnName(t2Table.Name, condition.T2Field),
+		query.ColumnName(t2Table, condition.T2Field),
 		t1Table.Alias,
-		query.NamingStrategy.ColumnName(t1Table.Name, condition.T1Field),
+		query.ColumnName(t1Table, condition.T1Field),
 		joinString,
 	)
 }
@@ -519,11 +471,11 @@ func (condition UnsafeCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition UnsafeCondition[T]) ApplyTo(query *gorm.DB, table Table) (*gorm.DB, error) {
+func (condition UnsafeCondition[T]) ApplyTo(query *query, table Table) error {
 	return applyWhereCondition[T](condition, query, table)
 }
 
-func (condition UnsafeCondition[T]) GetSQL(_ *gorm.DB, table Table) (string, []any, error) {
+func (condition UnsafeCondition[T]) GetSQL(_ *query, table Table) (string, []any, error) {
 	return fmt.Sprintf(
 		condition.SQLCondition,
 		table.Alias,
@@ -555,11 +507,11 @@ func (condition InvalidCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition InvalidCondition[T]) ApplyTo(_ *gorm.DB, _ Table) (*gorm.DB, error) {
-	return nil, condition.Err
+func (condition InvalidCondition[T]) ApplyTo(_ *query, _ Table) error {
+	return condition.Err
 }
 
-func (condition InvalidCondition[T]) GetSQL(_ *gorm.DB, _ Table) (string, []any, error) {
+func (condition InvalidCondition[T]) GetSQL(_ *query, _ Table) (string, []any, error) {
 	return "", nil, condition.Err
 }
 

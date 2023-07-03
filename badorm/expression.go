@@ -20,7 +20,7 @@ var (
 type Expression[T any] interface {
 	// Transform the Expression to a SQL string and a list of values to use in the query
 	// columnName is used by the expression to determine which is the objective column.
-	ToSQL(columnName string) (string, []any, error)
+	ToSQL(query *query, columnName string) (string, []any, error)
 
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Expression[T],
@@ -47,7 +47,7 @@ func (expr ValueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr ValueExpression[T]) ToSQL(columnName string) (string, []any, error) {
+func (expr ValueExpression[T]) ToSQL(_ *query, columnName string) (string, []any, error) {
 	exprString := columnName
 	values := []any{}
 
@@ -116,7 +116,7 @@ func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr MultivalueExpression[T]) ToSQL(columnName string) (string, []any, error) {
+func (expr MultivalueExpression[T]) ToSQL(_ *query, columnName string) (string, []any, error) {
 	placeholders := strings.Join(pie.Map(expr.Values, func(value T) string {
 		return "?"
 	}), " "+expr.SQLConnector+" ")
@@ -155,7 +155,7 @@ func (expr PredicateExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr PredicateExpression[T]) ToSQL(columnName string) (string, []any, error) {
+func (expr PredicateExpression[T]) ToSQL(_ *query, columnName string) (string, []any, error) {
 	return fmt.Sprintf("%s %s", columnName, expr.SQLExpression), []any{}, nil
 }
 
@@ -175,7 +175,7 @@ func (expr InvalidExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr InvalidExpression[T]) ToSQL(_ string) (string, []any, error) {
+func (expr InvalidExpression[T]) ToSQL(_ *query, _ string) (string, []any, error) {
 	return "", nil, expr.Err
 }
 
