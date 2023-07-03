@@ -2,10 +2,13 @@
 package conditions
 
 import (
+	"reflect"
+	"time"
+
+	gorm "gorm.io/gorm"
+
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
-	gorm "gorm.io/gorm"
-	"time"
 )
 
 func SellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
@@ -33,12 +36,13 @@ func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditi
 	}
 }
 
-var sellerNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+// TODO generacion automatica
+var SellerNameField = badorm.FieldIdentifier{Field: "Name", Type: reflect.String, ModelType: reflect.TypeOf(models.Seller{})}
 
 func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, string]{
 		Expression:      expr,
-		FieldIdentifier: sellerNameFieldID,
+		FieldIdentifier: SellerNameField,
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.IJoinCondition[models.Seller] {
@@ -80,5 +84,5 @@ func SellerUniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereConditi
 	}
 }
 
-var SellerPreloadAttributes = badorm.NewPreloadCondition[models.Seller](sellerNameFieldID, sellerCompanyIdFieldID, sellerUniversityIdFieldID)
+var SellerPreloadAttributes = badorm.NewPreloadCondition[models.Seller](SellerNameField, sellerCompanyIdFieldID, sellerUniversityIdFieldID)
 var SellerPreloadRelations = []badorm.Condition[models.Seller]{SellerPreloadCompany, SellerPreloadUniversity}

@@ -979,3 +979,22 @@ func (ts *ExpressionIntTestSuite) TestPosixRegexNotPosix() {
 		ts.ErrorContains(err, "error parsing regexp")
 	}
 }
+
+func (ts *ExpressionIntTestSuite) TestDynamicExpressionOver1Table() {
+	int1 := 1
+	product1 := ts.createProduct("", 1, 0.0, false, &int1)
+	ts.createProduct("", 2, 0.0, false, &int1)
+	ts.createProduct("", 0, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.NewDynamicExpression(
+				badorm.Eq[int],
+				conditions.ProductIntPointerField,
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{product1}, entities)
+}

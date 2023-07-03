@@ -85,9 +85,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Cond
 
 // Get the list of objects that match "conditions" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
-	query := &query{gormDB: tx}
-
-	err := applyConditionsToQuery(query, conditions)
+	query, err := NewQuery(tx, conditions)
 	if err != nil {
 		return nil, err
 	}

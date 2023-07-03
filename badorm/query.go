@@ -2,6 +2,7 @@ package badorm
 
 import (
 	"fmt"
+	"reflect"
 
 	"gorm.io/gorm"
 )
@@ -44,6 +45,8 @@ type FieldIdentifier struct {
 	Column       string
 	Field        string
 	ColumnPrefix string
+	Type         reflect.Kind
+	ModelType    reflect.Type
 }
 
 // Returns the name of the column in which the field is saved in the table
@@ -63,7 +66,8 @@ func (columnID FieldIdentifier) ColumnSQL(query *query, table Table) string {
 }
 
 type query struct {
-	gormDB *gorm.DB
+	gormDB          *gorm.DB
+	concernedModels map[reflect.Type]Table
 }
 
 func (query *query) AddSelect(table Table, fieldID FieldIdentifier) {
@@ -101,15 +105,22 @@ func (query *query) Find(dest interface{}, conds ...interface{}) error {
 	return query.gormDB.Error
 }
 
+func (query *query) AddConcernedModel(model Model, table Table) {
+	// TODO que pasa si ya estaba
+	query.concernedModels[reflect.TypeOf(model)] = table
+}
+
 // TODO ver esta, porque no estoy usando los fields aca y que pasa si hay fk override y todo eso
 func (query query) ColumnName(table Table, fieldName string) string {
 	return query.gormDB.NamingStrategy.ColumnName(table.Name, fieldName)
 }
 
-func applyConditionsToQuery[T Model](query *query, conditions []Condition[T]) error {
-	initialTableName, err := getTableName(query.gormDB, *new(T))
+func NewQuery[T Model](db *gorm.DB, conditions []Condition[T]) (*query, error) {
+	model := *new(T)
+
+	initialTableName, err := getTableName(db, model)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	initialTable := Table{
@@ -118,13 +129,18 @@ func applyConditionsToQuery[T Model](query *query, conditions []Condition[T]) er
 		Initial: true,
 	}
 
-	query.gormDB = query.gormDB.Select(initialTableName + ".*")
+	query := &query{
+		gormDB:          db.Select(initialTableName + ".*"),
+		concernedModels: map[reflect.Type]Table{},
+	}
+	query.AddConcernedModel(model, initialTable)
+
 	for _, condition := range conditions {
 		err = condition.ApplyTo(query, initialTable)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	return nil
+	return query, nil
 }

@@ -3,10 +3,13 @@ package conditions
 
 import (
 	"database/sql"
+	"reflect"
+	"time"
+
+	gorm "gorm.io/gorm"
+
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
-	gorm "gorm.io/gorm"
-	"time"
 )
 
 func ProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Product] {
@@ -52,12 +55,12 @@ func ProductInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Produc
 	}
 }
 
-var productIntPointerFieldID = badorm.FieldIdentifier{Field: "IntPointer"}
+var ProductIntPointerField = badorm.FieldIdentifier{Field: "IntPointer", Type: reflect.Int, ModelType: reflect.TypeOf(models.Product{})}
 
 func ProductIntPointer(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
 		Expression:      expr,
-		FieldIdentifier: productIntPointerFieldID,
+		FieldIdentifier: ProductIntPointerField,
 	}
 }
 
@@ -136,4 +139,4 @@ func ProductGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[m
 	}
 }
 
-var ProductPreloadAttributes = badorm.NewPreloadCondition[models.Product](productStringFieldID, productIntFieldID, productIntPointerFieldID, productFloatFieldID, productNullFloatFieldID, productBoolFieldID, productNullBoolFieldID, productByteArrayFieldID, productMultiStringFieldID, productToBeEmbeddedEmbeddedIntFieldID, productGormEmbeddedIntFieldID)
+var ProductPreloadAttributes = badorm.NewPreloadCondition[models.Product](productStringFieldID, productIntFieldID, ProductIntPointerField, productFloatFieldID, productNullFloatFieldID, productBoolFieldID, productNullBoolFieldID, productByteArrayFieldID, productMultiStringFieldID, productToBeEmbeddedEmbeddedIntFieldID, productGormEmbeddedIntFieldID)

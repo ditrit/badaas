@@ -354,6 +354,58 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsMultipleTimes() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
+func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2Tables() {
+	company1 := ts.createCompany("ditrit")
+	company2 := ts.createCompany("orness")
+
+	seller1 := ts.createSeller("ditrit", company1)
+	ts.createSeller("agustin", company2)
+
+	entities, err := ts.crudSellerService.GetEntities(
+		conditions.SellerCompany(
+			conditions.CompanyName(
+				badorm.NewDynamicExpression(
+					badorm.Eq[string],
+					conditions.SellerNameField,
+				),
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Seller{seller1}, entities)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLevel() {
+	product1 := ts.createProduct("", 0, 0.0, false, nil)
+	product2 := ts.createProduct("", 0, 0.0, false, nil)
+
+	company1 := ts.createCompany("ditrit")
+	company2 := ts.createCompany("orness")
+
+	seller1 := ts.createSeller("ditrit", company1)
+	seller2 := ts.createSeller("agustin", company2)
+
+	match := ts.createSale(0, product1, seller1)
+	ts.createSale(0, product2, seller2)
+
+	entities, err := ts.crudSaleService.GetEntities(
+		conditions.SaleSeller(
+			conditions.SellerCompany(
+				conditions.CompanyName(
+					badorm.NewDynamicExpression(
+						badorm.Eq[string],
+						conditions.SellerNameField,
+					),
+				),
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+}
+
 func (ts *JoinConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)

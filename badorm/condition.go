@@ -192,13 +192,13 @@ func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(
 	// that an object is of type Condition[T1]
 }
 
-func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(queryV *query, _ Table) error {
+func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *query, _ Table) error {
 	if len(condition.NestedPreloads) == 0 {
-		queryV.Preload(condition.CollectionField)
+		query.Preload(condition.CollectionField)
 		return nil
 	}
 
-	queryV.Preload(
+	query.Preload(
 		condition.CollectionField,
 		func(db *gorm.DB) *gorm.DB {
 			// apply NestedPreloads
@@ -209,9 +209,7 @@ func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(queryV *query, _ Tab
 				},
 			)
 
-			preloadInternalQuery := &query{gormDB: db}
-
-			err := applyConditionsToQuery[T2](preloadInternalQuery, preloadsAsCondition)
+			preloadInternalQuery, err := NewQuery(db, preloadsAsCondition)
 			if err != nil {
 				_ = db.AddError(err)
 				return db
@@ -340,9 +338,11 @@ func (condition JoinCondition[T1, T2]) makesFilter() bool {
 func (condition JoinCondition[T1, T2]) ApplyTo(query *query, t1Table Table) error {
 	whereConditions, joinConditions, t2PreloadCondition := divideConditionsByType(condition.Conditions)
 
+	t2Model := *new(T2)
+
 	// get the sql to do the join with T2
 	// if it's only a preload use a left join
-	t2Table, err := t1Table.DeliverTable(query, *new(T2), condition.RelationField)
+	t2Table, err := t1Table.DeliverTable(query, t2Model, condition.RelationField)
 	if err != nil {
 		return err
 	}
@@ -353,6 +353,11 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *query, t1Table Table) erro
 		t1Table,
 		t2Table,
 		len(whereConditions) == 0 && makesPreload,
+	)
+
+	query.AddConcernedModel(
+		t2Model,
+		t2Table,
 	)
 
 	// apply WhereConditions to the join in the "on" clause
