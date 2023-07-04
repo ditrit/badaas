@@ -10,10 +10,9 @@ import (
 )
 
 var parentParentType = reflect.TypeOf(*new(models.ParentParent))
-var ParentParentIdField = badorm.FieldIdentifier{
+var ParentParentIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: parentParentType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.ParentParent] {
@@ -23,10 +22,9 @@ func ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[m
 	}
 }
 
-var ParentParentCreatedAtField = badorm.FieldIdentifier{
+var ParentParentCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: parentParentType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func ParentParentCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
@@ -36,10 +34,9 @@ func ParentParentCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondit
 	}
 }
 
-var ParentParentUpdatedAtField = badorm.FieldIdentifier{
+var ParentParentUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: parentParentType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func ParentParentUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
@@ -49,10 +46,9 @@ func ParentParentUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondit
 	}
 }
 
-var ParentParentDeletedAtField = badorm.FieldIdentifier{
+var ParentParentDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: parentParentType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.ParentParent] {
@@ -62,10 +58,9 @@ func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereC
 	}
 }
 
-var ParentParentNameField = badorm.FieldIdentifier{
+var ParentParentNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: parentParentType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func ParentParentName(expr badorm.Expression[string]) badorm.WhereCondition[models.ParentParent] {

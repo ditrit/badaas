@@ -365,7 +365,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2Tables() {
 	entities, err := ts.crudSellerService.GetEntities(
 		conditions.SellerCompany(
 			conditions.CompanyName(
-				badorm.NewDynamicExpression[string](
+				badorm.DynamicExpression(
 					expressions.Eq,
 					conditions.SellerNameField,
 				),
@@ -394,7 +394,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLeve
 		conditions.SaleSeller(
 			conditions.SellerCompany(
 				conditions.CompanyName(
-					badorm.NewDynamicExpression[string](
+					badorm.DynamicExpression(
 						expressions.Eq,
 						conditions.SellerNameField,
 					),

@@ -10,10 +10,9 @@ import (
 )
 
 var countryType = reflect.TypeOf(*new(models.Country))
-var CountryIdField = badorm.FieldIdentifier{
+var CountryIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: countryType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func CountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Country] {
@@ -23,10 +22,9 @@ func CountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models
 	}
 }
 
-var CountryCreatedAtField = badorm.FieldIdentifier{
+var CountryCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: countryType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func CountryCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
@@ -36,10 +34,9 @@ func CountryCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var CountryUpdatedAtField = badorm.FieldIdentifier{
+var CountryUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: countryType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func CountryUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
@@ -49,10 +46,9 @@ func CountryUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var CountryDeletedAtField = badorm.FieldIdentifier{
+var CountryDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: countryType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Country] {
@@ -62,10 +58,9 @@ func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 	}
 }
 
-var CountryNameField = badorm.FieldIdentifier{
+var CountryNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: countryType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func CountryName(expr badorm.Expression[string]) badorm.WhereCondition[models.Country] {

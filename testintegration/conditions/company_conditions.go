@@ -10,10 +10,9 @@ import (
 )
 
 var companyType = reflect.TypeOf(*new(models.Company))
-var CompanyIdField = badorm.FieldIdentifier{
+var CompanyIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: companyType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Company] {
@@ -23,10 +22,9 @@ func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models
 	}
 }
 
-var CompanyCreatedAtField = badorm.FieldIdentifier{
+var CompanyCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: companyType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
@@ -36,10 +34,9 @@ func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var CompanyUpdatedAtField = badorm.FieldIdentifier{
+var CompanyUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: companyType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
@@ -49,10 +46,9 @@ func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var CompanyDeletedAtField = badorm.FieldIdentifier{
+var CompanyDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: companyType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
@@ -62,10 +58,9 @@ func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 	}
 }
 
-var CompanyNameField = badorm.FieldIdentifier{
+var CompanyNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: companyType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Company] {

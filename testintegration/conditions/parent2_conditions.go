@@ -10,10 +10,9 @@ import (
 )
 
 var parent2Type = reflect.TypeOf(*new(models.Parent2))
-var Parent2IdField = badorm.FieldIdentifier{
+var Parent2IdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: parent2Type,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func Parent2Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent2] {
@@ -23,10 +22,9 @@ func Parent2Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models
 	}
 }
 
-var Parent2CreatedAtField = badorm.FieldIdentifier{
+var Parent2CreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: parent2Type,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func Parent2CreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Parent2] {
@@ -36,10 +34,9 @@ func Parent2CreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var Parent2UpdatedAtField = badorm.FieldIdentifier{
+var Parent2UpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: parent2Type,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func Parent2UpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Parent2] {
@@ -49,10 +46,9 @@ func Parent2UpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var Parent2DeletedAtField = badorm.FieldIdentifier{
+var Parent2DeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: parent2Type,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func Parent2DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Parent2] {
@@ -72,10 +68,9 @@ func Parent2ParentParent(conditions ...badorm.Condition[models.ParentParent]) ba
 }
 
 var Parent2PreloadParentParent = Parent2ParentParent(ParentParentPreloadAttributes)
-var Parent2ParentParentIdField = badorm.FieldIdentifier{
+var Parent2ParentParentIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ParentParentID",
 	ModelType: parent2Type,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func Parent2ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent2] {

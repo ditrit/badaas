@@ -10,10 +10,9 @@ import (
 )
 
 var personType = reflect.TypeOf(*new(models.Person))
-var PersonIdField = badorm.FieldIdentifier{
+var PersonIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: personType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func PersonId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Person] {
@@ -23,10 +22,9 @@ func PersonId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.
 	}
 }
 
-var PersonCreatedAtField = badorm.FieldIdentifier{
+var PersonCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: personType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func PersonCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
@@ -36,10 +34,9 @@ func PersonCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mo
 	}
 }
 
-var PersonUpdatedAtField = badorm.FieldIdentifier{
+var PersonUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: personType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func PersonUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
@@ -49,10 +46,9 @@ func PersonUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mo
 	}
 }
 
-var PersonDeletedAtField = badorm.FieldIdentifier{
+var PersonDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: personType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Person] {
@@ -62,10 +58,9 @@ func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditi
 	}
 }
 
-var PersonNameField = badorm.FieldIdentifier{
+var PersonNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: personType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func PersonName(expr badorm.Expression[string]) badorm.WhereCondition[models.Person] {

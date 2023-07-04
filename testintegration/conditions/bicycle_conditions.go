@@ -10,10 +10,9 @@ import (
 )
 
 var bicycleType = reflect.TypeOf(*new(models.Bicycle))
-var BicycleIdField = badorm.FieldIdentifier{
+var BicycleIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: bicycleType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func BicycleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Bicycle] {
@@ -23,10 +22,9 @@ func BicycleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models
 	}
 }
 
-var BicycleCreatedAtField = badorm.FieldIdentifier{
+var BicycleCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: bicycleType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func BicycleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Bicycle] {
@@ -36,10 +34,9 @@ func BicycleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var BicycleUpdatedAtField = badorm.FieldIdentifier{
+var BicycleUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: bicycleType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func BicycleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Bicycle] {
@@ -49,10 +46,9 @@ func BicycleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[m
 	}
 }
 
-var BicycleDeletedAtField = badorm.FieldIdentifier{
+var BicycleDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: bicycleType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Bicycle] {
@@ -62,10 +58,9 @@ func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondit
 	}
 }
 
-var BicycleNameField = badorm.FieldIdentifier{
+var BicycleNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: bicycleType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func BicycleName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
@@ -85,10 +80,9 @@ func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.IJoinCon
 }
 
 var BicyclePreloadOwner = BicycleOwner(PersonPreloadAttributes)
-var BicycleOwnerNameField = badorm.FieldIdentifier{
+var BicycleOwnerNameField = badorm.FieldIdentifier[string]{
 	Field:     "OwnerName",
 	ModelType: bicycleType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {

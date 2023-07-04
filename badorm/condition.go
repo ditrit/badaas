@@ -141,7 +141,7 @@ func NewConnectionCondition[T Model](connector string, conditions ...WhereCondit
 
 // Condition used to the preload the attributes of a model
 type PreloadCondition[T Model] struct {
-	Fields []FieldIdentifier
+	Fields []IFieldIdentifier
 }
 
 //nolint:unused // see inside
@@ -159,7 +159,7 @@ func (condition PreloadCondition[T]) ApplyTo(query *query, table Table) error {
 }
 
 // Condition used to the preload the attributes of a model
-func NewPreloadCondition[T Model](fields ...FieldIdentifier) PreloadCondition[T] {
+func NewPreloadCondition[T Model](fields ...IFieldIdentifier) PreloadCondition[T] {
 	return PreloadCondition[T]{
 		Fields: fields,
 	}
@@ -225,7 +225,7 @@ func NewCollectionPreloadCondition[T1 Model, T2 Model](collectionField string, n
 // Condition that verifies the value of a field,
 // using the Expression
 type FieldCondition[TObject Model, TAtribute any] struct {
-	FieldIdentifier FieldIdentifier
+	FieldIdentifier FieldIdentifier[TAtribute]
 	Expression      Expression[TAtribute]
 }
 

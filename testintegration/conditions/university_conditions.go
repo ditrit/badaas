@@ -10,10 +10,9 @@ import (
 )
 
 var universityType = reflect.TypeOf(*new(models.University))
-var UniversityIdField = badorm.FieldIdentifier{
+var UniversityIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: universityType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func UniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.University] {
@@ -23,10 +22,9 @@ func UniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[mod
 	}
 }
 
-var UniversityCreatedAtField = badorm.FieldIdentifier{
+var UniversityCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: universityType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func UniversityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
@@ -36,10 +34,9 @@ func UniversityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereConditio
 	}
 }
 
-var UniversityUpdatedAtField = badorm.FieldIdentifier{
+var UniversityUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: universityType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func UniversityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
@@ -49,10 +46,9 @@ func UniversityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereConditio
 	}
 }
 
-var UniversityDeletedAtField = badorm.FieldIdentifier{
+var UniversityDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: universityType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func UniversityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.University] {
@@ -62,10 +58,9 @@ func UniversityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCon
 	}
 }
 
-var UniversityNameField = badorm.FieldIdentifier{
+var UniversityNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: universityType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func UniversityName(expr badorm.Expression[string]) badorm.WhereCondition[models.University] {

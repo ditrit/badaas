@@ -10,10 +10,9 @@ import (
 )
 
 var cityType = reflect.TypeOf(*new(models.City))
-var CityIdField = badorm.FieldIdentifier{
+var CityIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: cityType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func CityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
@@ -23,10 +22,9 @@ func CityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Ci
 	}
 }
 
-var CityCreatedAtField = badorm.FieldIdentifier{
+var CityCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: cityType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
@@ -36,10 +34,9 @@ func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mode
 	}
 }
 
-var CityUpdatedAtField = badorm.FieldIdentifier{
+var CityUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: cityType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
@@ -49,10 +46,9 @@ func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mode
 	}
 }
 
-var CityDeletedAtField = badorm.FieldIdentifier{
+var CityDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: cityType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
@@ -62,10 +58,9 @@ func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition
 	}
 }
 
-var CityNameField = badorm.FieldIdentifier{
+var CityNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: cityType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City] {
@@ -85,10 +80,9 @@ func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.IJoinCon
 }
 
 var CityPreloadCountry = CityCountry(CountryPreloadAttributes)
-var CityCountryIdField = badorm.FieldIdentifier{
+var CityCountryIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "CountryID",
 	ModelType: cityType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {

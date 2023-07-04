@@ -10,10 +10,9 @@ import (
 )
 
 var brandType = reflect.TypeOf(*new(models.Brand))
-var BrandIdField = badorm.FieldIdentifier{
+var BrandIdField = badorm.FieldIdentifier[badorm.UIntID]{
 	Field:     "ID",
 	ModelType: brandType,
-	Type:      reflect.TypeOf(*new(badorm.UIntID)),
 }
 
 func BrandId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models.Brand] {
@@ -23,10 +22,9 @@ func BrandId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models
 	}
 }
 
-var BrandCreatedAtField = badorm.FieldIdentifier{
+var BrandCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: brandType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func BrandCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Brand] {
@@ -36,10 +34,9 @@ func BrandCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mod
 	}
 }
 
-var BrandUpdatedAtField = badorm.FieldIdentifier{
+var BrandUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: brandType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func BrandUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Brand] {
@@ -49,10 +46,9 @@ func BrandUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mod
 	}
 }
 
-var BrandDeletedAtField = badorm.FieldIdentifier{
+var BrandDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: brandType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func BrandDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Brand] {
@@ -62,10 +58,9 @@ func BrandDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 	}
 }
 
-var BrandNameField = badorm.FieldIdentifier{
+var BrandNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: brandType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func BrandName(expr badorm.Expression[string]) badorm.WhereCondition[models.Brand] {

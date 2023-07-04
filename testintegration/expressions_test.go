@@ -989,7 +989,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBasicType() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			badorm.NewDynamicExpression[int](
+			badorm.DynamicExpression(
 				expressions.Eq,
 				conditions.ProductIntPointerField,
 			),
@@ -998,18 +998,6 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBasicType() {
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{product1}, entities)
-}
-
-func (ts *ExpressionIntTestSuite) TestDynamicExpressionWithFieldOfAnotherTypeReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
-		conditions.ProductInt(
-			badorm.NewDynamicExpression[int](
-				expressions.Eq,
-				conditions.ProductStringField,
-			),
-		),
-	)
-	ts.ErrorIs(err, badorm.ErrFieldTypeDoesNotMatch)
 }
 
 func (ts *ExpressionIntTestSuite) TestDynamicExpressionForCustomType() {
@@ -1023,52 +1011,9 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForCustomType() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductMultiString(
-			badorm.NewDynamicExpression[models.MultiString](
+			badorm.DynamicExpression(
 				expressions.Eq,
-				// TODO el field podria tener el tipo para evitar el tipo en el new dynamic
 				conditions.ProductMultiStringField,
-			),
-		),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
-func (ts *ExpressionIntTestSuite) TestDynamicExpressionForNullableTypeCanBeComparedWithNotNullType() {
-	match := ts.createProduct("", 1, 1.0, false, nil)
-	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
-	err := ts.db.Save(match).Error
-	ts.Nil(err)
-
-	ts.createProduct("", 1, 0.0, false, nil)
-
-	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductNullFloat(
-			badorm.NewDynamicExpression[sql.NullFloat64](
-				expressions.Eq,
-				conditions.ProductFloatField,
-			),
-		),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
-func (ts *ExpressionIntTestSuite) TestDynamicExpressionForNotNullTypeCanBeComparedWithNullableType() {
-	match := ts.createProduct("", 1, 1.0, false, nil)
-	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
-	err := ts.db.Save(match).Error
-	ts.Nil(err)
-
-	ts.createProduct("", 1, 0.0, false, nil)
-
-	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductFloat(
-			badorm.NewDynamicExpression[float64](
-				expressions.Eq,
-				conditions.ProductNullFloatField,
 			),
 		),
 	)
@@ -1082,7 +1027,77 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBadORMModelAttribute()
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductDeletedAt(
-			badorm.NewDynamicExpression[gorm.DeletedAt](
+			badorm.DynamicExpression(
+				expressions.IsNotDistinct,
+				conditions.ProductDeletedAtField,
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionWithFieldOfAnotherTypeReturnsError() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			badorm.MultitypeDynamicExpression[int](
+				expressions.Eq,
+				conditions.ProductStringField,
+			),
+		),
+	)
+	ts.ErrorIs(err, badorm.ErrFieldTypeDoesNotMatch)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNullableTypeCanBeComparedWithNotNullType() {
+	match := ts.createProduct("", 1, 1.0, false, nil)
+	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	ts.createProduct("", 1, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductNullFloat(
+			badorm.MultitypeDynamicExpression[sql.NullFloat64](
+				expressions.Eq,
+				conditions.ProductFloatField,
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNotNullTypeCanBeComparedWithNullableType() {
+	match := ts.createProduct("", 1, 1.0, false, nil)
+	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	ts.createProduct("", 1, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductFloat(
+			badorm.MultitypeDynamicExpression[float64](
+				expressions.Eq,
+				conditions.ProductNullFloatField,
+			),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForBadORMModelAttribute() {
+	match := ts.createProduct("", 1, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductDeletedAt(
+			badorm.MultitypeDynamicExpression[gorm.DeletedAt](
 				expressions.IsDistinct,
 				conditions.ProductCreatedAtField,
 			),

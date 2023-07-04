@@ -41,28 +41,37 @@ func (t Table) DeliverTable(query *query, model Model, relationName string) (Tab
 	}, nil
 }
 
-type FieldIdentifier struct {
+type IFieldIdentifier interface {
+	ColumnName(query *query, table Table) string
+	ColumnSQL(query *query, table Table) string
+	GetModelType() reflect.Type
+}
+
+type FieldIdentifier[T any] struct {
 	Column       string
 	Field        string
 	ColumnPrefix string
-	Type         reflect.Type
 	ModelType    reflect.Type
 }
 
+func (fieldID FieldIdentifier[T]) GetModelType() reflect.Type {
+	return fieldID.ModelType
+}
+
 // Returns the name of the column in which the field is saved in the table
-func (columnID FieldIdentifier) ColumnName(query *query, table Table) string {
-	columnName := columnID.Column
+func (fieldID FieldIdentifier[T]) ColumnName(query *query, table Table) string {
+	columnName := fieldID.Column
 	if columnName == "" {
-		columnName = query.ColumnName(table, columnID.Field)
+		columnName = query.ColumnName(table, fieldID.Field)
 	}
 
 	// add column prefix and table name once we know the column name
-	return columnID.ColumnPrefix + columnName
+	return fieldID.ColumnPrefix + columnName
 }
 
 // Returns the SQL to get the value of the field in the table
-func (columnID FieldIdentifier) ColumnSQL(query *query, table Table) string {
-	return table.Alias + "." + columnID.ColumnName(query, table)
+func (fieldID FieldIdentifier[T]) ColumnSQL(query *query, table Table) string {
+	return table.Alias + "." + fieldID.ColumnName(query, table)
 }
 
 type query struct {
@@ -70,7 +79,7 @@ type query struct {
 	concernedModels map[reflect.Type]Table
 }
 
-func (query *query) AddSelect(table Table, fieldID FieldIdentifier) {
+func (query *query) AddSelect(table Table, fieldID IFieldIdentifier) {
 	columnName := fieldID.ColumnName(query, table)
 
 	query.gormDB.Statement.Selects = append(

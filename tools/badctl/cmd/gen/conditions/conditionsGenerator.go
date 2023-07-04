@@ -41,13 +41,6 @@ func getObjectTypeName(objectType string) string {
 	return strcase.ToCamel(objectType) + "Type"
 }
 
-func reflectTypeOf() *jen.Statement {
-	return jen.Qual(
-		"reflect",
-		"TypeOf",
-	)
-}
-
 // Add one condition for each field of the object
 func (cg CodeConditionsGenerator) addConditionsForEachField(file *File, fields []Field) {
 	conditions := cg.ForEachField(file, fields)
@@ -81,7 +74,10 @@ func (cg CodeConditionsGenerator) addConditionsForEachField(file *File, fields [
 		jen.Var().Id(
 			getObjectTypeName(objectName),
 		).Op("=").Add(
-			reflectTypeOf().Call(jen.Op("*").New(objectQual)),
+			jen.Qual(
+				"reflect",
+				"TypeOf",
+			).Call(jen.Op("*").New(objectQual)),
 		),
 	)
 

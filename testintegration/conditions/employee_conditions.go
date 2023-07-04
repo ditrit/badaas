@@ -10,10 +10,9 @@ import (
 )
 
 var employeeType = reflect.TypeOf(*new(models.Employee))
-var EmployeeIdField = badorm.FieldIdentifier{
+var EmployeeIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: employeeType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
@@ -23,10 +22,9 @@ func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[model
 	}
 }
 
-var EmployeeCreatedAtField = badorm.FieldIdentifier{
+var EmployeeCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: employeeType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
@@ -36,10 +34,9 @@ func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[
 	}
 }
 
-var EmployeeUpdatedAtField = badorm.FieldIdentifier{
+var EmployeeUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: employeeType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
@@ -49,10 +46,9 @@ func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[
 	}
 }
 
-var EmployeeDeletedAtField = badorm.FieldIdentifier{
+var EmployeeDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: employeeType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
@@ -62,10 +58,9 @@ func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondi
 	}
 }
 
-var EmployeeNameField = badorm.FieldIdentifier{
+var EmployeeNameField = badorm.FieldIdentifier[string]{
 	Field:     "Name",
 	ModelType: employeeType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.Employee] {
@@ -85,10 +80,9 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.IJoinC
 }
 
 var EmployeePreloadBoss = EmployeeBoss(EmployeePreloadAttributes)
-var EmployeeBossIdField = badorm.FieldIdentifier{
+var EmployeeBossIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "BossID",
 	ModelType: employeeType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {

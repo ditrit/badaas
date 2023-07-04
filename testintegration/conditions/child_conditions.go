@@ -10,10 +10,9 @@ import (
 )
 
 var childType = reflect.TypeOf(*new(models.Child))
-var ChildIdField = badorm.FieldIdentifier{
+var ChildIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: childType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func ChildId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Child] {
@@ -23,10 +22,9 @@ func ChildId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.C
 	}
 }
 
-var ChildCreatedAtField = badorm.FieldIdentifier{
+var ChildCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: childType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func ChildCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Child] {
@@ -36,10 +34,9 @@ func ChildCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mod
 	}
 }
 
-var ChildUpdatedAtField = badorm.FieldIdentifier{
+var ChildUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: childType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func ChildUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Child] {
@@ -49,10 +46,9 @@ func ChildUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mod
 	}
 }
 
-var ChildDeletedAtField = badorm.FieldIdentifier{
+var ChildDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: childType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func ChildDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Child] {
@@ -72,10 +68,9 @@ func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.IJoinCo
 }
 
 var ChildPreloadParent1 = ChildParent1(Parent1PreloadAttributes)
-var ChildParent1IdField = badorm.FieldIdentifier{
+var ChildParent1IdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "Parent1ID",
 	ModelType: childType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func ChildParent1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Child] {
@@ -95,10 +90,9 @@ func ChildParent2(conditions ...badorm.Condition[models.Parent2]) badorm.IJoinCo
 }
 
 var ChildPreloadParent2 = ChildParent2(Parent2PreloadAttributes)
-var ChildParent2IdField = badorm.FieldIdentifier{
+var ChildParent2IdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "Parent2ID",
 	ModelType: childType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func ChildParent2Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Child] {

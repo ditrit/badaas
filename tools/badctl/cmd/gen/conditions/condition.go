@@ -200,7 +200,6 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 // to use it in the where condition and in the preload condition
 func (condition *Condition) createFieldIdentifier(objectName string, objectTypeQual jen.Code, field Field, conditionName string) *jen.Statement {
 	fieldIdentifierValues := jen.Dict{
-		jen.Id("Type"):      reflectTypeOf().Call(jen.Op("*").New(condition.param.GenericType())),
 		jen.Id("ModelType"): jen.Id(getObjectTypeName(objectName)),
 	}
 
@@ -219,6 +218,8 @@ func (condition *Condition) createFieldIdentifier(objectName string, objectTypeQ
 
 	fieldIdentifierVar := jen.Qual(
 		badORMPath, badORMFieldIdentifier,
+	).Types(
+		condition.param.GenericType(),
 	).Values(fieldIdentifierValues)
 
 	fieldIdentifierName := conditionName + "Field"

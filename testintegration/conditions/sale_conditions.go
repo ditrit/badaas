@@ -10,10 +10,9 @@ import (
 )
 
 var saleType = reflect.TypeOf(*new(models.Sale))
-var SaleIdField = badorm.FieldIdentifier{
+var SaleIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ID",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func SaleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
@@ -23,10 +22,9 @@ func SaleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sa
 	}
 }
 
-var SaleCreatedAtField = badorm.FieldIdentifier{
+var SaleCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "CreatedAt",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func SaleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Sale] {
@@ -36,10 +34,9 @@ func SaleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mode
 	}
 }
 
-var SaleUpdatedAtField = badorm.FieldIdentifier{
+var SaleUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	Field:     "UpdatedAt",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(time.Time)),
 }
 
 func SaleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Sale] {
@@ -49,10 +46,9 @@ func SaleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[mode
 	}
 }
 
-var SaleDeletedAtField = badorm.FieldIdentifier{
+var SaleDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	Field:     "DeletedAt",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
 }
 
 func SaleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Sale] {
@@ -62,10 +58,9 @@ func SaleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition
 	}
 }
 
-var SaleCodeField = badorm.FieldIdentifier{
+var SaleCodeField = badorm.FieldIdentifier[int]{
 	Field:     "Code",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(int)),
 }
 
 func SaleCode(expr badorm.Expression[int]) badorm.WhereCondition[models.Sale] {
@@ -75,10 +70,9 @@ func SaleCode(expr badorm.Expression[int]) badorm.WhereCondition[models.Sale] {
 	}
 }
 
-var SaleDescriptionField = badorm.FieldIdentifier{
+var SaleDescriptionField = badorm.FieldIdentifier[string]{
 	Field:     "Description",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(string)),
 }
 
 func SaleDescription(expr badorm.Expression[string]) badorm.WhereCondition[models.Sale] {
@@ -98,10 +92,9 @@ func SaleProduct(conditions ...badorm.Condition[models.Product]) badorm.IJoinCon
 }
 
 var SalePreloadProduct = SaleProduct(ProductPreloadAttributes)
-var SaleProductIdField = badorm.FieldIdentifier{
+var SaleProductIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "ProductID",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func SaleProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
@@ -121,10 +114,9 @@ func SaleSeller(conditions ...badorm.Condition[models.Seller]) badorm.IJoinCondi
 }
 
 var SalePreloadSeller = SaleSeller(SellerPreloadAttributes)
-var SaleSellerIdField = badorm.FieldIdentifier{
+var SaleSellerIdField = badorm.FieldIdentifier[badorm.UUID]{
 	Field:     "SellerID",
 	ModelType: saleType,
-	Type:      reflect.TypeOf(*new(badorm.UUID)),
 }
 
 func SaleSellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Sale] {
