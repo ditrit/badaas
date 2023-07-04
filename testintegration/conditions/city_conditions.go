@@ -5,40 +5,73 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var cityType = reflect.TypeOf(*new(models.City))
+var CityIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: cityType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func CityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
-	return badorm.FieldCondition[models.City, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
-	return badorm.FieldCondition[models.City, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
-	return badorm.FieldCondition[models.City, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: CityIdField,
 	}
 }
 
-var cityNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var CityCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: cityType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
+	return badorm.FieldCondition[models.City, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: CityCreatedAtField,
+	}
+}
+
+var CityUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: cityType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
+	return badorm.FieldCondition[models.City, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: CityUpdatedAtField,
+	}
+}
+
+var CityDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: cityType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
+	return badorm.FieldCondition[models.City, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: CityDeletedAtField,
+	}
+}
+
+var CityNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: cityType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, string]{
 		Expression:      expr,
-		FieldIdentifier: cityNameFieldID,
+		FieldIdentifier: CityNameField,
 	}
 }
 func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.IJoinCondition[models.City] {
@@ -52,14 +85,18 @@ func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.IJoinCon
 }
 
 var CityPreloadCountry = CityCountry(CountryPreloadAttributes)
-var cityCountryIdFieldID = badorm.FieldIdentifier{Field: "CountryID"}
+var CityCountryIdField = badorm.FieldIdentifier{
+	Field:     "CountryID",
+	ModelType: cityType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: cityCountryIdFieldID,
+		FieldIdentifier: CityCountryIdField,
 	}
 }
 
-var CityPreloadAttributes = badorm.NewPreloadCondition[models.City](cityNameFieldID, cityCountryIdFieldID)
+var CityPreloadAttributes = badorm.NewPreloadCondition[models.City](CityIdField, CityCreatedAtField, CityUpdatedAtField, CityDeletedAtField, CityNameField, CityCountryIdField)
 var CityPreloadRelations = []badorm.Condition[models.City]{CityPreloadCountry}

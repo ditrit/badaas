@@ -5,40 +5,73 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var countryType = reflect.TypeOf(*new(models.Country))
+var CountryIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: countryType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func CountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func CountryCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
-	return badorm.FieldCondition[models.Country, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func CountryUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
-	return badorm.FieldCondition[models.Country, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Country] {
-	return badorm.FieldCondition[models.Country, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: CountryIdField,
 	}
 }
 
-var countryNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var CountryCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: countryType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func CountryCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
+	return badorm.FieldCondition[models.Country, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: CountryCreatedAtField,
+	}
+}
+
+var CountryUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: countryType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func CountryUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
+	return badorm.FieldCondition[models.Country, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: CountryUpdatedAtField,
+	}
+}
+
+var CountryDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: countryType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Country] {
+	return badorm.FieldCondition[models.Country, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: CountryDeletedAtField,
+	}
+}
+
+var CountryNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: countryType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func CountryName(expr badorm.Expression[string]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, string]{
 		Expression:      expr,
-		FieldIdentifier: countryNameFieldID,
+		FieldIdentifier: CountryNameField,
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.IJoinCondition[models.Country] {
@@ -52,5 +85,5 @@ func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.IJoinCon
 }
 
 var CountryPreloadCapital = CountryCapital(CityPreloadAttributes)
-var CountryPreloadAttributes = badorm.NewPreloadCondition[models.Country](countryNameFieldID)
+var CountryPreloadAttributes = badorm.NewPreloadCondition[models.Country](CountryIdField, CountryCreatedAtField, CountryUpdatedAtField, CountryDeletedAtField, CountryNameField)
 var CountryPreloadRelations = []badorm.Condition[models.Country]{CountryPreloadCapital}

@@ -4,6 +4,7 @@ import (
 	"go/types"
 
 	"github.com/dave/jennifer/jen"
+	"github.com/ettle/strcase"
 
 	"github.com/ditrit/badaas/tools/badctl/cmd/log"
 )
@@ -36,6 +37,17 @@ func (cg CodeConditionsGenerator) Into(file *File) error {
 	return nil
 }
 
+func getObjectTypeName(objectType string) string {
+	return strcase.ToCamel(objectType) + "Type"
+}
+
+func reflectTypeOf() *jen.Statement {
+	return jen.Qual(
+		"reflect",
+		"TypeOf",
+	)
+}
+
 // Add one condition for each field of the object
 func (cg CodeConditionsGenerator) addConditionsForEachField(file *File, fields []Field) {
 	conditions := cg.ForEachField(file, fields)
@@ -63,6 +75,15 @@ func (cg CodeConditionsGenerator) addConditionsForEachField(file *File, fields [
 		objectQual,
 	)
 	relationPreloads := []jen.Code{}
+
+	// object reflect type definition
+	file.Add(
+		jen.Var().Id(
+			getObjectTypeName(objectName),
+		).Op("=").Add(
+			reflectTypeOf().Call(jen.Op("*").New(objectQual)),
+		),
+	)
 
 	for _, condition := range conditions {
 		file.Add(condition.codes...)

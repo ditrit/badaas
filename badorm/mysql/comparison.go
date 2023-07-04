@@ -4,6 +4,7 @@ import (
 	"database/sql"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/expressions"
 )
 
 // Comparison Predicates
@@ -11,7 +12,7 @@ import (
 // preferred over eq
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to
 func IsEqual[T any](value T) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](value, "<=>")
+	return badorm.NewValueExpression[T](value, expressions.ToSQL[expressions.MySQLIsEqual])
 }
 
 // Pattern Matching

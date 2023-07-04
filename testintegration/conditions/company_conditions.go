@@ -5,45 +5,78 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var companyType = reflect.TypeOf(*new(models.Company))
+var CompanyIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: companyType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
-	return badorm.FieldCondition[models.Company, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
-	return badorm.FieldCondition[models.Company, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
-	return badorm.FieldCondition[models.Company, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: CompanyIdField,
 	}
 }
 
-var companyNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var CompanyCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: companyType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
+	return badorm.FieldCondition[models.Company, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: CompanyCreatedAtField,
+	}
+}
+
+var CompanyUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: companyType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
+	return badorm.FieldCondition[models.Company, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: CompanyUpdatedAtField,
+	}
+}
+
+var CompanyDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: companyType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
+	return badorm.FieldCondition[models.Company, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: CompanyDeletedAtField,
+	}
+}
+
+var CompanyNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: companyType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, string]{
 		Expression:      expr,
-		FieldIdentifier: companyNameFieldID,
+		FieldIdentifier: CompanyNameField,
 	}
 }
 func CompanyPreloadSellers(nestedPreloads ...badorm.IJoinCondition[models.Seller]) badorm.Condition[models.Company] {
 	return badorm.NewCollectionPreloadCondition[models.Company, models.Seller]("Sellers", nestedPreloads)
 }
 
-var CompanyPreloadAttributes = badorm.NewPreloadCondition[models.Company](companyNameFieldID)
+var CompanyPreloadAttributes = badorm.NewPreloadCondition[models.Company](CompanyIdField, CompanyCreatedAtField, CompanyUpdatedAtField, CompanyDeletedAtField, CompanyNameField)
 var CompanyPreloadRelations = []badorm.Condition[models.Company]{CompanyPreloadSellers()}

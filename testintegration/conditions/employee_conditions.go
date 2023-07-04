@@ -5,40 +5,73 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var employeeType = reflect.TypeOf(*new(models.Employee))
+var EmployeeIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: employeeType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
-	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
-	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
-	return badorm.FieldCondition[models.Employee, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: EmployeeIdField,
 	}
 }
 
-var employeeNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var EmployeeCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: employeeType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
+	return badorm.FieldCondition[models.Employee, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: EmployeeCreatedAtField,
+	}
+}
+
+var EmployeeUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: employeeType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
+	return badorm.FieldCondition[models.Employee, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: EmployeeUpdatedAtField,
+	}
+}
+
+var EmployeeDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: employeeType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
+	return badorm.FieldCondition[models.Employee, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: EmployeeDeletedAtField,
+	}
+}
+
+var EmployeeNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: employeeType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, string]{
 		Expression:      expr,
-		FieldIdentifier: employeeNameFieldID,
+		FieldIdentifier: EmployeeNameField,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.IJoinCondition[models.Employee] {
@@ -52,14 +85,18 @@ func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.IJoinC
 }
 
 var EmployeePreloadBoss = EmployeeBoss(EmployeePreloadAttributes)
-var employeeBossIdFieldID = badorm.FieldIdentifier{Field: "BossID"}
+var EmployeeBossIdField = badorm.FieldIdentifier{
+	Field:     "BossID",
+	ModelType: employeeType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: employeeBossIdFieldID,
+		FieldIdentifier: EmployeeBossIdField,
 	}
 }
 
-var EmployeePreloadAttributes = badorm.NewPreloadCondition[models.Employee](employeeNameFieldID, employeeBossIdFieldID)
+var EmployeePreloadAttributes = badorm.NewPreloadCondition[models.Employee](EmployeeIdField, EmployeeCreatedAtField, EmployeeUpdatedAtField, EmployeeDeletedAtField, EmployeeNameField, EmployeeBossIdField)
 var EmployeePreloadRelations = []badorm.Condition[models.Employee]{EmployeePreloadBoss}

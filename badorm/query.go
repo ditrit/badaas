@@ -45,7 +45,7 @@ type FieldIdentifier struct {
 	Column       string
 	Field        string
 	ColumnPrefix string
-	Type         reflect.Kind
+	Type         reflect.Type
 	ModelType    reflect.Type
 }
 

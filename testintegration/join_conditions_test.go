@@ -4,6 +4,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/expressions"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
 )
@@ -364,8 +365,8 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2Tables() {
 	entities, err := ts.crudSellerService.GetEntities(
 		conditions.SellerCompany(
 			conditions.CompanyName(
-				badorm.NewDynamicExpression(
-					badorm.Eq[string],
+				badorm.NewDynamicExpression[string](
+					expressions.Eq,
 					conditions.SellerNameField,
 				),
 			),
@@ -393,8 +394,8 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLeve
 		conditions.SaleSeller(
 			conditions.SellerCompany(
 				conditions.CompanyName(
-					badorm.NewDynamicExpression(
-						badorm.Eq[string],
+					badorm.NewDynamicExpression[string](
+						expressions.Eq,
 						conditions.SellerNameField,
 					),
 				),

@@ -5,41 +5,74 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var parentParentType = reflect.TypeOf(*new(models.ParentParent))
+var ParentParentIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: parentParentType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func ParentParentCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
-	return badorm.FieldCondition[models.ParentParent, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func ParentParentUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
-	return badorm.FieldCondition[models.ParentParent, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.ParentParent] {
-	return badorm.FieldCondition[models.ParentParent, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: ParentParentIdField,
 	}
 }
 
-var parentParentNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var ParentParentCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: parentParentType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func ParentParentCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
+	return badorm.FieldCondition[models.ParentParent, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: ParentParentCreatedAtField,
+	}
+}
+
+var ParentParentUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: parentParentType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func ParentParentUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
+	return badorm.FieldCondition[models.ParentParent, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: ParentParentUpdatedAtField,
+	}
+}
+
+var ParentParentDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: parentParentType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.ParentParent] {
+	return badorm.FieldCondition[models.ParentParent, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: ParentParentDeletedAtField,
+	}
+}
+
+var ParentParentNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: parentParentType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func ParentParentName(expr badorm.Expression[string]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, string]{
 		Expression:      expr,
-		FieldIdentifier: parentParentNameFieldID,
+		FieldIdentifier: ParentParentNameField,
 	}
 }
 
-var ParentParentPreloadAttributes = badorm.NewPreloadCondition[models.ParentParent](parentParentNameFieldID)
+var ParentParentPreloadAttributes = badorm.NewPreloadCondition[models.ParentParent](ParentParentIdField, ParentParentCreatedAtField, ParentParentUpdatedAtField, ParentParentDeletedAtField, ParentParentNameField)

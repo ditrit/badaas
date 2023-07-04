@@ -10,6 +10,8 @@ import (
 	"strings"
 
 	"github.com/elliotchance/pie/v2"
+
+	"github.com/ditrit/badaas/badorm/expressions"
 )
 
 var (
@@ -104,11 +106,11 @@ func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression string
 // Expression that compares the value of the column against multiple values
 // Example: value IN (v1, v2, v3, ..., vN)
 type MultivalueExpression[T any] struct {
-	Values        []T
-	SQLExpression string
-	SQLConnector  string
-	SQLPrefix     string
-	SQLSuffix     string
+	Values        []T    // the values to compare with
+	SQLExpression string // the expression used to compare, example: IN
+	SQLConnector  string // the connector between values, example: ', '
+	SQLPrefix     string // something to put before the values, example: (
+	SQLSuffix     string // something to put after the values, example: )
 }
 
 func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
@@ -195,7 +197,7 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 // EqualTo
 // EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, "=")
+	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.Eq])
 }
 
 // if value is not NULL returns a Eq expression
@@ -207,7 +209,7 @@ func Eq[T any](value T) Expression[T] {
 //   - in SQLServer you can:
 //     ** set ansi_nulls setting to off and use sqlserver.EqNullable
 //     ** use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
-//   - in MySQL you can use equal_to operator (implemented in mysql.IsEqual)
+//   - in MySQL you can use the equal_to operator (implemented in mysql.IsEqual)
 //   - in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 //   - in SQLite you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 func EqOrIsNull[T any](value any) Expression[T] {
@@ -217,7 +219,7 @@ func EqOrIsNull[T any](value any) Expression[T] {
 // NotEqualTo
 // NotEqOrNotIsNull must be used in cases where value can be NULL
 func NotEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, "<>")
+	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.NotEq])
 }
 
 // if value is not NULL returns a NotEq expression
@@ -282,22 +284,22 @@ func mapsToNull(value any) bool {
 
 // LessThan
 func Lt[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, "<")
+	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.Lt])
 }
 
 // LessThanOrEqualTo
 func LtOrEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, "<=")
+	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.LtOrEq])
 }
 
 // GreaterThan
 func Gt[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, ">")
+	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.Gt])
 }
 
 // GreaterThanOrEqualTo
 func GtOrEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, ">=")
+	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.GtOrEq])
 }
 
 // Comparison Predicates
@@ -357,12 +359,12 @@ func IsNotUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 
 // Not supported by: mysql
 func IsDistinct[T any](value T) ValueExpression[T] {
-	return NewValueExpression[T](value, "IS DISTINCT FROM")
+	return NewValueExpression[T](value, expressions.ToSQL[expressions.IsDistinct])
 }
 
 // Not supported by: mysql
 func IsNotDistinct[T any](value T) ValueExpression[T] {
-	return NewValueExpression[T](value, "IS NOT DISTINCT FROM")
+	return NewValueExpression[T](value, expressions.ToSQL[expressions.IsNotDistinct])
 }
 
 // Pattern Matching

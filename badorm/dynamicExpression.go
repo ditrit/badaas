@@ -1,9 +1,15 @@
 package badorm
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"reflect"
+
+	"github.com/elliotchance/pie/v2"
+	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm/expressions"
 )
 
 // TODO ponerles mas informacion precisa a los errores
@@ -13,39 +19,54 @@ var (
 	ErrExpressionTypeNotSupported = errors.New("expression type not supported")
 )
 
+var nullableTypes = []reflect.Type{
+	reflect.TypeOf(sql.NullBool{}),
+	reflect.TypeOf(sql.NullByte{}),
+	reflect.TypeOf(sql.NullFloat64{}),
+	reflect.TypeOf(sql.NullInt16{}),
+	reflect.TypeOf(sql.NullInt32{}),
+	reflect.TypeOf(sql.NullInt64{}),
+	reflect.TypeOf(sql.NullString{}),
+	reflect.TypeOf(sql.NullTime{}),
+	reflect.TypeOf(gorm.DeletedAt{}),
+}
+
+func isNullable(fieldType reflect.Type) bool {
+	return pie.Contains(nullableTypes, fieldType)
+}
+
 // TODO ver el nombre
 // TODO quizas field identifier deberia llamarse solo field
-func NewDynamicExpression[T any](expression func(value T) Expression[T], field FieldIdentifier) Expression[T] {
-	tValue := *new(T)
+func NewDynamicExpression[T any](expression expressions.SQLExpression, field FieldIdentifier) Expression[T] {
+	expressionType := reflect.TypeOf(*new(T))
+	fieldType := field.Type
 
-	if field.Type != reflect.TypeOf(tValue).Kind() {
+	// TODO si el field lo paso a tipado esto podria andar tambien en tiempo de compilacion,
+	// el problema es que no tengo como hacer esto de los nullables, a menos que cree otro metodo
+	// o que a los fields de cosas nullables le ponga el T de no nullable
+	// pero la expression me va a quedar de T no nullable y no va a andar
+	// podria ser otro metodo que acepte un field de cualquier tipo y ahi ver las condiciones estas
+	// el problema es que ese tipo despues no lo puedo obtener en tiempo de ejecucion creo
+	// entonces la unica posibilidad seria una funcion para cada una de las posibilidades
+
+	if fieldType != expressionType &&
+		!((isNullable(fieldType) && fieldType.Field(0).Type == expressionType) ||
+			(isNullable(expressionType) && expressionType.Field(0).Type == fieldType)) {
 		return NewInvalidExpression[T](ErrFieldTypeDoesNotMatch)
 	}
 
-	staticExpression := expression(
-		// TODO esto podria no pasar alguna validacion
-		tValue,
-	)
-
-	if _, isInvalid := staticExpression.(InvalidExpression[T]); isInvalid {
-		return staticExpression
-	}
-
-	if valueExpression, isValue := staticExpression.(ValueExpression[T]); isValue {
-		// TODO que pasa si hay mas de uno, no se si me gusta mucho esto
-		// creo que si hay mas de uno solo se tendria que aplicar en el primero,
-		return DynamicExpression[T]{
-			SQLExpressions: []LiteralSQLExpression{
-				{
-					SQL:   valueExpression.ExpressionsAndValues[0].SQLExpression,
-					Field: field,
-				},
+	// TODO que pasa con los que solo aceptan cierto tipo, ver las de like por ejemplo
+	// TODO que pasa si hay mas de uno, no se si me gusta mucho esto
+	// creo que si hay mas de uno solo se tendria que aplicar en el primero,
+	return DynamicExpression[T]{
+		SQLExpressions: []LiteralSQLExpression{
+			{
+				SQL:   expressions.ToSQL[expression],
+				Field: field,
 			},
-		}
+		},
 	}
-
 	// TODO soportar multivalue, no todos necesariamente dinamicos
-	return NewInvalidExpression[T](ErrExpressionTypeNotSupported)
 }
 
 // TODO doc

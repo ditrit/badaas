@@ -18,10 +18,6 @@ const (
 	badORMIJoinCondition       = "IJoinCondition"
 	badORMFieldIdentifier      = "FieldIdentifier"
 	badORMNewCollectionPreload = "NewCollectionPreloadCondition"
-	IDFieldID                  = "IDFieldID"
-	CreatedAtFieldID           = "CreatedAtFieldID"
-	UpdatedAtFieldID           = "UpdatedAtFieldID"
-	DeletedAtFieldID           = "DeletedAtFieldID"
 	// badorm/expression.go
 	badORMExpression = "Expression"
 	// badorm/baseModels.go
@@ -30,13 +26,6 @@ const (
 	uuidModel = "UUIDModel"
 	uIntModel = "UIntModel"
 )
-
-var constantFieldIdentifiers = map[string]*jen.Statement{
-	"ID":        jen.Qual(badORMPath, IDFieldID),
-	"CreatedAt": jen.Qual(badORMPath, CreatedAtFieldID),
-	"UpdatedAt": jen.Qual(badORMPath, UpdatedAtFieldID),
-	"DeletedAt": jen.Qual(badORMPath, DeletedAtFieldID),
-}
 
 type Condition struct {
 	codes           []jen.Code
@@ -185,14 +174,6 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 	conditionName := getConditionName(objectType, field)
 	log.Logger.Debugf("Generated %q", conditionName)
 
-	var fieldIdentifier *jen.Statement
-
-	if constantFieldIdentifier, ok := constantFieldIdentifiers[field.Name]; ok {
-		fieldIdentifier = constantFieldIdentifier
-	} else {
-		fieldIdentifier = condition.createFieldIdentifier(field, conditionName)
-	}
-
 	condition.codes = append(
 		condition.codes,
 		jen.Func().Id(
@@ -204,8 +185,11 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		).Block(
 			jen.Return(
 				fieldCondition.Clone().Values(jen.Dict{
-					jen.Id("Expression"):      jen.Id("expr"),
-					jen.Id("FieldIdentifier"): fieldIdentifier,
+					jen.Id("Expression"): jen.Id("expr"),
+					jen.Id("FieldIdentifier"): condition.createFieldIdentifier(
+						objectType.Name(), objectTypeQual,
+						field, conditionName,
+					),
 				}),
 			),
 		),
@@ -214,8 +198,12 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 
 // create a variable containing the definition of the field identifier
 // to use it in the where condition and in the preload condition
-func (condition *Condition) createFieldIdentifier(field Field, conditionName string) *jen.Statement {
-	fieldIdentifierValues := jen.Dict{}
+func (condition *Condition) createFieldIdentifier(objectName string, objectTypeQual jen.Code, field Field, conditionName string) *jen.Statement {
+	fieldIdentifierValues := jen.Dict{
+		jen.Id("Type"):      reflectTypeOf().Call(jen.Op("*").New(condition.param.GenericType())),
+		jen.Id("ModelType"): jen.Id(getObjectTypeName(objectName)),
+	}
+
 	columnName := field.getColumnName()
 
 	if columnName != "" {
@@ -233,7 +221,7 @@ func (condition *Condition) createFieldIdentifier(field Field, conditionName str
 		badORMPath, badORMFieldIdentifier,
 	).Values(fieldIdentifierValues)
 
-	fieldIdentifierName := strcase.ToCamel(conditionName) + "FieldID"
+	fieldIdentifierName := conditionName + "Field"
 
 	condition.codes = append(
 		condition.codes,

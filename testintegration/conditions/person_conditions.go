@@ -5,41 +5,74 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var personType = reflect.TypeOf(*new(models.Person))
+var PersonIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: personType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func PersonId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func PersonCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
-	return badorm.FieldCondition[models.Person, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func PersonUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
-	return badorm.FieldCondition[models.Person, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Person] {
-	return badorm.FieldCondition[models.Person, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: PersonIdField,
 	}
 }
 
-var personNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var PersonCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: personType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func PersonCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
+	return badorm.FieldCondition[models.Person, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: PersonCreatedAtField,
+	}
+}
+
+var PersonUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: personType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func PersonUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
+	return badorm.FieldCondition[models.Person, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: PersonUpdatedAtField,
+	}
+}
+
+var PersonDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: personType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Person] {
+	return badorm.FieldCondition[models.Person, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: PersonDeletedAtField,
+	}
+}
+
+var PersonNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: personType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func PersonName(expr badorm.Expression[string]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, string]{
 		Expression:      expr,
-		FieldIdentifier: personNameFieldID,
+		FieldIdentifier: PersonNameField,
 	}
 }
 
-var PersonPreloadAttributes = badorm.NewPreloadCondition[models.Person](personNameFieldID)
+var PersonPreloadAttributes = badorm.NewPreloadCondition[models.Person](PersonIdField, PersonCreatedAtField, PersonUpdatedAtField, PersonDeletedAtField, PersonNameField)

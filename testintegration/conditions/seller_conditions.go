@@ -2,42 +2,71 @@
 package conditions
 
 import (
-	"reflect"
-	"time"
-
-	gorm "gorm.io/gorm"
-
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
+	gorm "gorm.io/gorm"
+	"reflect"
+	"time"
 )
+
+var sellerType = reflect.TypeOf(*new(models.Seller))
+var SellerIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func SellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func SellerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
-	return badorm.FieldCondition[models.Seller, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func SellerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
-	return badorm.FieldCondition[models.Seller, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Seller] {
-	return badorm.FieldCondition[models.Seller, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: SellerIdField,
 	}
 }
 
-// TODO generacion automatica
-var SellerNameField = badorm.FieldIdentifier{Field: "Name", Type: reflect.String, ModelType: reflect.TypeOf(models.Seller{})}
+var SellerCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func SellerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
+	return badorm.FieldCondition[models.Seller, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: SellerCreatedAtField,
+	}
+}
+
+var SellerUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func SellerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
+	return badorm.FieldCondition[models.Seller, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: SellerUpdatedAtField,
+	}
+}
+
+var SellerDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Seller] {
+	return badorm.FieldCondition[models.Seller, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: SellerDeletedAtField,
+	}
+}
+
+var SellerNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, string]{
@@ -56,12 +85,16 @@ func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.IJoinC
 }
 
 var SellerPreloadCompany = SellerCompany(CompanyPreloadAttributes)
-var sellerCompanyIdFieldID = badorm.FieldIdentifier{Field: "CompanyID"}
+var SellerCompanyIdField = badorm.FieldIdentifier{
+	Field:     "CompanyID",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: sellerCompanyIdFieldID,
+		FieldIdentifier: SellerCompanyIdField,
 	}
 }
 func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.IJoinCondition[models.Seller] {
@@ -75,14 +108,18 @@ func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.
 }
 
 var SellerPreloadUniversity = SellerUniversity(UniversityPreloadAttributes)
-var sellerUniversityIdFieldID = badorm.FieldIdentifier{Field: "UniversityID"}
+var SellerUniversityIdField = badorm.FieldIdentifier{
+	Field:     "UniversityID",
+	ModelType: sellerType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func SellerUniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: sellerUniversityIdFieldID,
+		FieldIdentifier: SellerUniversityIdField,
 	}
 }
 
-var SellerPreloadAttributes = badorm.NewPreloadCondition[models.Seller](SellerNameField, sellerCompanyIdFieldID, sellerUniversityIdFieldID)
+var SellerPreloadAttributes = badorm.NewPreloadCondition[models.Seller](SellerIdField, SellerCreatedAtField, SellerUpdatedAtField, SellerDeletedAtField, SellerNameField, SellerCompanyIdField, SellerUniversityIdField)
 var SellerPreloadRelations = []badorm.Condition[models.Seller]{SellerPreloadCompany, SellerPreloadUniversity}

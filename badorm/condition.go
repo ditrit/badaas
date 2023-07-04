@@ -12,13 +12,6 @@ import (
 const deletedAtField = "DeletedAt"
 
 var (
-	IDFieldID        = FieldIdentifier{Field: "ID"}
-	CreatedAtFieldID = FieldIdentifier{Field: "CreatedAt"}
-	UpdatedAtFieldID = FieldIdentifier{Field: "UpdatedAt"}
-	DeletedAtFieldID = FieldIdentifier{Field: deletedAtField}
-)
-
-var (
 	ErrEmptyConditions     = errors.New("condition must have at least one inner condition")
 	ErrOnlyPreloadsAllowed = errors.New("only conditions that do a preload are allowed")
 )
@@ -168,14 +161,7 @@ func (condition PreloadCondition[T]) ApplyTo(query *query, table Table) error {
 // Condition used to the preload the attributes of a model
 func NewPreloadCondition[T Model](fields ...FieldIdentifier) PreloadCondition[T] {
 	return PreloadCondition[T]{
-		Fields: append(
-			fields,
-			// base model fields
-			IDFieldID,
-			CreatedAtFieldID,
-			UpdatedAtFieldID,
-			DeletedAtFieldID,
-		),
+		Fields: fields,
 	}
 }
 

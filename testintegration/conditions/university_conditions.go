@@ -5,41 +5,74 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var universityType = reflect.TypeOf(*new(models.University))
+var UniversityIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: universityType,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func UniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func UniversityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
-	return badorm.FieldCondition[models.University, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func UniversityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
-	return badorm.FieldCondition[models.University, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func UniversityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.University] {
-	return badorm.FieldCondition[models.University, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: UniversityIdField,
 	}
 }
 
-var universityNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var UniversityCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: universityType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func UniversityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
+	return badorm.FieldCondition[models.University, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: UniversityCreatedAtField,
+	}
+}
+
+var UniversityUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: universityType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func UniversityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
+	return badorm.FieldCondition[models.University, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: UniversityUpdatedAtField,
+	}
+}
+
+var UniversityDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: universityType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func UniversityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.University] {
+	return badorm.FieldCondition[models.University, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: UniversityDeletedAtField,
+	}
+}
+
+var UniversityNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: universityType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func UniversityName(expr badorm.Expression[string]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, string]{
 		Expression:      expr,
-		FieldIdentifier: universityNameFieldID,
+		FieldIdentifier: UniversityNameField,
 	}
 }
 
-var UniversityPreloadAttributes = badorm.NewPreloadCondition[models.University](universityNameFieldID)
+var UniversityPreloadAttributes = badorm.NewPreloadCondition[models.University](UniversityIdField, UniversityCreatedAtField, UniversityUpdatedAtField, UniversityDeletedAtField, UniversityNameField)

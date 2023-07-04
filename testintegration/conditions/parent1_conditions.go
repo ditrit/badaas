@@ -5,31 +5,60 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var parent1Type = reflect.TypeOf(*new(models.Parent1))
+var Parent1IdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: parent1Type,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func Parent1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: Parent1IdField,
 	}
 }
+
+var Parent1CreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: parent1Type,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
 func Parent1CreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, time.Time]{
 		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: Parent1CreatedAtField,
 	}
 }
+
+var Parent1UpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: parent1Type,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
 func Parent1UpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, time.Time]{
 		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: Parent1UpdatedAtField,
 	}
 }
+
+var Parent1DeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: parent1Type,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
 func Parent1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, gorm.DeletedAt]{
 		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: Parent1DeletedAtField,
 	}
 }
 func Parent1ParentParent(conditions ...badorm.Condition[models.ParentParent]) badorm.IJoinCondition[models.Parent1] {
@@ -43,14 +72,18 @@ func Parent1ParentParent(conditions ...badorm.Condition[models.ParentParent]) ba
 }
 
 var Parent1PreloadParentParent = Parent1ParentParent(ParentParentPreloadAttributes)
-var parent1ParentParentIdFieldID = badorm.FieldIdentifier{Field: "ParentParentID"}
+var Parent1ParentParentIdField = badorm.FieldIdentifier{
+	Field:     "ParentParentID",
+	ModelType: parent1Type,
+	Type:      reflect.TypeOf(*new(badorm.UUID)),
+}
 
 func Parent1ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Parent1] {
 	return badorm.FieldCondition[models.Parent1, badorm.UUID]{
 		Expression:      expr,
-		FieldIdentifier: parent1ParentParentIdFieldID,
+		FieldIdentifier: Parent1ParentParentIdField,
 	}
 }
 
-var Parent1PreloadAttributes = badorm.NewPreloadCondition[models.Parent1](parent1ParentParentIdFieldID)
+var Parent1PreloadAttributes = badorm.NewPreloadCondition[models.Parent1](Parent1IdField, Parent1CreatedAtField, Parent1UpdatedAtField, Parent1DeletedAtField, Parent1ParentParentIdField)
 var Parent1PreloadRelations = []badorm.Condition[models.Parent1]{Parent1PreloadParentParent}

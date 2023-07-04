@@ -5,40 +5,73 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	models "github.com/ditrit/badaas/testintegration/models"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
+
+var phoneType = reflect.TypeOf(*new(models.Phone))
+var PhoneIdField = badorm.FieldIdentifier{
+	Field:     "ID",
+	ModelType: phoneType,
+	Type:      reflect.TypeOf(*new(badorm.UIntID)),
+}
 
 func PhoneId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, badorm.UIntID]{
 		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
-	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
-	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Phone] {
-	return badorm.FieldCondition[models.Phone, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: PhoneIdField,
 	}
 }
 
-var phoneNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var PhoneCreatedAtField = badorm.FieldIdentifier{
+	Field:     "CreatedAt",
+	ModelType: phoneType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
+	return badorm.FieldCondition[models.Phone, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: PhoneCreatedAtField,
+	}
+}
+
+var PhoneUpdatedAtField = badorm.FieldIdentifier{
+	Field:     "UpdatedAt",
+	ModelType: phoneType,
+	Type:      reflect.TypeOf(*new(time.Time)),
+}
+
+func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
+	return badorm.FieldCondition[models.Phone, time.Time]{
+		Expression:      expr,
+		FieldIdentifier: PhoneUpdatedAtField,
+	}
+}
+
+var PhoneDeletedAtField = badorm.FieldIdentifier{
+	Field:     "DeletedAt",
+	ModelType: phoneType,
+	Type:      reflect.TypeOf(*new(gorm.DeletedAt)),
+}
+
+func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Phone] {
+	return badorm.FieldCondition[models.Phone, gorm.DeletedAt]{
+		Expression:      expr,
+		FieldIdentifier: PhoneDeletedAtField,
+	}
+}
+
+var PhoneNameField = badorm.FieldIdentifier{
+	Field:     "Name",
+	ModelType: phoneType,
+	Type:      reflect.TypeOf(*new(string)),
+}
 
 func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, string]{
 		Expression:      expr,
-		FieldIdentifier: phoneNameFieldID,
+		FieldIdentifier: PhoneNameField,
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.IJoinCondition[models.Phone] {
@@ -52,14 +85,18 @@ func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.IJoinCondit
 }
 
 var PhonePreloadBrand = PhoneBrand(BrandPreloadAttributes)
-var phoneBrandIdFieldID = badorm.FieldIdentifier{Field: "BrandID"}
+var PhoneBrandIdField = badorm.FieldIdentifier{
+	Field:     "BrandID",
+	ModelType: phoneType,
+	Type:      reflect.TypeOf(*new(uint)),
+}
 
 func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
 		Expression:      expr,
-		FieldIdentifier: phoneBrandIdFieldID,
+		FieldIdentifier: PhoneBrandIdField,
 	}
 }
 
-var PhonePreloadAttributes = badorm.NewPreloadCondition[models.Phone](phoneNameFieldID, phoneBrandIdFieldID)
+var PhonePreloadAttributes = badorm.NewPreloadCondition[models.Phone](PhoneIdField, PhoneCreatedAtField, PhoneUpdatedAtField, PhoneDeletedAtField, PhoneNameField, PhoneBrandIdField)
 var PhonePreloadRelations = []badorm.Condition[models.Phone]{PhonePreloadBrand}
