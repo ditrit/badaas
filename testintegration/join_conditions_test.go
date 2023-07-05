@@ -414,7 +414,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWitho
 		),
 		conditions.ChildId(dynamic.Eq(conditions.ParentParentIdField)),
 	)
-	ts.ErrorIs(err, dynamic.ErrJoinMustBeSelected)
+	ts.ErrorIs(err, badorm.ErrJoinMustBeSelected)
 }
 
 func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWithSelectJoin() {

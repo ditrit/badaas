@@ -10,7 +10,6 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/dynamic"
 	"github.com/ditrit/badaas/badorm/multitype"
-	"github.com/ditrit/badaas/badorm/multivalue"
 	"github.com/ditrit/badaas/badorm/mysql"
 	"github.com/ditrit/badaas/badorm/psql"
 	"github.com/ditrit/badaas/badorm/sqlite"
@@ -365,7 +364,7 @@ func (ts *ExpressionIntTestSuite) TestBetween() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			multivalue.Between(3, 5),
+			badorm.Between(3, 5),
 		),
 	)
 	ts.Nil(err)
@@ -381,7 +380,7 @@ func (ts *ExpressionIntTestSuite) TestNotBetween() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			multivalue.NotBetween(0, 2),
+			badorm.NotBetween(0, 2),
 		),
 	)
 	ts.Nil(err)

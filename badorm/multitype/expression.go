@@ -9,7 +9,6 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/dynamic"
 	"github.com/ditrit/badaas/badorm/expressions"
 )
 
@@ -61,14 +60,14 @@ func newValueExpression[TAttribute, TField any](
 	// TODO que pasa si hay mas de uno, no se si me gusta mucho esto
 	// creo que si hay mas de uno solo se tendria que aplicar en el primero,
 	// TODO soportar multivalue, no todos necesariamente dinamicos
-	return &dynamic.ValueExpression[TAttribute]{
-		SQLExpressions: []dynamic.LiteralSQLExpression{
+	return &badorm.ValueExpression[TAttribute]{
+		SQLExpressions: []badorm.SQLExpressionAndValue{
 			{
 				SQL:   expressions.ToSQL[expression],
 				Field: field,
 			},
 		},
-		JoinNumber: dynamic.UndefinedJoinNumber,
+		JoinNumber: badorm.UndefinedJoinNumber,
 	}
 }
 
@@ -96,13 +95,13 @@ func newMultivalueExpression[TAttribute, TField any](
 		return badorm.NewInvalidExpression[TAttribute](ErrParamsNotValueOrField)
 	}
 
-	return &dynamic.MultivalueExpression[TAttribute]{
+	return &badorm.MultivalueExpression[TAttribute]{
 		Values:        values,
 		SQLExpression: expressions.ToSQL[sqlExpression],
 		SQLConnector:  sqlConnector,
 		SQLPrefix:     sqlPrefix,
 		SQLSuffix:     sqlSuffix,
-		JoinNumber:    dynamic.UndefinedJoinNumber,
+		JoinNumber:    badorm.UndefinedJoinNumber,
 	}
 }
 
