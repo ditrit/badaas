@@ -3,6 +3,7 @@ package testintegration
 import (
 	"database/sql"
 	"log"
+	"time"
 
 	"gorm.io/gorm"
 
@@ -1031,7 +1032,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBadORMModelAttribute()
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionWithFieldOfAnotherTypeReturnsError() {
+func (ts *ExpressionIntTestSuite) TestMultitypeExpressionWithFieldOfAnotherTypeReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
 			multitype.Eq[int](conditions.ProductStringField),
@@ -1040,7 +1041,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionWithFieldOfAnoth
 	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNullableTypeCanBeComparedWithNotNullType() {
+func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForNullableTypeCanBeComparedWithNotNullType() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
 	err := ts.db.Save(match).Error
@@ -1058,7 +1059,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNullableTypeC
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNotNullTypeCanBeComparedWithNullableType() {
+func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForNotNullTypeCanBeComparedWithNullableType() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
 	err := ts.db.Save(match).Error
@@ -1076,12 +1077,81 @@ func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNotNullTypeCa
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForBadORMModelAttribute() {
+func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForBadORMModelAttribute() {
 	match := ts.createProduct("", 1, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductDeletedAt(
 			multitype.IsDistinct[gorm.DeletedAt](conditions.ProductCreatedAtField),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithValueOfAnotherTypeReturnsError() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			multitype.Between[int, int]("hola", 1),
+		),
+	)
+	ts.ErrorIs(err, multitype.ErrParamsNotValueOrField)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithFieldOfAnotherTypeReturnsError() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			multitype.Between[int, int](1, conditions.ProductCreatedAtField),
+		),
+	)
+	ts.ErrorIs(err, multitype.ErrParamsNotValueOrField)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithFieldOfNotRelatedTypeReturnsError() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			multitype.Between[int, time.Time](1, conditions.ProductCreatedAtField),
+		),
+	)
+	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithAFieldAndAValue() {
+	match := ts.createProduct("", 1, 0.0, false, nil)
+	ts.createProduct("", 0, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductInt(
+			multitype.Between[int, int](1, conditions.ProductIntField),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithAFieldRelatedAndAValue() {
+	match := ts.createProduct("", 1, 1.0, false, nil)
+	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	notMatch1 := ts.createProduct("", 0, 0.0, false, nil)
+	notMatch1.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
+	err = ts.db.Save(notMatch1).Error
+	ts.Nil(err)
+
+	notMatch2 := ts.createProduct("", 0, 5.0, false, nil)
+	notMatch2.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
+	err = ts.db.Save(notMatch2).Error
+	ts.Nil(err)
+
+	ts.createProduct("", 0, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductFloat(
+			multitype.Between[float64, sql.NullFloat64](1.0, conditions.ProductNullFloatField),
 		),
 	)
 	ts.Nil(err)

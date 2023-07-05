@@ -14,7 +14,10 @@ import (
 )
 
 // TODO ponerles mas informacion precisa a los errores
-var ErrFieldTypeDoesNotMatch = errors.New("field type does not match expression type")
+var (
+	ErrFieldTypeDoesNotMatch = errors.New("field type does not match expression type")
+	ErrParamsNotValueOrField = errors.New("parameter is neither a value or a field")
+)
 
 var nullableTypes = []reflect.Type{
 	reflect.TypeOf(sql.NullBool{}),
@@ -32,20 +35,33 @@ func isNullable(fieldType reflect.Type) bool {
 	return pie.Contains(nullableTypes, fieldType)
 }
 
-func newMultitypeValueExpression[T1 any, T2 any](expression expressions.SQLExpression, field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	expressionType := reflect.TypeOf(*new(T1))
-	fieldType := reflect.TypeOf(*new(T2))
+func verifyFieldType[TAttribute, TField any]() badorm.DynamicExpression[TAttribute] {
+	expressionType := reflect.TypeOf(*new(TAttribute))
+	fieldType := reflect.TypeOf(*new(TField))
 
 	if fieldType != expressionType &&
 		!((isNullable(fieldType) && fieldType.Field(0).Type == expressionType) ||
 			(isNullable(expressionType) && expressionType.Field(0).Type == fieldType)) {
-		return badorm.NewInvalidExpression[T1](ErrFieldTypeDoesNotMatch)
+		return badorm.NewInvalidExpression[TAttribute](ErrFieldTypeDoesNotMatch)
+	}
+
+	return nil
+}
+
+func newValueExpression[TAttribute, TField any](
+	expression expressions.SQLExpression,
+	field badorm.FieldIdentifier[TField],
+) badorm.DynamicExpression[TAttribute] {
+	invalidExpression := verifyFieldType[TAttribute, TField]()
+	if invalidExpression != nil {
+		return invalidExpression
 	}
 
 	// TODO que pasa con los que solo aceptan cierto tipo, ver las de like por ejemplo
 	// TODO que pasa si hay mas de uno, no se si me gusta mucho esto
 	// creo que si hay mas de uno solo se tendria que aplicar en el primero,
-	return &dynamic.ValueExpression[T1]{
+	// TODO soportar multivalue, no todos necesariamente dinamicos
+	return &dynamic.ValueExpression[TAttribute]{
 		SQLExpressions: []dynamic.LiteralSQLExpression{
 			{
 				SQL:   expressions.ToSQL[expression],
@@ -54,7 +70,40 @@ func newMultitypeValueExpression[T1 any, T2 any](expression expressions.SQLExpre
 		},
 		JoinNumber: dynamic.UndefinedJoinNumber,
 	}
-	// TODO soportar multivalue, no todos necesariamente dinamicos
+}
+
+func newMultivalueExpression[TAttribute, TField any](
+	sqlExpression expressions.SQLExpression,
+	sqlConnector, sqlPrefix, sqlSuffix string,
+	values ...any,
+) badorm.DynamicExpression[TAttribute] {
+	for _, value := range values {
+		_, isT1 := value.(TAttribute)
+		if isT1 {
+			continue
+		}
+
+		_, isField := value.(badorm.FieldIdentifier[TField])
+		if isField {
+			invalidExpression := verifyFieldType[TAttribute, TField]()
+			if invalidExpression != nil {
+				return invalidExpression
+			}
+
+			continue
+		}
+
+		return badorm.NewInvalidExpression[TAttribute](ErrParamsNotValueOrField)
+	}
+
+	return &dynamic.MultivalueExpression[TAttribute]{
+		Values:        values,
+		SQLExpression: expressions.ToSQL[sqlExpression],
+		SQLConnector:  sqlConnector,
+		SQLPrefix:     sqlPrefix,
+		SQLSuffix:     sqlSuffix,
+		JoinNumber:    dynamic.UndefinedJoinNumber,
+	}
 }
 
 // Comparison Operators
@@ -65,34 +114,34 @@ func newMultitypeValueExpression[T1 any, T2 any](expression expressions.SQLExpre
 // - SQLite: https://www.sqlite.org/lang_expr.html
 
 // EqualTo
-func Eq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.Eq, field)
+func Eq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.Eq, field)
 }
 
 // NotEqualTo
-func NotEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.NotEq, field)
+func NotEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.NotEq, field)
 }
 
 // LessThan
-func Lt[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.Lt, field)
+func Lt[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.Lt, field)
 }
 
 // LessThanOrEqualTo
-func LtOrEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.LtOrEq, field)
+func LtOrEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.LtOrEq, field)
 }
 
 // GreaterThan
-func Gt[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
+func Gt[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
 	// TODO invertir orden de parametros para que quede igual que en badorm/expression
-	return newMultitypeValueExpression[T1, T2](expressions.Gt, field)
+	return newValueExpression[TAttribute, TField](expressions.Gt, field)
 }
 
 // GreaterThanOrEqualTo
-func GtOrEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.GtOrEq, field)
+func GtOrEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.GtOrEq, field)
 }
 
 // Comparison Predicates
@@ -101,23 +150,23 @@ func GtOrEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpr
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
 // Equivalent to v1 < value < v2
-// func Between[T any](v1 T, v2 T) MultivalueExpression[T] {
-// 	return NewMultivalueExpression("BETWEEN", "AND", "", "", v1, v2)
-// }
+func Between[TAttribute, TField any](v1 any, v2 any) badorm.DynamicExpression[TAttribute] {
+	return newMultivalueExpression[TAttribute, TField](expressions.Between, "AND", "", "", v1, v2)
+}
 
-// // Equivalent to NOT (v1 < value < v2)
-// func NotBetween[T any](v1 T, v2 T) MultivalueExpression[T] {
-// 	return NewMultivalueExpression("NOT BETWEEN", "AND", "", "", v1, v2)
-// }
+// Equivalent to NOT (field1 < value < field2)
+func NotBetween[TAttribute, TField any](v1 any, v2 any) badorm.DynamicExpression[TAttribute] {
+	return newMultivalueExpression[TAttribute, TField](expressions.NotBetween, "AND", "", "", v1, v2)
+}
 
 // Boolean Comparison Predicates
 
 // Not supported by: mysql
-func IsDistinct[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.IsDistinct, field)
+func IsDistinct[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.IsDistinct, field)
 }
 
 // Not supported by: mysql
-func IsNotDistinct[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeValueExpression[T1, T2](expressions.IsNotDistinct, field)
+func IsNotDistinct[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicExpression[TAttribute] {
+	return newValueExpression[TAttribute, TField](expressions.IsNotDistinct, field)
 }

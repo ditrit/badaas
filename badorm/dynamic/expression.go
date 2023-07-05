@@ -134,8 +134,11 @@ func (expr MultivalueExpression[T]) ToSQL(query *badorm.Query, columnName string
 	), values, nil
 }
 
-func newMultivalueExpression[T any](sqlExpression expressions.SQLExpression, sqlConnector, sqlPrefix, sqlSuffix string, fields ...badorm.FieldIdentifier[T]) badorm.DynamicExpression[T] {
-	// TODO no todos necesariamente dinamicos, pueden ser T o field[T]
+func newMultivalueExpression[T any](
+	sqlExpression expressions.SQLExpression,
+	sqlConnector, sqlPrefix, sqlSuffix string,
+	fields ...badorm.FieldIdentifier[T],
+) badorm.DynamicExpression[T] {
 	values := pie.Map(fields, func(field badorm.FieldIdentifier[T]) any {
 		return field
 	})
@@ -210,12 +213,12 @@ func GtOrEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicExpression[T] 
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
-// Equivalent to v1 < value < v2
+// Equivalent to field1 < value < field2
 func Between[T any](field1 badorm.FieldIdentifier[T], field2 badorm.FieldIdentifier[T]) badorm.DynamicExpression[T] {
 	return newMultivalueExpression(expressions.Between, "AND", "", "", field1, field2)
 }
 
-// Equivalent to NOT (v1 < value < v2)
+// Equivalent to NOT (field1 < value < field2)
 func NotBetween[T any](field1 badorm.FieldIdentifier[T], field2 badorm.FieldIdentifier[T]) badorm.DynamicExpression[T] {
 	return newMultivalueExpression(expressions.NotBetween, "AND", "", "", field1, field2)
 }
