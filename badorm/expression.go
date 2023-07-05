@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
-	"strings"
 
 	"github.com/elliotchance/pie/v2"
 
@@ -107,49 +106,6 @@ func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression expres
 	)
 
 	return *expr
-}
-
-// Expression that compares the value of the column against multiple values
-// Example: value IN (v1, v2, v3, ..., vN)
-type MultivalueExpression[T any] struct {
-	Values        []T    // the values to compare with
-	SQLExpression string // the expression used to compare, example: IN
-	SQLConnector  string // the connector between values, example: ', '
-	SQLPrefix     string // something to put before the values, example: (
-	SQLSuffix     string // something to put after the values, example: )
-}
-
-func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Expression[T]
-}
-
-func (expr MultivalueExpression[T]) ToSQL(_ *Query, columnName string) (string, []any, error) {
-	placeholders := strings.Join(pie.Map(expr.Values, func(value T) string {
-		return "?"
-	}), " "+expr.SQLConnector+" ")
-
-	values := pie.Map(expr.Values, func(value T) any {
-		return value
-	})
-
-	return fmt.Sprintf(
-		"%s %s %s"+placeholders+"%s",
-		columnName,
-		expr.SQLExpression,
-		expr.SQLPrefix,
-		expr.SQLSuffix,
-	), values, nil
-}
-
-func NewMultivalueExpression[T any](sqlExpression expressions.SQLExpression, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) MultivalueExpression[T] {
-	return MultivalueExpression[T]{
-		Values:        values,
-		SQLExpression: expressions.ToSQL[sqlExpression],
-		SQLConnector:  sqlConnector,
-		SQLPrefix:     sqlPrefix,
-		SQLSuffix:     sqlSuffix,
-	}
 }
 
 // Expression that verifies a predicate
@@ -316,16 +272,6 @@ func GtOrEq[T any](value T) Expression[T] {
 // refs:
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
-
-// Equivalent to v1 < value < v2
-func Between[T any](v1 T, v2 T) MultivalueExpression[T] {
-	return NewMultivalueExpression(expressions.Between, "AND", "", "", v1, v2)
-}
-
-// Equivalent to NOT (v1 < value < v2)
-func NotBetween[T any](v1 T, v2 T) MultivalueExpression[T] {
-	return NewMultivalueExpression(expressions.NotBetween, "AND", "", "", v1, v2)
-}
 
 func IsNull[T any]() PredicateExpression[T] {
 	return NewPredicateExpression[T]("IS NULL")

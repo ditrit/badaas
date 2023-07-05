@@ -32,7 +32,7 @@ func isNullable(fieldType reflect.Type) bool {
 	return pie.Contains(nullableTypes, fieldType)
 }
 
-func newMultitypeDynamicExpression[T1 any, T2 any](expression expressions.SQLExpression, field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
+func newMultitypeValueExpression[T1 any, T2 any](expression expressions.SQLExpression, field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
 	expressionType := reflect.TypeOf(*new(T1))
 	fieldType := reflect.TypeOf(*new(T2))
 
@@ -45,7 +45,7 @@ func newMultitypeDynamicExpression[T1 any, T2 any](expression expressions.SQLExp
 	// TODO que pasa con los que solo aceptan cierto tipo, ver las de like por ejemplo
 	// TODO que pasa si hay mas de uno, no se si me gusta mucho esto
 	// creo que si hay mas de uno solo se tendria que aplicar en el primero,
-	return &dynamic.Expression[T1]{
+	return &dynamic.ValueExpression[T1]{
 		SQLExpressions: []dynamic.LiteralSQLExpression{
 			{
 				SQL:   expressions.ToSQL[expression],
@@ -66,33 +66,33 @@ func newMultitypeDynamicExpression[T1 any, T2 any](expression expressions.SQLExp
 
 // EqualTo
 func Eq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.Eq, field)
+	return newMultitypeValueExpression[T1, T2](expressions.Eq, field)
 }
 
 // NotEqualTo
 func NotEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.NotEq, field)
+	return newMultitypeValueExpression[T1, T2](expressions.NotEq, field)
 }
 
 // LessThan
 func Lt[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.Lt, field)
+	return newMultitypeValueExpression[T1, T2](expressions.Lt, field)
 }
 
 // LessThanOrEqualTo
 func LtOrEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.LtOrEq, field)
+	return newMultitypeValueExpression[T1, T2](expressions.LtOrEq, field)
 }
 
 // GreaterThan
 func Gt[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
 	// TODO invertir orden de parametros para que quede igual que en badorm/expression
-	return newMultitypeDynamicExpression[T1, T2](expressions.Gt, field)
+	return newMultitypeValueExpression[T1, T2](expressions.Gt, field)
 }
 
 // GreaterThanOrEqualTo
 func GtOrEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.GtOrEq, field)
+	return newMultitypeValueExpression[T1, T2](expressions.GtOrEq, field)
 }
 
 // Comparison Predicates
@@ -114,10 +114,10 @@ func GtOrEq[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpr
 
 // Not supported by: mysql
 func IsDistinct[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.IsDistinct, field)
+	return newMultitypeValueExpression[T1, T2](expressions.IsDistinct, field)
 }
 
 // Not supported by: mysql
 func IsNotDistinct[T1 any, T2 any](field badorm.FieldIdentifier[T2]) badorm.DynamicExpression[T1] {
-	return newMultitypeDynamicExpression[T1, T2](expressions.IsNotDistinct, field)
+	return newMultitypeValueExpression[T1, T2](expressions.IsNotDistinct, field)
 }
