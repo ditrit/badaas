@@ -15,10 +15,10 @@ var CompanyIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: companyType,
 }
 
-func CompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Company] {
+func CompanyId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: CompanyIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var CompanyCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: companyType,
 }
 
-func CompanyCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
+func CompanyCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: CompanyCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var CompanyUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: companyType,
 }
 
-func CompanyUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Company] {
+func CompanyUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: CompanyUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var CompanyDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: companyType,
 }
 
-func CompanyDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
+func CompanyDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: CompanyDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var CompanyNameField = badorm.FieldIdentifier[string]{
 	ModelType: companyType,
 }
 
-func CompanyName(expr badorm.Expression[string]) badorm.WhereCondition[models.Company] {
+func CompanyName(operator badorm.Operator[string]) badorm.WhereCondition[models.Company] {
 	return badorm.FieldCondition[models.Company, string]{
-		Expression:      expr,
 		FieldIdentifier: CompanyNameField,
+		Operator:        operator,
 	}
 }
 func CompanyPreloadSellers(nestedPreloads ...badorm.IJoinCondition[models.Seller]) badorm.Condition[models.Company] {

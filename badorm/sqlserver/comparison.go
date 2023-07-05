@@ -2,7 +2,7 @@ package sqlserver
 
 import (
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/expressions"
+	"github.com/ditrit/badaas/badorm/sql"
 )
 
 // Comparison Operators
@@ -10,20 +10,20 @@ import (
 
 // EqNullable is the same as badorm.Eq but it supports value to be NULL
 // ansi_nulls must be set to off to avoid the NULL = NULL: unknown problem
-func EqNullable[T any](value T) badorm.Expression[T] {
-	return badorm.NewValueExpression[T](value, expressions.SQLServerEqNullable)
+func EqNullable[T any](value T) badorm.Operator[T] {
+	return badorm.NewValueOperator[T](value, sql.SQLServerEqNullable)
 }
 
 // NotEqNullable is the same as badorm.NotEq but it supports value to be NULL
 // ansi_nulls must be set to off to avoid the NULL = NULL: unknown problem
-func NotEqNullable[T any](value T) badorm.Expression[T] {
-	return badorm.NewValueExpression[T](value, expressions.SQLServerNotEqNullable)
+func NotEqNullable[T any](value T) badorm.Operator[T] {
+	return badorm.NewValueOperator[T](value, sql.SQLServerNotEqNullable)
 }
 
-func NotLt[T any](value T) badorm.Expression[T] {
-	return badorm.NewCantBeNullValueExpression[T](value, expressions.SQLServerNotLt)
+func NotLt[T any](value T) badorm.Operator[T] {
+	return badorm.NewCantBeNullValueOperator[T](value, sql.SQLServerNotLt)
 }
 
-func NotGt[T any](value T) badorm.Expression[T] {
-	return badorm.NewCantBeNullValueExpression[T](value, expressions.SQLServerNotGt)
+func NotGt[T any](value T) badorm.Operator[T] {
+	return badorm.NewCantBeNullValueOperator[T](value, sql.SQLServerNotGt)
 }

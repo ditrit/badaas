@@ -19,16 +19,16 @@ import (
 	"github.com/ditrit/badaas/testintegration/models"
 )
 
-type ExpressionIntTestSuite struct {
+type OperatorIntTestSuite struct {
 	CRUDServiceCommonIntTestSuite
 	crudProductService badorm.CRUDService[models.Product, badorm.UUID]
 }
 
-func NewExpressionsIntTestSuite(
+func NewOperatorIntTestSuite(
 	db *gorm.DB,
 	crudProductService badorm.CRUDService[models.Product, badorm.UUID],
-) *ExpressionIntTestSuite {
-	return &ExpressionIntTestSuite{
+) *OperatorIntTestSuite {
+	return &OperatorIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
 			db: db,
 		},
@@ -36,7 +36,7 @@ func NewExpressionsIntTestSuite(
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestEqNullableNullReturnsError() {
+func (ts *OperatorIntTestSuite) TestEqNullableNullReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
 			badorm.Eq(sql.NullFloat64{Valid: false}),
@@ -45,7 +45,7 @@ func (ts *ExpressionIntTestSuite) TestEqNullableNullReturnsError() {
 	ts.ErrorIs(err, badorm.ErrValueCantBeNull)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqPointers() {
+func (ts *OperatorIntTestSuite) TestEqPointers() {
 	intMatch := 1
 	match := ts.createProduct("match", 1, 0, false, &intMatch)
 
@@ -63,7 +63,7 @@ func (ts *ExpressionIntTestSuite) TestEqPointers() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNotNil() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullTNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("match", 3, 0, false, nil)
 
@@ -77,7 +77,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNotNil() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNil() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullTNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch := ts.createProduct("match", 3, 0, false, nil)
 	notMatch.ByteArray = []byte{2, 3}
@@ -94,7 +94,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNil() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNilOfType() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullTNilOfType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch := ts.createProduct("match", 3, 0, false, nil)
 	notMatch.ByteArray = []byte{2, 3}
@@ -113,7 +113,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullTNilOfType() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullNilPointer() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullNilPointer() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 
 	notMatchInt := 1
@@ -131,7 +131,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNilPointer() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotNilPointer() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullNotNilPointer() {
 	matchInt := 1
 	match := ts.createProduct("match", 1, 0, false, &matchInt)
 
@@ -147,7 +147,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotNilPointer() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNil() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 
 	notMatch := ts.createProduct("match", 3, 0, false, nil)
@@ -165,7 +165,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNil() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNotNil() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
 	err := ts.db.Save(match).Error
@@ -183,7 +183,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNullableNotNil() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotRelated() {
+func (ts *OperatorIntTestSuite) TestEqOrIsNullNotRelated() {
 	notRelated := "not_related"
 
 	_, err := ts.crudProductService.GetEntities(
@@ -194,7 +194,7 @@ func (ts *ExpressionIntTestSuite) TestEqOrIsNullNotRelated() {
 	ts.ErrorIs(err, badorm.ErrNotRelated)
 }
 
-func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
+func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("match", 3, 0, false, nil)
 
@@ -208,7 +208,7 @@ func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNil() {
+func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	match.ByteArray = []byte{2, 3}
 	err := ts.db.Save(match).Error
@@ -226,7 +226,7 @@ func (ts *ExpressionIntTestSuite) TestNotEqOrIsNotNullTNil() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestNotEq() {
+func (ts *OperatorIntTestSuite) TestNotEq() {
 	match1 := ts.createProduct("match", 1, 0, false, nil)
 	match2 := ts.createProduct("match", 3, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
@@ -241,7 +241,7 @@ func (ts *ExpressionIntTestSuite) TestNotEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestLt() {
+func (ts *OperatorIntTestSuite) TestLt() {
 	match1 := ts.createProduct("match", 1, 0, false, nil)
 	match2 := ts.createProduct("match", 2, 0, false, nil)
 	ts.createProduct("not_match", 3, 0, false, nil)
@@ -257,7 +257,7 @@ func (ts *ExpressionIntTestSuite) TestLt() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestLtNullableNullReturnsError() {
+func (ts *OperatorIntTestSuite) TestLtNullableNullReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
 			badorm.Lt(sql.NullFloat64{Valid: false}),
@@ -266,7 +266,7 @@ func (ts *ExpressionIntTestSuite) TestLtNullableNullReturnsError() {
 	ts.ErrorIs(err, badorm.ErrValueCantBeNull)
 }
 
-func (ts *ExpressionIntTestSuite) TestLtOrEq() {
+func (ts *OperatorIntTestSuite) TestLtOrEq() {
 	match1 := ts.createProduct("match", 1, 0, false, nil)
 	match2 := ts.createProduct("match", 2, 0, false, nil)
 	ts.createProduct("not_match", 3, 0, false, nil)
@@ -282,7 +282,7 @@ func (ts *ExpressionIntTestSuite) TestLtOrEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestNotLt() {
+func (ts *OperatorIntTestSuite) TestNotLt() {
 	switch getDBDialector() {
 	case configuration.SQLServer:
 		match1 := ts.createProduct("match", 3, 0, false, nil)
@@ -303,7 +303,7 @@ func (ts *ExpressionIntTestSuite) TestNotLt() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestGt() {
+func (ts *OperatorIntTestSuite) TestGt() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
 	ts.createProduct("not_match", 1, 0, false, nil)
@@ -319,7 +319,7 @@ func (ts *ExpressionIntTestSuite) TestGt() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestGtOrEq() {
+func (ts *OperatorIntTestSuite) TestGtOrEq() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
 	ts.createProduct("not_match", 1, 0, false, nil)
@@ -335,7 +335,7 @@ func (ts *ExpressionIntTestSuite) TestGtOrEq() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestNotGt() {
+func (ts *OperatorIntTestSuite) TestNotGt() {
 	switch getDBDialector() {
 	case configuration.SQLServer:
 		match1 := ts.createProduct("match", 1, 0, false, nil)
@@ -356,7 +356,7 @@ func (ts *ExpressionIntTestSuite) TestNotGt() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestBetween() {
+func (ts *OperatorIntTestSuite) TestBetween() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
 	ts.createProduct("not_match", 6, 0, false, nil)
@@ -372,7 +372,7 @@ func (ts *ExpressionIntTestSuite) TestBetween() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestNotBetween() {
+func (ts *OperatorIntTestSuite) TestNotBetween() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
 	ts.createProduct("not_match", 1, 0, false, nil)
@@ -388,7 +388,7 @@ func (ts *ExpressionIntTestSuite) TestNotBetween() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsDistinct() {
+func (ts *OperatorIntTestSuite) TestIsDistinct() {
 	match1 := ts.createProduct("match", 3, 0, false, nil)
 	match2 := ts.createProduct("match", 4, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
@@ -415,23 +415,23 @@ func (ts *ExpressionIntTestSuite) TestIsDistinct() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNotDistinct() {
+func (ts *OperatorIntTestSuite) TestIsNotDistinct() {
 	match := ts.createProduct("match", 3, 0, false, nil)
 	ts.createProduct("not_match", 4, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	var isNotEqualExpression badorm.Expression[int]
+	var isNotEqualOperator badorm.Operator[int]
 
 	switch getDBDialector() {
 	case configuration.MySQL:
-		isNotEqualExpression = mysql.IsEqual(3)
+		isNotEqualOperator = mysql.IsEqual(3)
 	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
-		isNotEqualExpression = badorm.IsNotDistinct(3)
+		isNotEqualOperator = badorm.IsNotDistinct(3)
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			isNotEqualExpression,
+			isNotEqualOperator,
 		),
 	)
 	ts.Nil(err)
@@ -439,7 +439,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotDistinct() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNotDistinctNullValue() {
+func (ts *OperatorIntTestSuite) TestIsNotDistinctNullValue() {
 	match := ts.createProduct("match", 3, 0, false, nil)
 
 	notMatch := ts.createProduct("not_match", 4, 0, false, nil)
@@ -447,18 +447,18 @@ func (ts *ExpressionIntTestSuite) TestIsNotDistinctNullValue() {
 	err := ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	var isEqualExpression badorm.Expression[sql.NullFloat64]
+	var isEqualOperator badorm.Operator[sql.NullFloat64]
 
 	switch getDBDialector() {
 	case configuration.MySQL:
-		isEqualExpression = mysql.IsEqual(sql.NullFloat64{Valid: false})
+		isEqualOperator = mysql.IsEqual(sql.NullFloat64{Valid: false})
 	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
-		isEqualExpression = badorm.IsNotDistinct(sql.NullFloat64{Valid: false})
+		isEqualOperator = badorm.IsNotDistinct(sql.NullFloat64{Valid: false})
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
-			isEqualExpression,
+			isEqualOperator,
 		),
 	)
 	ts.Nil(err)
@@ -466,7 +466,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotDistinctNullValue() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNull() {
+func (ts *OperatorIntTestSuite) TestIsNull() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 	int1 := 1
 	int2 := 2
@@ -484,7 +484,7 @@ func (ts *ExpressionIntTestSuite) TestIsNull() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNullNotPointers() {
+func (ts *OperatorIntTestSuite) TestIsNullNotPointers() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 
 	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
@@ -502,7 +502,7 @@ func (ts *ExpressionIntTestSuite) TestIsNullNotPointers() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNotNull() {
+func (ts *OperatorIntTestSuite) TestIsNotNull() {
 	int1 := 1
 	match := ts.createProduct("match", 0, 0, false, &int1)
 	ts.createProduct("not_match", 0, 0, false, nil)
@@ -518,7 +518,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotNull() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNotNullNotPointers() {
+func (ts *OperatorIntTestSuite) TestIsNotNullNotPointers() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
 	err := ts.db.Save(match).Error
@@ -536,24 +536,24 @@ func (ts *ExpressionIntTestSuite) TestIsNotNullNotPointers() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsTrue() {
+func (ts *OperatorIntTestSuite) TestIsTrue() {
 	match := ts.createProduct("match", 0, 0, true, nil)
 	ts.createProduct("not_match", 0, 0, false, nil)
 	ts.createProduct("not_match", 0, 0, false, nil)
 
-	var isTrueExpression badorm.Expression[bool]
+	var isTrueOperator badorm.Operator[bool]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		isTrueExpression = badorm.IsTrue[bool]()
+		isTrueOperator = badorm.IsTrue[bool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsTrue
-		isTrueExpression = badorm.Eq[bool](true)
+		isTrueOperator = badorm.Eq[bool](true)
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductBool(
-			isTrueExpression,
+			isTrueOperator,
 		),
 	)
 	ts.Nil(err)
@@ -561,24 +561,24 @@ func (ts *ExpressionIntTestSuite) TestIsTrue() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsFalse() {
+func (ts *OperatorIntTestSuite) TestIsFalse() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 	ts.createProduct("not_match", 0, 0, true, nil)
 	ts.createProduct("not_match", 0, 0, true, nil)
 
-	var isFalseExpression badorm.Expression[bool]
+	var isFalseOperator badorm.Operator[bool]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		isFalseExpression = badorm.IsFalse[bool]()
+		isFalseOperator = badorm.IsFalse[bool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsFalse
-		isFalseExpression = badorm.Eq[bool](false)
+		isFalseOperator = badorm.Eq[bool](false)
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductBool(
-			isFalseExpression,
+			isFalseOperator,
 		),
 	)
 	ts.Nil(err)
@@ -587,7 +587,7 @@ func (ts *ExpressionIntTestSuite) TestIsFalse() {
 }
 
 //nolint:dupl // not really duplicated
-func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
+func (ts *OperatorIntTestSuite) TestIsNotTrue() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
 	match2 := ts.createProduct("match", 0, 0, false, nil)
 	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
@@ -599,19 +599,19 @@ func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 	err = ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	var isNotTrueExpression badorm.Expression[sql.NullBool]
+	var isNotTrueOperator badorm.Operator[sql.NullBool]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		isNotTrueExpression = badorm.IsNotTrue[sql.NullBool]()
+		isNotTrueOperator = badorm.IsNotTrue[sql.NullBool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsNotTrue
-		isNotTrueExpression = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: true})
+		isNotTrueOperator = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: true})
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			isNotTrueExpression,
+			isNotTrueOperator,
 		),
 	)
 	ts.Nil(err)
@@ -620,7 +620,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotTrue() {
 }
 
 //nolint:dupl // not really duplicated
-func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
+func (ts *OperatorIntTestSuite) TestIsNotFalse() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
 	match2 := ts.createProduct("match", 0, 0, false, nil)
 	match2.NullBool = sql.NullBool{Valid: true, Bool: true}
@@ -632,19 +632,19 @@ func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
 	err = ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	var isNotFalseExpression badorm.Expression[sql.NullBool]
+	var isNotFalseOperator badorm.Operator[sql.NullBool]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		isNotFalseExpression = badorm.IsNotFalse[sql.NullBool]()
+		isNotFalseOperator = badorm.IsNotFalse[sql.NullBool]()
 	case configuration.SQLServer:
 		// sqlserver doesn't support IsNotFalse
-		isNotFalseExpression = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: false})
+		isNotFalseOperator = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: false})
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			isNotFalseExpression,
+			isNotFalseOperator,
 		),
 	)
 	ts.Nil(err)
@@ -652,7 +652,7 @@ func (ts *ExpressionIntTestSuite) TestIsNotFalse() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsUnknown() {
+func (ts *OperatorIntTestSuite) TestIsUnknown() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 
 	notMatch1 := ts.createProduct("match", 0, 0, false, nil)
@@ -665,19 +665,19 @@ func (ts *ExpressionIntTestSuite) TestIsUnknown() {
 	err = ts.db.Save(notMatch2).Error
 	ts.Nil(err)
 
-	var isUnknownExpression badorm.Expression[sql.NullBool]
+	var isUnknownOperator badorm.Operator[sql.NullBool]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL:
-		isUnknownExpression = badorm.IsUnknown[sql.NullBool]()
+		isUnknownOperator = badorm.IsUnknown[sql.NullBool]()
 	case configuration.SQLServer, configuration.SQLite:
 		// sqlserver doesn't support IsUnknown
-		isUnknownExpression = badorm.IsNotDistinct[sql.NullBool](sql.NullBool{Valid: false})
+		isUnknownOperator = badorm.IsNotDistinct[sql.NullBool](sql.NullBool{Valid: false})
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			isUnknownExpression,
+			isUnknownOperator,
 		),
 	)
 	ts.Nil(err)
@@ -685,7 +685,7 @@ func (ts *ExpressionIntTestSuite) TestIsUnknown() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestIsNotUnknown() {
+func (ts *OperatorIntTestSuite) TestIsNotUnknown() {
 	match1 := ts.createProduct("", 0, 0, false, nil)
 	match1.NullBool = sql.NullBool{Valid: true, Bool: true}
 	err := ts.db.Save(match1).Error
@@ -698,19 +698,19 @@ func (ts *ExpressionIntTestSuite) TestIsNotUnknown() {
 
 	ts.createProduct("", 0, 0, false, nil)
 
-	var isNotUnknownExpression badorm.Expression[sql.NullBool]
+	var isNotUnknownOperator badorm.Operator[sql.NullBool]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL:
-		isNotUnknownExpression = badorm.IsNotUnknown[sql.NullBool]()
+		isNotUnknownOperator = badorm.IsNotUnknown[sql.NullBool]()
 	case configuration.SQLServer, configuration.SQLite:
 		// sqlserver doesn't support IsNotUnknown
-		isNotUnknownExpression = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: false})
+		isNotUnknownOperator = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: false})
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullBool(
-			isNotUnknownExpression,
+			isNotUnknownOperator,
 		),
 	)
 	ts.Nil(err)
@@ -718,29 +718,29 @@ func (ts *ExpressionIntTestSuite) TestIsNotUnknown() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestArrayIn() {
+func (ts *OperatorIntTestSuite) TestArrayIn() {
 	match1 := ts.createProduct("s1", 0, 0, false, nil)
 	match2 := ts.createProduct("s2", 0, 0, false, nil)
 
 	ts.createProduct("ns1", 0, 0, false, nil)
 	ts.createProduct("ns2", 0, 0, false, nil)
 
-	var arrayInExpression badorm.Expression[string]
+	var arrayInOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.MySQL:
-		arrayInExpression = mysql.ArrayIn("s1", "s2", "s3")
+		arrayInOperator = mysql.ArrayIn("s1", "s2", "s3")
 	case configuration.PostgreSQL:
-		arrayInExpression = psql.ArrayIn("s1", "s2", "s3")
+		arrayInOperator = psql.ArrayIn("s1", "s2", "s3")
 	case configuration.SQLServer:
-		arrayInExpression = sqlserver.ArrayIn("s1", "s2", "s3")
+		arrayInOperator = sqlserver.ArrayIn("s1", "s2", "s3")
 	case configuration.SQLite:
-		arrayInExpression = sqlite.ArrayIn("s1", "s2", "s3")
+		arrayInOperator = sqlite.ArrayIn("s1", "s2", "s3")
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductString(
-			arrayInExpression,
+			arrayInOperator,
 		),
 	)
 	ts.Nil(err)
@@ -748,29 +748,29 @@ func (ts *ExpressionIntTestSuite) TestArrayIn() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestArrayNotIn() {
+func (ts *OperatorIntTestSuite) TestArrayNotIn() {
 	match1 := ts.createProduct("s1", 0, 0, false, nil)
 	match2 := ts.createProduct("s2", 0, 0, false, nil)
 
 	ts.createProduct("ns1", 0, 0, false, nil)
 	ts.createProduct("ns2", 0, 0, false, nil)
 
-	var arrayNotInExpression badorm.Expression[string]
+	var arrayNotInOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.MySQL:
-		arrayNotInExpression = mysql.ArrayNotIn("ns1", "ns2")
+		arrayNotInOperator = mysql.ArrayNotIn("ns1", "ns2")
 	case configuration.PostgreSQL:
-		arrayNotInExpression = psql.ArrayNotIn("ns1", "ns2")
+		arrayNotInOperator = psql.ArrayNotIn("ns1", "ns2")
 	case configuration.SQLServer:
-		arrayNotInExpression = sqlserver.ArrayNotIn("ns1", "ns2")
+		arrayNotInOperator = sqlserver.ArrayNotIn("ns1", "ns2")
 	case configuration.SQLite:
-		arrayNotInExpression = sqlite.ArrayNotIn("ns1", "ns2")
+		arrayNotInOperator = sqlite.ArrayNotIn("ns1", "ns2")
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductString(
-			arrayNotInExpression,
+			arrayNotInOperator,
 		),
 	)
 	ts.Nil(err)
@@ -778,25 +778,25 @@ func (ts *ExpressionIntTestSuite) TestArrayNotIn() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestLike() {
+func (ts *OperatorIntTestSuite) TestLike() {
 	match1 := ts.createProduct("basd", 0, 0, false, nil)
 	match2 := ts.createProduct("cape", 0, 0, false, nil)
 
 	ts.createProduct("bbsd", 0, 0, false, nil)
 	ts.createProduct("bbasd", 0, 0, false, nil)
 
-	var likeExpression badorm.Expression[string]
+	var likeOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		likeExpression = badorm.Like[string]("_a%")
+		likeOperator = badorm.Like[string]("_a%")
 	case configuration.SQLServer:
-		likeExpression = badorm.Like[string]("[bc]a[^a]%")
+		likeOperator = badorm.Like[string]("[bc]a[^a]%")
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductString(
-			likeExpression,
+			likeOperator,
 		),
 	)
 	ts.Nil(err)
@@ -804,25 +804,25 @@ func (ts *ExpressionIntTestSuite) TestLike() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestLikeEscape() {
+func (ts *OperatorIntTestSuite) TestLikeEscape() {
 	match1 := ts.createProduct("ba_sd", 0, 0, false, nil)
 	match2 := ts.createProduct("ca_pe", 0, 0, false, nil)
 
 	ts.createProduct("bb_sd", 0, 0, false, nil)
 	ts.createProduct("bba_sd", 0, 0, false, nil)
 
-	var likeExpression badorm.Expression[string]
+	var likeOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.PostgreSQL, configuration.SQLite:
-		likeExpression = badorm.Like[string]("_a!_%").Escape('!')
+		likeOperator = badorm.Like[string]("_a!_%").Escape('!')
 	case configuration.SQLServer:
-		likeExpression = badorm.Like[string]("[bc]a!_[^a]%").Escape('!')
+		likeOperator = badorm.Like[string]("[bc]a!_[^a]%").Escape('!')
 	}
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductString(
-			likeExpression,
+			likeOperator,
 		),
 	)
 	ts.Nil(err)
@@ -830,7 +830,7 @@ func (ts *ExpressionIntTestSuite) TestLikeEscape() {
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestLikeOnNumeric() {
+func (ts *OperatorIntTestSuite) TestLikeOnNumeric() {
 	switch getDBDialector() {
 	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
 		log.Println("Like with numeric not compatible")
@@ -852,7 +852,7 @@ func (ts *ExpressionIntTestSuite) TestLikeOnNumeric() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestILike() {
+func (ts *OperatorIntTestSuite) TestILike() {
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
 		log.Println("ILike not compatible")
@@ -875,7 +875,7 @@ func (ts *ExpressionIntTestSuite) TestILike() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestSimilarTo() {
+func (ts *OperatorIntTestSuite) TestSimilarTo() {
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.SQLServer, configuration.SQLite:
 		log.Println("SimilarTo not compatible")
@@ -897,7 +897,7 @@ func (ts *ExpressionIntTestSuite) TestSimilarTo() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestPosixRegexCaseSensitive() {
+func (ts *OperatorIntTestSuite) TestPosixRegexCaseSensitive() {
 	match1 := ts.createProduct("ab", 0, 0, false, nil)
 	match2 := ts.createProduct("ax", 0, 0, false, nil)
 
@@ -905,21 +905,21 @@ func (ts *ExpressionIntTestSuite) TestPosixRegexCaseSensitive() {
 	ts.createProduct("cx", 0, 0, false, nil)
 	ts.createProduct("AB", 0, 0, false, nil)
 
-	var posixRegexExpression badorm.Expression[string]
+	var posixRegexOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.SQLServer, configuration.MySQL:
 		log.Println("PosixRegex not compatible")
 	case configuration.PostgreSQL:
-		posixRegexExpression = psql.POSIXMatch[string]("^a(b|x)")
+		posixRegexOperator = psql.POSIXMatch[string]("^a(b|x)")
 	case configuration.SQLite:
-		posixRegexExpression = sqlite.Glob[string]("a[bx]")
+		posixRegexOperator = sqlite.Glob[string]("a[bx]")
 	}
 
-	if posixRegexExpression != nil {
+	if posixRegexOperator != nil {
 		entities, err := ts.crudProductService.GetEntities(
 			conditions.ProductString(
-				posixRegexExpression,
+				posixRegexOperator,
 			),
 		)
 		ts.Nil(err)
@@ -928,7 +928,7 @@ func (ts *ExpressionIntTestSuite) TestPosixRegexCaseSensitive() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestPosixRegexCaseInsensitive() {
+func (ts *OperatorIntTestSuite) TestPosixRegexCaseInsensitive() {
 	match1 := ts.createProduct("ab", 0, 0, false, nil)
 	match2 := ts.createProduct("ax", 0, 0, false, nil)
 	match3 := ts.createProduct("AB", 0, 0, false, nil)
@@ -936,21 +936,21 @@ func (ts *ExpressionIntTestSuite) TestPosixRegexCaseInsensitive() {
 	ts.createProduct("bb", 0, 0, false, nil)
 	ts.createProduct("cx", 0, 0, false, nil)
 
-	var posixRegexExpression badorm.Expression[string]
+	var posixRegexOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.SQLServer, configuration.SQLite:
 		log.Println("PosixRegex Case Insensitive not compatible")
 	case configuration.MySQL:
-		posixRegexExpression = mysql.RegexP[string]("^a(b|x)")
+		posixRegexOperator = mysql.RegexP[string]("^a(b|x)")
 	case configuration.PostgreSQL:
-		posixRegexExpression = psql.POSIXIMatch[string]("^a(b|x)")
+		posixRegexOperator = psql.POSIXIMatch[string]("^a(b|x)")
 	}
 
-	if posixRegexExpression != nil {
+	if posixRegexOperator != nil {
 		entities, err := ts.crudProductService.GetEntities(
 			conditions.ProductString(
-				posixRegexExpression,
+				posixRegexOperator,
 			),
 		)
 		ts.Nil(err)
@@ -959,31 +959,31 @@ func (ts *ExpressionIntTestSuite) TestPosixRegexCaseInsensitive() {
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestPosixRegexNotPosix() {
-	var posixRegexExpression badorm.Expression[string]
+func (ts *OperatorIntTestSuite) TestPosixRegexNotPosix() {
+	var posixRegexOperator badorm.Operator[string]
 
 	switch getDBDialector() {
 	case configuration.SQLServer:
 		log.Println("PosixRegex not compatible")
 	case configuration.MySQL:
-		posixRegexExpression = mysql.RegexP[string]("^a(b|x")
+		posixRegexOperator = mysql.RegexP[string]("^a(b|x")
 	case configuration.PostgreSQL:
-		posixRegexExpression = psql.POSIXMatch[string]("^a(b|x")
+		posixRegexOperator = psql.POSIXMatch[string]("^a(b|x")
 	case configuration.SQLite:
-		posixRegexExpression = sqlite.Glob[string]("^a(b|x")
+		posixRegexOperator = sqlite.Glob[string]("^a(b|x")
 	}
 
-	if posixRegexExpression != nil {
+	if posixRegexOperator != nil {
 		_, err := ts.crudProductService.GetEntities(
 			conditions.ProductString(
-				posixRegexExpression,
+				posixRegexOperator,
 			),
 		)
 		ts.ErrorContains(err, "error parsing regexp")
 	}
 }
 
-func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBasicType() {
+func (ts *OperatorIntTestSuite) TestDynamicOperatorForBasicType() {
 	int1 := 1
 	product1 := ts.createProduct("", 1, 0.0, false, &int1)
 	ts.createProduct("", 2, 0.0, false, &int1)
@@ -999,7 +999,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBasicType() {
 	EqualList(&ts.Suite, []*models.Product{product1}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestDynamicExpressionForCustomType() {
+func (ts *OperatorIntTestSuite) TestDynamicOperatorForCustomType() {
 	match := ts.createProduct("salut,hola", 1, 0.0, false, nil)
 	match.MultiString = models.MultiString{"salut", "hola"}
 	err := ts.db.Save(match).Error
@@ -1018,7 +1018,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForCustomType() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBadORMModelAttribute() {
+func (ts *OperatorIntTestSuite) TestDynamicOperatorForBadORMModelAttribute() {
 	match := ts.createProduct("", 1, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
@@ -1031,7 +1031,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBadORMModelAttribute()
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeExpressionWithFieldOfAnotherTypeReturnsError() {
+func (ts *OperatorIntTestSuite) TestMultitypeOperatorWithFieldOfAnotherTypeReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
 			multitype.Eq[int](conditions.ProductStringField),
@@ -1040,7 +1040,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeExpressionWithFieldOfAnotherTypeR
 	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForNullableTypeCanBeComparedWithNotNullType() {
+func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNullableTypeCanBeComparedWithNotNullType() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
 	err := ts.db.Save(match).Error
@@ -1058,7 +1058,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForNullableTypeCanBeCom
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForNotNullTypeCanBeComparedWithNullableType() {
+func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNotNullTypeCanBeComparedWithNullableType() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
 	err := ts.db.Save(match).Error
@@ -1076,7 +1076,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForNotNullTypeCanBeComp
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForBadORMModelAttribute() {
+func (ts *OperatorIntTestSuite) TestMultitypeOperatorForBadORMModelAttribute() {
 	match := ts.createProduct("", 1, 0.0, false, nil)
 
 	entities, err := ts.crudProductService.GetEntities(
@@ -1089,7 +1089,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeExpressionForBadORMModelAttribute
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithValueOfAnotherTypeReturnsError() {
+func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithValueOfAnotherTypeReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
 			multitype.Between[int, int]("hola", 1),
@@ -1098,7 +1098,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithValueOfAn
 	ts.ErrorIs(err, multitype.ErrParamsNotValueOrField)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithFieldOfAnotherTypeReturnsError() {
+func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfAnotherTypeReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
 			multitype.Between[int, int](1, conditions.ProductCreatedAtField),
@@ -1107,7 +1107,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithFieldOfAn
 	ts.ErrorIs(err, multitype.ErrParamsNotValueOrField)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithFieldOfNotRelatedTypeReturnsError() {
+func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfNotRelatedTypeReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
 			multitype.Between[int, time.Time](1, conditions.ProductCreatedAtField),
@@ -1116,7 +1116,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithFieldOfNo
 	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithAFieldAndAValue() {
+func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldAndAValue() {
 	match := ts.createProduct("", 1, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
 
@@ -1130,7 +1130,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithAFieldAnd
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *ExpressionIntTestSuite) TestMultitypeMultivalueExpressionWithAFieldRelatedAndAValue() {
+func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelatedAndAValue() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
 	err := ts.db.Save(match).Error

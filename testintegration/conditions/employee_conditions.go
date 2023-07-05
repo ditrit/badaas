@@ -15,10 +15,10 @@ var EmployeeIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: employeeType,
 }
 
-func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
+func EmployeeId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: EmployeeIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var EmployeeCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: employeeType,
 }
 
-func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
+func EmployeeCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: EmployeeCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var EmployeeUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: employeeType,
 }
 
-func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Employee] {
+func EmployeeUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: EmployeeUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var EmployeeDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: employeeType,
 }
 
-func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
+func EmployeeDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: EmployeeDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var EmployeeNameField = badorm.FieldIdentifier[string]{
 	ModelType: employeeType,
 }
 
-func EmployeeName(expr badorm.Expression[string]) badorm.WhereCondition[models.Employee] {
+func EmployeeName(operator badorm.Operator[string]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, string]{
-		Expression:      expr,
 		FieldIdentifier: EmployeeNameField,
+		Operator:        operator,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[models.Employee]) badorm.IJoinCondition[models.Employee] {
@@ -85,10 +85,10 @@ var EmployeeBossIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: employeeType,
 }
 
-func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Employee] {
+func EmployeeBossId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Employee] {
 	return badorm.FieldCondition[models.Employee, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: EmployeeBossIdField,
+		Operator:        operator,
 	}
 }
 

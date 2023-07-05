@@ -223,10 +223,10 @@ func NewCollectionPreloadCondition[T1 Model, T2 Model](collectionField string, n
 }
 
 // Condition that verifies the value of a field,
-// using the Expression
+// using the Operator
 type FieldCondition[TObject Model, TAtribute any] struct {
 	FieldIdentifier FieldIdentifier[TAtribute]
-	Expression      Expression[TAtribute]
+	Operator        Operator[TAtribute]
 }
 
 //nolint:unused // see inside
@@ -265,7 +265,7 @@ func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
 }
 
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *Query, table Table) (string, []any, error) {
-	return condition.Expression.ToSQL(
+	return condition.Operator.ToSQL(
 		query,
 		condition.FieldIdentifier.ColumnSQL(query, table),
 	)

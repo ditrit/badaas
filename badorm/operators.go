@@ -8,7 +8,7 @@ import (
 
 	"github.com/elliotchance/pie/v2"
 
-	"github.com/ditrit/badaas/badorm/expressions"
+	badormSQL "github.com/ditrit/badaas/badorm/sql"
 )
 
 var ErrNotRelated = errors.New("value type not related with T")
@@ -22,12 +22,12 @@ var ErrNotRelated = errors.New("value type not related with T")
 
 // EqualTo
 // EqOrIsNull must be used in cases where value can be NULL
-func Eq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.Eq)
+func Eq[T any](value T) Operator[T] {
+	return NewCantBeNullValueOperator[T](value, badormSQL.Eq)
 }
 
-// if value is not NULL returns a Eq expression
-// but if value is NULL returns a IsNull expression
+// if value is not NULL returns a Eq operator
+// but if value is NULL returns a IsNull operator
 // this must be used because ANSI SQL-92 standard defines:
 // NULL = NULL evaluates to unknown, which is later considered a false
 //
@@ -38,18 +38,18 @@ func Eq[T any](value T) Expression[T] {
 //   - in MySQL you can use the equal_to operator (implemented in mysql.IsEqual)
 //   - in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 //   - in SQLite you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
-func EqOrIsNull[T any](value any) Expression[T] {
-	return expressionFromValueOrNil[T](value, Eq[T], IsNull[T]())
+func EqOrIsNull[T any](value any) Operator[T] {
+	return operatorFromValueOrNil[T](value, Eq[T], IsNull[T]())
 }
 
 // NotEqualTo
 // NotEqOrNotIsNull must be used in cases where value can be NULL
-func NotEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.NotEq)
+func NotEq[T any](value T) Operator[T] {
+	return NewCantBeNullValueOperator[T](value, badormSQL.NotEq)
 }
 
-// if value is not NULL returns a NotEq expression
-// but if value is NULL returns a IsNotNull expression
+// if value is not NULL returns a NotEq operator
+// but if value is NULL returns a IsNotNull operator
 // this must be used because ANSI SQL-92 standard defines:
 // NULL = NULL evaluates to unknown, which is later considered a false
 //
@@ -59,19 +59,19 @@ func NotEq[T any](value T) Expression[T] {
 //     ** use the IS DISTINCT operator (implemented in IsDistinct)
 //   - in PostgreSQL you can use the IS DISTINCT operator (implemented in IsDistinct)
 //   - in SQLite you can use the IS DISTINCT operator (implemented in IsDistinct)
-func NotEqOrIsNotNull[T any](value any) Expression[T] {
-	return expressionFromValueOrNil[T](value, NotEq[T], IsNotNull[T]())
+func NotEqOrIsNotNull[T any](value any) Operator[T] {
+	return operatorFromValueOrNil[T](value, NotEq[T], IsNotNull[T]())
 }
 
-func expressionFromValueOrNil[T any](value any, notNilFunc func(T) Expression[T], nilExpression Expression[T]) Expression[T] {
+func operatorFromValueOrNil[T any](value any, notNilFunc func(T) Operator[T], nilOperator Operator[T]) Operator[T] {
 	if value == nil {
-		return nilExpression
+		return nilOperator
 	}
 
 	valueTPointer, isTPointer := value.(*T)
 	if isTPointer {
 		if valueTPointer == nil {
-			return nilExpression
+			return nilOperator
 		}
 
 		return notNilFunc(*valueTPointer)
@@ -80,13 +80,13 @@ func expressionFromValueOrNil[T any](value any, notNilFunc func(T) Expression[T]
 	valueT, isT := value.(T)
 	if isT {
 		if mapsToNull(value) {
-			return nilExpression
+			return nilOperator
 		}
 
 		return notNilFunc(valueT)
 	}
 
-	return NewInvalidExpression[T](ErrNotRelated)
+	return NewInvalidOperator[T](ErrNotRelated)
 }
 
 func mapsToNull(value any) bool {
@@ -109,23 +109,23 @@ func mapsToNull(value any) bool {
 }
 
 // LessThan
-func Lt[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.Lt)
+func Lt[T any](value T) Operator[T] {
+	return NewCantBeNullValueOperator[T](value, badormSQL.Lt)
 }
 
 // LessThanOrEqualTo
-func LtOrEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.LtOrEq)
+func LtOrEq[T any](value T) Operator[T] {
+	return NewCantBeNullValueOperator[T](value, badormSQL.LtOrEq)
 }
 
 // GreaterThan
-func Gt[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.Gt)
+func Gt[T any](value T) Operator[T] {
+	return NewCantBeNullValueOperator[T](value, badormSQL.Gt)
 }
 
 // GreaterThanOrEqualTo
-func GtOrEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.GtOrEq)
+func GtOrEq[T any](value T) Operator[T] {
+	return NewCantBeNullValueOperator[T](value, badormSQL.GtOrEq)
 }
 
 // Comparison Predicates
@@ -133,80 +133,80 @@ func GtOrEq[T any](value T) Expression[T] {
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
-func IsNull[T any]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS NULL")
+func IsNull[T any]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS NULL")
 }
 
-func IsNotNull[T any]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS NOT NULL")
+func IsNotNull[T any]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS NOT NULL")
 }
 
 // Equivalent to v1 < value < v2
-func Between[T any](v1 T, v2 T) Expression[T] {
-	return NewMultivalueExpression(expressions.Between, "AND", "", "", v1, v2)
+func Between[T any](v1 T, v2 T) Operator[T] {
+	return NewMultivalueOperator(badormSQL.Between, "AND", "", "", v1, v2)
 }
 
 // Equivalent to NOT (v1 < value < v2)
-func NotBetween[T any](v1 T, v2 T) Expression[T] {
-	return NewMultivalueExpression(expressions.NotBetween, "AND", "", "", v1, v2)
+func NotBetween[T any](v1 T, v2 T) Operator[T] {
+	return NewMultivalueOperator(badormSQL.NotBetween, "AND", "", "", v1, v2)
 }
 
 // Boolean Comparison Predicates
 
 // Not supported by: sqlserver
-func IsTrue[T bool | sql.NullBool]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS TRUE")
+func IsTrue[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS TRUE")
 }
 
 // Not supported by: sqlserver
-func IsNotTrue[T bool | sql.NullBool]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS NOT TRUE")
+func IsNotTrue[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS NOT TRUE")
 }
 
 // Not supported by: sqlserver
-func IsFalse[T bool | sql.NullBool]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS FALSE")
+func IsFalse[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS FALSE")
 }
 
 // Not supported by: sqlserver
-func IsNotFalse[T bool | sql.NullBool]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS NOT FALSE")
+func IsNotFalse[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS NOT FALSE")
 }
 
 // Not supported by: sqlserver, sqlite
-func IsUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS UNKNOWN")
+func IsUnknown[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS UNKNOWN")
 }
 
 // Not supported by: sqlserver, sqlite
-func IsNotUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
-	return NewPredicateExpression[T]("IS NOT UNKNOWN")
+func IsNotUnknown[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS NOT UNKNOWN")
 }
 
 // Not supported by: mysql
-func IsDistinct[T any](value T) ValueExpression[T] {
-	return NewValueExpression[T](value, expressions.IsDistinct)
+func IsDistinct[T any](value T) ValueOperator[T] {
+	return NewValueOperator[T](value, badormSQL.IsDistinct)
 }
 
 // Not supported by: mysql
-func IsNotDistinct[T any](value T) ValueExpression[T] {
-	return NewValueExpression[T](value, expressions.IsNotDistinct)
+func IsNotDistinct[T any](value T) ValueOperator[T] {
+	return NewValueOperator[T](value, badormSQL.IsNotDistinct)
 }
 
 // Pattern Matching
 
-type LikeExpression[T string | sql.NullString] struct {
-	ValueExpression[T]
+type LikeOperator[T string | sql.NullString] struct {
+	ValueOperator[T]
 }
 
-func NewLikeExpression[T string | sql.NullString](pattern string, sqlExpression expressions.SQLExpression) LikeExpression[T] {
-	return LikeExpression[T]{
-		ValueExpression: NewValueExpression[T](pattern, sqlExpression),
+func NewLikeOperator[T string | sql.NullString](pattern string, sqlOperator badormSQL.Operator) LikeOperator[T] {
+	return LikeOperator[T]{
+		ValueOperator: NewValueOperator[T](pattern, sqlOperator),
 	}
 }
 
-func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
-	return expr.AddSQLExpression(string(escape), expressions.Escape)
+func (expr LikeOperator[T]) Escape(escape rune) ValueOperator[T] {
+	return expr.AddOperation(string(escape), badormSQL.Escape)
 }
 
 // Pattern in all databases:
@@ -227,8 +227,8 @@ func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
 //   - postgresql: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
 //   - sqlserver: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver16
 //   - sqlite: https://www.sqlite.org/lang_expr.html#like
-func Like[T string | sql.NullString](pattern string) LikeExpression[T] {
-	return NewLikeExpression[T](pattern, expressions.Like)
+func Like[T string | sql.NullString](pattern string) LikeOperator[T] {
+	return NewLikeOperator[T](pattern, badormSQL.Like)
 }
 
-// TODO Subquery Expressions
+// TODO Subquery Operators

@@ -15,10 +15,10 @@ var PhoneIdField = badorm.FieldIdentifier[badorm.UIntID]{
 	ModelType: phoneType,
 }
 
-func PhoneId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models.Phone] {
+func PhoneId(operator badorm.Operator[badorm.UIntID]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, badorm.UIntID]{
-		Expression:      expr,
 		FieldIdentifier: PhoneIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var PhoneCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: phoneType,
 }
 
-func PhoneCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
+func PhoneCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: PhoneCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var PhoneUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: phoneType,
 }
 
-func PhoneUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Phone] {
+func PhoneUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: PhoneUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var PhoneDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: phoneType,
 }
 
-func PhoneDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Phone] {
+func PhoneDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: PhoneDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var PhoneNameField = badorm.FieldIdentifier[string]{
 	ModelType: phoneType,
 }
 
-func PhoneName(expr badorm.Expression[string]) badorm.WhereCondition[models.Phone] {
+func PhoneName(operator badorm.Operator[string]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, string]{
-		Expression:      expr,
 		FieldIdentifier: PhoneNameField,
+		Operator:        operator,
 	}
 }
 func PhoneBrand(conditions ...badorm.Condition[models.Brand]) badorm.IJoinCondition[models.Phone] {
@@ -85,10 +85,10 @@ var PhoneBrandIdField = badorm.FieldIdentifier[uint]{
 	ModelType: phoneType,
 }
 
-func PhoneBrandId(expr badorm.Expression[uint]) badorm.WhereCondition[models.Phone] {
+func PhoneBrandId(operator badorm.Operator[uint]) badorm.WhereCondition[models.Phone] {
 	return badorm.FieldCondition[models.Phone, uint]{
-		Expression:      expr,
 		FieldIdentifier: PhoneBrandIdField,
+		Operator:        operator,
 	}
 }
 

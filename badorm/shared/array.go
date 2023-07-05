@@ -2,15 +2,15 @@ package shared
 
 import (
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/expressions"
+	"github.com/ditrit/badaas/badorm/sql"
 )
 
 // Row and Array Comparisons
 
-func ArrayIn[T any](values ...T) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](values, expressions.ArrayIn)
+func ArrayIn[T any](values ...T) badorm.ValueOperator[T] {
+	return badorm.NewValueOperator[T](values, sql.ArrayIn)
 }
 
-func ArrayNotIn[T any](values ...T) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](values, expressions.ArrayNotIn)
+func ArrayNotIn[T any](values ...T) badorm.ValueOperator[T] {
+	return badorm.NewValueOperator[T](values, sql.ArrayNotIn)
 }

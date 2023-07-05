@@ -15,10 +15,10 @@ var PersonIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: personType,
 }
 
-func PersonId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Person] {
+func PersonId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: PersonIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var PersonCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: personType,
 }
 
-func PersonCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
+func PersonCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: PersonCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var PersonUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: personType,
 }
 
-func PersonUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Person] {
+func PersonUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: PersonUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var PersonDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: personType,
 }
 
-func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Person] {
+func PersonDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: PersonDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var PersonNameField = badorm.FieldIdentifier[string]{
 	ModelType: personType,
 }
 
-func PersonName(expr badorm.Expression[string]) badorm.WhereCondition[models.Person] {
+func PersonName(operator badorm.Operator[string]) badorm.WhereCondition[models.Person] {
 	return badorm.FieldCondition[models.Person, string]{
-		Expression:      expr,
 		FieldIdentifier: PersonNameField,
+		Operator:        operator,
 	}
 }
 

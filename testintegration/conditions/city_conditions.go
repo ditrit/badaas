@@ -15,10 +15,10 @@ var CityIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: cityType,
 }
 
-func CityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
+func CityId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: CityIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var CityCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: cityType,
 }
 
-func CityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
+func CityCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: CityCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var CityUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: cityType,
 }
 
-func CityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.City] {
+func CityUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: CityUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var CityDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: cityType,
 }
 
-func CityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
+func CityDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: CityDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var CityNameField = badorm.FieldIdentifier[string]{
 	ModelType: cityType,
 }
 
-func CityName(expr badorm.Expression[string]) badorm.WhereCondition[models.City] {
+func CityName(operator badorm.Operator[string]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, string]{
-		Expression:      expr,
 		FieldIdentifier: CityNameField,
+		Operator:        operator,
 	}
 }
 func CityCountry(conditions ...badorm.Condition[models.Country]) badorm.IJoinCondition[models.City] {
@@ -85,10 +85,10 @@ var CityCountryIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: cityType,
 }
 
-func CityCountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.City] {
+func CityCountryId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.City] {
 	return badorm.FieldCondition[models.City, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: CityCountryIdField,
+		Operator:        operator,
 	}
 }
 

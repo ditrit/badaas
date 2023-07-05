@@ -4,10 +4,10 @@ import (
 	"database/sql"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/expressions"
+	badormSQL "github.com/ditrit/badaas/badorm/sql"
 )
 
 // ref: https://www.sqlite.org/lang_expr.html#like
-func Glob[T string | sql.NullString](pattern string) badorm.Expression[T] {
-	return badorm.NewMustBePOSIXValueExpression[T](pattern, expressions.SQLiteGlob)
+func Glob[T string | sql.NullString](pattern string) badorm.Operator[T] {
+	return badorm.NewMustBePOSIXValueOperator[T](pattern, badormSQL.SQLiteGlob)
 }

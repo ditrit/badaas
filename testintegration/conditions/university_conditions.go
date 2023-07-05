@@ -15,10 +15,10 @@ var UniversityIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: universityType,
 }
 
-func UniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.University] {
+func UniversityId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: UniversityIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var UniversityCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: universityType,
 }
 
-func UniversityCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
+func UniversityCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: UniversityCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var UniversityUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: universityType,
 }
 
-func UniversityUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.University] {
+func UniversityUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: UniversityUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var UniversityDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: universityType,
 }
 
-func UniversityDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.University] {
+func UniversityDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: UniversityDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var UniversityNameField = badorm.FieldIdentifier[string]{
 	ModelType: universityType,
 }
 
-func UniversityName(expr badorm.Expression[string]) badorm.WhereCondition[models.University] {
+func UniversityName(operator badorm.Operator[string]) badorm.WhereCondition[models.University] {
 	return badorm.FieldCondition[models.University, string]{
-		Expression:      expr,
 		FieldIdentifier: UniversityNameField,
+		Operator:        operator,
 	}
 }
 

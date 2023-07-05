@@ -6,33 +6,31 @@ import (
 
 	"github.com/elliotchance/pie/v2"
 
-	"github.com/ditrit/badaas/badorm/expressions"
+	"github.com/ditrit/badaas/badorm/sql"
 )
 
-// Expression that compares the value of the column against multiple values
+// Operator that compares the value of the column against multiple values
 // Example: value IN (v1, v2, v3, ..., vN)
-type MultivalueExpression[T any] struct {
-	// TODO hacer el cambio de nombre en el anterior tambien?
-	// TODO con esto podria reemplazar el SQLExpressionAndValue para que todos sean por dentro dynamics
-	Values        []any  // the values to compare with
-	SQLExpression string // the expression used to compare, example: IN
-	SQLConnector  string // the connector between values, example: ', '
-	SQLPrefix     string // something to put before the values, example: (
-	SQLSuffix     string // something to put after the values, example: )
-	JoinNumber    int
+type MultivalueOperator[T any] struct {
+	Values       []any        // the values to compare with
+	SQLOperator  sql.Operator // the operator used to compare, example: IN
+	SQLConnector string       // the connector between values, example: ', '
+	SQLPrefix    string       // something to put before the values, example: (
+	SQLSuffix    string       // something to put after the values, example: )
+	JoinNumber   int
 }
 
-func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
+func (expr MultivalueOperator[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
-	// that an object is of type Expression[T]
+	// that an object is of type Operator[T]
 }
 
-func (expr *MultivalueExpression[T]) SelectJoin(joinNumber uint) DynamicExpression[T] {
+func (expr *MultivalueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
 	expr.JoinNumber = int(joinNumber)
 	return expr
 }
 
-func (expr MultivalueExpression[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
+func (expr MultivalueOperator[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
 	placeholderList := []string{}
 	values := []any{}
 
@@ -58,7 +56,7 @@ func (expr MultivalueExpression[T]) ToSQL(query *Query, columnName string) (stri
 	return fmt.Sprintf(
 		"%s %s %s"+placeholders+"%s",
 		columnName,
-		expr.SQLExpression,
+		expr.SQLOperator,
 		expr.SQLPrefix,
 		expr.SQLSuffix,
 	), values, nil
@@ -81,16 +79,16 @@ func getModelTable(query *Query, field IFieldIdentifier, joinNumber int) (Table,
 	return modelTables[joinNumber], nil
 }
 
-func NewMultivalueExpression[T any](sqlExpression expressions.SQLExpression, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) Expression[T] {
+func NewMultivalueOperator[T any](sqlOperator sql.Operator, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) Operator[T] {
 	valuesAny := pie.Map(values, func(value T) any {
 		return value
 	})
 
-	return &MultivalueExpression[T]{
-		Values:        valuesAny,
-		SQLExpression: expressions.ToSQL[sqlExpression],
-		SQLConnector:  sqlConnector,
-		SQLPrefix:     sqlPrefix,
-		SQLSuffix:     sqlSuffix,
+	return &MultivalueOperator[T]{
+		Values:       valuesAny,
+		SQLOperator:  sqlOperator,
+		SQLConnector: sqlConnector,
+		SQLPrefix:    sqlPrefix,
+		SQLSuffix:    sqlSuffix,
 	}
 }

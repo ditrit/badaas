@@ -7,10 +7,10 @@ import (
 
 // Row and Array Comparisons
 
-func ArrayIn[T any](values ...T) badorm.ValueExpression[T] {
+func ArrayIn[T any](values ...T) badorm.ValueOperator[T] {
 	return shared.ArrayIn(values...)
 }
 
-func ArrayNotIn[T any](values ...T) badorm.ValueExpression[T] {
+func ArrayNotIn[T any](values ...T) badorm.ValueOperator[T] {
 	return shared.ArrayNotIn(values...)
 }

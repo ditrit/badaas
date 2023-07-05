@@ -15,10 +15,10 @@ var ParentParentIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: parentParentType,
 }
 
-func ParentParentId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.ParentParent] {
+func ParentParentId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: ParentParentIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var ParentParentCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: parentParentType,
 }
 
-func ParentParentCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
+func ParentParentCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: ParentParentCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var ParentParentUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: parentParentType,
 }
 
-func ParentParentUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.ParentParent] {
+func ParentParentUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: ParentParentUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var ParentParentDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: parentParentType,
 }
 
-func ParentParentDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.ParentParent] {
+func ParentParentDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: ParentParentDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var ParentParentNameField = badorm.FieldIdentifier[string]{
 	ModelType: parentParentType,
 }
 
-func ParentParentName(expr badorm.Expression[string]) badorm.WhereCondition[models.ParentParent] {
+func ParentParentName(operator badorm.Operator[string]) badorm.WhereCondition[models.ParentParent] {
 	return badorm.FieldCondition[models.ParentParent, string]{
-		Expression:      expr,
 		FieldIdentifier: ParentParentNameField,
+		Operator:        operator,
 	}
 }
 

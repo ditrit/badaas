@@ -15,10 +15,10 @@ var SellerIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: sellerType,
 }
 
-func SellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
+func SellerId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: SellerIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var SellerCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: sellerType,
 }
 
-func SellerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
+func SellerCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: SellerCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var SellerUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: sellerType,
 }
 
-func SellerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Seller] {
+func SellerUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: SellerUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var SellerDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: sellerType,
 }
 
-func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Seller] {
+func SellerDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: SellerDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var SellerNameField = badorm.FieldIdentifier[string]{
 	ModelType: sellerType,
 }
 
-func SellerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Seller] {
+func SellerName(operator badorm.Operator[string]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, string]{
-		Expression:      expr,
 		FieldIdentifier: SellerNameField,
+		Operator:        operator,
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[models.Company]) badorm.IJoinCondition[models.Seller] {
@@ -85,10 +85,10 @@ var SellerCompanyIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: sellerType,
 }
 
-func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
+func SellerCompanyId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: SellerCompanyIdField,
+		Operator:        operator,
 	}
 }
 func SellerUniversity(conditions ...badorm.Condition[models.University]) badorm.IJoinCondition[models.Seller] {
@@ -107,10 +107,10 @@ var SellerUniversityIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: sellerType,
 }
 
-func SellerUniversityId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Seller] {
+func SellerUniversityId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Seller] {
 	return badorm.FieldCondition[models.Seller, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: SellerUniversityIdField,
+		Operator:        operator,
 	}
 }
 

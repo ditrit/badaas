@@ -4,15 +4,15 @@ import (
 	"database/sql"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/expressions"
+	badormSQL "github.com/ditrit/badaas/badorm/sql"
 )
 
 // Comparison Predicates
 
 // preferred over eq
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to
-func IsEqual[T any](value T) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](value, expressions.MySQLIsEqual)
+func IsEqual[T any](value T) badorm.ValueOperator[T] {
+	return badorm.NewValueOperator[T](value, badormSQL.MySQLIsEqual)
 }
 
 // Pattern Matching
@@ -22,11 +22,11 @@ func Like[T string | sql.NullString |
 	int | int8 | int16 | int32 | int64 |
 	uint | uint8 | uint16 | uint32 | uint64 |
 	float32 | float64](pattern string,
-) badorm.ValueExpression[T] {
-	return badorm.NewValueExpression[T](pattern, expressions.Like)
+) badorm.ValueOperator[T] {
+	return badorm.NewValueOperator[T](pattern, badormSQL.Like)
 }
 
 // ref: https://dev.mysql.com/doc/refman/8.0/en/regexp.html#operator_regexp
-func RegexP[T string | sql.NullString](pattern string) badorm.Expression[T] {
-	return badorm.NewMustBePOSIXValueExpression[T](pattern, expressions.MySQLRegexp)
+func RegexP[T string | sql.NullString](pattern string) badorm.Operator[T] {
+	return badorm.NewMustBePOSIXValueOperator[T](pattern, badormSQL.MySQLRegexp)
 }

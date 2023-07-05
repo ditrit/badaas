@@ -15,10 +15,10 @@ var CountryIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: countryType,
 }
 
-func CountryId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Country] {
+func CountryId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: CountryIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var CountryCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: countryType,
 }
 
-func CountryCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
+func CountryCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: CountryCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var CountryUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: countryType,
 }
 
-func CountryUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Country] {
+func CountryUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: CountryUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var CountryDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: countryType,
 }
 
-func CountryDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Country] {
+func CountryDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: CountryDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var CountryNameField = badorm.FieldIdentifier[string]{
 	ModelType: countryType,
 }
 
-func CountryName(expr badorm.Expression[string]) badorm.WhereCondition[models.Country] {
+func CountryName(operator badorm.Operator[string]) badorm.WhereCondition[models.Country] {
 	return badorm.FieldCondition[models.Country, string]{
-		Expression:      expr,
 		FieldIdentifier: CountryNameField,
+		Operator:        operator,
 	}
 }
 func CountryCapital(conditions ...badorm.Condition[models.City]) badorm.IJoinCondition[models.Country] {

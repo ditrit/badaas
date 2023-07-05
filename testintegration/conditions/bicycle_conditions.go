@@ -15,10 +15,10 @@ var BicycleIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: bicycleType,
 }
 
-func BicycleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Bicycle] {
+func BicycleId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: BicycleIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var BicycleCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: bicycleType,
 }
 
-func BicycleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Bicycle] {
+func BicycleCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: BicycleCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var BicycleUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: bicycleType,
 }
 
-func BicycleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Bicycle] {
+func BicycleUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: BicycleUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var BicycleDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: bicycleType,
 }
 
-func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Bicycle] {
+func BicycleDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: BicycleDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var BicycleNameField = badorm.FieldIdentifier[string]{
 	ModelType: bicycleType,
 }
 
-func BicycleName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
+func BicycleName(operator badorm.Operator[string]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, string]{
-		Expression:      expr,
 		FieldIdentifier: BicycleNameField,
+		Operator:        operator,
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[models.Person]) badorm.IJoinCondition[models.Bicycle] {
@@ -85,10 +85,10 @@ var BicycleOwnerNameField = badorm.FieldIdentifier[string]{
 	ModelType: bicycleType,
 }
 
-func BicycleOwnerName(expr badorm.Expression[string]) badorm.WhereCondition[models.Bicycle] {
+func BicycleOwnerName(operator badorm.Operator[string]) badorm.WhereCondition[models.Bicycle] {
 	return badorm.FieldCondition[models.Bicycle, string]{
-		Expression:      expr,
 		FieldIdentifier: BicycleOwnerNameField,
+		Operator:        operator,
 	}
 }
 

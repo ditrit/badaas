@@ -531,27 +531,27 @@ func (ts *WhereConditionsIntTestSuite) TestXor() {
 	ts.createProduct("", 5, 0, false, nil)
 	ts.createProduct("", 4, 0, false, nil)
 
-	var xorExpression badorm.WhereCondition[models.Product]
+	var xorCondition badorm.WhereCondition[models.Product]
 
 	switch getDBDialector() {
 	case configuration.PostgreSQL, configuration.SQLite, configuration.SQLServer:
 		log.Println("Xor not compatible")
 	case configuration.MySQL:
-		xorExpression = mysql.Xor(
+		xorCondition = mysql.Xor(
 			conditions.ProductInt(badorm.Lt(6)),
 			conditions.ProductInt(badorm.Gt(3)),
 		)
 	}
 
-	if xorExpression != nil {
-		entities, err := ts.crudProductService.GetEntities(xorExpression)
+	if xorCondition != nil {
+		entities, err := ts.crudProductService.GetEntities(xorCondition)
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	}
 }
 
-func (ts *WhereConditionsIntTestSuite) TestMultipleConditionsDifferentExpressions() {
+func (ts *WhereConditionsIntTestSuite) TestMultipleConditionsDifferentOperators() {
 	match1 := ts.createProduct("match", 1, 0.0, true, nil)
 	match2 := ts.createProduct("match", 1, 0.0, true, nil)
 

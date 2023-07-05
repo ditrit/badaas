@@ -16,10 +16,10 @@ var ProductIdField = badorm.FieldIdentifier[badorm.UUID]{
 	ModelType: productType,
 }
 
-func ProductId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[models.Product] {
+func ProductId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, badorm.UUID]{
-		Expression:      expr,
 		FieldIdentifier: ProductIdField,
+		Operator:        operator,
 	}
 }
 
@@ -28,10 +28,10 @@ var ProductCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: productType,
 }
 
-func ProductCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Product] {
+func ProductCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: ProductCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -40,10 +40,10 @@ var ProductUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: productType,
 }
 
-func ProductUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Product] {
+func ProductUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: ProductUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -52,10 +52,10 @@ var ProductDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: productType,
 }
 
-func ProductDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Product] {
+func ProductDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: ProductDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -64,10 +64,10 @@ var ProductStringField = badorm.FieldIdentifier[string]{
 	ModelType: productType,
 }
 
-func ProductString(expr badorm.Expression[string]) badorm.WhereCondition[models.Product] {
+func ProductString(operator badorm.Operator[string]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, string]{
-		Expression:      expr,
 		FieldIdentifier: ProductStringField,
+		Operator:        operator,
 	}
 }
 
@@ -76,10 +76,10 @@ var ProductIntField = badorm.FieldIdentifier[int]{
 	ModelType: productType,
 }
 
-func ProductInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
+func ProductInt(operator badorm.Operator[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
-		Expression:      expr,
 		FieldIdentifier: ProductIntField,
+		Operator:        operator,
 	}
 }
 
@@ -88,10 +88,10 @@ var ProductIntPointerField = badorm.FieldIdentifier[int]{
 	ModelType: productType,
 }
 
-func ProductIntPointer(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
+func ProductIntPointer(operator badorm.Operator[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
-		Expression:      expr,
 		FieldIdentifier: ProductIntPointerField,
+		Operator:        operator,
 	}
 }
 
@@ -100,10 +100,10 @@ var ProductFloatField = badorm.FieldIdentifier[float64]{
 	ModelType: productType,
 }
 
-func ProductFloat(expr badorm.Expression[float64]) badorm.WhereCondition[models.Product] {
+func ProductFloat(operator badorm.Operator[float64]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, float64]{
-		Expression:      expr,
 		FieldIdentifier: ProductFloatField,
+		Operator:        operator,
 	}
 }
 
@@ -112,10 +112,10 @@ var ProductNullFloatField = badorm.FieldIdentifier[sql.NullFloat64]{
 	ModelType: productType,
 }
 
-func ProductNullFloat(expr badorm.Expression[sql.NullFloat64]) badorm.WhereCondition[models.Product] {
+func ProductNullFloat(operator badorm.Operator[sql.NullFloat64]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, sql.NullFloat64]{
-		Expression:      expr,
 		FieldIdentifier: ProductNullFloatField,
+		Operator:        operator,
 	}
 }
 
@@ -124,10 +124,10 @@ var ProductBoolField = badorm.FieldIdentifier[bool]{
 	ModelType: productType,
 }
 
-func ProductBool(expr badorm.Expression[bool]) badorm.WhereCondition[models.Product] {
+func ProductBool(operator badorm.Operator[bool]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, bool]{
-		Expression:      expr,
 		FieldIdentifier: ProductBoolField,
+		Operator:        operator,
 	}
 }
 
@@ -136,10 +136,10 @@ var ProductNullBoolField = badorm.FieldIdentifier[sql.NullBool]{
 	ModelType: productType,
 }
 
-func ProductNullBool(expr badorm.Expression[sql.NullBool]) badorm.WhereCondition[models.Product] {
+func ProductNullBool(operator badorm.Operator[sql.NullBool]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, sql.NullBool]{
-		Expression:      expr,
 		FieldIdentifier: ProductNullBoolField,
+		Operator:        operator,
 	}
 }
 
@@ -148,10 +148,10 @@ var ProductByteArrayField = badorm.FieldIdentifier[[]uint8]{
 	ModelType: productType,
 }
 
-func ProductByteArray(expr badorm.Expression[[]uint8]) badorm.WhereCondition[models.Product] {
+func ProductByteArray(operator badorm.Operator[[]uint8]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, []uint8]{
-		Expression:      expr,
 		FieldIdentifier: ProductByteArrayField,
+		Operator:        operator,
 	}
 }
 
@@ -160,10 +160,10 @@ var ProductMultiStringField = badorm.FieldIdentifier[models.MultiString]{
 	ModelType: productType,
 }
 
-func ProductMultiString(expr badorm.Expression[models.MultiString]) badorm.WhereCondition[models.Product] {
+func ProductMultiString(operator badorm.Operator[models.MultiString]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, models.MultiString]{
-		Expression:      expr,
 		FieldIdentifier: ProductMultiStringField,
+		Operator:        operator,
 	}
 }
 
@@ -172,10 +172,10 @@ var ProductToBeEmbeddedEmbeddedIntField = badorm.FieldIdentifier[int]{
 	ModelType: productType,
 }
 
-func ProductToBeEmbeddedEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
+func ProductToBeEmbeddedEmbeddedInt(operator badorm.Operator[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
-		Expression:      expr,
 		FieldIdentifier: ProductToBeEmbeddedEmbeddedIntField,
+		Operator:        operator,
 	}
 }
 
@@ -185,10 +185,10 @@ var ProductGormEmbeddedIntField = badorm.FieldIdentifier[int]{
 	ModelType:    productType,
 }
 
-func ProductGormEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[models.Product] {
+func ProductGormEmbeddedInt(operator badorm.Operator[int]) badorm.WhereCondition[models.Product] {
 	return badorm.FieldCondition[models.Product, int]{
-		Expression:      expr,
 		FieldIdentifier: ProductGormEmbeddedIntField,
+		Operator:        operator,
 	}
 }
 

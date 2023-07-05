@@ -18,8 +18,8 @@ const (
 	badORMIJoinCondition       = "IJoinCondition"
 	badORMFieldIdentifier      = "FieldIdentifier"
 	badORMNewCollectionPreload = "NewCollectionPreloadCondition"
-	// badorm/expression.go
-	badORMExpression = "Expression"
+	// badorm/operator.go
+	badORMOperator = "Operator"
 	// badorm/baseModels.go
 	uIntID    = "UIntID"
 	uuid      = "UUID"
@@ -185,7 +185,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 		).Block(
 			jen.Return(
 				fieldCondition.Clone().Values(jen.Dict{
-					jen.Id("Expression"): jen.Id("expr"),
+					jen.Id("Operator"): jen.Id("operator"),
 					jen.Id("FieldIdentifier"): condition.createFieldIdentifier(
 						objectType.Name(), objectTypeQual,
 						field, conditionName,

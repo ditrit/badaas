@@ -1,9 +1,9 @@
-package expressions
+package sql
 
-type SQLExpression uint
+type Operator uint
 
 const (
-	Eq SQLExpression = iota
+	Eq Operator = iota
 	NotEq
 	Lt
 	LtOrEq
@@ -39,7 +39,11 @@ const (
 	SQLServerNotEqNullable = NotEq
 )
 
-var ToSQL = map[SQLExpression]string{
+func (op Operator) String() string {
+	return operatorToSQL[op]
+}
+
+var operatorToSQL = map[Operator]string{
 	Eq:                    "=",
 	NotEq:                 "<>",
 	Lt:                    "<",

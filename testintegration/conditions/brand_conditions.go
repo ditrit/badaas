@@ -15,10 +15,10 @@ var BrandIdField = badorm.FieldIdentifier[badorm.UIntID]{
 	ModelType: brandType,
 }
 
-func BrandId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[models.Brand] {
+func BrandId(operator badorm.Operator[badorm.UIntID]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, badorm.UIntID]{
-		Expression:      expr,
 		FieldIdentifier: BrandIdField,
+		Operator:        operator,
 	}
 }
 
@@ -27,10 +27,10 @@ var BrandCreatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: brandType,
 }
 
-func BrandCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Brand] {
+func BrandCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: BrandCreatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -39,10 +39,10 @@ var BrandUpdatedAtField = badorm.FieldIdentifier[time.Time]{
 	ModelType: brandType,
 }
 
-func BrandUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[models.Brand] {
+func BrandUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, time.Time]{
-		Expression:      expr,
 		FieldIdentifier: BrandUpdatedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -51,10 +51,10 @@ var BrandDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
 	ModelType: brandType,
 }
 
-func BrandDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[models.Brand] {
+func BrandDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, gorm.DeletedAt]{
-		Expression:      expr,
 		FieldIdentifier: BrandDeletedAtField,
+		Operator:        operator,
 	}
 }
 
@@ -63,10 +63,10 @@ var BrandNameField = badorm.FieldIdentifier[string]{
 	ModelType: brandType,
 }
 
-func BrandName(expr badorm.Expression[string]) badorm.WhereCondition[models.Brand] {
+func BrandName(operator badorm.Operator[string]) badorm.WhereCondition[models.Brand] {
 	return badorm.FieldCondition[models.Brand, string]{
-		Expression:      expr,
 		FieldIdentifier: BrandNameField,
+		Operator:        operator,
 	}
 }
 
