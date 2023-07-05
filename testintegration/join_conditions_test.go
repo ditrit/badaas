@@ -4,7 +4,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/expressions"
+	"github.com/ditrit/badaas/badorm/dynamic"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
 )
@@ -18,6 +18,7 @@ type JoinConditionsIntTestSuite struct {
 	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID]
 	crudBicycleService  badorm.CRUDService[models.Bicycle, badorm.UUID]
 	crudPhoneService    badorm.CRUDService[models.Phone, badorm.UIntID]
+	crudChildService    badorm.CRUDService[models.Child, badorm.UUID]
 }
 
 func NewJoinConditionsIntTestSuite(
@@ -29,6 +30,7 @@ func NewJoinConditionsIntTestSuite(
 	crudEmployeeService badorm.CRUDService[models.Employee, badorm.UUID],
 	crudBicycleService badorm.CRUDService[models.Bicycle, badorm.UUID],
 	crudPhoneService badorm.CRUDService[models.Phone, badorm.UIntID],
+	crudChildService badorm.CRUDService[models.Child, badorm.UUID],
 ) *JoinConditionsIntTestSuite {
 	return &JoinConditionsIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{
@@ -41,6 +43,7 @@ func NewJoinConditionsIntTestSuite(
 		crudEmployeeService: crudEmployeeService,
 		crudBicycleService:  crudBicycleService,
 		crudPhoneService:    crudPhoneService,
+		crudChildService:    crudChildService,
 	}
 }
 
@@ -365,10 +368,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2Tables() {
 	entities, err := ts.crudSellerService.GetEntities(
 		conditions.SellerCompany(
 			conditions.CompanyName(
-				badorm.DynamicExpression(
-					expressions.Eq,
-					conditions.SellerNameField,
-				),
+				dynamic.Eq(conditions.SellerNameField),
 			),
 		),
 	)
@@ -394,10 +394,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLeve
 		conditions.SaleSeller(
 			conditions.SellerCompany(
 				conditions.CompanyName(
-					badorm.DynamicExpression(
-						expressions.Eq,
-						conditions.SellerNameField,
-					),
+					dynamic.Eq(conditions.SellerNameField),
 				),
 			),
 		),
@@ -405,6 +402,43 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLeve
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWithoutSelectJoinReturnsError() {
+	_, err := ts.crudChildService.GetEntities(
+		conditions.ChildParent1(
+			conditions.Parent1ParentParent(),
+		),
+		conditions.ChildParent2(
+			conditions.Parent2ParentParent(),
+		),
+		conditions.ChildId(dynamic.Eq(conditions.ParentParentIdField)),
+	)
+	ts.ErrorIs(err, dynamic.ErrJoinMustBeSelected)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWithSelectJoin() {
+	parentParent := &models.ParentParent{Name: "franco"}
+	parent1 := &models.Parent1{ParentParent: *parentParent}
+	parent2 := &models.Parent2{ParentParent: *parentParent}
+	child := &models.Child{Parent1: *parent1, Parent2: *parent2, Name: "franco"}
+	err := ts.db.Create(child).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudChildService.GetEntities(
+		conditions.ChildParent1(
+			conditions.Parent1ParentParent(),
+		),
+		conditions.ChildParent2(
+			conditions.Parent2ParentParent(),
+		),
+		conditions.ChildName(
+			dynamic.Eq(conditions.ParentParentNameField).SelectJoin(0),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Child{child}, entities)
 }
 
 func (ts *JoinConditionsIntTestSuite) TestJoinWithUnsafeCondition() {

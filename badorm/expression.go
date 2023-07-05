@@ -22,13 +22,19 @@ var (
 type Expression[T any] interface {
 	// Transform the Expression to a SQL string and a list of values to use in the query
 	// columnName is used by the expression to determine which is the objective column.
-	ToSQL(query *query, columnName string) (string, []any, error)
+	ToSQL(query *Query, columnName string) (string, []any, error)
 
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Expression[T],
 	// since if no method receives by parameter a type T,
 	// any other Expression[T2] would also be considered a Expression[T].
 	InterfaceVerificationMethod(T)
+}
+
+type DynamicExpression[T any] interface {
+	Expression[T]
+
+	SelectJoin(joinNumber uint) DynamicExpression[T]
 }
 
 // Expression that compares the value of the column against a fixed value
@@ -49,7 +55,7 @@ func (expr ValueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr ValueExpression[T]) ToSQL(_ *query, columnName string) (string, []any, error) {
+func (expr ValueExpression[T]) ToSQL(_ *Query, columnName string) (string, []any, error) {
 	exprString := columnName
 	values := []any{}
 
@@ -61,7 +67,7 @@ func (expr ValueExpression[T]) ToSQL(_ *query, columnName string) (string, []any
 	return exprString, values, nil
 }
 
-func NewValueExpression[T any](value any, sqlExpression string) ValueExpression[T] {
+func NewValueExpression[T any](value any, sqlExpression expressions.SQLExpression) ValueExpression[T] {
 	expr := ValueExpression[T]{}
 
 	return expr.AddSQLExpression(value, sqlExpression)
@@ -74,7 +80,7 @@ var nullableKinds = []reflect.Kind{
 	reflect.Slice,
 }
 
-func NewCantBeNullValueExpression[T any](value any, sqlExpression string) Expression[T] {
+func NewCantBeNullValueExpression[T any](value any, sqlExpression expressions.SQLExpression) Expression[T] {
 	if value == nil || mapsToNull(value) {
 		return NewInvalidExpression[T](ErrValueCantBeNull)
 	}
@@ -82,7 +88,7 @@ func NewCantBeNullValueExpression[T any](value any, sqlExpression string) Expres
 	return NewValueExpression[T](value, sqlExpression)
 }
 
-func NewMustBePOSIXValueExpression[T string | sql.NullString](pattern string, sqlExpression string) Expression[T] {
+func NewMustBePOSIXValueExpression[T string | sql.NullString](pattern string, sqlExpression expressions.SQLExpression) Expression[T] {
 	_, err := regexp.CompilePOSIX(pattern)
 	if err != nil {
 		return NewInvalidExpression[T](err)
@@ -91,12 +97,12 @@ func NewMustBePOSIXValueExpression[T string | sql.NullString](pattern string, sq
 	return NewValueExpression[T](pattern, sqlExpression)
 }
 
-func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression string) ValueExpression[T] {
+func (expr *ValueExpression[T]) AddSQLExpression(value any, sqlExpression expressions.SQLExpression) ValueExpression[T] {
 	expr.ExpressionsAndValues = append(
 		expr.ExpressionsAndValues,
 		SQLExpressionAndValue{
 			Value:         value,
-			SQLExpression: sqlExpression,
+			SQLExpression: expressions.ToSQL[sqlExpression],
 		},
 	)
 
@@ -118,7 +124,7 @@ func (expr MultivalueExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr MultivalueExpression[T]) ToSQL(_ *query, columnName string) (string, []any, error) {
+func (expr MultivalueExpression[T]) ToSQL(_ *Query, columnName string) (string, []any, error) {
 	placeholders := strings.Join(pie.Map(expr.Values, func(value T) string {
 		return "?"
 	}), " "+expr.SQLConnector+" ")
@@ -136,10 +142,10 @@ func (expr MultivalueExpression[T]) ToSQL(_ *query, columnName string) (string, 
 	), values, nil
 }
 
-func NewMultivalueExpression[T any](sqlExpression, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) MultivalueExpression[T] {
+func NewMultivalueExpression[T any](sqlExpression expressions.SQLExpression, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) MultivalueExpression[T] {
 	return MultivalueExpression[T]{
 		Values:        values,
-		SQLExpression: sqlExpression,
+		SQLExpression: expressions.ToSQL[sqlExpression],
 		SQLConnector:  sqlConnector,
 		SQLPrefix:     sqlPrefix,
 		SQLSuffix:     sqlSuffix,
@@ -157,7 +163,7 @@ func (expr PredicateExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr PredicateExpression[T]) ToSQL(_ *query, columnName string) (string, []any, error) {
+func (expr PredicateExpression[T]) ToSQL(_ *Query, columnName string) (string, []any, error) {
 	return fmt.Sprintf("%s %s", columnName, expr.SQLExpression), []any{}, nil
 }
 
@@ -177,7 +183,11 @@ func (expr InvalidExpression[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Expression[T]
 }
 
-func (expr InvalidExpression[T]) ToSQL(_ *query, _ string) (string, []any, error) {
+func (expr InvalidExpression[T]) SelectJoin(joinNumber uint) DynamicExpression[T] {
+	return expr
+}
+
+func (expr InvalidExpression[T]) ToSQL(_ *Query, _ string) (string, []any, error) {
 	return "", nil, expr.Err
 }
 
@@ -197,7 +207,7 @@ func NewInvalidExpression[T any](err error) InvalidExpression[T] {
 // EqualTo
 // EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.Eq])
+	return NewCantBeNullValueExpression[T](value, expressions.Eq)
 }
 
 // if value is not NULL returns a Eq expression
@@ -219,7 +229,7 @@ func EqOrIsNull[T any](value any) Expression[T] {
 // NotEqualTo
 // NotEqOrNotIsNull must be used in cases where value can be NULL
 func NotEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.NotEq])
+	return NewCantBeNullValueExpression[T](value, expressions.NotEq)
 }
 
 // if value is not NULL returns a NotEq expression
@@ -284,22 +294,22 @@ func mapsToNull(value any) bool {
 
 // LessThan
 func Lt[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.Lt])
+	return NewCantBeNullValueExpression[T](value, expressions.Lt)
 }
 
 // LessThanOrEqualTo
 func LtOrEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.LtOrEq])
+	return NewCantBeNullValueExpression[T](value, expressions.LtOrEq)
 }
 
 // GreaterThan
 func Gt[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.Gt])
+	return NewCantBeNullValueExpression[T](value, expressions.Gt)
 }
 
 // GreaterThanOrEqualTo
 func GtOrEq[T any](value T) Expression[T] {
-	return NewCantBeNullValueExpression[T](value, expressions.ToSQL[expressions.GtOrEq])
+	return NewCantBeNullValueExpression[T](value, expressions.GtOrEq)
 }
 
 // Comparison Predicates
@@ -309,12 +319,12 @@ func GtOrEq[T any](value T) Expression[T] {
 
 // Equivalent to v1 < value < v2
 func Between[T any](v1 T, v2 T) MultivalueExpression[T] {
-	return NewMultivalueExpression("BETWEEN", "AND", "", "", v1, v2)
+	return NewMultivalueExpression(expressions.Between, "AND", "", "", v1, v2)
 }
 
 // Equivalent to NOT (v1 < value < v2)
 func NotBetween[T any](v1 T, v2 T) MultivalueExpression[T] {
-	return NewMultivalueExpression("NOT BETWEEN", "AND", "", "", v1, v2)
+	return NewMultivalueExpression(expressions.NotBetween, "AND", "", "", v1, v2)
 }
 
 func IsNull[T any]() PredicateExpression[T] {
@@ -359,12 +369,12 @@ func IsNotUnknown[T bool | sql.NullBool]() PredicateExpression[T] {
 
 // Not supported by: mysql
 func IsDistinct[T any](value T) ValueExpression[T] {
-	return NewValueExpression[T](value, expressions.ToSQL[expressions.IsDistinct])
+	return NewValueExpression[T](value, expressions.IsDistinct)
 }
 
 // Not supported by: mysql
 func IsNotDistinct[T any](value T) ValueExpression[T] {
-	return NewValueExpression[T](value, expressions.ToSQL[expressions.IsNotDistinct])
+	return NewValueExpression[T](value, expressions.IsNotDistinct)
 }
 
 // Pattern Matching
@@ -373,14 +383,14 @@ type LikeExpression[T string | sql.NullString] struct {
 	ValueExpression[T]
 }
 
-func NewLikeExpression[T string | sql.NullString](pattern, sqlExpression string) LikeExpression[T] {
+func NewLikeExpression[T string | sql.NullString](pattern string, sqlExpression expressions.SQLExpression) LikeExpression[T] {
 	return LikeExpression[T]{
 		ValueExpression: NewValueExpression[T](pattern, sqlExpression),
 	}
 }
 
 func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
-	return expr.AddSQLExpression(string(escape), "ESCAPE")
+	return expr.AddSQLExpression(string(escape), expressions.Escape)
 }
 
 // Pattern in all databases:
@@ -402,7 +412,7 @@ func (expr LikeExpression[T]) Escape(escape rune) ValueExpression[T] {
 //   - sqlserver: https://learn.microsoft.com/en-us/sql/t-sql/language-elements/like-transact-sql?view=sql-server-ver16
 //   - sqlite: https://www.sqlite.org/lang_expr.html#like
 func Like[T string | sql.NullString](pattern string) LikeExpression[T] {
-	return NewLikeExpression[T](pattern, "LIKE")
+	return NewLikeExpression[T](pattern, expressions.Like)
 }
 
 // TODO Subquery Expressions

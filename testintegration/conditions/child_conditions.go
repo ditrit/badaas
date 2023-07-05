@@ -57,6 +57,18 @@ func ChildDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereConditio
 		FieldIdentifier: ChildDeletedAtField,
 	}
 }
+
+var ChildNameField = badorm.FieldIdentifier[string]{
+	Field:     "Name",
+	ModelType: childType,
+}
+
+func ChildName(expr badorm.Expression[string]) badorm.WhereCondition[models.Child] {
+	return badorm.FieldCondition[models.Child, string]{
+		Expression:      expr,
+		FieldIdentifier: ChildNameField,
+	}
+}
 func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.IJoinCondition[models.Child] {
 	return badorm.JoinCondition[models.Child, models.Parent1]{
 		Conditions:         conditions,
@@ -102,5 +114,5 @@ func ChildParent2Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[m
 	}
 }
 
-var ChildPreloadAttributes = badorm.NewPreloadCondition[models.Child](ChildIdField, ChildCreatedAtField, ChildUpdatedAtField, ChildDeletedAtField, ChildParent1IdField, ChildParent2IdField)
+var ChildPreloadAttributes = badorm.NewPreloadCondition[models.Child](ChildIdField, ChildCreatedAtField, ChildUpdatedAtField, ChildDeletedAtField, ChildNameField, ChildParent1IdField, ChildParent2IdField)
 var ChildPreloadRelations = []badorm.Condition[models.Child]{ChildPreloadParent1, ChildPreloadParent2}

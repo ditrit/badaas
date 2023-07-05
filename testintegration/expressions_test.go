@@ -7,7 +7,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/expressions"
+	"github.com/ditrit/badaas/badorm/dynamic"
+	"github.com/ditrit/badaas/badorm/multitype"
 	"github.com/ditrit/badaas/badorm/mysql"
 	"github.com/ditrit/badaas/badorm/psql"
 	"github.com/ditrit/badaas/badorm/sqlite"
@@ -989,10 +990,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBasicType() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			badorm.DynamicExpression(
-				expressions.Eq,
-				conditions.ProductIntPointerField,
-			),
+			dynamic.Eq(conditions.ProductIntPointerField),
 		),
 	)
 	ts.Nil(err)
@@ -1011,10 +1009,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForCustomType() {
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductMultiString(
-			badorm.DynamicExpression(
-				expressions.Eq,
-				conditions.ProductMultiStringField,
-			),
+			dynamic.Eq(conditions.ProductMultiStringField),
 		),
 	)
 	ts.Nil(err)
@@ -1027,10 +1022,7 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBadORMModelAttribute()
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductDeletedAt(
-			badorm.DynamicExpression(
-				expressions.IsNotDistinct,
-				conditions.ProductDeletedAtField,
-			),
+			dynamic.IsNotDistinct(conditions.ProductDeletedAtField),
 		),
 	)
 	ts.Nil(err)
@@ -1041,13 +1033,10 @@ func (ts *ExpressionIntTestSuite) TestDynamicExpressionForBadORMModelAttribute()
 func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionWithFieldOfAnotherTypeReturnsError() {
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductInt(
-			badorm.MultitypeDynamicExpression[int](
-				expressions.Eq,
-				conditions.ProductStringField,
-			),
+			multitype.Eq[int](conditions.ProductStringField),
 		),
 	)
-	ts.ErrorIs(err, badorm.ErrFieldTypeDoesNotMatch)
+	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
 }
 
 func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNullableTypeCanBeComparedWithNotNullType() {
@@ -1060,10 +1049,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNullableTypeC
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductNullFloat(
-			badorm.MultitypeDynamicExpression[sql.NullFloat64](
-				expressions.Eq,
-				conditions.ProductFloatField,
-			),
+			multitype.Eq[sql.NullFloat64](conditions.ProductFloatField),
 		),
 	)
 	ts.Nil(err)
@@ -1081,10 +1067,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForNotNullTypeCa
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductFloat(
-			badorm.MultitypeDynamicExpression[float64](
-				expressions.Eq,
-				conditions.ProductNullFloatField,
-			),
+			multitype.Eq[float64](conditions.ProductNullFloatField),
 		),
 	)
 	ts.Nil(err)
@@ -1097,10 +1080,7 @@ func (ts *ExpressionIntTestSuite) TestMultitypeDynamicExpressionForBadORMModelAt
 
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductDeletedAt(
-			badorm.MultitypeDynamicExpression[gorm.DeletedAt](
-				expressions.IsDistinct,
-				conditions.ProductCreatedAtField,
-			),
+			multitype.IsDistinct[gorm.DeletedAt](conditions.ProductCreatedAtField),
 		),
 	)
 	ts.Nil(err)

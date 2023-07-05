@@ -237,6 +237,8 @@ func (m Parent2) Equal(other Parent2) bool {
 type Child struct {
 	badorm.UUIDModel
 
+	Name string
+
 	Parent1   Parent1
 	Parent1ID badorm.UUID
 

@@ -20,7 +20,7 @@ func (t Table) IsInitial() bool {
 }
 
 // Returns the related Table corresponding to the model
-func (t Table) DeliverTable(query *query, model Model, relationName string) (Table, error) {
+func (t Table) DeliverTable(query *Query, model Model, relationName string) (Table, error) {
 	// get the name of the table for the model
 	tableName, err := getTableName(query.gormDB, model)
 	if err != nil {
@@ -42,8 +42,8 @@ func (t Table) DeliverTable(query *query, model Model, relationName string) (Tab
 }
 
 type IFieldIdentifier interface {
-	ColumnName(query *query, table Table) string
-	ColumnSQL(query *query, table Table) string
+	ColumnName(query *Query, table Table) string
+	ColumnSQL(query *Query, table Table) string
 	GetModelType() reflect.Type
 }
 
@@ -59,7 +59,7 @@ func (fieldID FieldIdentifier[T]) GetModelType() reflect.Type {
 }
 
 // Returns the name of the column in which the field is saved in the table
-func (fieldID FieldIdentifier[T]) ColumnName(query *query, table Table) string {
+func (fieldID FieldIdentifier[T]) ColumnName(query *Query, table Table) string {
 	columnName := fieldID.Column
 	if columnName == "" {
 		columnName = query.ColumnName(table, fieldID.Field)
@@ -70,16 +70,16 @@ func (fieldID FieldIdentifier[T]) ColumnName(query *query, table Table) string {
 }
 
 // Returns the SQL to get the value of the field in the table
-func (fieldID FieldIdentifier[T]) ColumnSQL(query *query, table Table) string {
+func (fieldID FieldIdentifier[T]) ColumnSQL(query *Query, table Table) string {
 	return table.Alias + "." + fieldID.ColumnName(query, table)
 }
 
-type query struct {
+type Query struct {
 	gormDB          *gorm.DB
-	concernedModels map[reflect.Type]Table
+	concernedModels map[reflect.Type][]Table
 }
 
-func (query *query) AddSelect(table Table, fieldID IFieldIdentifier) {
+func (query *Query) AddSelect(table Table, fieldID IFieldIdentifier) {
 	columnName := fieldID.ColumnName(query, table)
 
 	query.gormDB.Statement.Selects = append(
@@ -92,39 +92,53 @@ func (query *query) AddSelect(table Table, fieldID IFieldIdentifier) {
 	)
 }
 
-func (query *query) Preload(preloadQuery string, args ...interface{}) {
+func (query *Query) Preload(preloadQuery string, args ...interface{}) {
 	query.gormDB = query.gormDB.Preload(preloadQuery, args...)
 }
 
-func (query *query) Unscoped() {
+func (query *Query) Unscoped() {
 	query.gormDB = query.gormDB.Unscoped()
 }
 
-func (query *query) Where(whereQuery interface{}, args ...interface{}) {
+func (query *Query) Where(whereQuery interface{}, args ...interface{}) {
 	query.gormDB = query.gormDB.Where(whereQuery, args...)
 }
 
-func (query *query) Joins(joinQuery string, args ...interface{}) {
+func (query *Query) Joins(joinQuery string, args ...interface{}) {
 	query.gormDB = query.gormDB.Joins(joinQuery, args...)
 }
 
-func (query *query) Find(dest interface{}, conds ...interface{}) error {
+func (query *Query) Find(dest interface{}, conds ...interface{}) error {
 	query.gormDB = query.gormDB.Find(dest, conds...)
 
 	return query.gormDB.Error
 }
 
-func (query *query) AddConcernedModel(model Model, table Table) {
-	// TODO que pasa si ya estaba
-	query.concernedModels[reflect.TypeOf(model)] = table
+func (query *Query) AddConcernedModel(model Model, table Table) {
+	tableList, isPresent := query.concernedModels[reflect.TypeOf(model)]
+	if !isPresent {
+		query.concernedModels[reflect.TypeOf(model)] = []Table{table}
+	} else {
+		tableList = append(tableList, table)
+		query.concernedModels[reflect.TypeOf(model)] = tableList
+	}
+}
+
+func (query *Query) GetTables(modelType reflect.Type) []Table {
+	tableList, isPresent := query.concernedModels[modelType]
+	if !isPresent {
+		return nil
+	}
+
+	return tableList
 }
 
 // TODO ver esta, porque no estoy usando los fields aca y que pasa si hay fk override y todo eso
-func (query query) ColumnName(table Table, fieldName string) string {
+func (query Query) ColumnName(table Table, fieldName string) string {
 	return query.gormDB.NamingStrategy.ColumnName(table.Name, fieldName)
 }
 
-func NewQuery[T Model](db *gorm.DB, conditions []Condition[T]) (*query, error) {
+func NewQuery[T Model](db *gorm.DB, conditions []Condition[T]) (*Query, error) {
 	model := *new(T)
 
 	initialTableName, err := getTableName(db, model)
@@ -138,9 +152,9 @@ func NewQuery[T Model](db *gorm.DB, conditions []Condition[T]) (*query, error) {
 		Initial: true,
 	}
 
-	query := &query{
+	query := &Query{
 		gormDB:          db.Select(initialTableName + ".*"),
-		concernedModels: map[reflect.Type]Table{},
+		concernedModels: map[reflect.Type][]Table{},
 	}
 	query.AddConcernedModel(model, initialTable)
 

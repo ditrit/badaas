@@ -20,7 +20,7 @@ type Condition[T Model] interface {
 	// Applies the condition to the "query"
 	// using the "tableName" as name for the table holding
 	// the data for object of type T
-	ApplyTo(query *query, table Table) error
+	ApplyTo(query *Query, table Table) error
 
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T],
@@ -35,7 +35,7 @@ type WhereCondition[T Model] interface {
 	Condition[T]
 
 	// Get the sql string and values to use in the query
-	GetSQL(query *query, table Table) (string, []any, error)
+	GetSQL(query *Query, table Table) (string, []any, error)
 
 	// Returns true if the DeletedAt column if affected by the condition
 	// If no condition affects the DeletedAt, the verification that it's null will be added automatically
@@ -55,11 +55,11 @@ func (condition ContainerCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition ContainerCondition[T]) ApplyTo(query *query, table Table) error {
+func (condition ContainerCondition[T]) ApplyTo(query *Query, table Table) error {
 	return applyWhereCondition[T](condition, query, table)
 }
 
-func (condition ContainerCondition[T]) GetSQL(query *query, table Table) (string, []any, error) {
+func (condition ContainerCondition[T]) GetSQL(query *Query, table Table) (string, []any, error) {
 	sqlString, values, err := condition.ConnectionCondition.GetSQL(query, table)
 	if err != nil {
 		return "", nil, err
@@ -101,11 +101,11 @@ func (condition ConnectionCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition ConnectionCondition[T]) ApplyTo(query *query, table Table) error {
+func (condition ConnectionCondition[T]) ApplyTo(query *Query, table Table) error {
 	return applyWhereCondition[T](condition, query, table)
 }
 
-func (condition ConnectionCondition[T]) GetSQL(query *query, table Table) (string, []any, error) {
+func (condition ConnectionCondition[T]) GetSQL(query *Query, table Table) (string, []any, error) {
 	sqlStrings := []string{}
 	values := []any{}
 
@@ -150,7 +150,7 @@ func (condition PreloadCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition PreloadCondition[T]) ApplyTo(query *query, table Table) error {
+func (condition PreloadCondition[T]) ApplyTo(query *Query, table Table) error {
 	for _, fieldID := range condition.Fields {
 		query.AddSelect(table, fieldID)
 	}
@@ -178,7 +178,7 @@ func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(
 	// that an object is of type Condition[T1]
 }
 
-func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *query, _ Table) error {
+func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *Query, _ Table) error {
 	if len(condition.NestedPreloads) == 0 {
 		query.Preload(condition.CollectionField)
 		return nil
@@ -237,11 +237,11 @@ func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(
 
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
-func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *query, table Table) error {
+func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *Query, table Table) error {
 	return applyWhereCondition[TObject](condition, query, table)
 }
 
-func applyWhereCondition[T Model](condition WhereCondition[T], query *query, table Table) error {
+func applyWhereCondition[T Model](condition WhereCondition[T], query *Query, table Table) error {
 	sql, values, err := condition.GetSQL(query, table)
 	if err != nil {
 		return err
@@ -264,7 +264,7 @@ func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
 	return condition.FieldIdentifier.Field == deletedAtField
 }
 
-func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *query, table Table) (string, []any, error) {
+func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *Query, table Table) (string, []any, error) {
 	return condition.Expression.ToSQL(
 		query,
 		condition.FieldIdentifier.ColumnSQL(query, table),
@@ -321,7 +321,7 @@ func (condition JoinCondition[T1, T2]) makesFilter() bool {
 // Applies a join between the tables of T1 and T2
 // previousTableName is the name of the table of T1
 // It also applies the nested conditions
-func (condition JoinCondition[T1, T2]) ApplyTo(query *query, t1Table Table) error {
+func (condition JoinCondition[T1, T2]) ApplyTo(query *Query, t1Table Table) error {
 	whereConditions, joinConditions, t2PreloadCondition := divideConditionsByType(condition.Conditions)
 
 	t2Model := *new(T2)
@@ -404,7 +404,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *query, t1Table Table) erro
 // taking into account that the ID attribute necessary to do it
 // can be either in T1's or T2's table.
 func (condition JoinCondition[T1, T2]) getSQLJoin(
-	query *query,
+	query *Query,
 	t1Table Table,
 	t2Table Table,
 	isLeftJoin bool,
@@ -462,11 +462,11 @@ func (condition UnsafeCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition UnsafeCondition[T]) ApplyTo(query *query, table Table) error {
+func (condition UnsafeCondition[T]) ApplyTo(query *Query, table Table) error {
 	return applyWhereCondition[T](condition, query, table)
 }
 
-func (condition UnsafeCondition[T]) GetSQL(_ *query, table Table) (string, []any, error) {
+func (condition UnsafeCondition[T]) GetSQL(_ *Query, table Table) (string, []any, error) {
 	return fmt.Sprintf(
 		condition.SQLCondition,
 		table.Alias,
@@ -498,11 +498,11 @@ func (condition InvalidCondition[T]) interfaceVerificationMethod(_ T) {
 	// that an object is of type Condition[T]
 }
 
-func (condition InvalidCondition[T]) ApplyTo(_ *query, _ Table) error {
+func (condition InvalidCondition[T]) ApplyTo(_ *Query, _ Table) error {
 	return condition.Err
 }
 
-func (condition InvalidCondition[T]) GetSQL(_ *query, _ Table) (string, []any, error) {
+func (condition InvalidCondition[T]) GetSQL(_ *Query, _ Table) (string, []any, error) {
 	return "", nil, condition.Err
 }
 
