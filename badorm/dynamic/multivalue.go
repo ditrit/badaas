@@ -9,7 +9,8 @@ import (
 
 func newMultivalueOperator[T any](
 	sqlOperator sql.Operator,
-	sqlConnector, sqlPrefix, sqlSuffix string,
+	sqlConnector sql.Connector,
+	sqlPrefix, sqlSuffix string,
 	fields ...badorm.FieldIdentifier[T],
 ) badorm.DynamicOperator[T] {
 	values := pie.Map(fields, func(field badorm.FieldIdentifier[T]) any {

@@ -7,7 +7,8 @@ import (
 
 func newMultivalueOperator[TAttribute, TField any](
 	sqlOperator sql.Operator,
-	sqlConnector, sqlPrefix, sqlSuffix string,
+	sqlConnector sql.Connector,
+	sqlPrefix, sqlSuffix string,
 	values ...any,
 ) badorm.DynamicOperator[TAttribute] {
 	for _, value := range values {

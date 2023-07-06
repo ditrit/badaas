@@ -7,7 +7,8 @@ import (
 
 func newMultivalueOperator[T any](
 	sqlOperator sql.Operator,
-	sqlConnector, sqlPrefix, sqlSuffix string,
+	sqlConnector sql.Connector,
+	sqlPrefix, sqlSuffix string,
 	values ...any,
 ) badorm.DynamicOperator[T] {
 	return &badorm.MultivalueOperator[T]{

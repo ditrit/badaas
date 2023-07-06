@@ -50,12 +50,12 @@ func GtOrEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
 
 // Equivalent to field1 < value < field2
 func Between[T any](field1, field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newMultivalueOperator(sql.Between, "AND", "", "", field1, field2)
+	return newMultivalueOperator(sql.Between, sql.And, "", "", field1, field2)
 }
 
 // Equivalent to NOT (field1 < value < field2)
 func NotBetween[T any](field1, field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newMultivalueOperator(sql.NotBetween, "AND", "", "", field1, field2)
+	return newMultivalueOperator(sql.NotBetween, sql.And, "", "", field1, field2)
 }
 
 // Boolean Comparison Predicates

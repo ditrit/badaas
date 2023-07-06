@@ -12,11 +12,11 @@ import (
 // Operator that compares the value of the column against multiple values
 // Example: value IN (v1, v2, v3, ..., vN)
 type MultivalueOperator[T any] struct {
-	Values       []any        // the values to compare with
-	SQLOperator  sql.Operator // the operator used to compare, example: IN
-	SQLConnector string       // the connector between values, example: ', '
-	SQLPrefix    string       // something to put before the values, example: (
-	SQLSuffix    string       // something to put after the values, example: )
+	Values       []any         // the values to compare with
+	SQLOperator  sql.Operator  // the operator used to compare, example: IN
+	SQLConnector sql.Connector // the connector between values, example: ', '
+	SQLPrefix    string        // something to put before the values, example: (
+	SQLSuffix    string        // something to put after the values, example: )
 	JoinNumber   int
 }
 
@@ -51,7 +51,7 @@ func (expr MultivalueOperator[T]) ToSQL(query *Query, columnName string) (string
 		}
 	}
 
-	placeholders := strings.Join(placeholderList, " "+expr.SQLConnector+" ")
+	placeholders := strings.Join(placeholderList, " "+expr.SQLConnector.String()+" ")
 
 	return fmt.Sprintf(
 		"%s %s %s"+placeholders+"%s",
@@ -79,7 +79,12 @@ func getModelTable(query *Query, field IFieldIdentifier, joinNumber int) (Table,
 	return modelTables[joinNumber], nil
 }
 
-func NewMultivalueOperator[T any](sqlOperator sql.Operator, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) Operator[T] {
+func NewMultivalueOperator[T any](
+	sqlOperator sql.Operator,
+	sqlConnector sql.Connector,
+	sqlPrefix, sqlSuffix string,
+	values ...T,
+) Operator[T] {
 	valuesAny := pie.Map(values, func(value T) any {
 		return value
 	})

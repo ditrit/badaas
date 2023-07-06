@@ -7,6 +7,8 @@ import (
 
 	"github.com/elliotchance/pie/v2"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm/sql"
 )
 
 const deletedAtField = "DeletedAt"
@@ -46,7 +48,7 @@ type WhereCondition[T Model] interface {
 // Example: NOT (internal condition)
 type ContainerCondition[T Model] struct {
 	ConnectionCondition WhereCondition[T]
-	Prefix              string
+	Prefix              sql.Connector
 }
 
 //nolint:unused // see inside
@@ -65,7 +67,7 @@ func (condition ContainerCondition[T]) GetSQL(query *Query, table Table) (string
 		return "", nil, err
 	}
 
-	sqlString = condition.Prefix + " (" + sqlString + ")"
+	sqlString = condition.Prefix.String() + " (" + sqlString + ")"
 
 	return sqlString, values, nil
 }
@@ -77,7 +79,7 @@ func (condition ContainerCondition[T]) AffectsDeletedAt() bool {
 
 // Condition that contains a internal condition.
 // Example: NOT (internal condition)
-func NewContainerCondition[T Model](prefix string, conditions ...WhereCondition[T]) WhereCondition[T] {
+func NewContainerCondition[T Model](prefix sql.Connector, conditions ...WhereCondition[T]) WhereCondition[T] {
 	if len(conditions) == 0 {
 		return NewInvalidCondition[T](ErrEmptyConditions)
 	}
@@ -91,7 +93,7 @@ func NewContainerCondition[T Model](prefix string, conditions ...WhereCondition[
 // Condition that connects multiple conditions.
 // Example: condition1 AND condition2
 type ConnectionCondition[T Model] struct {
-	Connector  string
+	Connector  sql.Connector
 	Conditions []WhereCondition[T]
 }
 
@@ -120,7 +122,10 @@ func (condition ConnectionCondition[T]) GetSQL(query *Query, table Table) (strin
 		values = append(values, exprValues...)
 	}
 
-	return strings.Join(sqlStrings, " "+condition.Connector+" "), values, nil
+	return strings.Join(
+		sqlStrings,
+		" "+condition.Connector.String()+" ",
+	), values, nil
 }
 
 //nolint:unused // is used
@@ -132,7 +137,7 @@ func (condition ConnectionCondition[T]) AffectsDeletedAt() bool {
 
 // Condition that connects multiple conditions.
 // Example: condition1 AND condition2
-func NewConnectionCondition[T Model](connector string, conditions ...WhereCondition[T]) WhereCondition[T] {
+func NewConnectionCondition[T Model](connector sql.Connector, conditions ...WhereCondition[T]) WhereCondition[T] {
 	return ConnectionCondition[T]{
 		Connector:  connector,
 		Conditions: conditions,
@@ -487,13 +492,13 @@ func NewInvalidCondition[T any](err error) InvalidCondition[T] {
 // - SQLite: https://www.sqlite.org/lang_expr.html
 
 func And[T Model](conditions ...WhereCondition[T]) WhereCondition[T] {
-	return NewConnectionCondition("AND", conditions...)
+	return NewConnectionCondition(sql.And, conditions...)
 }
 
 func Or[T Model](conditions ...WhereCondition[T]) WhereCondition[T] {
-	return NewConnectionCondition("OR", conditions...)
+	return NewConnectionCondition(sql.Or, conditions...)
 }
 
 func Not[T Model](conditions ...WhereCondition[T]) WhereCondition[T] {
-	return NewContainerCondition("NOT", conditions...)
+	return NewContainerCondition(sql.Not, conditions...)
 }
