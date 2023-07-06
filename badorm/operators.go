@@ -3,15 +3,12 @@ package badorm
 import (
 	"database/sql"
 	"database/sql/driver"
-	"errors"
 	"reflect"
 
 	"github.com/elliotchance/pie/v2"
 
 	badormSQL "github.com/ditrit/badaas/badorm/sql"
 )
-
-var ErrNotRelated = errors.New("value type not related with T")
 
 // Comparison Operators
 // refs:
@@ -39,7 +36,7 @@ func Eq[T any](value T) Operator[T] {
 //   - in PostgreSQL you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 //   - in SQLite you can use the IS NOT DISTINCT operator (implemented in IsNotDistinct)
 func EqOrIsNull[T any](value any) Operator[T] {
-	return operatorFromValueOrNil[T](value, Eq[T], IsNull[T]())
+	return operatorFromValueOrNil[T](value, "EqOrIsNull", Eq[T], IsNull[T]())
 }
 
 // NotEqualTo
@@ -60,10 +57,13 @@ func NotEq[T any](value T) Operator[T] {
 //   - in PostgreSQL you can use the IS DISTINCT operator (implemented in IsDistinct)
 //   - in SQLite you can use the IS DISTINCT operator (implemented in IsDistinct)
 func NotEqOrIsNotNull[T any](value any) Operator[T] {
-	return operatorFromValueOrNil[T](value, NotEq[T], IsNotNull[T]())
+	return operatorFromValueOrNil[T](value, "NotEqOrIsNotNull", NotEq[T], IsNotNull[T]())
 }
 
-func operatorFromValueOrNil[T any](value any, notNilFunc func(T) Operator[T], nilOperator Operator[T]) Operator[T] {
+func operatorFromValueOrNil[T any](
+	value any, operatorName string,
+	notNilFunc func(T) Operator[T], nilOperator Operator[T],
+) Operator[T] {
 	if value == nil {
 		return nilOperator
 	}
@@ -86,7 +86,9 @@ func operatorFromValueOrNil[T any](value any, notNilFunc func(T) Operator[T], ni
 		return notNilFunc(valueT)
 	}
 
-	return NewInvalidOperator[T](ErrNotRelated)
+	return NewInvalidOperator[T](
+		notRelatedError[T](value, operatorName),
+	)
 }
 
 func mapsToNull(value any) bool {

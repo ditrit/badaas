@@ -1,7 +1,6 @@
 package badorm
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
@@ -12,11 +11,6 @@ import (
 )
 
 const deletedAtField = "DeletedAt"
-
-var (
-	ErrEmptyConditions     = errors.New("condition must have at least one inner condition")
-	ErrOnlyPreloadsAllowed = errors.New("only conditions that do a preload are allowed")
-)
 
 type Condition[T Model] interface {
 	// Applies the condition to the "query"
@@ -81,7 +75,7 @@ func (condition ContainerCondition[T]) AffectsDeletedAt() bool {
 // Example: NOT (internal condition)
 func NewContainerCondition[T Model](prefix sql.Connector, conditions ...WhereCondition[T]) WhereCondition[T] {
 	if len(conditions) == 0 {
-		return NewInvalidCondition[T](ErrEmptyConditions)
+		return NewInvalidCondition[T](emptyConditionsError[T](prefix))
 	}
 
 	return ContainerCondition[T]{
@@ -146,7 +140,7 @@ func NewConnectionCondition[T Model](connector sql.Connector, conditions ...Wher
 
 // Condition used to the preload the attributes of a model
 type PreloadCondition[T Model] struct {
-	Fields []IFieldIdentifier
+	Fields []iFieldIdentifier
 }
 
 //nolint:unused // see inside
@@ -164,14 +158,14 @@ func (condition PreloadCondition[T]) ApplyTo(query *Query, table Table) error {
 }
 
 // Condition used to the preload the attributes of a model
-func NewPreloadCondition[T Model](fields ...IFieldIdentifier) PreloadCondition[T] {
+func NewPreloadCondition[T Model](fields ...iFieldIdentifier) PreloadCondition[T] {
 	return PreloadCondition[T]{
 		Fields: fields,
 	}
 }
 
 // Condition used to the preload a collection of models of a model
-type CollectionPreloadCondition[T1 Model, T2 Model] struct {
+type CollectionPreloadCondition[T1, T2 Model] struct {
 	CollectionField string
 	// For each model in the collection we can preload its relations
 	NestedPreloads []IJoinCondition[T2]
@@ -218,7 +212,7 @@ func NewCollectionPreloadCondition[T1 Model, T2 Model](collectionField string, n
 	if pie.Any(nestedPreloads, func(nestedPreload IJoinCondition[T2]) bool {
 		return !nestedPreload.makesPreload() || nestedPreload.makesFilter()
 	}) {
-		return NewInvalidCondition[T1](ErrOnlyPreloadsAllowed)
+		return NewInvalidCondition[T1](onlyPreloadsAllowedError[T1](collectionField))
 	}
 
 	return CollectionPreloadCondition[T1, T2]{
@@ -270,10 +264,15 @@ func (condition FieldCondition[TObject, TAtribute]) AffectsDeletedAt() bool {
 }
 
 func (condition FieldCondition[TObject, TAtribute]) GetSQL(query *Query, table Table) (string, []any, error) {
-	return condition.Operator.ToSQL(
+	sqlString, values, err := condition.Operator.ToSQL(
 		query,
 		condition.FieldIdentifier.ColumnSQL(query, table),
 	)
+	if err != nil {
+		return "", nil, conditionOperatorError[TObject](err, condition)
+	}
+
+	return sqlString, values, nil
 }
 
 // Interface of a join condition that joins T with any other model

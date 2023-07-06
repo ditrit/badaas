@@ -7,7 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// TODO creo que estos podrian ser todos tipos privados
 type Table struct {
 	Name    string
 	Alias   string
@@ -41,7 +40,7 @@ func (t Table) DeliverTable(query *Query, model Model, relationName string) (Tab
 	}, nil
 }
 
-type IFieldIdentifier interface {
+type iFieldIdentifier interface {
 	ColumnName(query *Query, table Table) string
 	ColumnSQL(query *Query, table Table) string
 	GetModelType() reflect.Type
@@ -79,7 +78,7 @@ type Query struct {
 	concernedModels map[reflect.Type][]Table
 }
 
-func (query *Query) AddSelect(table Table, fieldID IFieldIdentifier) {
+func (query *Query) AddSelect(table Table, fieldID iFieldIdentifier) {
 	columnName := fieldID.ColumnName(query, table)
 
 	query.gormDB.Statement.Selects = append(
@@ -133,7 +132,6 @@ func (query *Query) GetTables(modelType reflect.Type) []Table {
 	return tableList
 }
 
-// TODO ver esta, porque no estoy usando los fields aca y que pasa si hay fk override y todo eso
 func (query Query) ColumnName(table Table, fieldName string) string {
 	return query.gormDB.NamingStrategy.ColumnName(table.Name, fieldName)
 }

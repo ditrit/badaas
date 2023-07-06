@@ -20,25 +20,25 @@ type MultivalueOperator[T any] struct {
 	JoinNumber   int
 }
 
-func (expr MultivalueOperator[T]) InterfaceVerificationMethod(_ T) {
+func (operator MultivalueOperator[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Operator[T]
 }
 
-func (expr *MultivalueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
-	expr.JoinNumber = int(joinNumber)
-	return expr
+func (operator *MultivalueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
+	operator.JoinNumber = int(joinNumber)
+	return operator
 }
 
-func (expr MultivalueOperator[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
+func (operator MultivalueOperator[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
 	placeholderList := []string{}
 	values := []any{}
 
-	for _, value := range expr.Values {
-		field, isField := value.(IFieldIdentifier)
+	for _, value := range operator.Values {
+		field, isField := value.(iFieldIdentifier)
 		if isField {
 			// if it is a field, add the field column to the query
-			modelTable, err := getModelTable(query, field, expr.JoinNumber)
+			modelTable, err := getModelTable(query, field, operator.JoinNumber, operator.SQLOperator)
 			if err != nil {
 				return "", nil, err
 			}
@@ -51,21 +51,21 @@ func (expr MultivalueOperator[T]) ToSQL(query *Query, columnName string) (string
 		}
 	}
 
-	placeholders := strings.Join(placeholderList, " "+expr.SQLConnector.String()+" ")
+	placeholders := strings.Join(placeholderList, " "+operator.SQLConnector.String()+" ")
 
 	return fmt.Sprintf(
 		"%s %s %s"+placeholders+"%s",
 		columnName,
-		expr.SQLOperator,
-		expr.SQLPrefix,
-		expr.SQLSuffix,
+		operator.SQLOperator,
+		operator.SQLPrefix,
+		operator.SQLSuffix,
 	), values, nil
 }
 
-func getModelTable(query *Query, field IFieldIdentifier, joinNumber int) (Table, error) {
+func getModelTable(query *Query, field iFieldIdentifier, joinNumber int, sqlOperator sql.Operator) (Table, error) {
 	modelTables := query.GetTables(field.GetModelType())
 	if modelTables == nil {
-		return Table{}, ErrFieldModelNotConcerned
+		return Table{}, fieldModelNotConcernedError(field, sqlOperator)
 	}
 
 	if len(modelTables) == 1 {
@@ -73,7 +73,7 @@ func getModelTable(query *Query, field IFieldIdentifier, joinNumber int) (Table,
 	}
 
 	if joinNumber == UndefinedJoinNumber {
-		return Table{}, ErrJoinMustBeSelected
+		return Table{}, joinMustBeSelectedError(field, sqlOperator)
 	}
 
 	return modelTables[joinNumber], nil

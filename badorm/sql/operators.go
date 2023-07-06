@@ -68,3 +68,33 @@ var operatorToSQL = map[Operator]string{
 	ArrayIn:               "IN",
 	ArrayNotIn:            "NOT IN",
 }
+
+func (op Operator) Name() string {
+	return operatorToName[op]
+}
+
+var operatorToName = map[Operator]string{
+	Eq:                    "Eq",
+	NotEq:                 "NotEq",
+	Lt:                    "Lt",
+	LtOrEq:                "LtOrEq",
+	Gt:                    "Gt",
+	GtOrEq:                "GtOrEq",
+	Between:               "Between",
+	NotBetween:            "NotBetween",
+	IsDistinct:            "IsDistinct",
+	IsNotDistinct:         "IsNotDistinct",
+	Like:                  "Like",
+	Escape:                "Escape",
+	MySQLIsEqual:          "mysql.IsEqual",
+	MySQLRegexp:           "mysql.Regexp",
+	SQLServerNotLt:        "sqlserver.NotLt",
+	SQLServerNotGt:        "sqlserver.NotGt",
+	PostgreSQLILike:       "psql.ILike",
+	PostgreSQLSimilarTo:   "psql.SimilarTo",
+	PostgreSQLPosixMatch:  "psql.PosixMatch",
+	PostgreSQLPosixIMatch: "psql.PosixIMatch",
+	SQLiteGlob:            "sqlite.Glob",
+	ArrayIn:               "ArrayIn",
+	ArrayNotIn:            "ArrayNotIn",
+}

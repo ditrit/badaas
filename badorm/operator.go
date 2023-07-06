@@ -25,7 +25,6 @@ type DynamicOperator[T any] interface {
 // Operator that verifies a predicate
 // Example: value IS TRUE
 type PredicateOperator[T any] struct {
-	// TODO pasar a sql.operator
 	SQLOperator string
 }
 

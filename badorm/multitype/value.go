@@ -2,7 +2,6 @@ package multitype
 
 import (
 	"database/sql"
-	"errors"
 	"reflect"
 
 	"github.com/elliotchance/pie/v2"
@@ -10,12 +9,6 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	badormSQL "github.com/ditrit/badaas/badorm/sql"
-)
-
-// TODO ponerles mas informacion precisa a los errores
-var (
-	ErrFieldTypeDoesNotMatch = errors.New("field type does not match operator type")
-	ErrParamsNotValueOrField = errors.New("parameter is neither a value or a field")
 )
 
 var nullableTypes = []reflect.Type{
@@ -34,14 +27,16 @@ func isNullable(fieldType reflect.Type) bool {
 	return pie.Contains(nullableTypes, fieldType)
 }
 
-func verifyFieldType[TAttribute, TField any]() badorm.DynamicOperator[TAttribute] {
+func verifyFieldType[TAttribute, TField any](sqlOperator badormSQL.Operator) badorm.DynamicOperator[TAttribute] {
 	attributeType := reflect.TypeOf(*new(TAttribute))
 	fieldType := reflect.TypeOf(*new(TField))
 
 	if fieldType != attributeType &&
 		!((isNullable(fieldType) && fieldType.Field(0).Type == attributeType) ||
 			(isNullable(attributeType) && attributeType.Field(0).Type == fieldType)) {
-		return badorm.NewInvalidOperator[TAttribute](ErrFieldTypeDoesNotMatch)
+		return badorm.NewInvalidOperator[TAttribute](
+			fieldTypeDoesNotMatchError(fieldType, attributeType, sqlOperator),
+		)
 	}
 
 	return nil
@@ -51,7 +46,7 @@ func NewValueOperator[TAttribute, TField any](
 	sqlOperator badormSQL.Operator,
 	field badorm.FieldIdentifier[TField],
 ) badorm.DynamicOperator[TAttribute] {
-	invalidOperator := verifyFieldType[TAttribute, TField]()
+	invalidOperator := verifyFieldType[TAttribute, TField](sqlOperator)
 	if invalidOperator != nil {
 		return invalidOperator
 	}

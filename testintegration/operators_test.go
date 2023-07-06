@@ -44,6 +44,7 @@ func (ts *OperatorIntTestSuite) TestEqNullableNullReturnsError() {
 		),
 	)
 	ts.ErrorIs(err, badorm.ErrValueCantBeNull)
+	ts.ErrorContains(err, "operator: Eq; model: models.Product, field: NullFloat")
 }
 
 func (ts *OperatorIntTestSuite) TestEqPointers() {
@@ -185,14 +186,13 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNotNil() {
 }
 
 func (ts *OperatorIntTestSuite) TestEqOrIsNullNotRelated() {
-	notRelated := "not_related"
-
 	_, err := ts.crudProductService.GetEntities(
 		conditions.ProductFloat(
-			badorm.EqOrIsNull[float64](&notRelated),
+			badorm.EqOrIsNull[float64]("not_related"),
 		),
 	)
 	ts.ErrorIs(err, badorm.ErrNotRelated)
+	ts.ErrorContains(err, "type: string, T: float64; operator: EqOrIsNull; model: models.Product, field: Float")
 }
 
 func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
@@ -265,6 +265,7 @@ func (ts *OperatorIntTestSuite) TestLtNullableNullReturnsError() {
 		),
 	)
 	ts.ErrorIs(err, badorm.ErrValueCantBeNull)
+	ts.ErrorContains(err, "operator: Lt; model: models.Product, field: NullFloat")
 }
 
 func (ts *OperatorIntTestSuite) TestLtOrEq() {
@@ -1013,6 +1014,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorWithFieldOfAnotherTypeRetur
 		),
 	)
 	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
+	ts.ErrorContains(err, "field type: string, attribute type: int; operator: Eq; model: models.Product, field: Int")
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNullableTypeCanBeComparedWithNotNullType() {
@@ -1070,7 +1072,8 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithValueOfAnothe
 			multitype.Between[int, int]("hola", 1),
 		),
 	)
-	ts.ErrorIs(err, multitype.ErrParamsNotValueOrField)
+	ts.ErrorIs(err, multitype.ErrParamNotValueOrField)
+	ts.ErrorContains(err, "parameter type: string, attribute type: int; operator: Between; model: models.Product, field: Int")
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfAnotherTypeReturnsError() {
@@ -1079,7 +1082,8 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfAnothe
 			multitype.Between[int, int](1, conditions.ProductCreatedAtField),
 		),
 	)
-	ts.ErrorIs(err, multitype.ErrParamsNotValueOrField)
+	ts.ErrorIs(err, multitype.ErrParamNotValueOrField)
+	ts.ErrorContains(err, "parameter type: badorm.FieldIdentifier[time.Time], attribute type: int; operator: Between; model: models.Product, field: Int")
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfNotRelatedTypeReturnsError() {
@@ -1089,6 +1093,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfNotRel
 		),
 	)
 	ts.ErrorIs(err, multitype.ErrFieldTypeDoesNotMatch)
+	ts.ErrorContains(err, "field type: time.Time, attribute type: int; operator: Between; model: models.Product, field: Int")
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldAndAValue() {

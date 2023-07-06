@@ -405,6 +405,14 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorOver2TablesAtMoreLevel(
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorWithNotJoinedModelReturnsError() {
+	_, err := ts.crudChildService.GetEntities(
+		conditions.ChildId(dynamic.Eq(conditions.ParentParentIdField)),
+	)
+	ts.ErrorIs(err, badorm.ErrFieldModelNotConcerned)
+	ts.ErrorContains(err, "not concerned model: models.ParentParent; operator: Eq; model: models.Child, field: ID")
+}
+
 func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithoutSelectJoinReturnsError() {
 	_, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
@@ -416,6 +424,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithout
 		conditions.ChildId(dynamic.Eq(conditions.ParentParentIdField)),
 	)
 	ts.ErrorIs(err, badorm.ErrJoinMustBeSelected)
+	ts.ErrorContains(err, "joined multiple times model: models.ParentParent; operator: Eq; model: models.Child, field: ID")
 }
 
 func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSelectJoin() {
@@ -491,4 +500,5 @@ func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesNo
 		),
 	)
 	ts.ErrorIs(err, badorm.ErrEmptyConditions)
+	ts.ErrorContains(err, "connector: Not; model: models.Product")
 }

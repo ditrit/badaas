@@ -22,3 +22,15 @@ var connectorToSQL = map[Connector]string{
 	Comma:    ",",
 	MySQLXor: "XOR",
 }
+
+func (con Connector) Name() string {
+	return connectorToName[con]
+}
+
+var connectorToName = map[Connector]string{
+	And:      "And",
+	Or:       "Or",
+	Not:      "Not",
+	Comma:    "Comma",
+	MySQLXor: "mysql.Xor",
+}

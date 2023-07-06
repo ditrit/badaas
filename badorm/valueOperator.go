@@ -2,19 +2,11 @@ package badorm
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"reflect"
 	"regexp"
 
 	badormSQL "github.com/ditrit/badaas/badorm/sql"
-)
-
-// TODO ponerles mas informacion precisa a los errores
-var (
-	ErrFieldModelNotConcerned = errors.New("field's model is not concerned by the query so it can't be used in a operator")
-	ErrJoinMustBeSelected     = errors.New("table is joined more than once, select which one you want to use")
-	ErrValueCantBeNull        = errors.New("value to compare can't be null")
 )
 
 const UndefinedJoinNumber = -1
@@ -25,7 +17,6 @@ const UndefinedJoinNumber = -1
 // Example (multi): value LIKE v1 ESCAPE v2
 type ValueOperator[T any] struct {
 	Operations []Operation
-	// TODO join deberia estar en cada operator
 	JoinNumber int
 }
 
@@ -34,39 +25,41 @@ type Operation struct {
 	Value       any
 }
 
-func (expr ValueOperator[T]) InterfaceVerificationMethod(_ T) {
+func (operator ValueOperator[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Operator[T]
 }
 
-func (expr *ValueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
-	expr.JoinNumber = int(joinNumber)
-	return expr
+func (operator *ValueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
+	operator.JoinNumber = int(joinNumber)
+	return operator
 }
 
-func (expr *ValueOperator[T]) AddOperation(sqlOperator badormSQL.Operator, value any) ValueOperator[T] {
-	expr.Operations = append(
-		expr.Operations,
+func (operator *ValueOperator[T]) AddOperation(sqlOperator badormSQL.Operator, value any) ValueOperator[T] {
+	operator.Operations = append(
+		operator.Operations,
 		Operation{
 			Value:       value,
 			SQLOperator: sqlOperator,
 		},
 	)
 
-	return *expr
+	return *operator
 }
 
-// verificar que en las condiciones anteriores alguien usó el field con el que se intenta comparar
-// obtener de ahi cual es el nombre de la table a usar con ese field.
-// TODO doc a ingles
-func (expr ValueOperator[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
+func (operator ValueOperator[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
 	operationString := columnName
 	values := []any{}
 
-	for _, operation := range expr.Operations {
-		field, isField := operation.Value.(IFieldIdentifier)
+	// add each operation to the sql
+	for _, operation := range operator.Operations {
+		field, isField := operation.Value.(iFieldIdentifier)
 		if isField {
-			modelTable, err := getModelTable(query, field, expr.JoinNumber)
+			// if the value of the operation is a field,
+			// verify that this field is concerned by the query
+			// (a join was performed with the model to which this field belongs)
+			// and get the alias of the table of this model.
+			modelTable, err := getModelTable(query, field, operator.JoinNumber, operation.SQLOperator)
 			if err != nil {
 				return "", nil, err
 			}
@@ -100,7 +93,9 @@ var nullableKinds = []reflect.Kind{
 
 func NewCantBeNullValueOperator[T any](sqlOperator badormSQL.Operator, value any) Operator[T] {
 	if value == nil || mapsToNull(value) {
-		return NewInvalidOperator[T](ErrValueCantBeNull)
+		return NewInvalidOperator[T](
+			OperatorError(ErrValueCantBeNull, sqlOperator),
+		)
 	}
 
 	return NewValueOperator[T](sqlOperator, value)

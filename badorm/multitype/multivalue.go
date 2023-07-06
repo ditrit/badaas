@@ -19,7 +19,7 @@ func NewMultivalueOperator[TAttribute, TField any](
 
 		_, isField := value.(badorm.FieldIdentifier[TField])
 		if isField {
-			invalidOperator := verifyFieldType[TAttribute, TField]()
+			invalidOperator := verifyFieldType[TAttribute, TField](sqlOperator)
 			if invalidOperator != nil {
 				return invalidOperator
 			}
@@ -27,7 +27,9 @@ func NewMultivalueOperator[TAttribute, TField any](
 			continue
 		}
 
-		return badorm.NewInvalidOperator[TAttribute](ErrParamsNotValueOrField)
+		return badorm.NewInvalidOperator[TAttribute](
+			paramNotValueOrField[TAttribute](value, sqlOperator),
+		)
 	}
 
 	return &badorm.MultivalueOperator[TAttribute]{
