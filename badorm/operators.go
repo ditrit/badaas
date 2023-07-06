@@ -23,7 +23,7 @@ var ErrNotRelated = errors.New("value type not related with T")
 // EqualTo
 // EqOrIsNull must be used in cases where value can be NULL
 func Eq[T any](value T) Operator[T] {
-	return NewCantBeNullValueOperator[T](value, badormSQL.Eq)
+	return NewCantBeNullValueOperator[T](badormSQL.Eq, value)
 }
 
 // if value is not NULL returns a Eq operator
@@ -45,7 +45,7 @@ func EqOrIsNull[T any](value any) Operator[T] {
 // NotEqualTo
 // NotEqOrNotIsNull must be used in cases where value can be NULL
 func NotEq[T any](value T) Operator[T] {
-	return NewCantBeNullValueOperator[T](value, badormSQL.NotEq)
+	return NewCantBeNullValueOperator[T](badormSQL.NotEq, value)
 }
 
 // if value is not NULL returns a NotEq operator
@@ -110,22 +110,22 @@ func mapsToNull(value any) bool {
 
 // LessThan
 func Lt[T any](value T) Operator[T] {
-	return NewCantBeNullValueOperator[T](value, badormSQL.Lt)
+	return NewCantBeNullValueOperator[T](badormSQL.Lt, value)
 }
 
 // LessThanOrEqualTo
 func LtOrEq[T any](value T) Operator[T] {
-	return NewCantBeNullValueOperator[T](value, badormSQL.LtOrEq)
+	return NewCantBeNullValueOperator[T](badormSQL.LtOrEq, value)
 }
 
 // GreaterThan
 func Gt[T any](value T) Operator[T] {
-	return NewCantBeNullValueOperator[T](value, badormSQL.Gt)
+	return NewCantBeNullValueOperator[T](badormSQL.Gt, value)
 }
 
 // GreaterThanOrEqualTo
 func GtOrEq[T any](value T) Operator[T] {
-	return NewCantBeNullValueOperator[T](value, badormSQL.GtOrEq)
+	return NewCantBeNullValueOperator[T](badormSQL.GtOrEq, value)
 }
 
 // Comparison Predicates
@@ -185,12 +185,12 @@ func IsNotUnknown[T bool | sql.NullBool]() PredicateOperator[T] {
 
 // Not supported by: mysql
 func IsDistinct[T any](value T) ValueOperator[T] {
-	return NewValueOperator[T](value, badormSQL.IsDistinct)
+	return NewValueOperator[T](badormSQL.IsDistinct, value)
 }
 
 // Not supported by: mysql
 func IsNotDistinct[T any](value T) ValueOperator[T] {
-	return NewValueOperator[T](value, badormSQL.IsNotDistinct)
+	return NewValueOperator[T](badormSQL.IsNotDistinct, value)
 }
 
 // Pattern Matching
@@ -201,12 +201,12 @@ type LikeOperator[T string | sql.NullString] struct {
 
 func NewLikeOperator[T string | sql.NullString](pattern string, sqlOperator badormSQL.Operator) LikeOperator[T] {
 	return LikeOperator[T]{
-		ValueOperator: NewValueOperator[T](pattern, sqlOperator),
+		ValueOperator: NewValueOperator[T](sqlOperator, pattern),
 	}
 }
 
 func (expr LikeOperator[T]) Escape(escape rune) ValueOperator[T] {
-	return expr.AddOperation(string(escape), badormSQL.Escape)
+	return expr.AddOperation(badormSQL.Escape, string(escape))
 }
 
 // Pattern in all databases:
@@ -229,6 +229,17 @@ func (expr LikeOperator[T]) Escape(escape rune) ValueOperator[T] {
 //   - sqlite: https://www.sqlite.org/lang_expr.html#like
 func Like[T string | sql.NullString](pattern string) LikeOperator[T] {
 	return NewLikeOperator[T](pattern, badormSQL.Like)
+}
+
+// Row and Array Comparisons
+
+// https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_in
+func ArrayIn[T any](values ...T) Operator[T] {
+	return NewMultivalueOperator(badormSQL.ArrayIn, badormSQL.Comma, "(", ")", values...)
+}
+
+func ArrayNotIn[T any](values ...T) Operator[T] {
+	return NewMultivalueOperator(badormSQL.ArrayNotIn, badormSQL.Comma, "(", ")", values...)
 }
 
 // TODO Subquery Operators

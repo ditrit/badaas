@@ -12,7 +12,7 @@ import (
 // preferred over eq
 // https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_equal-to
 func IsEqual[T any](value T) badorm.ValueOperator[T] {
-	return badorm.NewValueOperator[T](value, badormSQL.MySQLIsEqual)
+	return badorm.NewValueOperator[T](badormSQL.MySQLIsEqual, value)
 }
 
 // Pattern Matching
@@ -23,10 +23,10 @@ func Like[T string | sql.NullString |
 	uint | uint8 | uint16 | uint32 | uint64 |
 	float32 | float64](pattern string,
 ) badorm.ValueOperator[T] {
-	return badorm.NewValueOperator[T](pattern, badormSQL.Like)
+	return badorm.NewValueOperator[T](badormSQL.Like, pattern)
 }
 
 // ref: https://dev.mysql.com/doc/refman/8.0/en/regexp.html#operator_regexp
 func RegexP[T string | sql.NullString](pattern string) badorm.Operator[T] {
-	return badorm.NewMustBePOSIXValueOperator[T](pattern, badormSQL.MySQLRegexp)
+	return badorm.NewMustBePOSIXValueOperator[T](badormSQL.MySQLRegexp, pattern)
 }

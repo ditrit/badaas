@@ -726,22 +726,9 @@ func (ts *OperatorIntTestSuite) TestArrayIn() {
 	ts.createProduct("ns1", 0, 0, false, nil)
 	ts.createProduct("ns2", 0, 0, false, nil)
 
-	var arrayInOperator badorm.Operator[string]
-
-	switch getDBDialector() {
-	case configuration.MySQL:
-		arrayInOperator = mysql.ArrayIn("s1", "s2", "s3")
-	case configuration.PostgreSQL:
-		arrayInOperator = psql.ArrayIn("s1", "s2", "s3")
-	case configuration.SQLServer:
-		arrayInOperator = sqlserver.ArrayIn("s1", "s2", "s3")
-	case configuration.SQLite:
-		arrayInOperator = sqlite.ArrayIn("s1", "s2", "s3")
-	}
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductString(
-			arrayInOperator,
+			badorm.ArrayIn("s1", "s2", "s3"),
 		),
 	)
 	ts.Nil(err)
@@ -756,22 +743,9 @@ func (ts *OperatorIntTestSuite) TestArrayNotIn() {
 	ts.createProduct("ns1", 0, 0, false, nil)
 	ts.createProduct("ns2", 0, 0, false, nil)
 
-	var arrayNotInOperator badorm.Operator[string]
-
-	switch getDBDialector() {
-	case configuration.MySQL:
-		arrayNotInOperator = mysql.ArrayNotIn("ns1", "ns2")
-	case configuration.PostgreSQL:
-		arrayNotInOperator = psql.ArrayNotIn("ns1", "ns2")
-	case configuration.SQLServer:
-		arrayNotInOperator = sqlserver.ArrayNotIn("ns1", "ns2")
-	case configuration.SQLite:
-		arrayNotInOperator = sqlite.ArrayNotIn("ns1", "ns2")
-	}
-
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductString(
-			arrayNotInOperator,
+			badorm.ArrayNotIn("ns1", "ns2"),
 		),
 	)
 	ts.Nil(err)

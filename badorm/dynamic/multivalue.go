@@ -7,7 +7,7 @@ import (
 	"github.com/ditrit/badaas/badorm/sql"
 )
 
-func newMultivalueOperator[T any](
+func NewMultivalueOperator[T any](
 	sqlOperator sql.Operator,
 	sqlConnector sql.Connector,
 	sqlPrefix, sqlSuffix string,

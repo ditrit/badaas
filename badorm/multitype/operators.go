@@ -14,33 +14,33 @@ import (
 
 // EqualTo
 func Eq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.Eq, field)
+	return NewValueOperator[TAttribute, TField](sql.Eq, field)
 }
 
 // NotEqualTo
 func NotEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.NotEq, field)
+	return NewValueOperator[TAttribute, TField](sql.NotEq, field)
 }
 
 // LessThan
 func Lt[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.Lt, field)
+	return NewValueOperator[TAttribute, TField](sql.Lt, field)
 }
 
 // LessThanOrEqualTo
 func LtOrEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.LtOrEq, field)
+	return NewValueOperator[TAttribute, TField](sql.LtOrEq, field)
 }
 
 // GreaterThan
 func Gt[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
 	// TODO invertir orden de parametros para que quede igual que en badorm/expression
-	return newValueOperator[TAttribute, TField](sql.Gt, field)
+	return NewValueOperator[TAttribute, TField](sql.Gt, field)
 }
 
 // GreaterThanOrEqualTo
 func GtOrEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.GtOrEq, field)
+	return NewValueOperator[TAttribute, TField](sql.GtOrEq, field)
 }
 
 // Comparison Predicates
@@ -50,22 +50,33 @@ func GtOrEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm
 
 // Equivalent to v1 < value < v2
 func Between[TAttribute, TField any](v1, v2 any) badorm.DynamicOperator[TAttribute] {
-	return newMultivalueOperator[TAttribute, TField](sql.Between, sql.And, "", "", v1, v2)
+	return NewMultivalueOperator[TAttribute, TField](sql.Between, sql.And, "", "", v1, v2)
 }
 
 // Equivalent to NOT (v1 < value < v2)
 func NotBetween[TAttribute, TField any](v1, v2 any) badorm.DynamicOperator[TAttribute] {
-	return newMultivalueOperator[TAttribute, TField](sql.NotBetween, sql.And, "", "", v1, v2)
+	return NewMultivalueOperator[TAttribute, TField](sql.NotBetween, sql.And, "", "", v1, v2)
 }
 
 // Boolean Comparison Predicates
 
 // Not supported by: mysql
 func IsDistinct[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.IsDistinct, field)
+	return NewValueOperator[TAttribute, TField](sql.IsDistinct, field)
 }
 
 // Not supported by: mysql
 func IsNotDistinct[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	return newValueOperator[TAttribute, TField](sql.IsNotDistinct, field)
+	return NewValueOperator[TAttribute, TField](sql.IsNotDistinct, field)
+}
+
+// Row and Array Comparisons
+
+// https://dev.mysql.com/doc/refman/8.0/en/comparison-operators.html#operator_in
+func ArrayIn[TAttribute, TField any](values ...any) badorm.DynamicOperator[TAttribute] {
+	return NewMultivalueOperator[TAttribute, TField](sql.ArrayIn, sql.Comma, "(", ")", values...)
+}
+
+func ArrayNotIn[TAttribute, TField any](values ...any) badorm.DynamicOperator[TAttribute] {
+	return NewMultivalueOperator[TAttribute, TField](sql.ArrayNotIn, sql.Comma, "(", ")", values...)
 }

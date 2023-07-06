@@ -9,5 +9,5 @@ import (
 
 // ref: https://www.sqlite.org/lang_expr.html#like
 func Glob[T string | sql.NullString](pattern string) badorm.Operator[T] {
-	return badorm.NewMustBePOSIXValueOperator[T](pattern, badormSQL.SQLiteGlob)
+	return badorm.NewMustBePOSIXValueOperator[T](badormSQL.SQLiteGlob, pattern)
 }

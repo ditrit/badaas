@@ -44,7 +44,7 @@ func (expr *ValueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
 	return expr
 }
 
-func (expr *ValueOperator[T]) AddOperation(value any, sqlOperator badormSQL.Operator) ValueOperator[T] {
+func (expr *ValueOperator[T]) AddOperation(sqlOperator badormSQL.Operator, value any) ValueOperator[T] {
 	expr.Operations = append(
 		expr.Operations,
 		Operation{
@@ -85,10 +85,10 @@ func (expr ValueOperator[T]) ToSQL(query *Query, columnName string) (string, []a
 	return operationString, values, nil
 }
 
-func NewValueOperator[T any](value any, sqlOperator badormSQL.Operator) ValueOperator[T] {
+func NewValueOperator[T any](sqlOperator badormSQL.Operator, value any) ValueOperator[T] {
 	expr := &ValueOperator[T]{}
 
-	return expr.AddOperation(value, sqlOperator)
+	return expr.AddOperation(sqlOperator, value)
 }
 
 var nullableKinds = []reflect.Kind{
@@ -98,19 +98,19 @@ var nullableKinds = []reflect.Kind{
 	reflect.Slice,
 }
 
-func NewCantBeNullValueOperator[T any](value any, sqlOperator badormSQL.Operator) Operator[T] {
+func NewCantBeNullValueOperator[T any](sqlOperator badormSQL.Operator, value any) Operator[T] {
 	if value == nil || mapsToNull(value) {
 		return NewInvalidOperator[T](ErrValueCantBeNull)
 	}
 
-	return NewValueOperator[T](value, sqlOperator)
+	return NewValueOperator[T](sqlOperator, value)
 }
 
-func NewMustBePOSIXValueOperator[T string | sql.NullString](pattern string, sqlOperator badormSQL.Operator) Operator[T] {
+func NewMustBePOSIXValueOperator[T string | sql.NullString](sqlOperator badormSQL.Operator, pattern string) Operator[T] {
 	_, err := regexp.CompilePOSIX(pattern)
 	if err != nil {
 		return NewInvalidOperator[T](err)
 	}
 
-	return NewValueOperator[T](pattern, sqlOperator)
+	return NewValueOperator[T](sqlOperator, pattern)
 }

@@ -14,33 +14,33 @@ import (
 
 // EqualTo
 func Eq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.Eq, field)
+	return NewValueOperator(sql.Eq, field)
 }
 
 // NotEqualTo
 func NotEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.NotEq, field)
+	return NewValueOperator(sql.NotEq, field)
 }
 
 // LessThan
 func Lt[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.Lt, field)
+	return NewValueOperator(sql.Lt, field)
 }
 
 // LessThanOrEqualTo
 func LtOrEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.LtOrEq, field)
+	return NewValueOperator(sql.LtOrEq, field)
 }
 
 // GreaterThan
 func Gt[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
 	// TODO invertir orden de parametros para que quede igual que en badorm/expression
-	return newValueOperator(sql.Gt, field)
+	return NewValueOperator(sql.Gt, field)
 }
 
 // GreaterThanOrEqualTo
 func GtOrEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.GtOrEq, field)
+	return NewValueOperator(sql.GtOrEq, field)
 }
 
 // Comparison Predicates
@@ -50,22 +50,32 @@ func GtOrEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
 
 // Equivalent to field1 < value < field2
 func Between[T any](field1, field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newMultivalueOperator(sql.Between, sql.And, "", "", field1, field2)
+	return NewMultivalueOperator(sql.Between, sql.And, "", "", field1, field2)
 }
 
 // Equivalent to NOT (field1 < value < field2)
 func NotBetween[T any](field1, field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newMultivalueOperator(sql.NotBetween, sql.And, "", "", field1, field2)
+	return NewMultivalueOperator(sql.NotBetween, sql.And, "", "", field1, field2)
 }
 
 // Boolean Comparison Predicates
 
 // Not supported by: mysql
 func IsDistinct[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.IsDistinct, field)
+	return NewValueOperator(sql.IsDistinct, field)
 }
 
 // Not supported by: mysql
 func IsNotDistinct[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
-	return newValueOperator(sql.IsNotDistinct, field)
+	return NewValueOperator(sql.IsNotDistinct, field)
+}
+
+// Row and Array Comparisons
+
+func ArrayIn[T any](fields ...badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
+	return NewMultivalueOperator(sql.ArrayIn, sql.Comma, "(", ")", fields...)
+}
+
+func ArrayNotIn[T any](fields ...badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
+	return NewMultivalueOperator(sql.ArrayNotIn, sql.Comma, "(", ")", fields...)
 }

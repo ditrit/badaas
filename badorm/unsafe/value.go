@@ -5,7 +5,7 @@ import (
 	"github.com/ditrit/badaas/badorm/sql"
 )
 
-func newValueOperator[T any](
+func NewValueOperator[T any](
 	sqlOperator sql.Operator,
 	value any,
 ) badorm.DynamicOperator[T] {

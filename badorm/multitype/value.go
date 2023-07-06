@@ -47,7 +47,7 @@ func verifyFieldType[TAttribute, TField any]() badorm.DynamicOperator[TAttribute
 	return nil
 }
 
-func newValueOperator[TAttribute, TField any](
+func NewValueOperator[TAttribute, TField any](
 	sqlOperator badormSQL.Operator,
 	field badorm.FieldIdentifier[TField],
 ) badorm.DynamicOperator[TAttribute] {
