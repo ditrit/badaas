@@ -5,6 +5,7 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/dynamic"
+	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
 )
@@ -358,7 +359,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsMultipleTimes() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2Tables() {
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorOver2Tables() {
 	company1 := ts.createCompany("ditrit")
 	company2 := ts.createCompany("orness")
 
@@ -377,7 +378,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2Tables() {
 	EqualList(&ts.Suite, []*models.Seller{seller1}, entities)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLevel() {
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorOver2TablesAtMoreLevel() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)
 
@@ -404,7 +405,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionOver2TablesAtMoreLeve
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWithoutSelectJoinReturnsError() {
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithoutSelectJoinReturnsError() {
 	_, err := ts.crudChildService.GetEntities(
 		conditions.ChildParent1(
 			conditions.Parent1ParentParent(),
@@ -417,7 +418,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWitho
 	ts.ErrorIs(err, badorm.ErrJoinMustBeSelected)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestDynamicExpressionJoinMoreThanOnceWithSelectJoin() {
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSelectJoin() {
 	parentParent := &models.ParentParent{Name: "franco"}
 	parent1 := &models.Parent1{ParentParent: *parentParent}
 	parent2 := &models.Parent2{ParentParent: *parentParent}
@@ -457,7 +458,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	entities, err := ts.crudSaleService.GetEntities(
 		conditions.SaleSeller(
 			conditions.SellerCompany(
-				badorm.NewUnsafeCondition[models.Company]("%s.name = Seller.name", []any{}),
+				unsafe.NewCondition[models.Company]("%s.name = Seller.name"),
 			),
 		),
 	)

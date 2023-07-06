@@ -49,12 +49,12 @@ func GtOrEq[T any](field badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
 // https://www.postgresql.org/docs/current/functions-comparison.html#FUNCTIONS-COMPARISON-PRED-TABLE
 
 // Equivalent to field1 < value < field2
-func Between[T any](field1 badorm.FieldIdentifier[T], field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
+func Between[T any](field1, field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
 	return newMultivalueOperator(sql.Between, "AND", "", "", field1, field2)
 }
 
 // Equivalent to NOT (field1 < value < field2)
-func NotBetween[T any](field1 badorm.FieldIdentifier[T], field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
+func NotBetween[T any](field1, field2 badorm.FieldIdentifier[T]) badorm.DynamicOperator[T] {
 	return newMultivalueOperator(sql.NotBetween, "AND", "", "", field1, field2)
 }
 

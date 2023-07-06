@@ -1,4 +1,4 @@
-package dynamic
+package unsafe
 
 import (
 	"github.com/ditrit/badaas/badorm"
@@ -7,7 +7,7 @@ import (
 
 func newValueOperator[T any](
 	sqlOperator sql.Operator,
-	field badorm.FieldIdentifier[T],
+	value any,
 ) badorm.DynamicOperator[T] {
 	// TODO que pasa con los que solo aceptan cierto tipo, ver las de like por ejemplo
 	// TODO que pasa si hay mas de uno, no se si me gusta mucho esto
@@ -17,7 +17,7 @@ func newValueOperator[T any](
 		Operations: []badorm.Operation{
 			{
 				SQLOperator: sqlOperator,
-				Value:       field,
+				Value:       value,
 			},
 		},
 		JoinNumber: badorm.UndefinedJoinNumber,

@@ -14,6 +14,7 @@ import (
 	"github.com/ditrit/badaas/badorm/psql"
 	"github.com/ditrit/badaas/badorm/sqlite"
 	"github.com/ditrit/badaas/badorm/sqlserver"
+	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -1151,6 +1152,38 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelated
 	entities, err := ts.crudProductService.GetEntities(
 		conditions.ProductFloat(
 			multitype.Between[float64, sql.NullFloat64](1.0, conditions.ProductNullFloatField),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *OperatorIntTestSuite) TestUnsafeOperatorReturnsDBErrorInCaseTypesNotMatch() {
+	_, err := ts.crudProductService.GetEntities(
+		conditions.ProductFloat(
+			unsafe.Eq[float64]("string"),
+		),
+	)
+	ts.ErrorContains(err, "string")
+}
+
+func (ts *OperatorIntTestSuite) TestUnsafeOperatorCanCompareFieldsThatMapToTheSameType() {
+	match := ts.createProduct("hola,chau", 1, 1.0, false, nil)
+	match.MultiString = models.MultiString{"hola", "chau"}
+	err := ts.db.Save(match).Error
+	ts.Nil(err)
+
+	notMatch := ts.createProduct("chau", 0, 0.0, false, nil)
+	notMatch.MultiString = models.MultiString{"hola", "chau"}
+	err = ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	ts.createProduct("", 0, 0.0, false, nil)
+
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductString(
+			unsafe.Eq[string](conditions.ProductMultiStringField),
 		),
 	)
 	ts.Nil(err)

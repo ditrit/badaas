@@ -26,7 +26,7 @@ type Condition[T Model] interface {
 	// that an object is of type Condition[T],
 	// since if no method receives by parameter a type T,
 	// any other Condition[T2] would also be considered a Condition[T].
-	interfaceVerificationMethod(T)
+	InterfaceVerificationMethod(T)
 }
 
 // Conditions that can be used in a where clause
@@ -39,7 +39,7 @@ type WhereCondition[T Model] interface {
 
 	// Returns true if the DeletedAt column if affected by the condition
 	// If no condition affects the DeletedAt, the verification that it's null will be added automatically
-	affectsDeletedAt() bool
+	AffectsDeletedAt() bool
 }
 
 // Condition that contains a internal condition.
@@ -50,13 +50,13 @@ type ContainerCondition[T Model] struct {
 }
 
 //nolint:unused // see inside
-func (condition ContainerCondition[T]) interfaceVerificationMethod(_ T) {
+func (condition ContainerCondition[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
 
 func (condition ContainerCondition[T]) ApplyTo(query *Query, table Table) error {
-	return applyWhereCondition[T](condition, query, table)
+	return ApplyWhereCondition[T](condition, query, table)
 }
 
 func (condition ContainerCondition[T]) GetSQL(query *Query, table Table) (string, []any, error) {
@@ -71,8 +71,8 @@ func (condition ContainerCondition[T]) GetSQL(query *Query, table Table) (string
 }
 
 //nolint:unused // is used
-func (condition ContainerCondition[T]) affectsDeletedAt() bool {
-	return condition.ConnectionCondition.affectsDeletedAt()
+func (condition ContainerCondition[T]) AffectsDeletedAt() bool {
+	return condition.ConnectionCondition.AffectsDeletedAt()
 }
 
 // Condition that contains a internal condition.
@@ -96,13 +96,13 @@ type ConnectionCondition[T Model] struct {
 }
 
 //nolint:unused // see inside
-func (condition ConnectionCondition[T]) interfaceVerificationMethod(_ T) {
+func (condition ConnectionCondition[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
 
 func (condition ConnectionCondition[T]) ApplyTo(query *Query, table Table) error {
-	return applyWhereCondition[T](condition, query, table)
+	return ApplyWhereCondition[T](condition, query, table)
 }
 
 func (condition ConnectionCondition[T]) GetSQL(query *Query, table Table) (string, []any, error) {
@@ -124,9 +124,9 @@ func (condition ConnectionCondition[T]) GetSQL(query *Query, table Table) (strin
 }
 
 //nolint:unused // is used
-func (condition ConnectionCondition[T]) affectsDeletedAt() bool {
+func (condition ConnectionCondition[T]) AffectsDeletedAt() bool {
 	return pie.Any(condition.Conditions, func(internalCondition WhereCondition[T]) bool {
-		return internalCondition.affectsDeletedAt()
+		return internalCondition.AffectsDeletedAt()
 	})
 }
 
@@ -145,7 +145,7 @@ type PreloadCondition[T Model] struct {
 }
 
 //nolint:unused // see inside
-func (condition PreloadCondition[T]) interfaceVerificationMethod(_ T) {
+func (condition PreloadCondition[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
@@ -173,7 +173,7 @@ type CollectionPreloadCondition[T1 Model, T2 Model] struct {
 }
 
 //nolint:unused // see inside
-func (condition CollectionPreloadCondition[T1, T2]) interfaceVerificationMethod(_ T1) {
+func (condition CollectionPreloadCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T1]
 }
@@ -230,7 +230,7 @@ type FieldCondition[TObject Model, TAtribute any] struct {
 }
 
 //nolint:unused // see inside
-func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(_ TObject) {
+func (condition FieldCondition[TObject, TAtribute]) InterfaceVerificationMethod(_ TObject) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
@@ -238,16 +238,16 @@ func (condition FieldCondition[TObject, TAtribute]) interfaceVerificationMethod(
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
 func (condition FieldCondition[TObject, TAtribute]) ApplyTo(query *Query, table Table) error {
-	return applyWhereCondition[TObject](condition, query, table)
+	return ApplyWhereCondition[TObject](condition, query, table)
 }
 
-func applyWhereCondition[T Model](condition WhereCondition[T], query *Query, table Table) error {
+func ApplyWhereCondition[T Model](condition WhereCondition[T], query *Query, table Table) error {
 	sql, values, err := condition.GetSQL(query, table)
 	if err != nil {
 		return err
 	}
 
-	if condition.affectsDeletedAt() {
+	if condition.AffectsDeletedAt() {
 		query.Unscoped()
 	}
 
@@ -260,7 +260,7 @@ func applyWhereCondition[T Model](condition WhereCondition[T], query *Query, tab
 }
 
 //nolint:unused // is used
-func (condition FieldCondition[TObject, TAtribute]) affectsDeletedAt() bool {
+func (condition FieldCondition[TObject, TAtribute]) AffectsDeletedAt() bool {
 	return condition.FieldIdentifier.Field == deletedAtField
 }
 
@@ -293,7 +293,7 @@ type JoinCondition[T1 Model, T2 Model] struct {
 }
 
 //nolint:unused // see inside
-func (condition JoinCondition[T1, T2]) interfaceVerificationMethod(_ T1) {
+func (condition JoinCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
@@ -349,7 +349,6 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *Query, t1Table Table) erro
 	// apply WhereConditions to the join in the "on" clause
 	connectionCondition := And(whereConditions...)
 
-	// TODO aca es donde tengo que mandar la lista correcta
 	onQuery, onValues, err := connectionCondition.GetSQL(query, t2Table)
 	if err != nil {
 		return err
@@ -359,7 +358,7 @@ func (condition JoinCondition[T1, T2]) ApplyTo(query *Query, t1Table Table) erro
 		joinQuery += " AND " + onQuery
 	}
 
-	if !connectionCondition.affectsDeletedAt() {
+	if !connectionCondition.AffectsDeletedAt() {
 		joinQuery += fmt.Sprintf(
 			" AND %s.deleted_at IS NULL",
 			t2Table.Alias,
@@ -449,51 +448,13 @@ func divideConditionsByType[T Model](
 	return
 }
 
-// Condition that can be used to express conditions that are not supported (yet?) by BaDORM
-// Example: table1.columnX = table2.columnY
-type UnsafeCondition[T Model] struct {
-	SQLCondition string
-	Values       []any
-}
-
-//nolint:unused // see inside
-func (condition UnsafeCondition[T]) interfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
-
-func (condition UnsafeCondition[T]) ApplyTo(query *Query, table Table) error {
-	return applyWhereCondition[T](condition, query, table)
-}
-
-func (condition UnsafeCondition[T]) GetSQL(_ *Query, table Table) (string, []any, error) {
-	return fmt.Sprintf(
-		condition.SQLCondition,
-		table.Alias,
-	), condition.Values, nil
-}
-
-//nolint:unused // is used
-func (condition UnsafeCondition[T]) affectsDeletedAt() bool {
-	return false
-}
-
-// Condition that can be used to express conditions that are not supported (yet?) by BaDORM
-// Example: table1.columnX = table2.columnY
-func NewUnsafeCondition[T Model](condition string, values []any) UnsafeCondition[T] {
-	return UnsafeCondition[T]{
-		SQLCondition: condition,
-		Values:       values,
-	}
-}
-
 // Condition used to returns an error when the query is executed
 type InvalidCondition[T any] struct {
 	Err error
 }
 
 //nolint:unused // see inside
-func (condition InvalidCondition[T]) interfaceVerificationMethod(_ T) {
+func (condition InvalidCondition[T]) InterfaceVerificationMethod(_ T) {
 	// This method is necessary to get the compiler to verify
 	// that an object is of type Condition[T]
 }
@@ -507,7 +468,7 @@ func (condition InvalidCondition[T]) GetSQL(_ *Query, _ Table) (string, []any, e
 }
 
 //nolint:unused // is used
-func (condition InvalidCondition[T]) affectsDeletedAt() bool {
+func (condition InvalidCondition[T]) AffectsDeletedAt() bool {
 	return false
 }
 

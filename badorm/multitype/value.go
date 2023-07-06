@@ -64,7 +64,7 @@ func newValueOperator[TAttribute, TField any](
 		Operations: []badorm.Operation{
 			{
 				SQLOperator: sqlOperator,
-				Field:       field,
+				Value:       field,
 			},
 		},
 		JoinNumber: badorm.UndefinedJoinNumber,

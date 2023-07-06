@@ -31,7 +31,6 @@ type ValueOperator[T any] struct {
 
 type Operation struct {
 	SQLOperator badormSQL.Operator
-	Field       IFieldIdentifier
 	Value       any
 }
 
@@ -65,8 +64,9 @@ func (expr ValueOperator[T]) ToSQL(query *Query, columnName string) (string, []a
 	values := []any{}
 
 	for _, operation := range expr.Operations {
-		if operation.Field != nil {
-			modelTable, err := getModelTable(query, operation.Field, expr.JoinNumber)
+		field, isField := operation.Value.(IFieldIdentifier)
+		if isField {
+			modelTable, err := getModelTable(query, field, expr.JoinNumber)
 			if err != nil {
 				return "", nil, err
 			}
@@ -74,7 +74,7 @@ func (expr ValueOperator[T]) ToSQL(query *Query, columnName string) (string, []a
 			operationString += fmt.Sprintf(
 				" %s %s",
 				operation.SQLOperator,
-				operation.Field.ColumnSQL(query, modelTable),
+				field.ColumnSQL(query, modelTable),
 			)
 		} else {
 			operationString += " " + operation.SQLOperator.String() + " ?"
