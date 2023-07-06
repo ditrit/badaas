@@ -34,7 +34,6 @@ func LtOrEq[T any](value any) badorm.DynamicOperator[T] {
 
 // GreaterThan
 func Gt[T any](value any) badorm.DynamicOperator[T] {
-	// TODO invertir orden de parametros para que quede igual que en badorm/expression
 	return NewValueOperator[T](sql.Gt, value)
 }
 

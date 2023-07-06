@@ -34,7 +34,6 @@ func LtOrEq[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm
 
 // GreaterThan
 func Gt[TAttribute, TField any](field badorm.FieldIdentifier[TField]) badorm.DynamicOperator[TAttribute] {
-	// TODO invertir orden de parametros para que quede igual que en badorm/expression
 	return NewValueOperator[TAttribute, TField](sql.Gt, field)
 }
 
