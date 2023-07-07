@@ -104,7 +104,7 @@ func NewCantBeNullValueOperator[T any](sqlOperator badormSQL.Operator, value any
 func NewMustBePOSIXValueOperator[T string | sql.NullString](sqlOperator badormSQL.Operator, pattern string) Operator[T] {
 	_, err := regexp.CompilePOSIX(pattern)
 	if err != nil {
-		return NewInvalidOperator[T](err)
+		return NewInvalidOperator[T](OperatorError(err, sqlOperator))
 	}
 
 	return NewValueOperator[T](sqlOperator, pattern)
