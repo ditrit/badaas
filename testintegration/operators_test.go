@@ -1158,32 +1158,21 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelated
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatch() {
-	switch getDBDialector() {
-	case configuration.SQLite, configuration.MySQL:
-		// comparisons between types are allowed
-		match := ts.createProduct("", 0, 2.1, false, nil)
-		ts.createProduct("", 0, 0, false, nil)
-		ts.createProduct("", 0, 2, false, nil)
-		ts.createProduct("", 0, 2.3, false, nil)
+func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchConvertible() {
+	// comparisons between types are allowed when they are convertible
+	match := ts.createProduct("", 0, 2.1, false, nil)
+	ts.createProduct("", 0, 0, false, nil)
+	ts.createProduct("", 0, 2, false, nil)
+	ts.createProduct("", 0, 2.3, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
-			conditions.ProductFloat(
-				unsafe.Eq[float64]("2.1"),
-			),
-		)
-		ts.Nil(err)
+	entities, err := ts.crudProductService.GetEntities(
+		conditions.ProductFloat(
+			unsafe.Eq[float64]("2.1"),
+		),
+	)
+	ts.Nil(err)
 
-		EqualList(&ts.Suite, []*models.Product{match}, entities)
-	case configuration.PostgreSQL, configuration.SQLServer:
-		// returns an error
-		_, err := ts.crudProductService.GetEntities(
-			conditions.ProductFloat(
-				unsafe.Eq[float64]("0.0"),
-			),
-		)
-		ts.ErrorContains(err, "0.0")
-	}
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConvertible() {
@@ -1216,21 +1205,29 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConverti
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match}, entities)
-	case configuration.PostgreSQL, configuration.SQLServer:
+	case configuration.SQLServer:
 		// returns an error
 		_, err := ts.crudProductService.GetEntities(
 			conditions.ProductFloat(
-				unsafe.Eq[float64]("0.0"),
+				unsafe.Eq[float64]("not_convertible_to_float"),
 			),
 		)
-		ts.ErrorContains(err, "0.0")
+		ts.ErrorContains(err, "mssql: Error converting data type nvarchar to float.")
+	case configuration.PostgreSQL:
+		// returns an error
+		_, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("not_convertible_to_float"),
+			),
+		)
+		ts.ErrorContains(err, "not_convertible_to_float")
 	}
 }
 
 func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch() {
 	switch getDBDialector() {
 	case configuration.SQLite:
-		// in sqlite comparisons between fields with different types are allowed
+		// comparisons between fields with different types are allowed
 		match1 := ts.createProduct("0", 0, 0, false, nil)
 		match2 := ts.createProduct("1", 0, 1, false, nil)
 		ts.createProduct("0", 0, 1, false, nil)
@@ -1245,7 +1242,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	case configuration.MySQL:
-		// in mysql comparisons between fields with different types are allowed but matches 0s on not convertible
+		// comparisons between fields with different types are allowed but matches 0s on not convertible
 		match1 := ts.createProduct("0", 1, 0, false, nil)
 		match2 := ts.createProduct("1", 2, 1, false, nil)
 		match3 := ts.createProduct("not_convertible", 2, 0, false, nil)
@@ -1259,14 +1256,37 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
-	case configuration.PostgreSQL, configuration.SQLServer:
-		// on postgresql returns an error
+	case configuration.SQLServer:
+		// comparisons between fields with different types are allowed and returns error only if at least one is not convertible
+		match1 := ts.createProduct("0", 1, 0, false, nil)
+		match2 := ts.createProduct("1", 2, 1, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64](conditions.ProductStringField),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+
+		ts.createProduct("not_convertible", 3, 0, false, nil)
+		ts.createProduct("0.0", 4, 1.0, false, nil)
+
+		_, err = ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64](conditions.ProductStringField),
+			),
+		)
+		ts.ErrorContains(err, "mssql: Error converting data type nvarchar to float.")
+	case configuration.PostgreSQL:
+		// returns an error
 		_, err := ts.crudProductService.GetEntities(
 			conditions.ProductFloat(
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
 		)
-		ts.ErrorContains(err, "string")
+		ts.ErrorContains(err, "ERROR: operator does not exist: numeric = text (SQLSTATE 42883)")
 	}
 }
 
