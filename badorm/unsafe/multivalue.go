@@ -17,6 +17,5 @@ func NewMultivalueOperator[T any](
 		SQLConnector: sqlConnector,
 		SQLPrefix:    sqlPrefix,
 		SQLSuffix:    sqlSuffix,
-		JoinNumber:   badorm.UndefinedJoinNumber,
 	}
 }

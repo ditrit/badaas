@@ -70,4 +70,16 @@ func ParentParentName(operator badorm.Operator[string]) badorm.WhereCondition[mo
 	}
 }
 
-var ParentParentPreloadAttributes = badorm.NewPreloadCondition[models.ParentParent](ParentParentIdField, ParentParentCreatedAtField, ParentParentUpdatedAtField, ParentParentDeletedAtField, ParentParentNameField)
+var ParentParentNumberField = badorm.FieldIdentifier[int]{
+	Field:     "Number",
+	ModelType: parentParentType,
+}
+
+func ParentParentNumber(operator badorm.Operator[int]) badorm.WhereCondition[models.ParentParent] {
+	return badorm.FieldCondition[models.ParentParent, int]{
+		FieldIdentifier: ParentParentNumberField,
+		Operator:        operator,
+	}
+}
+
+var ParentParentPreloadAttributes = badorm.NewPreloadCondition[models.ParentParent](ParentParentIdField, ParentParentCreatedAtField, ParentParentUpdatedAtField, ParentParentDeletedAtField, ParentParentNameField, ParentParentNumberField)

@@ -5,6 +5,7 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/dynamic"
+	"github.com/ditrit/badaas/badorm/multitype"
 	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/testintegration/conditions"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -443,7 +444,47 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSel
 			conditions.Parent2ParentParent(),
 		),
 		conditions.ChildName(
-			dynamic.Eq(conditions.ParentParentNameField).SelectJoin(0),
+			dynamic.Eq(conditions.ParentParentNameField).SelectJoin(0, 0),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Child{child}, entities)
+}
+
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithoutSelectJoinOnMultivalueOperatorReturnsError() {
+	_, err := ts.crudChildService.GetEntities(
+		conditions.ChildParent1(
+			conditions.Parent1ParentParent(),
+		),
+		conditions.ChildParent2(
+			conditions.Parent2ParentParent(),
+		),
+		conditions.ChildId(
+			dynamic.Between(conditions.ParentParentIdField, conditions.ParentParentIdField),
+		),
+	)
+	ts.ErrorIs(err, badorm.ErrJoinMustBeSelected)
+	ts.ErrorContains(err, "joined multiple times model: models.ParentParent; operator: Between; model: models.Child, field: ID")
+}
+
+func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSelectJoinOnMultivalueOperator() {
+	parentParent := &models.ParentParent{Name: "franco", Number: 3}
+	parent1 := &models.Parent1{ParentParent: *parentParent}
+	parent2 := &models.Parent2{ParentParent: *parentParent}
+	child := &models.Child{Parent1: *parent1, Parent2: *parent2, Name: "franco", Number: 2}
+	err := ts.db.Create(child).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudChildService.GetEntities(
+		conditions.ChildParent1(
+			conditions.Parent1ParentParent(),
+		),
+		conditions.ChildParent2(
+			conditions.Parent2ParentParent(),
+		),
+		conditions.ChildNumber(
+			multitype.Between[int, int](1, conditions.ParentParentNumberField).SelectJoin(1, 0),
 		),
 	)
 	ts.Nil(err)

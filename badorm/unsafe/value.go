@@ -9,13 +9,6 @@ func NewValueOperator[T any](
 	sqlOperator sql.Operator,
 	value any,
 ) badorm.DynamicOperator[T] {
-	return &badorm.ValueOperator[T]{
-		Operations: []badorm.Operation{
-			{
-				SQLOperator: sqlOperator,
-				Value:       value,
-			},
-		},
-		JoinNumber: badorm.UndefinedJoinNumber,
-	}
+	op := badorm.NewValueOperator[T](sqlOperator, value)
+	return &op
 }

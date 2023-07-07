@@ -69,6 +69,18 @@ func ChildName(operator badorm.Operator[string]) badorm.WhereCondition[models.Ch
 		Operator:        operator,
 	}
 }
+
+var ChildNumberField = badorm.FieldIdentifier[int]{
+	Field:     "Number",
+	ModelType: childType,
+}
+
+func ChildNumber(operator badorm.Operator[int]) badorm.WhereCondition[models.Child] {
+	return badorm.FieldCondition[models.Child, int]{
+		FieldIdentifier: ChildNumberField,
+		Operator:        operator,
+	}
+}
 func ChildParent1(conditions ...badorm.Condition[models.Parent1]) badorm.IJoinCondition[models.Child] {
 	return badorm.JoinCondition[models.Child, models.Parent1]{
 		Conditions:         conditions,
@@ -114,5 +126,5 @@ func ChildParent2Id(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition
 	}
 }
 
-var ChildPreloadAttributes = badorm.NewPreloadCondition[models.Child](ChildIdField, ChildCreatedAtField, ChildUpdatedAtField, ChildDeletedAtField, ChildNameField, ChildParent1IdField, ChildParent2IdField)
+var ChildPreloadAttributes = badorm.NewPreloadCondition[models.Child](ChildIdField, ChildCreatedAtField, ChildUpdatedAtField, ChildDeletedAtField, ChildNameField, ChildNumberField, ChildParent1IdField, ChildParent2IdField)
 var ChildPreloadRelations = []badorm.Condition[models.Child]{ChildPreloadParent1, ChildPreloadParent2}

@@ -9,20 +9,20 @@ import (
 	badormSQL "github.com/ditrit/badaas/badorm/sql"
 )
 
-const UndefinedJoinNumber = -1
+const undefinedJoinNumber = -1
 
 // Operator that compares the value of the column against a fixed value
 // If SQLOperators has multiple entries, comparisons will be nested
 // Example (single): value = v1
 // Example (multi): value LIKE v1 ESCAPE v2
 type ValueOperator[T any] struct {
-	Operations []Operation
-	JoinNumber int
+	operations []operation
 }
 
-type Operation struct {
+type operation struct {
 	SQLOperator badormSQL.Operator
 	Value       any
+	JoinNumber  int
 }
 
 func (operator ValueOperator[T]) InterfaceVerificationMethod(_ T) {
@@ -30,21 +30,33 @@ func (operator ValueOperator[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Operator[T]
 }
 
-func (operator *ValueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
-	operator.JoinNumber = int(joinNumber)
+// Allows to choose which number of join use
+// for the operation in position "operationNumber"
+// when the value is a field and its model is joined more than once.
+// Does nothing if the operationNumber is bigger than the amount of operations.
+func (operator *ValueOperator[T]) SelectJoin(operationNumber, joinNumber uint) DynamicOperator[T] {
+	if operationNumber >= uint(len(operator.operations)) {
+		return operator
+	}
+
+	operation := operator.operations[operationNumber]
+	operation.JoinNumber = int(joinNumber)
+	operator.operations[operationNumber] = operation
+
 	return operator
 }
 
-func (operator *ValueOperator[T]) AddOperation(sqlOperator badormSQL.Operator, value any) ValueOperator[T] {
-	operator.Operations = append(
-		operator.Operations,
-		Operation{
+func (operator *ValueOperator[T]) AddOperation(sqlOperator badormSQL.Operator, value any) *ValueOperator[T] {
+	operator.operations = append(
+		operator.operations,
+		operation{
 			Value:       value,
 			SQLOperator: sqlOperator,
+			JoinNumber:  undefinedJoinNumber,
 		},
 	)
 
-	return *operator
+	return operator
 }
 
 func (operator ValueOperator[T]) ToSQL(query *Query, columnName string) (string, []any, error) {
@@ -52,14 +64,14 @@ func (operator ValueOperator[T]) ToSQL(query *Query, columnName string) (string,
 	values := []any{}
 
 	// add each operation to the sql
-	for _, operation := range operator.Operations {
+	for _, operation := range operator.operations {
 		field, isField := operation.Value.(iFieldIdentifier)
 		if isField {
 			// if the value of the operation is a field,
 			// verify that this field is concerned by the query
 			// (a join was performed with the model to which this field belongs)
 			// and get the alias of the table of this model.
-			modelTable, err := getModelTable(query, field, operator.JoinNumber, operation.SQLOperator)
+			modelTable, err := getModelTable(query, field, operation.JoinNumber, operation.SQLOperator)
 			if err != nil {
 				return "", nil, err
 			}
@@ -79,9 +91,7 @@ func (operator ValueOperator[T]) ToSQL(query *Query, columnName string) (string,
 }
 
 func NewValueOperator[T any](sqlOperator badormSQL.Operator, value any) ValueOperator[T] {
-	expr := &ValueOperator[T]{}
-
-	return expr.AddOperation(sqlOperator, value)
+	return *new(ValueOperator[T]).AddOperation(sqlOperator, value)
 }
 
 var nullableKinds = []reflect.Kind{

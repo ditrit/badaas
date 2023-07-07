@@ -51,13 +51,7 @@ func NewValueOperator[TAttribute, TField any](
 		return invalidOperator
 	}
 
-	return &badorm.ValueOperator[TAttribute]{
-		Operations: []badorm.Operation{
-			{
-				SQLOperator: sqlOperator,
-				Value:       field,
-			},
-		},
-		JoinNumber: badorm.UndefinedJoinNumber,
-	}
+	op := badorm.NewValueOperator[TAttribute](sqlOperator, field)
+
+	return &op
 }

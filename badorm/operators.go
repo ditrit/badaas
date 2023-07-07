@@ -208,7 +208,7 @@ func NewLikeOperator[T string | sql.NullString](pattern string, sqlOperator bado
 }
 
 func (expr LikeOperator[T]) Escape(escape rune) ValueOperator[T] {
-	return expr.AddOperation(badormSQL.Escape, string(escape))
+	return *expr.AddOperation(badormSQL.Escape, string(escape))
 }
 
 // Pattern in all databases:

@@ -17,7 +17,7 @@ type MultivalueOperator[T any] struct {
 	SQLConnector sql.Connector // the connector between values, example: ', '
 	SQLPrefix    string        // something to put before the values, example: (
 	SQLSuffix    string        // something to put after the values, example: )
-	JoinNumber   int
+	JoinNumbers  map[uint]int  // join number to use in each value
 }
 
 func (operator MultivalueOperator[T]) InterfaceVerificationMethod(_ T) {
@@ -25,8 +25,19 @@ func (operator MultivalueOperator[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Operator[T]
 }
 
-func (operator *MultivalueOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
-	operator.JoinNumber = int(joinNumber)
+// Allows to choose which number of join use
+// for the value in position "valueNumber"
+// when the value is a field and its model is joined more than once.
+// Does nothing if the valueNumber is bigger than the amount of values.
+func (operator *MultivalueOperator[T]) SelectJoin(valueNumber, joinNumber uint) DynamicOperator[T] {
+	joinNumbers := operator.JoinNumbers
+	if joinNumbers == nil {
+		joinNumbers = map[uint]int{}
+	}
+
+	joinNumbers[valueNumber] = int(joinNumber)
+	operator.JoinNumbers = joinNumbers
+
 	return operator
 }
 
@@ -34,11 +45,16 @@ func (operator MultivalueOperator[T]) ToSQL(query *Query, columnName string) (st
 	placeholderList := []string{}
 	values := []any{}
 
-	for _, value := range operator.Values {
+	for i, value := range operator.Values {
 		field, isField := value.(iFieldIdentifier)
 		if isField {
+			joinNumber, isPresent := operator.JoinNumbers[uint(i)]
+			if !isPresent {
+				joinNumber = undefinedJoinNumber
+			}
+
 			// if it is a field, add the field column to the query
-			modelTable, err := getModelTable(query, field, operator.JoinNumber, operator.SQLOperator)
+			modelTable, err := getModelTable(query, field, joinNumber, operator.SQLOperator)
 			if err != nil {
 				return "", nil, err
 			}
@@ -72,7 +88,7 @@ func getModelTable(query *Query, field iFieldIdentifier, joinNumber int, sqlOper
 		return modelTables[0], nil
 	}
 
-	if joinNumber == UndefinedJoinNumber {
+	if joinNumber == undefinedJoinNumber {
 		return Table{}, joinMustBeSelectedError(field, sqlOperator)
 	}
 
