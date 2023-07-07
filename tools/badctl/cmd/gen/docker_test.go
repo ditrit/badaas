@@ -1,8 +1,8 @@
 package gen
 
 import (
-	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/magiconair/properties/assert"
@@ -39,7 +39,7 @@ func checkFilesExist(t *testing.T) {
 }
 
 func checkDBPort(t *testing.T, port int) {
-	yamlFile, err := ioutil.ReadFile("badaas/config/badaas.yml")
+	yamlFile, err := os.ReadFile("badaas/config/badaas.yml")
 	if err != nil {
 		t.Error(err)
 	}

@@ -13,11 +13,7 @@ type Condition[T badorm.Model] struct {
 	Values       []any
 }
 
-//nolint:unused // see inside
-func (condition Condition[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition Condition[T]) InterfaceVerificationMethod(_ T) {}
 
 func (condition Condition[T]) ApplyTo(query *badorm.Query, table badorm.Table) error {
 	return badorm.ApplyWhereCondition[T](condition, query, table)
@@ -30,7 +26,6 @@ func (condition Condition[T]) GetSQL(_ *badorm.Query, table badorm.Table) (strin
 	), condition.Values, nil
 }
 
-//nolint:unused // is used
 func (condition Condition[T]) AffectsDeletedAt() bool {
 	return false
 }

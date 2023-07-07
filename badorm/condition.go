@@ -45,11 +45,7 @@ type ContainerCondition[T Model] struct {
 	Prefix              sql.Connector
 }
 
-//nolint:unused // see inside
-func (condition ContainerCondition[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition ContainerCondition[T]) InterfaceVerificationMethod(_ T) {}
 
 func (condition ContainerCondition[T]) ApplyTo(query *Query, table Table) error {
 	return ApplyWhereCondition[T](condition, query, table)
@@ -66,7 +62,6 @@ func (condition ContainerCondition[T]) GetSQL(query *Query, table Table) (string
 	return sqlString, values, nil
 }
 
-//nolint:unused // is used
 func (condition ContainerCondition[T]) AffectsDeletedAt() bool {
 	return condition.ConnectionCondition.AffectsDeletedAt()
 }
@@ -91,11 +86,7 @@ type ConnectionCondition[T Model] struct {
 	Conditions []WhereCondition[T]
 }
 
-//nolint:unused // see inside
-func (condition ConnectionCondition[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition ConnectionCondition[T]) InterfaceVerificationMethod(_ T) {}
 
 func (condition ConnectionCondition[T]) ApplyTo(query *Query, table Table) error {
 	return ApplyWhereCondition[T](condition, query, table)
@@ -122,7 +113,6 @@ func (condition ConnectionCondition[T]) GetSQL(query *Query, table Table) (strin
 	), values, nil
 }
 
-//nolint:unused // is used
 func (condition ConnectionCondition[T]) AffectsDeletedAt() bool {
 	return pie.Any(condition.Conditions, func(internalCondition WhereCondition[T]) bool {
 		return internalCondition.AffectsDeletedAt()
@@ -143,11 +133,7 @@ type PreloadCondition[T Model] struct {
 	Fields []iFieldIdentifier
 }
 
-//nolint:unused // see inside
-func (condition PreloadCondition[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition PreloadCondition[T]) InterfaceVerificationMethod(_ T) {}
 
 func (condition PreloadCondition[T]) ApplyTo(query *Query, table Table) error {
 	for _, fieldID := range condition.Fields {
@@ -171,11 +157,7 @@ type CollectionPreloadCondition[T1, T2 Model] struct {
 	NestedPreloads []IJoinCondition[T2]
 }
 
-//nolint:unused // see inside
-func (condition CollectionPreloadCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T1]
-}
+func (condition CollectionPreloadCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {}
 
 func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *Query, _ Table) error {
 	if len(condition.NestedPreloads) == 0 {
@@ -228,11 +210,7 @@ type FieldCondition[TObject Model, TAtribute any] struct {
 	Operator        Operator[TAtribute]
 }
 
-//nolint:unused // see inside
-func (condition FieldCondition[TObject, TAtribute]) InterfaceVerificationMethod(_ TObject) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition FieldCondition[TObject, TAtribute]) InterfaceVerificationMethod(_ TObject) {}
 
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
@@ -258,7 +236,6 @@ func ApplyWhereCondition[T Model](condition WhereCondition[T], query *Query, tab
 	return nil
 }
 
-//nolint:unused // is used
 func (condition FieldCondition[TObject, TAtribute]) AffectsDeletedAt() bool {
 	return condition.FieldIdentifier.Field == deletedAtField
 }
@@ -296,11 +273,7 @@ type JoinCondition[T1 Model, T2 Model] struct {
 	T1PreloadCondition PreloadCondition[T1]
 }
 
-//nolint:unused // see inside
-func (condition JoinCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition JoinCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {}
 
 // Returns true if this condition or any nested condition makes a preload
 func (condition JoinCondition[T1, T2]) makesPreload() bool {
@@ -457,11 +430,7 @@ type InvalidCondition[T any] struct {
 	Err error
 }
 
-//nolint:unused // see inside
-func (condition InvalidCondition[T]) InterfaceVerificationMethod(_ T) {
-	// This method is necessary to get the compiler to verify
-	// that an object is of type Condition[T]
-}
+func (condition InvalidCondition[T]) InterfaceVerificationMethod(_ T) {}
 
 func (condition InvalidCondition[T]) ApplyTo(_ *Query, _ Table) error {
 	return condition.Err
@@ -471,7 +440,6 @@ func (condition InvalidCondition[T]) GetSQL(_ *Query, _ Table) (string, []any, e
 	return "", nil, condition.Err
 }
 
-//nolint:unused // is used
 func (condition InvalidCondition[T]) AffectsDeletedAt() bool {
 	return false
 }

@@ -187,8 +187,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 				fieldCondition.Clone().Values(jen.Dict{
 					jen.Id("Operator"): jen.Id("operator"),
 					jen.Id("FieldIdentifier"): condition.createFieldIdentifier(
-						objectType.Name(), objectTypeQual,
-						field, conditionName,
+						objectType.Name(), field, conditionName,
 					),
 				}),
 			),
@@ -198,7 +197,7 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 
 // create a variable containing the definition of the field identifier
 // to use it in the where condition and in the preload condition
-func (condition *Condition) createFieldIdentifier(objectName string, objectTypeQual jen.Code, field Field, conditionName string) *jen.Statement {
+func (condition *Condition) createFieldIdentifier(objectName string, field Field, conditionName string) *jen.Statement {
 	fieldIdentifierValues := jen.Dict{
 		jen.Id("ModelType"): jen.Id(getObjectTypeName(objectName)),
 		jen.Id("Field"):     jen.Lit(field.Name),

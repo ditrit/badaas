@@ -53,7 +53,8 @@ func (expr InvalidOperator[T]) InterfaceVerificationMethod(_ T) {
 	// that an object is of type Operator[T]
 }
 
-func (expr InvalidOperator[T]) SelectJoin(joinNumber uint) DynamicOperator[T] {
+// InvalidOperator has SelectJoin to implement DynamicOperator
+func (expr InvalidOperator[T]) SelectJoin(_ uint) DynamicOperator[T] {
 	return expr
 }
 
