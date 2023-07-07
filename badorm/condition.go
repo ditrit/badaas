@@ -45,7 +45,10 @@ type ContainerCondition[T Model] struct {
 	Prefix              sql.Connector
 }
 
-func (condition ContainerCondition[T]) InterfaceVerificationMethod(_ T) {}
+func (condition ContainerCondition[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 func (condition ContainerCondition[T]) ApplyTo(query *Query, table Table) error {
 	return ApplyWhereCondition[T](condition, query, table)
@@ -86,7 +89,10 @@ type ConnectionCondition[T Model] struct {
 	Conditions []WhereCondition[T]
 }
 
-func (condition ConnectionCondition[T]) InterfaceVerificationMethod(_ T) {}
+func (condition ConnectionCondition[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 func (condition ConnectionCondition[T]) ApplyTo(query *Query, table Table) error {
 	return ApplyWhereCondition[T](condition, query, table)
@@ -133,7 +139,10 @@ type PreloadCondition[T Model] struct {
 	Fields []iFieldIdentifier
 }
 
-func (condition PreloadCondition[T]) InterfaceVerificationMethod(_ T) {}
+func (condition PreloadCondition[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 func (condition PreloadCondition[T]) ApplyTo(query *Query, table Table) error {
 	for _, fieldID := range condition.Fields {
@@ -157,7 +166,10 @@ type CollectionPreloadCondition[T1, T2 Model] struct {
 	NestedPreloads []IJoinCondition[T2]
 }
 
-func (condition CollectionPreloadCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {}
+func (condition CollectionPreloadCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 func (condition CollectionPreloadCondition[T1, T2]) ApplyTo(query *Query, _ Table) error {
 	if len(condition.NestedPreloads) == 0 {
@@ -210,7 +222,10 @@ type FieldCondition[TObject Model, TAtribute any] struct {
 	Operator        Operator[TAtribute]
 }
 
-func (condition FieldCondition[TObject, TAtribute]) InterfaceVerificationMethod(_ TObject) {}
+func (condition FieldCondition[TObject, TAtribute]) InterfaceVerificationMethod(_ TObject) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 // Returns a gorm Where condition that can be used
 // to filter that the Field as a value of Value
@@ -273,7 +288,10 @@ type JoinCondition[T1 Model, T2 Model] struct {
 	T1PreloadCondition PreloadCondition[T1]
 }
 
-func (condition JoinCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {}
+func (condition JoinCondition[T1, T2]) InterfaceVerificationMethod(_ T1) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 // Returns true if this condition or any nested condition makes a preload
 func (condition JoinCondition[T1, T2]) makesPreload() bool {
@@ -430,7 +448,10 @@ type InvalidCondition[T any] struct {
 	Err error
 }
 
-func (condition InvalidCondition[T]) InterfaceVerificationMethod(_ T) {}
+func (condition InvalidCondition[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 func (condition InvalidCondition[T]) ApplyTo(_ *Query, _ Table) error {
 	return condition.Err

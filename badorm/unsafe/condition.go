@@ -13,7 +13,10 @@ type Condition[T badorm.Model] struct {
 	Values       []any
 }
 
-func (condition Condition[T]) InterfaceVerificationMethod(_ T) {}
+func (condition Condition[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Condition[T]
+}
 
 func (condition Condition[T]) ApplyTo(query *badorm.Query, table badorm.Table) error {
 	return badorm.ApplyWhereCondition[T](condition, query, table)
