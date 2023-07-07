@@ -201,14 +201,13 @@ func (condition *Condition) generateWhere(objectType Type, field Field) {
 func (condition *Condition) createFieldIdentifier(objectName string, objectTypeQual jen.Code, field Field, conditionName string) *jen.Statement {
 	fieldIdentifierValues := jen.Dict{
 		jen.Id("ModelType"): jen.Id(getObjectTypeName(objectName)),
+		jen.Id("Field"):     jen.Lit(field.Name),
 	}
 
 	columnName := field.getColumnName()
 
 	if columnName != "" {
 		fieldIdentifierValues[jen.Id("Column")] = jen.Lit(columnName)
-	} else {
-		fieldIdentifierValues[jen.Id("Field")] = jen.Lit(field.Name)
 	}
 
 	columnPrefix := field.ColumnPrefix

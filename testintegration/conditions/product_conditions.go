@@ -61,6 +61,7 @@ func ProductDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCond
 
 var ProductStringField = badorm.FieldIdentifier[string]{
 	Column:    "string_something_else",
+	Field:     "String",
 	ModelType: productType,
 }
 

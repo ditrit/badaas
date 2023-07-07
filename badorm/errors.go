@@ -58,7 +58,6 @@ func conditionOperatorError[TObject Model, TAtribute any](operatorErr error, con
 		"%w; model: %s, field: %s",
 		operatorErr,
 		condition.FieldIdentifier.ModelType.String(),
-		// TODO que pasa aca si no esta definido, si solo hay column
 		condition.FieldIdentifier.Field,
 	)
 }
