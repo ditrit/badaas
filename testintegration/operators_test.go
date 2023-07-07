@@ -9,7 +9,9 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/dynamic"
+	"github.com/ditrit/badaas/badorm/dynamic/mysqldynamic"
 	"github.com/ditrit/badaas/badorm/multitype"
+	"github.com/ditrit/badaas/badorm/multitype/mysqlmultitype"
 	"github.com/ditrit/badaas/badorm/mysql"
 	"github.com/ditrit/badaas/badorm/psql"
 	"github.com/ditrit/badaas/badorm/sqlite"
@@ -997,10 +999,17 @@ func (ts *OperatorIntTestSuite) TestDynamicOperatorForCustomType() {
 func (ts *OperatorIntTestSuite) TestDynamicOperatorForBadORMModelAttribute() {
 	match := ts.createProduct("", 1, 0.0, false, nil)
 
+	var isNotDistinctOperator badorm.Operator[gorm.DeletedAt]
+
+	switch getDBDialector() {
+	case configuration.MySQL:
+		isNotDistinctOperator = mysqldynamic.IsEqual(conditions.ProductDeletedAtField)
+	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
+		isNotDistinctOperator = dynamic.IsNotDistinct(conditions.ProductDeletedAtField)
+	}
+
 	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductDeletedAt(
-			dynamic.IsNotDistinct(conditions.ProductDeletedAtField),
-		),
+		conditions.ProductDeletedAt(isNotDistinctOperator),
 	)
 	ts.Nil(err)
 
@@ -1056,11 +1065,22 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNotNullTypeCanBeCompared
 func (ts *OperatorIntTestSuite) TestMultitypeOperatorForBadORMModelAttribute() {
 	match := ts.createProduct("", 1, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
-		conditions.ProductDeletedAt(
+	var isDistinctCondition badorm.Condition[models.Product]
+
+	switch getDBDialector() {
+	case configuration.MySQL:
+		isDistinctCondition = badorm.Not[models.Product](
+			conditions.ProductDeletedAt(
+				mysqlmultitype.IsEqual[gorm.DeletedAt](conditions.ProductCreatedAtField),
+			),
+		)
+	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
+		isDistinctCondition = conditions.ProductDeletedAt(
 			multitype.IsDistinct[gorm.DeletedAt](conditions.ProductCreatedAtField),
-		),
-	)
+		)
+	}
+
+	entities, err := ts.crudProductService.GetEntities(isDistinctCondition)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -1138,13 +1158,31 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelated
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *OperatorIntTestSuite) TestUnsafeOperatorReturnsDBErrorInCaseTypesNotMatch() {
-	_, err := ts.crudProductService.GetEntities(
-		conditions.ProductFloat(
-			unsafe.Eq[float64]("string"),
-		),
-	)
-	ts.ErrorContains(err, "string")
+func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatch() {
+	switch getDBDialector() {
+	case configuration.MySQL:
+		// in mysql comparisons between types are allowed
+		match1 := ts.createProduct("0", 1, 0, false, nil)
+		match2 := ts.createProduct("0.0", 2, 0.0, false, nil)
+		ts.createProduct("0.0", 2, 1.0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("string"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
+		// on postgresql returns an error
+		_, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("string"),
+			),
+		)
+		ts.ErrorContains(err, "string")
+	}
 }
 
 func (ts *OperatorIntTestSuite) TestUnsafeOperatorCanCompareFieldsThatMapToTheSameType() {
