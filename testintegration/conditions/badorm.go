@@ -1,3 +1,3 @@
 package conditions
 
-//go:generate ../../tools/badctl/badctl gen conditions ../models
+//go:generate badctl gen conditions ../models
