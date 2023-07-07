@@ -1160,25 +1160,110 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelated
 
 func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatch() {
 	switch getDBDialector() {
-	case configuration.MySQL:
-		// in mysql comparisons between types are allowed
-		match1 := ts.createProduct("0", 1, 0, false, nil)
-		match2 := ts.createProduct("0.0", 2, 0.0, false, nil)
-		ts.createProduct("0.0", 2, 1.0, false, nil)
+	case configuration.SQLite, configuration.MySQL:
+		// comparisons between types are allowed
+		match := ts.createProduct("", 0, 2.1, false, nil)
+		ts.createProduct("", 0, 0, false, nil)
+		ts.createProduct("", 0, 2, false, nil)
+		ts.createProduct("", 0, 2.3, false, nil)
 
 		entities, err := ts.crudProductService.GetEntities(
 			conditions.ProductFloat(
-				unsafe.Eq[float64]("string"),
+				unsafe.Eq[float64]("2.1"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match}, entities)
+	case configuration.PostgreSQL, configuration.SQLServer:
+		// returns an error
+		_, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("0.0"),
+			),
+		)
+		ts.ErrorContains(err, "0.0")
+	}
+}
+
+func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConvertible() {
+	switch getDBDialector() {
+	case configuration.SQLite:
+		// comparisons between types are allowed and matches nothing if not convertible
+		ts.createProduct("", 0, 0, false, nil)
+		ts.createProduct("", 0, 2, false, nil)
+		ts.createProduct("", 0, 2.3, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("not_convertible_to_float"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{}, entities)
+	case configuration.MySQL:
+		// comparisons between types are allowed but matches 0s if not convertible
+		match := ts.createProduct("", 0, 0, false, nil)
+		ts.createProduct("", 0, 2, false, nil)
+		ts.createProduct("", 0, 2.3, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("not_convertible_to_float"),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match}, entities)
+	case configuration.PostgreSQL, configuration.SQLServer:
+		// returns an error
+		_, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64]("0.0"),
+			),
+		)
+		ts.ErrorContains(err, "0.0")
+	}
+}
+
+func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch() {
+	switch getDBDialector() {
+	case configuration.SQLite:
+		// in sqlite comparisons between fields with different types are allowed
+		match1 := ts.createProduct("0", 0, 0, false, nil)
+		match2 := ts.createProduct("1", 0, 1, false, nil)
+		ts.createProduct("0", 0, 1, false, nil)
+		ts.createProduct("not_convertible", 0, 0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64](conditions.ProductStringField),
 			),
 		)
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
-	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
+	case configuration.MySQL:
+		// in mysql comparisons between fields with different types are allowed but matches 0s on not convertible
+		match1 := ts.createProduct("0", 1, 0, false, nil)
+		match2 := ts.createProduct("1", 2, 1, false, nil)
+		match3 := ts.createProduct("not_convertible", 2, 0, false, nil)
+		ts.createProduct("0.0", 2, 1.0, false, nil)
+
+		entities, err := ts.crudProductService.GetEntities(
+			conditions.ProductFloat(
+				unsafe.Eq[float64](conditions.ProductStringField),
+			),
+		)
+		ts.Nil(err)
+
+		EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
+	case configuration.PostgreSQL, configuration.SQLServer:
 		// on postgresql returns an error
 		_, err := ts.crudProductService.GetEntities(
 			conditions.ProductFloat(
-				unsafe.Eq[float64]("string"),
+				unsafe.Eq[float64](conditions.ProductStringField),
 			),
 		)
 		ts.ErrorContains(err, "string")
