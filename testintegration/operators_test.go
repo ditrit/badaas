@@ -3,6 +3,7 @@ package testintegration
 import (
 	"database/sql"
 	"log"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -1286,7 +1287,16 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
 		)
-		ts.ErrorContains(err, "ERROR: operator does not exist: numeric = text (SQLSTATE 42883)")
+
+		ts.True(
+			strings.Contains(
+				err.Error(),
+				"ERROR: operator does not exist: numeric = text (SQLSTATE 42883)", // postgresql
+			) || strings.Contains(
+				err.Error(),
+				"ERROR: unsupported comparison operator: <decimal> = <string> (SQLSTATE 22023)", // cockroachdb
+			),
+		)
 	}
 }
 
