@@ -5,32 +5,57 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	uintmodel "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/uintmodel"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func UintModelId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[uintmodel.UintModel] {
+var uintModelType = reflect.TypeOf(*new(uintmodel.UintModel))
+var UintModelIdField = badorm.FieldIdentifier[badorm.UIntID]{
+	Field:     "ID",
+	ModelType: uintModelType,
+}
+
+func UintModelId(operator badorm.Operator[badorm.UIntID]) badorm.WhereCondition[uintmodel.UintModel] {
 	return badorm.FieldCondition[uintmodel.UintModel, badorm.UIntID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func UintModelCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[uintmodel.UintModel] {
-	return badorm.FieldCondition[uintmodel.UintModel, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func UintModelUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[uintmodel.UintModel] {
-	return badorm.FieldCondition[uintmodel.UintModel, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func UintModelDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[uintmodel.UintModel] {
-	return badorm.FieldCondition[uintmodel.UintModel, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: UintModelIdField,
+		Operator:        operator,
 	}
 }
 
-var UintModelPreloadAttributes = badorm.NewPreloadCondition[uintmodel.UintModel]()
+var UintModelCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: uintModelType,
+}
+
+func UintModelCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.FieldCondition[uintmodel.UintModel, time.Time]{
+		FieldIdentifier: UintModelCreatedAtField,
+		Operator:        operator,
+	}
+}
+
+var UintModelUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: uintModelType,
+}
+
+func UintModelUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.FieldCondition[uintmodel.UintModel, time.Time]{
+		FieldIdentifier: UintModelUpdatedAtField,
+		Operator:        operator,
+	}
+}
+
+var UintModelDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: uintModelType,
+}
+
+func UintModelDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[uintmodel.UintModel] {
+	return badorm.FieldCondition[uintmodel.UintModel, gorm.DeletedAt]{
+		FieldIdentifier: UintModelDeletedAtField,
+		Operator:        operator,
+	}
+}
+
+var UintModelPreloadAttributes = badorm.NewPreloadCondition[uintmodel.UintModel](UintModelIdField, UintModelCreatedAtField, UintModelUpdatedAtField, UintModelDeletedAtField)

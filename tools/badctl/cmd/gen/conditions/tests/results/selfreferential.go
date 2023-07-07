@@ -5,31 +5,56 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	selfreferential "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/selfreferential"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func EmployeeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
+var employeeType = reflect.TypeOf(*new(selfreferential.Employee))
+var EmployeeIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: employeeType,
+}
+
+func EmployeeId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: EmployeeIdField,
+		Operator:        operator,
 	}
 }
-func EmployeeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[selfreferential.Employee] {
+
+var EmployeeCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: employeeType,
+}
+
+func EmployeeCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: EmployeeCreatedAtField,
+		Operator:        operator,
 	}
 }
-func EmployeeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[selfreferential.Employee] {
+
+var EmployeeUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: employeeType,
+}
+
+func EmployeeUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: EmployeeUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func EmployeeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[selfreferential.Employee] {
+
+var EmployeeDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: employeeType,
+}
+
+func EmployeeDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: EmployeeDeletedAtField,
+		Operator:        operator,
 	}
 }
 func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) badorm.IJoinCondition[selfreferential.Employee] {
@@ -43,14 +68,17 @@ func EmployeeBoss(conditions ...badorm.Condition[selfreferential.Employee]) bado
 }
 
 var EmployeePreloadBoss = EmployeeBoss(EmployeePreloadAttributes)
-var employeeBossIdFieldID = badorm.FieldIdentifier{Field: "BossID"}
+var EmployeeBossIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "BossID",
+	ModelType: employeeType,
+}
 
-func EmployeeBossId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
+func EmployeeBossId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[selfreferential.Employee] {
 	return badorm.FieldCondition[selfreferential.Employee, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: employeeBossIdFieldID,
+		FieldIdentifier: EmployeeBossIdField,
+		Operator:        operator,
 	}
 }
 
-var EmployeePreloadAttributes = badorm.NewPreloadCondition[selfreferential.Employee](employeeBossIdFieldID)
+var EmployeePreloadAttributes = badorm.NewPreloadCondition[selfreferential.Employee](EmployeeIdField, EmployeeCreatedAtField, EmployeeUpdatedAtField, EmployeeDeletedAtField, EmployeeBossIdField)
 var EmployeePreloadRelations = []badorm.Condition[selfreferential.Employee]{EmployeePreloadBoss}

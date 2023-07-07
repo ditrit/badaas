@@ -5,40 +5,68 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overridereferencesinverse "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overridereferencesinverse"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func ComputerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overridereferencesinverse.Computer] {
+var computerType = reflect.TypeOf(*new(overridereferencesinverse.Computer))
+var ComputerIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: computerType,
+}
+
+func ComputerId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: ComputerIdField,
+		Operator:        operator,
 	}
 }
-func ComputerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferencesinverse.Computer] {
+
+var ComputerCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: computerType,
+}
+
+func ComputerCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: ComputerCreatedAtField,
+		Operator:        operator,
 	}
 }
-func ComputerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferencesinverse.Computer] {
+
+var ComputerUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: computerType,
+}
+
+func ComputerUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: ComputerUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func ComputerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overridereferencesinverse.Computer] {
+
+var ComputerDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: computerType,
+}
+
+func ComputerDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: ComputerDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var computerNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var ComputerNameField = badorm.FieldIdentifier[string]{
+	Field:     "Name",
+	ModelType: computerType,
+}
 
-func ComputerName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferencesinverse.Computer] {
+func ComputerName(operator badorm.Operator[string]) badorm.WhereCondition[overridereferencesinverse.Computer] {
 	return badorm.FieldCondition[overridereferencesinverse.Computer, string]{
-		Expression:      expr,
-		FieldIdentifier: computerNameFieldID,
+		FieldIdentifier: ComputerNameField,
+		Operator:        operator,
 	}
 }
 func ComputerProcessor(conditions ...badorm.Condition[overridereferencesinverse.Processor]) badorm.IJoinCondition[overridereferencesinverse.Computer] {
@@ -52,5 +80,5 @@ func ComputerProcessor(conditions ...badorm.Condition[overridereferencesinverse.
 }
 
 var ComputerPreloadProcessor = ComputerProcessor(ProcessorPreloadAttributes)
-var ComputerPreloadAttributes = badorm.NewPreloadCondition[overridereferencesinverse.Computer](computerNameFieldID)
+var ComputerPreloadAttributes = badorm.NewPreloadCondition[overridereferencesinverse.Computer](ComputerIdField, ComputerCreatedAtField, ComputerUpdatedAtField, ComputerDeletedAtField, ComputerNameField)
 var ComputerPreloadRelations = []badorm.Condition[overridereferencesinverse.Computer]{ComputerPreloadProcessor}

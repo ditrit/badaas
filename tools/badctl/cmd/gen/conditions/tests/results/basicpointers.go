@@ -5,194 +5,273 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	basicpointers "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/basicpointers"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func BasicPointersId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[basicpointers.BasicPointers] {
+var basicPointersType = reflect.TypeOf(*new(basicpointers.BasicPointers))
+var BasicPointersIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: basicPointersType,
+}
+
+func BasicPointersId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: BasicPointersIdField,
+		Operator:        operator,
 	}
 }
-func BasicPointersCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
+
+var BasicPointersCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: basicPointersType,
+}
+
+func BasicPointersCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: BasicPointersCreatedAtField,
+		Operator:        operator,
 	}
 }
-func BasicPointersUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
+
+var BasicPointersUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: basicPointersType,
+}
+
+func BasicPointersUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: BasicPointersUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func BasicPointersDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[basicpointers.BasicPointers] {
+
+var BasicPointersDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: basicPointersType,
+}
+
+func BasicPointersDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: BasicPointersDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var basicPointersBoolFieldID = badorm.FieldIdentifier{Field: "Bool"}
+var BasicPointersBoolField = badorm.FieldIdentifier[bool]{
+	Field:     "Bool",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersBool(expr badorm.Expression[bool]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersBool(operator badorm.Operator[bool]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, bool]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersBoolFieldID,
+		FieldIdentifier: BasicPointersBoolField,
+		Operator:        operator,
 	}
 }
 
-var basicPointersIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+var BasicPointersIntField = badorm.FieldIdentifier[int]{
+	Field:     "Int",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersInt(expr badorm.Expression[int]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersInt(operator badorm.Operator[int]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersIntFieldID,
+		FieldIdentifier: BasicPointersIntField,
+		Operator:        operator,
 	}
 }
 
-var basicPointersInt8FieldID = badorm.FieldIdentifier{Field: "Int8"}
+var BasicPointersInt8Field = badorm.FieldIdentifier[int8]{
+	Field:     "Int8",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersInt8(expr badorm.Expression[int8]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersInt8(operator badorm.Operator[int8]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int8]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersInt8FieldID,
+		FieldIdentifier: BasicPointersInt8Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersInt16FieldID = badorm.FieldIdentifier{Field: "Int16"}
+var BasicPointersInt16Field = badorm.FieldIdentifier[int16]{
+	Field:     "Int16",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersInt16(expr badorm.Expression[int16]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersInt16(operator badorm.Operator[int16]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int16]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersInt16FieldID,
+		FieldIdentifier: BasicPointersInt16Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersInt32FieldID = badorm.FieldIdentifier{Field: "Int32"}
+var BasicPointersInt32Field = badorm.FieldIdentifier[int32]{
+	Field:     "Int32",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersInt32(expr badorm.Expression[int32]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersInt32(operator badorm.Operator[int32]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int32]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersInt32FieldID,
+		FieldIdentifier: BasicPointersInt32Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersInt64FieldID = badorm.FieldIdentifier{Field: "Int64"}
+var BasicPointersInt64Field = badorm.FieldIdentifier[int64]{
+	Field:     "Int64",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersInt64(expr badorm.Expression[int64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersInt64(operator badorm.Operator[int64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, int64]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersInt64FieldID,
+		FieldIdentifier: BasicPointersInt64Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersUIntFieldID = badorm.FieldIdentifier{Field: "UInt"}
+var BasicPointersUIntField = badorm.FieldIdentifier[uint]{
+	Field:     "UInt",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersUInt(expr badorm.Expression[uint]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersUInt(operator badorm.Operator[uint]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersUIntFieldID,
+		FieldIdentifier: BasicPointersUIntField,
+		Operator:        operator,
 	}
 }
 
-var basicPointersUInt8FieldID = badorm.FieldIdentifier{Field: "UInt8"}
+var BasicPointersUInt8Field = badorm.FieldIdentifier[uint8]{
+	Field:     "UInt8",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersUInt8(expr badorm.Expression[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersUInt8(operator badorm.Operator[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint8]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersUInt8FieldID,
+		FieldIdentifier: BasicPointersUInt8Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersUInt16FieldID = badorm.FieldIdentifier{Field: "UInt16"}
+var BasicPointersUInt16Field = badorm.FieldIdentifier[uint16]{
+	Field:     "UInt16",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersUInt16(expr badorm.Expression[uint16]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersUInt16(operator badorm.Operator[uint16]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint16]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersUInt16FieldID,
+		FieldIdentifier: BasicPointersUInt16Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersUInt32FieldID = badorm.FieldIdentifier{Field: "UInt32"}
+var BasicPointersUInt32Field = badorm.FieldIdentifier[uint32]{
+	Field:     "UInt32",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersUInt32(expr badorm.Expression[uint32]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersUInt32(operator badorm.Operator[uint32]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint32]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersUInt32FieldID,
+		FieldIdentifier: BasicPointersUInt32Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersUInt64FieldID = badorm.FieldIdentifier{Field: "UInt64"}
+var BasicPointersUInt64Field = badorm.FieldIdentifier[uint64]{
+	Field:     "UInt64",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersUInt64(expr badorm.Expression[uint64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersUInt64(operator badorm.Operator[uint64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint64]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersUInt64FieldID,
+		FieldIdentifier: BasicPointersUInt64Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersUIntptrFieldID = badorm.FieldIdentifier{Field: "UIntptr"}
+var BasicPointersUIntptrField = badorm.FieldIdentifier[uintptr]{
+	Field:     "UIntptr",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersUIntptr(expr badorm.Expression[uintptr]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersUIntptr(operator badorm.Operator[uintptr]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uintptr]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersUIntptrFieldID,
+		FieldIdentifier: BasicPointersUIntptrField,
+		Operator:        operator,
 	}
 }
 
-var basicPointersFloat32FieldID = badorm.FieldIdentifier{Field: "Float32"}
+var BasicPointersFloat32Field = badorm.FieldIdentifier[float32]{
+	Field:     "Float32",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersFloat32(expr badorm.Expression[float32]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersFloat32(operator badorm.Operator[float32]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, float32]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersFloat32FieldID,
+		FieldIdentifier: BasicPointersFloat32Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersFloat64FieldID = badorm.FieldIdentifier{Field: "Float64"}
+var BasicPointersFloat64Field = badorm.FieldIdentifier[float64]{
+	Field:     "Float64",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersFloat64(expr badorm.Expression[float64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersFloat64(operator badorm.Operator[float64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, float64]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersFloat64FieldID,
+		FieldIdentifier: BasicPointersFloat64Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersComplex64FieldID = badorm.FieldIdentifier{Field: "Complex64"}
+var BasicPointersComplex64Field = badorm.FieldIdentifier[complex64]{
+	Field:     "Complex64",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersComplex64(expr badorm.Expression[complex64]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersComplex64(operator badorm.Operator[complex64]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, complex64]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersComplex64FieldID,
+		FieldIdentifier: BasicPointersComplex64Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersComplex128FieldID = badorm.FieldIdentifier{Field: "Complex128"}
+var BasicPointersComplex128Field = badorm.FieldIdentifier[complex128]{
+	Field:     "Complex128",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersComplex128(expr badorm.Expression[complex128]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersComplex128(operator badorm.Operator[complex128]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, complex128]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersComplex128FieldID,
+		FieldIdentifier: BasicPointersComplex128Field,
+		Operator:        operator,
 	}
 }
 
-var basicPointersStringFieldID = badorm.FieldIdentifier{Field: "String"}
+var BasicPointersStringField = badorm.FieldIdentifier[string]{
+	Field:     "String",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersString(expr badorm.Expression[string]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersString(operator badorm.Operator[string]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, string]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersStringFieldID,
+		FieldIdentifier: BasicPointersStringField,
+		Operator:        operator,
 	}
 }
 
-var basicPointersByteFieldID = badorm.FieldIdentifier{Field: "Byte"}
+var BasicPointersByteField = badorm.FieldIdentifier[uint8]{
+	Field:     "Byte",
+	ModelType: basicPointersType,
+}
 
-func BasicPointersByte(expr badorm.Expression[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
+func BasicPointersByte(operator badorm.Operator[uint8]) badorm.WhereCondition[basicpointers.BasicPointers] {
 	return badorm.FieldCondition[basicpointers.BasicPointers, uint8]{
-		Expression:      expr,
-		FieldIdentifier: basicPointersByteFieldID,
+		FieldIdentifier: BasicPointersByteField,
+		Operator:        operator,
 	}
 }
 
-var BasicPointersPreloadAttributes = badorm.NewPreloadCondition[basicpointers.BasicPointers](basicPointersBoolFieldID, basicPointersIntFieldID, basicPointersInt8FieldID, basicPointersInt16FieldID, basicPointersInt32FieldID, basicPointersInt64FieldID, basicPointersUIntFieldID, basicPointersUInt8FieldID, basicPointersUInt16FieldID, basicPointersUInt32FieldID, basicPointersUInt64FieldID, basicPointersUIntptrFieldID, basicPointersFloat32FieldID, basicPointersFloat64FieldID, basicPointersComplex64FieldID, basicPointersComplex128FieldID, basicPointersStringFieldID, basicPointersByteFieldID)
+var BasicPointersPreloadAttributes = badorm.NewPreloadCondition[basicpointers.BasicPointers](BasicPointersIdField, BasicPointersCreatedAtField, BasicPointersUpdatedAtField, BasicPointersDeletedAtField, BasicPointersBoolField, BasicPointersIntField, BasicPointersInt8Field, BasicPointersInt16Field, BasicPointersInt32Field, BasicPointersInt64Field, BasicPointersUIntField, BasicPointersUInt8Field, BasicPointersUInt16Field, BasicPointersUInt32Field, BasicPointersUInt64Field, BasicPointersUIntptrField, BasicPointersFloat32Field, BasicPointersFloat64Field, BasicPointersComplex64Field, BasicPointersComplex128Field, BasicPointersStringField, BasicPointersByteField)

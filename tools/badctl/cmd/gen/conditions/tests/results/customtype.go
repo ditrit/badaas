@@ -5,41 +5,69 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	customtype "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/customtype"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func CustomTypeId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[customtype.CustomType] {
+var customTypeType = reflect.TypeOf(*new(customtype.CustomType))
+var CustomTypeIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: customTypeType,
+}
+
+func CustomTypeId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: CustomTypeIdField,
+		Operator:        operator,
 	}
 }
-func CustomTypeCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[customtype.CustomType] {
+
+var CustomTypeCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: customTypeType,
+}
+
+func CustomTypeCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: CustomTypeCreatedAtField,
+		Operator:        operator,
 	}
 }
-func CustomTypeUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[customtype.CustomType] {
+
+var CustomTypeUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: customTypeType,
+}
+
+func CustomTypeUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: CustomTypeUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func CustomTypeDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[customtype.CustomType] {
+
+var CustomTypeDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: customTypeType,
+}
+
+func CustomTypeDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: CustomTypeDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var customTypeCustomFieldID = badorm.FieldIdentifier{Field: "Custom"}
+var CustomTypeCustomField = badorm.FieldIdentifier[customtype.MultiString]{
+	Field:     "Custom",
+	ModelType: customTypeType,
+}
 
-func CustomTypeCustom(expr badorm.Expression[customtype.MultiString]) badorm.WhereCondition[customtype.CustomType] {
+func CustomTypeCustom(operator badorm.Operator[customtype.MultiString]) badorm.WhereCondition[customtype.CustomType] {
 	return badorm.FieldCondition[customtype.CustomType, customtype.MultiString]{
-		Expression:      expr,
-		FieldIdentifier: customTypeCustomFieldID,
+		FieldIdentifier: CustomTypeCustomField,
+		Operator:        operator,
 	}
 }
 
-var CustomTypePreloadAttributes = badorm.NewPreloadCondition[customtype.CustomType](customTypeCustomFieldID)
+var CustomTypePreloadAttributes = badorm.NewPreloadCondition[customtype.CustomType](CustomTypeIdField, CustomTypeCreatedAtField, CustomTypeUpdatedAtField, CustomTypeDeletedAtField, CustomTypeCustomField)

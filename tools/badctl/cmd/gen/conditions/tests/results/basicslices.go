@@ -5,194 +5,273 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	basicslices "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/basicslices"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func BasicSlicesId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[basicslices.BasicSlices] {
+var basicSlicesType = reflect.TypeOf(*new(basicslices.BasicSlices))
+var BasicSlicesIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: basicSlicesType,
+}
+
+func BasicSlicesId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: BasicSlicesIdField,
+		Operator:        operator,
 	}
 }
-func BasicSlicesCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicslices.BasicSlices] {
+
+var BasicSlicesCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: basicSlicesType,
+}
+
+func BasicSlicesCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: BasicSlicesCreatedAtField,
+		Operator:        operator,
 	}
 }
-func BasicSlicesUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basicslices.BasicSlices] {
+
+var BasicSlicesUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: basicSlicesType,
+}
+
+func BasicSlicesUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: BasicSlicesUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func BasicSlicesDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[basicslices.BasicSlices] {
+
+var BasicSlicesDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: basicSlicesType,
+}
+
+func BasicSlicesDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: BasicSlicesDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesBoolFieldID = badorm.FieldIdentifier{Field: "Bool"}
+var BasicSlicesBoolField = badorm.FieldIdentifier[[]bool]{
+	Field:     "Bool",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesBool(expr badorm.Expression[[]bool]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesBool(operator badorm.Operator[[]bool]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []bool]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesBoolFieldID,
+		FieldIdentifier: BasicSlicesBoolField,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+var BasicSlicesIntField = badorm.FieldIdentifier[[]int]{
+	Field:     "Int",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesInt(expr badorm.Expression[[]int]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesInt(operator badorm.Operator[[]int]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []int]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesIntFieldID,
+		FieldIdentifier: BasicSlicesIntField,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesInt8FieldID = badorm.FieldIdentifier{Field: "Int8"}
+var BasicSlicesInt8Field = badorm.FieldIdentifier[[]int8]{
+	Field:     "Int8",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesInt8(expr badorm.Expression[[]int8]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesInt8(operator badorm.Operator[[]int8]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []int8]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesInt8FieldID,
+		FieldIdentifier: BasicSlicesInt8Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesInt16FieldID = badorm.FieldIdentifier{Field: "Int16"}
+var BasicSlicesInt16Field = badorm.FieldIdentifier[[]int16]{
+	Field:     "Int16",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesInt16(expr badorm.Expression[[]int16]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesInt16(operator badorm.Operator[[]int16]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []int16]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesInt16FieldID,
+		FieldIdentifier: BasicSlicesInt16Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesInt32FieldID = badorm.FieldIdentifier{Field: "Int32"}
+var BasicSlicesInt32Field = badorm.FieldIdentifier[[]int32]{
+	Field:     "Int32",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesInt32(expr badorm.Expression[[]int32]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesInt32(operator badorm.Operator[[]int32]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []int32]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesInt32FieldID,
+		FieldIdentifier: BasicSlicesInt32Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesInt64FieldID = badorm.FieldIdentifier{Field: "Int64"}
+var BasicSlicesInt64Field = badorm.FieldIdentifier[[]int64]{
+	Field:     "Int64",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesInt64(expr badorm.Expression[[]int64]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesInt64(operator badorm.Operator[[]int64]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []int64]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesInt64FieldID,
+		FieldIdentifier: BasicSlicesInt64Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesUIntFieldID = badorm.FieldIdentifier{Field: "UInt"}
+var BasicSlicesUIntField = badorm.FieldIdentifier[[]uint]{
+	Field:     "UInt",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesUInt(expr badorm.Expression[[]uint]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesUInt(operator badorm.Operator[[]uint]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uint]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesUIntFieldID,
+		FieldIdentifier: BasicSlicesUIntField,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesUInt8FieldID = badorm.FieldIdentifier{Field: "UInt8"}
+var BasicSlicesUInt8Field = badorm.FieldIdentifier[[]uint8]{
+	Field:     "UInt8",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesUInt8(expr badorm.Expression[[]uint8]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesUInt8(operator badorm.Operator[[]uint8]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uint8]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesUInt8FieldID,
+		FieldIdentifier: BasicSlicesUInt8Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesUInt16FieldID = badorm.FieldIdentifier{Field: "UInt16"}
+var BasicSlicesUInt16Field = badorm.FieldIdentifier[[]uint16]{
+	Field:     "UInt16",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesUInt16(expr badorm.Expression[[]uint16]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesUInt16(operator badorm.Operator[[]uint16]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uint16]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesUInt16FieldID,
+		FieldIdentifier: BasicSlicesUInt16Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesUInt32FieldID = badorm.FieldIdentifier{Field: "UInt32"}
+var BasicSlicesUInt32Field = badorm.FieldIdentifier[[]uint32]{
+	Field:     "UInt32",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesUInt32(expr badorm.Expression[[]uint32]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesUInt32(operator badorm.Operator[[]uint32]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uint32]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesUInt32FieldID,
+		FieldIdentifier: BasicSlicesUInt32Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesUInt64FieldID = badorm.FieldIdentifier{Field: "UInt64"}
+var BasicSlicesUInt64Field = badorm.FieldIdentifier[[]uint64]{
+	Field:     "UInt64",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesUInt64(expr badorm.Expression[[]uint64]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesUInt64(operator badorm.Operator[[]uint64]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uint64]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesUInt64FieldID,
+		FieldIdentifier: BasicSlicesUInt64Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesUIntptrFieldID = badorm.FieldIdentifier{Field: "UIntptr"}
+var BasicSlicesUIntptrField = badorm.FieldIdentifier[[]uintptr]{
+	Field:     "UIntptr",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesUIntptr(expr badorm.Expression[[]uintptr]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesUIntptr(operator badorm.Operator[[]uintptr]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uintptr]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesUIntptrFieldID,
+		FieldIdentifier: BasicSlicesUIntptrField,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesFloat32FieldID = badorm.FieldIdentifier{Field: "Float32"}
+var BasicSlicesFloat32Field = badorm.FieldIdentifier[[]float32]{
+	Field:     "Float32",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesFloat32(expr badorm.Expression[[]float32]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesFloat32(operator badorm.Operator[[]float32]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []float32]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesFloat32FieldID,
+		FieldIdentifier: BasicSlicesFloat32Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesFloat64FieldID = badorm.FieldIdentifier{Field: "Float64"}
+var BasicSlicesFloat64Field = badorm.FieldIdentifier[[]float64]{
+	Field:     "Float64",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesFloat64(expr badorm.Expression[[]float64]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesFloat64(operator badorm.Operator[[]float64]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []float64]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesFloat64FieldID,
+		FieldIdentifier: BasicSlicesFloat64Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesComplex64FieldID = badorm.FieldIdentifier{Field: "Complex64"}
+var BasicSlicesComplex64Field = badorm.FieldIdentifier[[]complex64]{
+	Field:     "Complex64",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesComplex64(expr badorm.Expression[[]complex64]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesComplex64(operator badorm.Operator[[]complex64]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []complex64]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesComplex64FieldID,
+		FieldIdentifier: BasicSlicesComplex64Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesComplex128FieldID = badorm.FieldIdentifier{Field: "Complex128"}
+var BasicSlicesComplex128Field = badorm.FieldIdentifier[[]complex128]{
+	Field:     "Complex128",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesComplex128(expr badorm.Expression[[]complex128]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesComplex128(operator badorm.Operator[[]complex128]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []complex128]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesComplex128FieldID,
+		FieldIdentifier: BasicSlicesComplex128Field,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesStringFieldID = badorm.FieldIdentifier{Field: "String"}
+var BasicSlicesStringField = badorm.FieldIdentifier[[]string]{
+	Field:     "String",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesString(expr badorm.Expression[[]string]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesString(operator badorm.Operator[[]string]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []string]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesStringFieldID,
+		FieldIdentifier: BasicSlicesStringField,
+		Operator:        operator,
 	}
 }
 
-var basicSlicesByteFieldID = badorm.FieldIdentifier{Field: "Byte"}
+var BasicSlicesByteField = badorm.FieldIdentifier[[]uint8]{
+	Field:     "Byte",
+	ModelType: basicSlicesType,
+}
 
-func BasicSlicesByte(expr badorm.Expression[[]uint8]) badorm.WhereCondition[basicslices.BasicSlices] {
+func BasicSlicesByte(operator badorm.Operator[[]uint8]) badorm.WhereCondition[basicslices.BasicSlices] {
 	return badorm.FieldCondition[basicslices.BasicSlices, []uint8]{
-		Expression:      expr,
-		FieldIdentifier: basicSlicesByteFieldID,
+		FieldIdentifier: BasicSlicesByteField,
+		Operator:        operator,
 	}
 }
 
-var BasicSlicesPreloadAttributes = badorm.NewPreloadCondition[basicslices.BasicSlices](basicSlicesBoolFieldID, basicSlicesIntFieldID, basicSlicesInt8FieldID, basicSlicesInt16FieldID, basicSlicesInt32FieldID, basicSlicesInt64FieldID, basicSlicesUIntFieldID, basicSlicesUInt8FieldID, basicSlicesUInt16FieldID, basicSlicesUInt32FieldID, basicSlicesUInt64FieldID, basicSlicesUIntptrFieldID, basicSlicesFloat32FieldID, basicSlicesFloat64FieldID, basicSlicesComplex64FieldID, basicSlicesComplex128FieldID, basicSlicesStringFieldID, basicSlicesByteFieldID)
+var BasicSlicesPreloadAttributes = badorm.NewPreloadCondition[basicslices.BasicSlices](BasicSlicesIdField, BasicSlicesCreatedAtField, BasicSlicesUpdatedAtField, BasicSlicesDeletedAtField, BasicSlicesBoolField, BasicSlicesIntField, BasicSlicesInt8Field, BasicSlicesInt16Field, BasicSlicesInt32Field, BasicSlicesInt64Field, BasicSlicesUIntField, BasicSlicesUInt8Field, BasicSlicesUInt16Field, BasicSlicesUInt32Field, BasicSlicesUInt64Field, BasicSlicesUIntptrField, BasicSlicesFloat32Field, BasicSlicesFloat64Field, BasicSlicesComplex64Field, BasicSlicesComplex128Field, BasicSlicesStringField, BasicSlicesByteField)

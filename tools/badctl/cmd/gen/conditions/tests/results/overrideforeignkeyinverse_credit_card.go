@@ -5,41 +5,69 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overrideforeignkeyinverse "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overrideforeignkeyinverse"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func CreditCardId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
+var creditCardType = reflect.TypeOf(*new(overrideforeignkeyinverse.CreditCard))
+var CreditCardIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: creditCardType,
+}
+
+func CreditCardId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.CreditCard, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: CreditCardIdField,
+		Operator:        operator,
 	}
 }
-func CreditCardCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
+
+var CreditCardCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: creditCardType,
+}
+
+func CreditCardCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.CreditCard, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: CreditCardCreatedAtField,
+		Operator:        operator,
 	}
 }
-func CreditCardUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
+
+var CreditCardUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: creditCardType,
+}
+
+func CreditCardUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.CreditCard, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: CreditCardUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func CreditCardDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
+
+var CreditCardDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: creditCardType,
+}
+
+func CreditCardDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.CreditCard, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: CreditCardDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var creditCardUserReferenceFieldID = badorm.FieldIdentifier{Field: "UserReference"}
+var CreditCardUserReferenceField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "UserReference",
+	ModelType: creditCardType,
+}
 
-func CreditCardUserReference(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
+func CreditCardUserReference(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.CreditCard] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.CreditCard, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: creditCardUserReferenceFieldID,
+		FieldIdentifier: CreditCardUserReferenceField,
+		Operator:        operator,
 	}
 }
 
-var CreditCardPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkeyinverse.CreditCard](creditCardUserReferenceFieldID)
+var CreditCardPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkeyinverse.CreditCard](CreditCardIdField, CreditCardCreatedAtField, CreditCardUpdatedAtField, CreditCardDeletedAtField, CreditCardUserReferenceField)

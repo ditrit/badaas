@@ -5,41 +5,69 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overridereferences "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overridereferences"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func BrandId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overridereferences.Brand] {
+var brandType = reflect.TypeOf(*new(overridereferences.Brand))
+var BrandIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: brandType,
+}
+
+func BrandId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overridereferences.Brand] {
 	return badorm.FieldCondition[overridereferences.Brand, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: BrandIdField,
+		Operator:        operator,
 	}
 }
-func BrandCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferences.Brand] {
+
+var BrandCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: brandType,
+}
+
+func BrandCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overridereferences.Brand] {
 	return badorm.FieldCondition[overridereferences.Brand, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: BrandCreatedAtField,
+		Operator:        operator,
 	}
 }
-func BrandUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferences.Brand] {
+
+var BrandUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: brandType,
+}
+
+func BrandUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overridereferences.Brand] {
 	return badorm.FieldCondition[overridereferences.Brand, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: BrandUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func BrandDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overridereferences.Brand] {
+
+var BrandDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: brandType,
+}
+
+func BrandDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overridereferences.Brand] {
 	return badorm.FieldCondition[overridereferences.Brand, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: BrandDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var brandNameFieldID = badorm.FieldIdentifier{Field: "Name"}
+var BrandNameField = badorm.FieldIdentifier[string]{
+	Field:     "Name",
+	ModelType: brandType,
+}
 
-func BrandName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferences.Brand] {
+func BrandName(operator badorm.Operator[string]) badorm.WhereCondition[overridereferences.Brand] {
 	return badorm.FieldCondition[overridereferences.Brand, string]{
-		Expression:      expr,
-		FieldIdentifier: brandNameFieldID,
+		FieldIdentifier: BrandNameField,
+		Operator:        operator,
 	}
 }
 
-var BrandPreloadAttributes = badorm.NewPreloadCondition[overridereferences.Brand](brandNameFieldID)
+var BrandPreloadAttributes = badorm.NewPreloadCondition[overridereferences.Brand](BrandIdField, BrandCreatedAtField, BrandUpdatedAtField, BrandDeletedAtField, BrandNameField)

@@ -5,41 +5,70 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	columndefinition "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/columndefinition"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func ColumnDefinitionId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
+var columnDefinitionType = reflect.TypeOf(*new(columndefinition.ColumnDefinition))
+var ColumnDefinitionIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: columnDefinitionType,
+}
+
+func ColumnDefinitionId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: ColumnDefinitionIdField,
+		Operator:        operator,
 	}
 }
-func ColumnDefinitionCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
+
+var ColumnDefinitionCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: columnDefinitionType,
+}
+
+func ColumnDefinitionCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: ColumnDefinitionCreatedAtField,
+		Operator:        operator,
 	}
 }
-func ColumnDefinitionUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
+
+var ColumnDefinitionUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: columnDefinitionType,
+}
+
+func ColumnDefinitionUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: ColumnDefinitionUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func ColumnDefinitionDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
+
+var ColumnDefinitionDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: columnDefinitionType,
+}
+
+func ColumnDefinitionDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: ColumnDefinitionDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var columnDefinitionStringFieldID = badorm.FieldIdentifier{Column: "string_something_else"}
+var ColumnDefinitionStringField = badorm.FieldIdentifier[string]{
+	Column:    "string_something_else",
+	Field:     "String",
+	ModelType: columnDefinitionType,
+}
 
-func ColumnDefinitionString(expr badorm.Expression[string]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
+func ColumnDefinitionString(operator badorm.Operator[string]) badorm.WhereCondition[columndefinition.ColumnDefinition] {
 	return badorm.FieldCondition[columndefinition.ColumnDefinition, string]{
-		Expression:      expr,
-		FieldIdentifier: columnDefinitionStringFieldID,
+		FieldIdentifier: ColumnDefinitionStringField,
+		Operator:        operator,
 	}
 }
 
-var ColumnDefinitionPreloadAttributes = badorm.NewPreloadCondition[columndefinition.ColumnDefinition](columnDefinitionStringFieldID)
+var ColumnDefinitionPreloadAttributes = badorm.NewPreloadCondition[columndefinition.ColumnDefinition](ColumnDefinitionIdField, ColumnDefinitionCreatedAtField, ColumnDefinitionUpdatedAtField, ColumnDefinitionDeletedAtField, ColumnDefinitionStringField)

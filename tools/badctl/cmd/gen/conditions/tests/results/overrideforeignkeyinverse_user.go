@@ -5,31 +5,56 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overrideforeignkeyinverse "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overrideforeignkeyinverse"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func UserId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
+var userType = reflect.TypeOf(*new(overrideforeignkeyinverse.User))
+var UserIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: userType,
+}
+
+func UserId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: UserIdField,
+		Operator:        operator,
 	}
 }
-func UserCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
+
+var UserCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: userType,
+}
+
+func UserCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: UserCreatedAtField,
+		Operator:        operator,
 	}
 }
-func UserUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
+
+var UserUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: userType,
+}
+
+func UserUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: UserUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func UserDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
+
+var UserDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: userType,
+}
+
+func UserDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkeyinverse.User] {
 	return badorm.FieldCondition[overrideforeignkeyinverse.User, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: UserDeletedAtField,
+		Operator:        operator,
 	}
 }
 func UserCreditCard(conditions ...badorm.Condition[overrideforeignkeyinverse.CreditCard]) badorm.IJoinCondition[overrideforeignkeyinverse.User] {
@@ -43,5 +68,5 @@ func UserCreditCard(conditions ...badorm.Condition[overrideforeignkeyinverse.Cre
 }
 
 var UserPreloadCreditCard = UserCreditCard(CreditCardPreloadAttributes)
-var UserPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkeyinverse.User]()
+var UserPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkeyinverse.User](UserIdField, UserCreatedAtField, UserUpdatedAtField, UserDeletedAtField)
 var UserPreloadRelations = []badorm.Condition[overrideforeignkeyinverse.User]{UserPreloadCreditCard}

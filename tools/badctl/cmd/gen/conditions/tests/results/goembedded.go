@@ -5,50 +5,81 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	goembedded "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/goembedded"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func GoEmbeddedId(expr badorm.Expression[badorm.UIntID]) badorm.WhereCondition[goembedded.GoEmbedded] {
+var goEmbeddedType = reflect.TypeOf(*new(goembedded.GoEmbedded))
+var GoEmbeddedIdField = badorm.FieldIdentifier[badorm.UIntID]{
+	Field:     "ID",
+	ModelType: goEmbeddedType,
+}
+
+func GoEmbeddedId(operator badorm.Operator[badorm.UIntID]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, badorm.UIntID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: GoEmbeddedIdField,
+		Operator:        operator,
 	}
 }
-func GoEmbeddedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
+
+var GoEmbeddedCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: goEmbeddedType,
+}
+
+func GoEmbeddedCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: GoEmbeddedCreatedAtField,
+		Operator:        operator,
 	}
 }
-func GoEmbeddedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
+
+var GoEmbeddedUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: goEmbeddedType,
+}
+
+func GoEmbeddedUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: GoEmbeddedUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func GoEmbeddedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[goembedded.GoEmbedded] {
+
+var GoEmbeddedDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: goEmbeddedType,
+}
+
+func GoEmbeddedDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: GoEmbeddedDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var goEmbeddedIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+var GoEmbeddedIntField = badorm.FieldIdentifier[int]{
+	Field:     "Int",
+	ModelType: goEmbeddedType,
+}
 
-func GoEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[goembedded.GoEmbedded] {
+func GoEmbeddedInt(operator badorm.Operator[int]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, int]{
-		Expression:      expr,
-		FieldIdentifier: goEmbeddedIntFieldID,
+		FieldIdentifier: GoEmbeddedIntField,
+		Operator:        operator,
 	}
 }
 
-var goEmbeddedToBeEmbeddedIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+var GoEmbeddedToBeEmbeddedIntField = badorm.FieldIdentifier[int]{
+	Field:     "Int",
+	ModelType: goEmbeddedType,
+}
 
-func GoEmbeddedToBeEmbeddedInt(expr badorm.Expression[int]) badorm.WhereCondition[goembedded.GoEmbedded] {
+func GoEmbeddedToBeEmbeddedInt(operator badorm.Operator[int]) badorm.WhereCondition[goembedded.GoEmbedded] {
 	return badorm.FieldCondition[goembedded.GoEmbedded, int]{
-		Expression:      expr,
-		FieldIdentifier: goEmbeddedToBeEmbeddedIntFieldID,
+		FieldIdentifier: GoEmbeddedToBeEmbeddedIntField,
+		Operator:        operator,
 	}
 }
 
-var GoEmbeddedPreloadAttributes = badorm.NewPreloadCondition[goembedded.GoEmbedded](goEmbeddedIntFieldID, goEmbeddedToBeEmbeddedIntFieldID)
+var GoEmbeddedPreloadAttributes = badorm.NewPreloadCondition[goembedded.GoEmbedded](GoEmbeddedIdField, GoEmbeddedCreatedAtField, GoEmbeddedUpdatedAtField, GoEmbeddedDeletedAtField, GoEmbeddedIntField, GoEmbeddedToBeEmbeddedIntField)

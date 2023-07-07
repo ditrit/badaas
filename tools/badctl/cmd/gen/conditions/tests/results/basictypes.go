@@ -5,194 +5,273 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	basictypes "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/basictypes"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func BasicTypesId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[basictypes.BasicTypes] {
+var basicTypesType = reflect.TypeOf(*new(basictypes.BasicTypes))
+var BasicTypesIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: basicTypesType,
+}
+
+func BasicTypesId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: BasicTypesIdField,
+		Operator:        operator,
 	}
 }
-func BasicTypesCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basictypes.BasicTypes] {
+
+var BasicTypesCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: basicTypesType,
+}
+
+func BasicTypesCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: BasicTypesCreatedAtField,
+		Operator:        operator,
 	}
 }
-func BasicTypesUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[basictypes.BasicTypes] {
+
+var BasicTypesUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: basicTypesType,
+}
+
+func BasicTypesUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: BasicTypesUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func BasicTypesDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[basictypes.BasicTypes] {
+
+var BasicTypesDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: basicTypesType,
+}
+
+func BasicTypesDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: BasicTypesDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var basicTypesBoolFieldID = badorm.FieldIdentifier{Field: "Bool"}
+var BasicTypesBoolField = badorm.FieldIdentifier[bool]{
+	Field:     "Bool",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesBool(expr badorm.Expression[bool]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesBool(operator badorm.Operator[bool]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, bool]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesBoolFieldID,
+		FieldIdentifier: BasicTypesBoolField,
+		Operator:        operator,
 	}
 }
 
-var basicTypesIntFieldID = badorm.FieldIdentifier{Field: "Int"}
+var BasicTypesIntField = badorm.FieldIdentifier[int]{
+	Field:     "Int",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesInt(expr badorm.Expression[int]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesInt(operator badorm.Operator[int]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesIntFieldID,
+		FieldIdentifier: BasicTypesIntField,
+		Operator:        operator,
 	}
 }
 
-var basicTypesInt8FieldID = badorm.FieldIdentifier{Field: "Int8"}
+var BasicTypesInt8Field = badorm.FieldIdentifier[int8]{
+	Field:     "Int8",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesInt8(expr badorm.Expression[int8]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesInt8(operator badorm.Operator[int8]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int8]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesInt8FieldID,
+		FieldIdentifier: BasicTypesInt8Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesInt16FieldID = badorm.FieldIdentifier{Field: "Int16"}
+var BasicTypesInt16Field = badorm.FieldIdentifier[int16]{
+	Field:     "Int16",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesInt16(expr badorm.Expression[int16]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesInt16(operator badorm.Operator[int16]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int16]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesInt16FieldID,
+		FieldIdentifier: BasicTypesInt16Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesInt32FieldID = badorm.FieldIdentifier{Field: "Int32"}
+var BasicTypesInt32Field = badorm.FieldIdentifier[int32]{
+	Field:     "Int32",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesInt32(expr badorm.Expression[int32]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesInt32(operator badorm.Operator[int32]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int32]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesInt32FieldID,
+		FieldIdentifier: BasicTypesInt32Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesInt64FieldID = badorm.FieldIdentifier{Field: "Int64"}
+var BasicTypesInt64Field = badorm.FieldIdentifier[int64]{
+	Field:     "Int64",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesInt64(expr badorm.Expression[int64]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesInt64(operator badorm.Operator[int64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, int64]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesInt64FieldID,
+		FieldIdentifier: BasicTypesInt64Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesUIntFieldID = badorm.FieldIdentifier{Field: "UInt"}
+var BasicTypesUIntField = badorm.FieldIdentifier[uint]{
+	Field:     "UInt",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesUInt(expr badorm.Expression[uint]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesUInt(operator badorm.Operator[uint]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesUIntFieldID,
+		FieldIdentifier: BasicTypesUIntField,
+		Operator:        operator,
 	}
 }
 
-var basicTypesUInt8FieldID = badorm.FieldIdentifier{Field: "UInt8"}
+var BasicTypesUInt8Field = badorm.FieldIdentifier[uint8]{
+	Field:     "UInt8",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesUInt8(expr badorm.Expression[uint8]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesUInt8(operator badorm.Operator[uint8]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint8]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesUInt8FieldID,
+		FieldIdentifier: BasicTypesUInt8Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesUInt16FieldID = badorm.FieldIdentifier{Field: "UInt16"}
+var BasicTypesUInt16Field = badorm.FieldIdentifier[uint16]{
+	Field:     "UInt16",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesUInt16(expr badorm.Expression[uint16]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesUInt16(operator badorm.Operator[uint16]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint16]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesUInt16FieldID,
+		FieldIdentifier: BasicTypesUInt16Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesUInt32FieldID = badorm.FieldIdentifier{Field: "UInt32"}
+var BasicTypesUInt32Field = badorm.FieldIdentifier[uint32]{
+	Field:     "UInt32",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesUInt32(expr badorm.Expression[uint32]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesUInt32(operator badorm.Operator[uint32]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint32]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesUInt32FieldID,
+		FieldIdentifier: BasicTypesUInt32Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesUInt64FieldID = badorm.FieldIdentifier{Field: "UInt64"}
+var BasicTypesUInt64Field = badorm.FieldIdentifier[uint64]{
+	Field:     "UInt64",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesUInt64(expr badorm.Expression[uint64]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesUInt64(operator badorm.Operator[uint64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint64]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesUInt64FieldID,
+		FieldIdentifier: BasicTypesUInt64Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesUIntptrFieldID = badorm.FieldIdentifier{Field: "UIntptr"}
+var BasicTypesUIntptrField = badorm.FieldIdentifier[uintptr]{
+	Field:     "UIntptr",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesUIntptr(expr badorm.Expression[uintptr]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesUIntptr(operator badorm.Operator[uintptr]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uintptr]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesUIntptrFieldID,
+		FieldIdentifier: BasicTypesUIntptrField,
+		Operator:        operator,
 	}
 }
 
-var basicTypesFloat32FieldID = badorm.FieldIdentifier{Field: "Float32"}
+var BasicTypesFloat32Field = badorm.FieldIdentifier[float32]{
+	Field:     "Float32",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesFloat32(expr badorm.Expression[float32]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesFloat32(operator badorm.Operator[float32]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, float32]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesFloat32FieldID,
+		FieldIdentifier: BasicTypesFloat32Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesFloat64FieldID = badorm.FieldIdentifier{Field: "Float64"}
+var BasicTypesFloat64Field = badorm.FieldIdentifier[float64]{
+	Field:     "Float64",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesFloat64(expr badorm.Expression[float64]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesFloat64(operator badorm.Operator[float64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, float64]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesFloat64FieldID,
+		FieldIdentifier: BasicTypesFloat64Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesComplex64FieldID = badorm.FieldIdentifier{Field: "Complex64"}
+var BasicTypesComplex64Field = badorm.FieldIdentifier[complex64]{
+	Field:     "Complex64",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesComplex64(expr badorm.Expression[complex64]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesComplex64(operator badorm.Operator[complex64]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, complex64]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesComplex64FieldID,
+		FieldIdentifier: BasicTypesComplex64Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesComplex128FieldID = badorm.FieldIdentifier{Field: "Complex128"}
+var BasicTypesComplex128Field = badorm.FieldIdentifier[complex128]{
+	Field:     "Complex128",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesComplex128(expr badorm.Expression[complex128]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesComplex128(operator badorm.Operator[complex128]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, complex128]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesComplex128FieldID,
+		FieldIdentifier: BasicTypesComplex128Field,
+		Operator:        operator,
 	}
 }
 
-var basicTypesStringFieldID = badorm.FieldIdentifier{Field: "String"}
+var BasicTypesStringField = badorm.FieldIdentifier[string]{
+	Field:     "String",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesString(expr badorm.Expression[string]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesString(operator badorm.Operator[string]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, string]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesStringFieldID,
+		FieldIdentifier: BasicTypesStringField,
+		Operator:        operator,
 	}
 }
 
-var basicTypesByteFieldID = badorm.FieldIdentifier{Field: "Byte"}
+var BasicTypesByteField = badorm.FieldIdentifier[uint8]{
+	Field:     "Byte",
+	ModelType: basicTypesType,
+}
 
-func BasicTypesByte(expr badorm.Expression[uint8]) badorm.WhereCondition[basictypes.BasicTypes] {
+func BasicTypesByte(operator badorm.Operator[uint8]) badorm.WhereCondition[basictypes.BasicTypes] {
 	return badorm.FieldCondition[basictypes.BasicTypes, uint8]{
-		Expression:      expr,
-		FieldIdentifier: basicTypesByteFieldID,
+		FieldIdentifier: BasicTypesByteField,
+		Operator:        operator,
 	}
 }
 
-var BasicTypesPreloadAttributes = badorm.NewPreloadCondition[basictypes.BasicTypes](basicTypesBoolFieldID, basicTypesIntFieldID, basicTypesInt8FieldID, basicTypesInt16FieldID, basicTypesInt32FieldID, basicTypesInt64FieldID, basicTypesUIntFieldID, basicTypesUInt8FieldID, basicTypesUInt16FieldID, basicTypesUInt32FieldID, basicTypesUInt64FieldID, basicTypesUIntptrFieldID, basicTypesFloat32FieldID, basicTypesFloat64FieldID, basicTypesComplex64FieldID, basicTypesComplex128FieldID, basicTypesStringFieldID, basicTypesByteFieldID)
+var BasicTypesPreloadAttributes = badorm.NewPreloadCondition[basictypes.BasicTypes](BasicTypesIdField, BasicTypesCreatedAtField, BasicTypesUpdatedAtField, BasicTypesDeletedAtField, BasicTypesBoolField, BasicTypesIntField, BasicTypesInt8Field, BasicTypesInt16Field, BasicTypesInt32Field, BasicTypesInt64Field, BasicTypesUIntField, BasicTypesUInt8Field, BasicTypesUInt16Field, BasicTypesUInt32Field, BasicTypesUInt64Field, BasicTypesUIntptrField, BasicTypesFloat32Field, BasicTypesFloat64Field, BasicTypesComplex64Field, BasicTypesComplex128Field, BasicTypesStringField, BasicTypesByteField)

@@ -5,31 +5,56 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	belongsto "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/belongsto"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func OwnedId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
+var ownedType = reflect.TypeOf(*new(belongsto.Owned))
+var OwnedIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: ownedType,
+}
+
+func OwnedId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: OwnedIdField,
+		Operator:        operator,
 	}
 }
-func OwnedCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owned] {
+
+var OwnedCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: ownedType,
+}
+
+func OwnedCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: OwnedCreatedAtField,
+		Operator:        operator,
 	}
 }
-func OwnedUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[belongsto.Owned] {
+
+var OwnedUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: ownedType,
+}
+
+func OwnedUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: OwnedUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func OwnedDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[belongsto.Owned] {
+
+var OwnedDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: ownedType,
+}
+
+func OwnedDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: OwnedDeletedAtField,
+		Operator:        operator,
 	}
 }
 func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.IJoinCondition[belongsto.Owned] {
@@ -43,14 +68,17 @@ func OwnedOwner(conditions ...badorm.Condition[belongsto.Owner]) badorm.IJoinCon
 }
 
 var OwnedPreloadOwner = OwnedOwner(OwnerPreloadAttributes)
-var ownedOwnerIdFieldID = badorm.FieldIdentifier{Field: "OwnerID"}
+var OwnedOwnerIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "OwnerID",
+	ModelType: ownedType,
+}
 
-func OwnedOwnerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
+func OwnedOwnerId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[belongsto.Owned] {
 	return badorm.FieldCondition[belongsto.Owned, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: ownedOwnerIdFieldID,
+		FieldIdentifier: OwnedOwnerIdField,
+		Operator:        operator,
 	}
 }
 
-var OwnedPreloadAttributes = badorm.NewPreloadCondition[belongsto.Owned](ownedOwnerIdFieldID)
+var OwnedPreloadAttributes = badorm.NewPreloadCondition[belongsto.Owned](OwnedIdField, OwnedCreatedAtField, OwnedUpdatedAtField, OwnedDeletedAtField, OwnedOwnerIdField)
 var OwnedPreloadRelations = []badorm.Condition[belongsto.Owned]{OwnedPreloadOwner}

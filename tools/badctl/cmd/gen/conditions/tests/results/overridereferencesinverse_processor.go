@@ -5,41 +5,69 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overridereferencesinverse "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overridereferencesinverse"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func ProcessorId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overridereferencesinverse.Processor] {
+var processorType = reflect.TypeOf(*new(overridereferencesinverse.Processor))
+var ProcessorIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: processorType,
+}
+
+func ProcessorId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overridereferencesinverse.Processor] {
 	return badorm.FieldCondition[overridereferencesinverse.Processor, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: ProcessorIdField,
+		Operator:        operator,
 	}
 }
-func ProcessorCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferencesinverse.Processor] {
+
+var ProcessorCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: processorType,
+}
+
+func ProcessorCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overridereferencesinverse.Processor] {
 	return badorm.FieldCondition[overridereferencesinverse.Processor, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: ProcessorCreatedAtField,
+		Operator:        operator,
 	}
 }
-func ProcessorUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overridereferencesinverse.Processor] {
+
+var ProcessorUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: processorType,
+}
+
+func ProcessorUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overridereferencesinverse.Processor] {
 	return badorm.FieldCondition[overridereferencesinverse.Processor, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: ProcessorUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func ProcessorDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overridereferencesinverse.Processor] {
+
+var ProcessorDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: processorType,
+}
+
+func ProcessorDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overridereferencesinverse.Processor] {
 	return badorm.FieldCondition[overridereferencesinverse.Processor, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: ProcessorDeletedAtField,
+		Operator:        operator,
 	}
 }
 
-var processorComputerNameFieldID = badorm.FieldIdentifier{Field: "ComputerName"}
+var ProcessorComputerNameField = badorm.FieldIdentifier[string]{
+	Field:     "ComputerName",
+	ModelType: processorType,
+}
 
-func ProcessorComputerName(expr badorm.Expression[string]) badorm.WhereCondition[overridereferencesinverse.Processor] {
+func ProcessorComputerName(operator badorm.Operator[string]) badorm.WhereCondition[overridereferencesinverse.Processor] {
 	return badorm.FieldCondition[overridereferencesinverse.Processor, string]{
-		Expression:      expr,
-		FieldIdentifier: processorComputerNameFieldID,
+		FieldIdentifier: ProcessorComputerNameField,
+		Operator:        operator,
 	}
 }
 
-var ProcessorPreloadAttributes = badorm.NewPreloadCondition[overridereferencesinverse.Processor](processorComputerNameFieldID)
+var ProcessorPreloadAttributes = badorm.NewPreloadCondition[overridereferencesinverse.Processor](ProcessorIdField, ProcessorCreatedAtField, ProcessorUpdatedAtField, ProcessorDeletedAtField, ProcessorComputerNameField)

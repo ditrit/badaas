@@ -5,32 +5,57 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overrideforeignkey "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overrideforeignkey"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func PersonId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkey.Person] {
+var personType = reflect.TypeOf(*new(overrideforeignkey.Person))
+var PersonIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: personType,
+}
+
+func PersonId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overrideforeignkey.Person] {
 	return badorm.FieldCondition[overrideforeignkey.Person, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
-	}
-}
-func PersonCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkey.Person] {
-	return badorm.FieldCondition[overrideforeignkey.Person, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
-	}
-}
-func PersonUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkey.Person] {
-	return badorm.FieldCondition[overrideforeignkey.Person, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
-	}
-}
-func PersonDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkey.Person] {
-	return badorm.FieldCondition[overrideforeignkey.Person, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: PersonIdField,
+		Operator:        operator,
 	}
 }
 
-var PersonPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkey.Person]()
+var PersonCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: personType,
+}
+
+func PersonCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkey.Person] {
+	return badorm.FieldCondition[overrideforeignkey.Person, time.Time]{
+		FieldIdentifier: PersonCreatedAtField,
+		Operator:        operator,
+	}
+}
+
+var PersonUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: personType,
+}
+
+func PersonUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkey.Person] {
+	return badorm.FieldCondition[overrideforeignkey.Person, time.Time]{
+		FieldIdentifier: PersonUpdatedAtField,
+		Operator:        operator,
+	}
+}
+
+var PersonDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: personType,
+}
+
+func PersonDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkey.Person] {
+	return badorm.FieldCondition[overrideforeignkey.Person, gorm.DeletedAt]{
+		FieldIdentifier: PersonDeletedAtField,
+		Operator:        operator,
+	}
+}
+
+var PersonPreloadAttributes = badorm.NewPreloadCondition[overrideforeignkey.Person](PersonIdField, PersonCreatedAtField, PersonUpdatedAtField, PersonDeletedAtField)

@@ -5,31 +5,56 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	hasmanywithpointers "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/hasmanywithpointers"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func SellerInPointersId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
+var sellerInPointersType = reflect.TypeOf(*new(hasmanywithpointers.SellerInPointers))
+var SellerInPointersIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: sellerInPointersType,
+}
+
+func SellerInPointersId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
 	return badorm.FieldCondition[hasmanywithpointers.SellerInPointers, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: SellerInPointersIdField,
+		Operator:        operator,
 	}
 }
-func SellerInPointersCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
+
+var SellerInPointersCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: sellerInPointersType,
+}
+
+func SellerInPointersCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
 	return badorm.FieldCondition[hasmanywithpointers.SellerInPointers, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: SellerInPointersCreatedAtField,
+		Operator:        operator,
 	}
 }
-func SellerInPointersUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
+
+var SellerInPointersUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: sellerInPointersType,
+}
+
+func SellerInPointersUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
 	return badorm.FieldCondition[hasmanywithpointers.SellerInPointers, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: SellerInPointersUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func SellerInPointersDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
+
+var SellerInPointersDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: sellerInPointersType,
+}
+
+func SellerInPointersDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
 	return badorm.FieldCondition[hasmanywithpointers.SellerInPointers, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: SellerInPointersDeletedAtField,
+		Operator:        operator,
 	}
 }
 func SellerInPointersCompany(conditions ...badorm.Condition[hasmanywithpointers.CompanyWithPointers]) badorm.IJoinCondition[hasmanywithpointers.SellerInPointers] {
@@ -43,14 +68,17 @@ func SellerInPointersCompany(conditions ...badorm.Condition[hasmanywithpointers.
 }
 
 var SellerInPointersPreloadCompany = SellerInPointersCompany(CompanyWithPointersPreloadAttributes)
-var sellerInPointersCompanyIdFieldID = badorm.FieldIdentifier{Field: "CompanyID"}
+var SellerInPointersCompanyIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "CompanyID",
+	ModelType: sellerInPointersType,
+}
 
-func SellerInPointersCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
+func SellerInPointersCompanyId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[hasmanywithpointers.SellerInPointers] {
 	return badorm.FieldCondition[hasmanywithpointers.SellerInPointers, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: sellerInPointersCompanyIdFieldID,
+		FieldIdentifier: SellerInPointersCompanyIdField,
+		Operator:        operator,
 	}
 }
 
-var SellerInPointersPreloadAttributes = badorm.NewPreloadCondition[hasmanywithpointers.SellerInPointers](sellerInPointersCompanyIdFieldID)
+var SellerInPointersPreloadAttributes = badorm.NewPreloadCondition[hasmanywithpointers.SellerInPointers](SellerInPointersIdField, SellerInPointersCreatedAtField, SellerInPointersUpdatedAtField, SellerInPointersDeletedAtField, SellerInPointersCompanyIdField)
 var SellerInPointersPreloadRelations = []badorm.Condition[hasmanywithpointers.SellerInPointers]{SellerInPointersPreloadCompany}

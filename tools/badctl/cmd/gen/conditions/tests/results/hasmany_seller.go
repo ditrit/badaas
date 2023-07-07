@@ -5,31 +5,56 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	hasmany "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/hasmany"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func SellerId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasmany.Seller] {
+var sellerType = reflect.TypeOf(*new(hasmany.Seller))
+var SellerIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: sellerType,
+}
+
+func SellerId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[hasmany.Seller] {
 	return badorm.FieldCondition[hasmany.Seller, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: SellerIdField,
+		Operator:        operator,
 	}
 }
-func SellerCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[hasmany.Seller] {
+
+var SellerCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: sellerType,
+}
+
+func SellerCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[hasmany.Seller] {
 	return badorm.FieldCondition[hasmany.Seller, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: SellerCreatedAtField,
+		Operator:        operator,
 	}
 }
-func SellerUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[hasmany.Seller] {
+
+var SellerUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: sellerType,
+}
+
+func SellerUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[hasmany.Seller] {
 	return badorm.FieldCondition[hasmany.Seller, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: SellerUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func SellerDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[hasmany.Seller] {
+
+var SellerDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: sellerType,
+}
+
+func SellerDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[hasmany.Seller] {
 	return badorm.FieldCondition[hasmany.Seller, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: SellerDeletedAtField,
+		Operator:        operator,
 	}
 }
 func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.IJoinCondition[hasmany.Seller] {
@@ -43,14 +68,17 @@ func SellerCompany(conditions ...badorm.Condition[hasmany.Company]) badorm.IJoin
 }
 
 var SellerPreloadCompany = SellerCompany(CompanyPreloadAttributes)
-var sellerCompanyIdFieldID = badorm.FieldIdentifier{Field: "CompanyID"}
+var SellerCompanyIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "CompanyID",
+	ModelType: sellerType,
+}
 
-func SellerCompanyId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[hasmany.Seller] {
+func SellerCompanyId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[hasmany.Seller] {
 	return badorm.FieldCondition[hasmany.Seller, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: sellerCompanyIdFieldID,
+		FieldIdentifier: SellerCompanyIdField,
+		Operator:        operator,
 	}
 }
 
-var SellerPreloadAttributes = badorm.NewPreloadCondition[hasmany.Seller](sellerCompanyIdFieldID)
+var SellerPreloadAttributes = badorm.NewPreloadCondition[hasmany.Seller](SellerIdField, SellerCreatedAtField, SellerUpdatedAtField, SellerDeletedAtField, SellerCompanyIdField)
 var SellerPreloadRelations = []badorm.Condition[hasmany.Seller]{SellerPreloadCompany}

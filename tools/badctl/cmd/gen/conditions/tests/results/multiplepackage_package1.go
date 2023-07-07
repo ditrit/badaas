@@ -6,31 +6,56 @@ import (
 	package1 "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/multiplepackage/package1"
 	package2 "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/multiplepackage/package2"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func Package1Id(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[package1.Package1] {
+var package1Type = reflect.TypeOf(*new(package1.Package1))
+var Package1IdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: package1Type,
+}
+
+func Package1Id(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: Package1IdField,
+		Operator:        operator,
 	}
 }
-func Package1CreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[package1.Package1] {
+
+var Package1CreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: package1Type,
+}
+
+func Package1CreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: Package1CreatedAtField,
+		Operator:        operator,
 	}
 }
-func Package1UpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[package1.Package1] {
+
+var Package1UpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: package1Type,
+}
+
+func Package1UpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: Package1UpdatedAtField,
+		Operator:        operator,
 	}
 }
-func Package1DeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[package1.Package1] {
+
+var Package1DeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: package1Type,
+}
+
+func Package1DeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[package1.Package1] {
 	return badorm.FieldCondition[package1.Package1, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: Package1DeletedAtField,
+		Operator:        operator,
 	}
 }
 func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.IJoinCondition[package1.Package1] {
@@ -44,5 +69,5 @@ func Package1Package2(conditions ...badorm.Condition[package2.Package2]) badorm.
 }
 
 var Package1PreloadPackage2 = Package1Package2(Package2PreloadAttributes)
-var Package1PreloadAttributes = badorm.NewPreloadCondition[package1.Package1]()
+var Package1PreloadAttributes = badorm.NewPreloadCondition[package1.Package1](Package1IdField, Package1CreatedAtField, Package1UpdatedAtField, Package1DeletedAtField)
 var Package1PreloadRelations = []badorm.Condition[package1.Package1]{Package1PreloadPackage2}

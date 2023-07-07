@@ -5,31 +5,56 @@ import (
 	badorm "github.com/ditrit/badaas/badorm"
 	overrideforeignkey "github.com/ditrit/badaas/tools/badctl/cmd/gen/conditions/tests/overrideforeignkey"
 	gorm "gorm.io/gorm"
+	"reflect"
 	"time"
 )
 
-func BicycleId(expr badorm.Expression[badorm.UUID]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
+var bicycleType = reflect.TypeOf(*new(overrideforeignkey.Bicycle))
+var BicycleIdField = badorm.FieldIdentifier[badorm.UUID]{
+	Field:     "ID",
+	ModelType: bicycleType,
+}
+
+func BicycleId(operator badorm.Operator[badorm.UUID]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, badorm.UUID]{
-		Expression:      expr,
-		FieldIdentifier: badorm.IDFieldID,
+		FieldIdentifier: BicycleIdField,
+		Operator:        operator,
 	}
 }
-func BicycleCreatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
+
+var BicycleCreatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "CreatedAt",
+	ModelType: bicycleType,
+}
+
+func BicycleCreatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.CreatedAtFieldID,
+		FieldIdentifier: BicycleCreatedAtField,
+		Operator:        operator,
 	}
 }
-func BicycleUpdatedAt(expr badorm.Expression[time.Time]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
+
+var BicycleUpdatedAtField = badorm.FieldIdentifier[time.Time]{
+	Field:     "UpdatedAt",
+	ModelType: bicycleType,
+}
+
+func BicycleUpdatedAt(operator badorm.Operator[time.Time]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, time.Time]{
-		Expression:      expr,
-		FieldIdentifier: badorm.UpdatedAtFieldID,
+		FieldIdentifier: BicycleUpdatedAtField,
+		Operator:        operator,
 	}
 }
-func BicycleDeletedAt(expr badorm.Expression[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
+
+var BicycleDeletedAtField = badorm.FieldIdentifier[gorm.DeletedAt]{
+	Field:     "DeletedAt",
+	ModelType: bicycleType,
+}
+
+func BicycleDeletedAt(operator badorm.Operator[gorm.DeletedAt]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, gorm.DeletedAt]{
-		Expression:      expr,
-		FieldIdentifier: badorm.DeletedAtFieldID,
+		FieldIdentifier: BicycleDeletedAtField,
+		Operator:        operator,
 	}
 }
 func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) badorm.IJoinCondition[overrideforeignkey.Bicycle] {
@@ -43,14 +68,17 @@ func BicycleOwner(conditions ...badorm.Condition[overrideforeignkey.Person]) bad
 }
 
 var BicyclePreloadOwner = BicycleOwner(PersonPreloadAttributes)
-var bicycleOwnerSomethingIdFieldID = badorm.FieldIdentifier{Field: "OwnerSomethingID"}
+var BicycleOwnerSomethingIdField = badorm.FieldIdentifier[string]{
+	Field:     "OwnerSomethingID",
+	ModelType: bicycleType,
+}
 
-func BicycleOwnerSomethingId(expr badorm.Expression[string]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
+func BicycleOwnerSomethingId(operator badorm.Operator[string]) badorm.WhereCondition[overrideforeignkey.Bicycle] {
 	return badorm.FieldCondition[overrideforeignkey.Bicycle, string]{
-		Expression:      expr,
-		FieldIdentifier: bicycleOwnerSomethingIdFieldID,
+		FieldIdentifier: BicycleOwnerSomethingIdField,
+		Operator:        operator,
 	}
 }
 
-var BicyclePreloadAttributes = badorm.NewPreloadCondition[overrideforeignkey.Bicycle](bicycleOwnerSomethingIdFieldID)
+var BicyclePreloadAttributes = badorm.NewPreloadCondition[overrideforeignkey.Bicycle](BicycleIdField, BicycleCreatedAtField, BicycleUpdatedAtField, BicycleDeletedAtField, BicycleOwnerSomethingIdField)
 var BicyclePreloadRelations = []badorm.Condition[overrideforeignkey.Bicycle]{BicyclePreloadOwner}
