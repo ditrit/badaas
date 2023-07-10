@@ -39,9 +39,9 @@ func (operator *ValueOperator[T]) SelectJoin(operationNumber, joinNumber uint) D
 		return operator
 	}
 
-	operation := operator.operations[operationNumber]
-	operation.JoinNumber = int(joinNumber)
-	operator.operations[operationNumber] = operation
+	operationSaved := operator.operations[operationNumber]
+	operationSaved.JoinNumber = int(joinNumber)
+	operator.operations[operationNumber] = operationSaved
 
 	return operator
 }
