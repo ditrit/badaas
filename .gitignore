@@ -32,9 +32,14 @@ testintegration/sqlite:*
 
 # binary output
 badaas
+!docs/badaas/
 badctl
 !tools/badctl/
+!docs/badctl/
 
 # test results
 tools/badctl/cmd/gen/conditions/*_conditions.go
 tools/badctl/cmd/gen/conditions/tests/**/badorm.go
+
+# Sphinx documentation
+docs/_build/
