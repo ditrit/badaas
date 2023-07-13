@@ -49,4 +49,5 @@ Index
 
    badorm/index
    badorm/quickstart
+   badorm/concepts
    badorm/functionalities
