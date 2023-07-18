@@ -5,7 +5,9 @@ Installation
 Install with go install
 -----------------------------------
 
-For simply installing it, use::
+For simply installing it, use
+
+.. code-block:: bash
 
     go install github.com/ditrit/badaas/tools/badctl
 

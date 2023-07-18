@@ -1,15 +1,17 @@
-package badorm
+package unsafe
 
 import (
 	"fmt"
 	"reflect"
 
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
 )
 
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID
-type CRUDUnsafeRepository[T Model, ID ModelID] interface {
+type CRUDRepository[T badorm.Model, ID badorm.ModelID] interface {
 	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
 }
 
@@ -26,20 +28,20 @@ var (
 )
 
 // Implementation of the Generic CRUD Repository
-type CRUDUnsafeRepositoryImpl[T Model, ID ModelID] struct {
-	CRUDUnsafeRepository[T, ID]
+type CRUDRepositoryImpl[T badorm.Model, ID badorm.ModelID] struct {
+	CRUDRepository[T, ID]
 }
 
 // Constructor of the Generic CRUD Repository
-func NewCRUDUnsafeRepository[T Model, ID ModelID]() CRUDUnsafeRepository[T, ID] {
-	return &CRUDUnsafeRepositoryImpl[T, ID]{}
+func NewCRUDRepository[T badorm.Model, ID badorm.ModelID]() CRUDRepository[T, ID] {
+	return &CRUDRepositoryImpl[T, ID]{}
 }
 
 // Get the list of objects that match "conditions" inside transaction "tx"
 // "conditions" is in {"attributeName": expectedValue} format
 // in case of join "conditions" can have the format:
 // {"relationAttributeName": {"attributeName": expectedValue}}
-func (repository *CRUDUnsafeRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
+func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
 	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
 	if err != nil {
 		return nil, err
@@ -53,7 +55,7 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, cond
 	for joinAttributeName, joinConditions := range joinConditions {
 		var tableName string
 
-		tableName, err = getTableName(tx, entity)
+		tableName, err = badorm.GetTableName(tx, entity)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +85,7 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, cond
 // "conditions" is in {"attributeName": expectedValue} format
 // "previousEntity" is a pointer to a object from where we navigate the relationship
 // "previousTableName" is the name of the table where the previous object is saved and from we the join will we done
-func (repository *CRUDUnsafeRepositoryImpl[T, ID]) addJoinToQuery(
+func (repository *CRUDRepositoryImpl[T, ID]) addJoinToQuery(
 	query *gorm.DB, previousEntity any,
 	previousTableName, joinAttributeName string,
 	conditions map[string]any,
@@ -101,7 +103,7 @@ func (repository *CRUDUnsafeRepositoryImpl[T, ID]) addJoinToQuery(
 		return err
 	}
 
-	joinTableName, err := getTableName(query, relatedObject)
+	joinTableName, err := badorm.GetTableName(query, relatedObject)
 	if err != nil {
 		return err
 	}
@@ -184,7 +186,7 @@ func divideConditionsByEntity(
 	for attributeName, expectedValue := range conditions {
 		switch typedExpectedValue := expectedValue.(type) {
 		case string:
-			uuid, err := ParseUUID(typedExpectedValue)
+			uuid, err := badorm.ParseUUID(typedExpectedValue)
 			if err == nil {
 				thisEntityConditions[attributeName] = uuid
 			} else {
@@ -207,7 +209,7 @@ func divideConditionsByEntity(
 // in the database is in the "entity"'s table.
 // Returns error if "entity" not a relation called "relationName".
 func getRelatedObject(entity any, relationName string) (any, bool, error) {
-	entityType := getEntityType(entity)
+	entityType := badorm.GetEntityType(entity)
 
 	field, isPresent := entityType.FieldByName(relationName)
 	if !isPresent {
@@ -223,18 +225,6 @@ func getRelatedObject(entity any, relationName string) (any, bool, error) {
 	_, isIDPresent := entityType.FieldByName(relationName + "ID")
 
 	return createObject(field.Type), isIDPresent, nil
-}
-
-// Get the reflect.Type of any entity or pointer to entity
-func getEntityType(entity any) reflect.Type {
-	entityType := reflect.TypeOf(entity)
-
-	// entityType will be a pointer if the relation can be nullable
-	if entityType.Kind() == reflect.Pointer {
-		entityType = entityType.Elem()
-	}
-
-	return entityType
 }
 
 // Returns an object of the type of the "entity" attribute called "relationName" + "ID"

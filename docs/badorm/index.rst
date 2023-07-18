@@ -1,5 +1,5 @@
 ==============================
-BaDORM |version|
+Introduction
 ==============================
 
 BaDORM stands for Backend and Distribution ORM (Object Relational Mapping). 
@@ -34,28 +34,3 @@ BaDORM seeks to address these limitations with a query system that:
   that all the necessary model data can be retrieved in a single query to the database.
 
 To quickly see how BaDORM can be used you can read the :doc:`quickstart`.
-
-.. TODO
-.. conceptos
-..    model
-..    service
-..    repositorio
-..    transaccion
-..    conditions: dynamic, multitype, unsafe
-..    operators
-..    stand-alone: stand-alone (otra vez?) y con fx
-..    migracion
-..    gorm tags
-..    mysql, sqlserver, etc
-..    preloading
-..    coneccion a la base de datos
-..    errores?
-..    uuid
-
-.. definicion del modelo: gorm, gorm tags, base models, uuid, relaciones, punteros, etc
-.. persistencia: getModels y automigracion
-.. connecion a la base de datos, bases de datos soportadas
-.. Generacion de condiciones
-.. Creacion de los servicios y repositorios
-.. utilizacion de las condiciones y operadores
-.. preloading y getters

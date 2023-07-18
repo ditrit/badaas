@@ -1,5 +1,6 @@
 ==============================
-BaDctl |version|
+Introduction
 ==============================
 
-`badctl` is the command line tool that makes it possible to configure and run your BaDaaS applications easily.
+`badctl` is the command line tool that makes it possible to configure 
+and run your BaDaaS applications easily.

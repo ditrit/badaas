@@ -1,29 +1,30 @@
-package badorm
+package unsafe
 
 import (
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/badorm"
 )
 
 // T can be any model whose identifier attribute is of type ID
-type CRUDUnsafeService[T Model, ID ModelID] interface {
+type CRUDService[T badorm.Model, ID badorm.ModelID] interface {
 	GetEntities(conditions map[string]any) ([]*T, error)
 }
 
 // check interface compliance
-var _ CRUDUnsafeService[UUIDModel, UUID] = (*crudUnsafeServiceImpl[UUIDModel, UUID])(nil)
+var _ CRUDService[badorm.UUIDModel, badorm.UUID] = (*crudServiceImpl[badorm.UUIDModel, badorm.UUID])(nil)
 
 // Implementation of the CRUD Service
-type crudUnsafeServiceImpl[T Model, ID ModelID] struct {
-	CRUDService[T, ID]
+type crudServiceImpl[T badorm.Model, ID badorm.ModelID] struct {
 	db         *gorm.DB
-	repository CRUDUnsafeRepository[T, ID]
+	repository CRUDRepository[T, ID]
 }
 
-func NewCRUDUnsafeService[T Model, ID ModelID](
+func NewCRUDUnsafeService[T badorm.Model, ID badorm.ModelID](
 	db *gorm.DB,
-	repository CRUDUnsafeRepository[T, ID],
-) CRUDUnsafeService[T, ID] {
-	return &crudUnsafeServiceImpl[T, ID]{
+	repository CRUDRepository[T, ID],
+) CRUDService[T, ID] {
+	return &crudServiceImpl[T, ID]{
 		db:         db,
 		repository: repository,
 	}
@@ -33,6 +34,6 @@ func NewCRUDUnsafeService[T Model, ID ModelID](
 // "params" is in {"attributeName": expectedValue} format
 // in case of join "params" can have the format:
 // {"relationAttributeName": {"attributeName": expectedValue}}
-func (service *crudUnsafeServiceImpl[T, ID]) GetEntities(conditions map[string]any) ([]*T, error) {
+func (service *crudServiceImpl[T, ID]) GetEntities(conditions map[string]any) ([]*T, error) {
 	return service.repository.GetMultiple(service.db, conditions)
 }

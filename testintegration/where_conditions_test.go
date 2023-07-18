@@ -37,33 +37,33 @@ func NewWhereConditionsIntTestSuite(
 	}
 }
 
-// ------------------------- GetEntity --------------------------------
+// ------------------------- GetByID --------------------------------
 
 func (ts *WhereConditionsIntTestSuite) TestGetEntityReturnsErrorIfNotEntityCreated() {
-	_, err := ts.crudProductService.GetEntity(badorm.NilUUID)
+	_, err := ts.crudProductService.GetByID(badorm.NilUUID)
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *WhereConditionsIntTestSuite) TestGetEntityReturnsErrorIfNotEntityMatch() {
 	ts.createProduct("", 0, 0, false, nil)
 
-	_, err := ts.crudProductService.GetEntity(badorm.NewUUID())
+	_, err := ts.crudProductService.GetByID(badorm.NewUUID())
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *WhereConditionsIntTestSuite) TestGetEntityReturnsTheEntityIfItIsCreate() {
 	match := ts.createProduct("", 0, 0, false, nil)
 
-	entity, err := ts.crudProductService.GetEntity(match.ID)
+	entity, err := ts.crudProductService.GetByID(match.ID)
 	ts.Nil(err)
 
 	assert.DeepEqual(ts.T(), match, entity)
 }
 
-// ------------------------- GetEntities --------------------------------
+// ------------------------- Query --------------------------------
 
 func (ts *WhereConditionsIntTestSuite) TestGetEntitiesReturnsEmptyIfNotEntitiesCreated() {
-	entities, err := ts.crudProductService.GetEntities()
+	entities, err := ts.crudProductService.Query()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{}, entities)
@@ -72,7 +72,7 @@ func (ts *WhereConditionsIntTestSuite) TestGetEntitiesReturnsEmptyIfNotEntitiesC
 func (ts *WhereConditionsIntTestSuite) TestGetEntitiesReturnsTheOnlyOneIfOneEntityCreated() {
 	match := ts.createProduct("", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities()
+	entities, err := ts.crudProductService.Query()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -83,14 +83,14 @@ func (ts *WhereConditionsIntTestSuite) TestGetEntitiesReturnsTheListWhenMultiple
 	match2 := ts.createProduct("", 0, 0, false, nil)
 	match3 := ts.createProduct("", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities()
+	entities, err := ts.crudProductService.Query()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
 }
 
 func (ts *WhereConditionsIntTestSuite) TestConditionsReturnsEmptyIfNotEntitiesCreated() {
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			badorm.Eq("not_created"),
 		),
@@ -103,7 +103,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionsReturnsEmptyIfNotEntitiesCr
 func (ts *WhereConditionsIntTestSuite) TestConditionsReturnsEmptyIfNothingMatch() {
 	ts.createProduct("something_else", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			badorm.Eq("not_match"),
 		),
@@ -117,7 +117,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionsReturnsOneIfOnlyOneMatch() 
 	match := ts.createProduct("match", 0, 0, false, nil)
 	ts.createProduct("not_match", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			badorm.Eq("match"),
 		),
@@ -132,7 +132,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionsReturnsMultipleIfMultipleMa
 	match2 := ts.createProduct("match", 0, 0, false, nil)
 	ts.createProduct("not_match", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			badorm.Eq("match"),
 		),
@@ -146,7 +146,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfIntType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.Eq(1),
 		),
@@ -160,7 +160,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfFloatType() {
 	match := ts.createProduct("match", 0, 1.1, false, nil)
 	ts.createProduct("not_match", 0, 2.2, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductFloat(
 			badorm.Eq(1.1),
 		),
@@ -174,7 +174,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfBoolType() {
 	match := ts.createProduct("match", 0, 0.0, true, nil)
 	ts.createProduct("not_match", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductBool(
 			badorm.Eq(true),
 		),
@@ -191,7 +191,7 @@ func (ts *WhereConditionsIntTestSuite) TestMultipleConditionsOfDifferentTypesWor
 	ts.createProduct("not_match", 1, 0.0, true, nil)
 	ts.createProduct("match", 2, 0.0, true, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(badorm.Eq("match")),
 		conditions.ProductInt(badorm.Eq(1)),
 		conditions.ProductBool(badorm.Eq(true)),
@@ -205,7 +205,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfID() {
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductId(
 			badorm.Eq(match.ID),
 		),
@@ -219,7 +219,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfCreatedAt() {
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductCreatedAt(badorm.Eq(match.CreatedAt)),
 	)
 	ts.Nil(err)
@@ -233,7 +233,7 @@ func (ts *WhereConditionsIntTestSuite) TestDeletedAtConditionIsAddedAutomaticall
 
 	ts.Nil(ts.db.Delete(deleted).Error)
 
-	entities, err := ts.crudProductService.GetEntities()
+	entities, err := ts.crudProductService.Query()
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -247,7 +247,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfDeletedAtNotNil() {
 
 	ts.Nil(ts.db.Delete(match).Error)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductDeletedAt(badorm.Eq(match.DeletedAt)),
 	)
 	ts.Nil(err)
@@ -264,7 +264,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfEmbedded() {
 	err := ts.db.Save(match).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductToBeEmbeddedEmbeddedInt(badorm.Eq(1)),
 	)
 	ts.Nil(err)
@@ -281,7 +281,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfGormEmbedded() {
 	err := ts.db.Save(match).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductGormEmbeddedInt(badorm.Eq(1)),
 	)
 	ts.Nil(err)
@@ -296,7 +296,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfPointerTypeWithValue() {
 	ts.createProduct("not_match", 2, 0, false, &intNotMatch)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(badorm.Eq(1)),
 	)
 	ts.Nil(err)
@@ -318,7 +318,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfByteArrayWithContent() {
 	err = ts.db.Save(notMatch1).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductByteArray(badorm.Eq([]byte{1, 2})),
 	)
 	ts.Nil(err)
@@ -340,7 +340,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfByteArrayEmpty() {
 	err = ts.db.Save(notMatch1).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductByteArray(badorm.Eq([]byte{})),
 	)
 	ts.Nil(err)
@@ -362,7 +362,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfCustomType() {
 	err = ts.db.Save(notMatch1).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductMultiString(badorm.Eq(models.MultiString{"salut", "hola"})),
 	)
 	ts.Nil(err)
@@ -380,7 +380,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfRelationType() {
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProductId(badorm.Eq(product1.ID)),
 	)
 	ts.Nil(err)
@@ -398,7 +398,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfRelationTypeOptionalWithVa
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSellerId(badorm.Eq(seller1.ID)),
 	)
 	ts.Nil(err)
@@ -415,7 +415,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfRelationTypeOptionalByNil(
 	match := ts.createSale(0, product1, nil)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSellerId(badorm.IsNull[badorm.UUID]()),
 	)
 	ts.Nil(err)
@@ -427,7 +427,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionsOnUIntModel() {
 	match := ts.createBrand("match")
 	ts.createBrand("not_match")
 
-	entities, err := ts.crudBrandService.GetEntities(
+	entities, err := ts.crudBrandService.Query(
 		conditions.BrandName(badorm.Eq("match")),
 	)
 	ts.Nil(err)
@@ -441,7 +441,7 @@ func (ts *WhereConditionsIntTestSuite) TestMultipleConditionsAreConnectedByAnd()
 	ts.createProduct("not_match", 1, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(badorm.GtOrEq(3)),
 		conditions.ProductInt(badorm.LtOrEq(4)),
 		conditions.ProductString(badorm.Eq("match")),
@@ -458,7 +458,7 @@ func (ts *WhereConditionsIntTestSuite) TestNot() {
 	ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		badorm.Not(conditions.ProductInt(badorm.Eq(2))),
 	)
 	ts.Nil(err)
@@ -473,7 +473,7 @@ func (ts *WhereConditionsIntTestSuite) TestNotWithMultipleConditionsAreConnected
 	ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		badorm.Not(
 			conditions.ProductInt(badorm.Gt(1)),
 			conditions.ProductInt(badorm.Lt(4)),
@@ -492,7 +492,7 @@ func (ts *WhereConditionsIntTestSuite) TestOr() {
 	ts.createProduct("not_match", 1, 0, false, nil)
 	ts.createProduct("not_match", 4, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		badorm.Or(
 			conditions.ProductInt(badorm.Eq(2)),
 			conditions.ProductInt(badorm.Eq(3)),
@@ -512,8 +512,8 @@ func (ts *WhereConditionsIntTestSuite) TestNotOr() {
 	ts.createProduct("not_match", 2, 0, false, nil)
 	ts.createProduct("not_match_string", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
-		badorm.Not[models.Product](
+	entities, err := ts.crudProductService.Query(
+		badorm.Not(
 			badorm.Or(
 				conditions.ProductInt(badorm.Eq(2)),
 				conditions.ProductString(badorm.Eq("not_match_string")),
@@ -545,7 +545,7 @@ func (ts *WhereConditionsIntTestSuite) TestXor() {
 	}
 
 	if xorCondition != nil {
-		entities, err := ts.crudProductService.GetEntities(xorCondition)
+		entities, err := ts.crudProductService.Query(xorCondition)
 		ts.Nil(err)
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
@@ -559,7 +559,7 @@ func (ts *WhereConditionsIntTestSuite) TestMultipleConditionsDifferentOperators(
 	ts.createProduct("not_match", 1, 0.0, true, nil)
 	ts.createProduct("match", 2, 0.0, true, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(badorm.Eq("match")),
 		conditions.ProductInt(badorm.Lt(2)),
 		conditions.ProductBool(badorm.NotEq(false)),
@@ -575,7 +575,7 @@ func (ts *WhereConditionsIntTestSuite) TestUnsafeCondition() {
 
 	ts.createProduct("not_match", 2, 0.0, true, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		unsafe.NewCondition[models.Product]("%s.int = ?", 1),
 	)
 	ts.Nil(err)
@@ -587,7 +587,7 @@ func (ts *WhereConditionsIntTestSuite) TestEmptyConnectionConditionMakesNothing(
 	match1 := ts.createProduct("match", 1, 0.0, true, nil)
 	match2 := ts.createProduct("match", 1, 0.0, true, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		badorm.And[models.Product](),
 	)
 	ts.Nil(err)
@@ -596,7 +596,7 @@ func (ts *WhereConditionsIntTestSuite) TestEmptyConnectionConditionMakesNothing(
 }
 
 func (ts *WhereConditionsIntTestSuite) TestEmptyContainerConditionReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		badorm.Not[models.Product](),
 	)
 	ts.ErrorIs(err, badorm.ErrEmptyConditions)

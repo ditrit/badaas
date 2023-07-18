@@ -6,6 +6,7 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services"
@@ -77,7 +78,7 @@ func GetCRUDRoutesModule[T badorm.Model]() fx.Option {
 		typeName+"CRUDRoutesModule",
 		// service
 		badorm.GetCRUDServiceModule[T](),
-		badorm.GetCRUDUnsafeServiceModule[T](),
+		unsafe.GetCRUDServiceModule[T](),
 
 		// controller
 		fx.Provide(

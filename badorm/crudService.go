@@ -6,9 +6,8 @@ import (
 
 // T can be any model whose identifier attribute is of type ID
 type CRUDService[T Model, ID ModelID] interface {
-	GetEntity(id ID) (*T, error)
-	// GetEntities(conditions map[string]any) ([]*T, error)
-	GetEntities(conditions ...Condition[T]) ([]*T, error)
+	GetByID(id ID) (*T, error)
+	Query(conditions ...Condition[T]) ([]*T, error)
 }
 
 // check interface compliance
@@ -32,11 +31,11 @@ func NewCRUDService[T Model, ID ModelID](
 }
 
 // Get the object of type T that has the "id"
-func (service *crudServiceImpl[T, ID]) GetEntity(id ID) (*T, error) {
+func (service *crudServiceImpl[T, ID]) GetByID(id ID) (*T, error) {
 	return service.repository.GetByID(service.db, id)
 }
 
 // Get entities of type T that match all "conditions"
-func (service *crudServiceImpl[T, ID]) GetEntities(conditions ...Condition[T]) ([]*T, error) {
-	return service.repository.GetMultiple(service.db, conditions...)
+func (service *crudServiceImpl[T, ID]) Query(conditions ...Condition[T]) ([]*T, error) {
+	return service.repository.Query(service.db, conditions...)
 }

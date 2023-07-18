@@ -14,6 +14,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/logger"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -57,17 +58,17 @@ func TestBaDORM(t *testing.T) {
 		badorm.GetCRUDServiceModule[models.Brand](),
 		badorm.GetCRUDServiceModule[models.Child](),
 
-		badorm.GetCRUDUnsafeServiceModule[models.Company](),
-		badorm.GetCRUDUnsafeServiceModule[models.Seller](),
-		badorm.GetCRUDUnsafeServiceModule[models.Product](),
-		badorm.GetCRUDUnsafeServiceModule[models.Sale](),
-		badorm.GetCRUDUnsafeServiceModule[models.City](),
-		badorm.GetCRUDUnsafeServiceModule[models.Country](),
-		badorm.GetCRUDUnsafeServiceModule[models.Employee](),
-		badorm.GetCRUDUnsafeServiceModule[models.Person](),
-		badorm.GetCRUDUnsafeServiceModule[models.Bicycle](),
-		badorm.GetCRUDUnsafeServiceModule[models.Phone](),
-		badorm.GetCRUDUnsafeServiceModule[models.Brand](),
+		unsafe.GetCRUDServiceModule[models.Company](),
+		unsafe.GetCRUDServiceModule[models.Seller](),
+		unsafe.GetCRUDServiceModule[models.Product](),
+		unsafe.GetCRUDServiceModule[models.Sale](),
+		unsafe.GetCRUDServiceModule[models.City](),
+		unsafe.GetCRUDServiceModule[models.Country](),
+		unsafe.GetCRUDServiceModule[models.Employee](),
+		unsafe.GetCRUDServiceModule[models.Person](),
+		unsafe.GetCRUDServiceModule[models.Bicycle](),
+		unsafe.GetCRUDServiceModule[models.Phone](),
+		unsafe.GetCRUDServiceModule[models.Brand](),
 
 		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),

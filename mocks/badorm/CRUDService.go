@@ -12,8 +12,34 @@ type CRUDService[T badorm.Model, ID badorm.ModelID] struct {
 	mock.Mock
 }
 
-// GetEntities provides a mock function with given fields: conditions
-func (_m *CRUDService[T, ID]) GetEntities(conditions ...badorm.Condition[T]) ([]*T, error) {
+// GetByID provides a mock function with given fields: id
+func (_m *CRUDService[T, ID]) GetByID(id ID) (*T, error) {
+	ret := _m.Called(id)
+
+	var r0 *T
+	var r1 error
+	if rf, ok := ret.Get(0).(func(ID) (*T, error)); ok {
+		return rf(id)
+	}
+	if rf, ok := ret.Get(0).(func(ID) *T); ok {
+		r0 = rf(id)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*T)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(ID) error); ok {
+		r1 = rf(id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// Query provides a mock function with given fields: conditions
+func (_m *CRUDService[T, ID]) Query(conditions ...badorm.Condition[T]) ([]*T, error) {
 	_va := make([]interface{}, len(conditions))
 	for _i := range conditions {
 		_va[_i] = conditions[_i]
@@ -37,32 +63,6 @@ func (_m *CRUDService[T, ID]) GetEntities(conditions ...badorm.Condition[T]) ([]
 
 	if rf, ok := ret.Get(1).(func(...badorm.Condition[T]) error); ok {
 		r1 = rf(conditions...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// GetEntity provides a mock function with given fields: id
-func (_m *CRUDService[T, ID]) GetEntity(id ID) (*T, error) {
-	ret := _m.Called(id)
-
-	var r0 *T
-	var r1 error
-	if rf, ok := ret.Get(0).(func(ID) (*T, error)); ok {
-		return rf(id)
-	}
-	if rf, ok := ret.Get(0).(func(ID) *T); ok {
-		r0 = rf(id)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*T)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(ID) error); ok {
-		r1 = rf(id)
 	} else {
 		r1 = ret.Error(1)
 	}

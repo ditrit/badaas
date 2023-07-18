@@ -143,12 +143,12 @@ func IsNotNull[T any]() PredicateOperator[T] {
 	return NewPredicateOperator[T]("IS NOT NULL")
 }
 
-// Equivalent to v1 < value < v2
+// Equivalent to v1 < attribute < v2
 func Between[T any](v1 T, v2 T) Operator[T] {
 	return NewMultivalueOperator(badormSQL.Between, badormSQL.And, "", "", v1, v2)
 }
 
-// Equivalent to NOT (v1 < value < v2)
+// Equivalent to NOT (v1 < attribute < v2)
 func NotBetween[T any](v1 T, v2 T) Operator[T] {
 	return NewMultivalueOperator(badormSQL.NotBetween, badormSQL.And, "", "", v1, v2)
 }

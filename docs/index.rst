@@ -1,7 +1,7 @@
 .. _topics-index:
 
 ==============================
-BaDaaS |version| documentation
+Introduction
 ==============================
 
 Badaas enables the effortless construction of **distributed, resilient, 
@@ -33,6 +33,7 @@ Index
 .. toctree::
    :caption: BaDaaS
 
+   self
    badaas/quickstart
    badaas/functionalities
    badaas/configuration
@@ -50,4 +51,9 @@ Index
    badorm/index
    badorm/quickstart
    badorm/concepts
-   badorm/functionalities
+   badorm/declaring_models
+   badorm/connecting_to_a_database
+   badorm/crud
+   badorm/query
+   badorm/advanced_query
+   badorm/preloading

@@ -132,7 +132,7 @@ func (sessionService *sessionServiceImpl) pullFromDB() {
 	sessionService.mutex.Lock()
 	defer sessionService.mutex.Unlock()
 
-	sessionsFromDatabase, err := sessionService.sessionRepository.GetAll(sessionService.db)
+	sessionsFromDatabase, err := sessionService.sessionRepository.Query(sessionService.db)
 	if err != nil {
 		panic(err)
 	}

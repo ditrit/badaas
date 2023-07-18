@@ -56,7 +56,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsUintBelongsTo() {
 	match := ts.createPhone("pixel", *brand1)
 	ts.createPhone("iphone", *brand2)
 
-	entities, err := ts.crudPhoneService.GetEntities(
+	entities, err := ts.crudPhoneService.Query(
 		conditions.PhoneBrand(
 			conditions.BrandName(badorm.Eq("google")),
 		),
@@ -73,7 +73,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsBelongsTo() {
 	match := ts.createSale(0, product1, nil)
 	ts.createSale(0, product2, nil)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			conditions.ProductInt(badorm.Eq(1)),
 		),
@@ -94,7 +94,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsAndFiltersTheMainEnt
 	ts.createSale(2, product2, seller2)
 	ts.createSale(2, product1, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleCode(badorm.Eq(1)),
 		conditions.SaleProduct(
 			conditions.ProductInt(badorm.Eq(1)),
@@ -115,7 +115,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsHasOneOptional() {
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
 			conditions.SellerName(badorm.Eq("franco")),
 		),
@@ -136,7 +136,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsHasOneSelfReferentia
 	match := ts.createEmployee("franco", boss1)
 	ts.createEmployee("pierre", boss2)
 
-	entities, err := ts.crudEmployeeService.GetEntities(
+	entities, err := ts.crudEmployeeService.Query(
 		conditions.EmployeeBoss(
 			conditions.EmployeeName(badorm.Eq("Xavier")),
 		),
@@ -157,7 +157,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOneToOne() {
 	ts.createCountry("Argentina", capital1)
 	ts.createCountry("France", capital2)
 
-	entities, err := ts.crudCityService.GetEntities(
+	entities, err := ts.crudCityService.Query(
 		conditions.CityCountry(
 			conditions.CountryName(badorm.Eq("Argentina")),
 		),
@@ -178,7 +178,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOneToOneReversed() {
 	country1 := ts.createCountry("Argentina", capital1)
 	ts.createCountry("France", capital2)
 
-	entities, err := ts.crudCountryService.GetEntities(
+	entities, err := ts.crudCountryService.Query(
 		conditions.CountryCapital(
 			conditions.CityName(badorm.Eq("Buenos Aires")),
 		),
@@ -199,7 +199,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsWithEntityThatDefine
 	match := ts.createBicycle("BMX", person1)
 	ts.createBicycle("Shimano", person2)
 
-	entities, err := ts.crudBicycleService.GetEntities(
+	entities, err := ts.crudBicycleService.Query(
 		conditions.BicycleOwner(
 			conditions.PersonName(badorm.Eq("franco")),
 		),
@@ -216,7 +216,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOnHasMany() {
 	match := ts.createSeller("franco", company1)
 	ts.createSeller("agustin", company2)
 
-	entities, err := ts.crudSellerService.GetEntities(
+	entities, err := ts.crudSellerService.Query(
 		conditions.SellerCompany(
 			conditions.CompanyName(badorm.Eq("ditrit")),
 		),
@@ -236,7 +236,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOnDifferentAttribute
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			conditions.ProductInt(badorm.Eq(1)),
 			conditions.ProductString(badorm.Eq("match")),
@@ -259,7 +259,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsAddsDeletedAtAutomat
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			conditions.ProductString(badorm.Eq("match")),
 		),
@@ -281,7 +281,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOnDeletedAt() {
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			conditions.ProductDeletedAt(badorm.Eq(product1.DeletedAt)),
 		),
@@ -299,7 +299,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsAndFiltersByNil() {
 	match := ts.createSale(0, product1, nil)
 	ts.createSale(0, product2, nil)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			conditions.ProductIntPointer(badorm.IsNull[int]()),
 		),
@@ -321,7 +321,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsDifferentEntities() 
 	ts.createSale(0, product1, seller2)
 	ts.createSale(0, product2, seller1)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			conditions.ProductInt(badorm.Eq(1)),
 		),
@@ -347,7 +347,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsMultipleTimes() {
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
 			conditions.SellerName(badorm.Eq("franco")),
 			conditions.SellerCompany(
@@ -367,7 +367,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorOver2Tables() {
 	seller1 := ts.createSeller("ditrit", company1)
 	ts.createSeller("agustin", company2)
 
-	entities, err := ts.crudSellerService.GetEntities(
+	entities, err := ts.crudSellerService.Query(
 		conditions.SellerCompany(
 			conditions.CompanyName(
 				dynamic.Eq(conditions.SellerNameField),
@@ -392,7 +392,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorOver2TablesAtMoreLevel(
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
 			conditions.SellerCompany(
 				conditions.CompanyName(
@@ -407,7 +407,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorOver2TablesAtMoreLevel(
 }
 
 func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorWithNotJoinedModelReturnsError() {
-	_, err := ts.crudChildService.GetEntities(
+	_, err := ts.crudChildService.Query(
 		conditions.ChildId(dynamic.Eq(conditions.ParentParentIdField)),
 	)
 	ts.ErrorIs(err, badorm.ErrFieldModelNotConcerned)
@@ -415,7 +415,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorWithNotJoinedModelRetur
 }
 
 func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithoutSelectJoinReturnsError() {
-	_, err := ts.crudChildService.GetEntities(
+	_, err := ts.crudChildService.Query(
 		conditions.ChildParent1(
 			conditions.Parent1ParentParent(),
 		),
@@ -436,7 +436,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSel
 	err := ts.db.Create(child).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudChildService.GetEntities(
+	entities, err := ts.crudChildService.Query(
 		conditions.ChildParent1(
 			conditions.Parent1ParentParent(),
 		),
@@ -453,7 +453,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSel
 }
 
 func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithoutSelectJoinOnMultivalueOperatorReturnsError() {
-	_, err := ts.crudChildService.GetEntities(
+	_, err := ts.crudChildService.Query(
 		conditions.ChildParent1(
 			conditions.Parent1ParentParent(),
 		),
@@ -476,7 +476,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSel
 	err := ts.db.Create(child).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudChildService.GetEntities(
+	entities, err := ts.crudChildService.Query(
 		conditions.ChildParent1(
 			conditions.Parent1ParentParent(),
 		),
@@ -505,7 +505,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinWithUnsafeCondition() {
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleSeller(
 			conditions.SellerCompany(
 				unsafe.NewCondition[models.Company]("%s.name = Seller.name"),
@@ -524,7 +524,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesN
 	match1 := ts.createSale(0, product1, nil)
 	match2 := ts.createSale(0, product2, nil)
 
-	entities, err := ts.crudSaleService.GetEntities(
+	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			badorm.And[models.Product](),
 		),
@@ -535,7 +535,7 @@ func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyConnectionConditionMakesN
 }
 
 func (ts *JoinConditionsIntTestSuite) TestJoinWithEmptyContainerConditionMakesNothing() {
-	_, err := ts.crudSaleService.GetEntities(
+	_, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
 			badorm.Not[models.Product](),
 		),

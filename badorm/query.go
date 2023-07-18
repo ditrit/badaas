@@ -21,7 +21,7 @@ func (t Table) IsInitial() bool {
 // Returns the related Table corresponding to the model
 func (t Table) DeliverTable(query *Query, model Model, relationName string) (Table, error) {
 	// get the name of the table for the model
-	tableName, err := getTableName(query.gormDB, model)
+	tableName, err := GetTableName(query.gormDB, model)
 	if err != nil {
 		return Table{}, err
 	}
@@ -139,7 +139,7 @@ func (query Query) ColumnName(table Table, fieldName string) string {
 func NewQuery[T Model](db *gorm.DB, conditions []Condition[T]) (*Query, error) {
 	model := *new(T)
 
-	initialTableName, err := getTableName(db, model)
+	initialTableName, err := GetTableName(db, model)
 	if err != nil {
 		return nil, err
 	}

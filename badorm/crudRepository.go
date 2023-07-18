@@ -16,8 +16,7 @@ type CRUDRepository[T Model, ID ModelID] interface {
 	// read
 	GetByID(tx *gorm.DB, id ID) (*T, error)
 	Get(tx *gorm.DB, conditions ...Condition[T]) (*T, error)
-	GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error)
-	GetAll(tx *gorm.DB) ([]*T, error)
+	Query(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error)
 	// update
 	Save(tx *gorm.DB, entity *T) error
 	// delete
@@ -68,7 +67,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, er
 
 // Get an object that matches "conditions" inside transaction "tx"
 func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Condition[T]) (*T, error) {
-	entities, err := repository.GetMultiple(tx, conditions...)
+	entities, err := repository.Query(tx, conditions...)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +83,7 @@ func (repository *CRUDRepositoryImpl[T, ID]) Get(tx *gorm.DB, conditions ...Cond
 }
 
 // Get the list of objects that match "conditions" inside transaction "tx"
-func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
+func (repository *CRUDRepositoryImpl[T, ID]) Query(tx *gorm.DB, conditions ...Condition[T]) ([]*T, error) {
 	query, err := NewQuery(tx, conditions)
 	if err != nil {
 		return nil, err
@@ -100,16 +99,11 @@ func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions
 // Get the name of the table in "db" in which the data for "entity" is saved
 // returns error is table name can not be found by gorm,
 // probably because the type of "entity" is not registered using AddModel
-func getTableName(db *gorm.DB, entity any) (string, error) {
+func GetTableName(db *gorm.DB, entity any) (string, error) {
 	schemaName, err := schema.Parse(entity, &sync.Map{}, db.NamingStrategy)
 	if err != nil {
 		return "", err
 	}
 
 	return schemaName.Table, nil
-}
-
-// Get the list of objects of type T
-func (repository *CRUDRepositoryImpl[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
-	return repository.GetMultiple(tx)
 }

@@ -73,22 +73,6 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 	assert.DeepEqual(ts.T(), product, productReturned)
 }
 
-// ------------------------- GetAll --------------------------------
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetAllReturnsEmptyIfNotEntitiesCreated() {
-	productsReturned, err := ts.crudProductRepository.GetAll(ts.db)
-	ts.Nil(err)
-	EqualList(&ts.Suite, []*models.Product{}, productsReturned)
-}
-
-func (ts *CRUDRepositoryIntTestSuite) TestGetAllReturnsAllEntityIfConditionsMatch() {
-	product1 := ts.createProduct(0)
-	product2 := ts.createProduct(0)
-	productsReturned, err := ts.crudProductRepository.GetAll(ts.db)
-	ts.Nil(err)
-	EqualList(&ts.Suite, []*models.Product{product1, product2}, productsReturned)
-}
-
 // ------------------------- utils -------------------------
 
 func (ts *CRUDRepositoryIntTestSuite) createProduct(intV int) *models.Product {

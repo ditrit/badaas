@@ -32,7 +32,7 @@ func GetCRUDServiceModule[T Model]() fx.Option {
 		entity,
 	)
 
-	kind := getBaDORMModelKind(entity)
+	kind := GetBaDORMModelKind(entity)
 	switch kind {
 	case KindUUIDModel:
 		return fx.Module(
@@ -52,64 +52,26 @@ func GetCRUDServiceModule[T Model]() fx.Option {
 		)
 	case KindNotBaDORMModel:
 		log.Printf("type %T is not a BaDORM Module\n", entity)
-		return fx.Invoke(failNotBadORMModule())
+		return fx.Invoke(FailNotBadORMModule())
 	}
 
-	return fx.Invoke(failNotBadORMModule())
+	return fx.Invoke(FailNotBadORMModule())
 }
 
-func failNotBadORMModule() error {
+func FailNotBadORMModule() error {
 	return fmt.Errorf("type is not a BaDORM Module")
 }
 
-func GetCRUDUnsafeServiceModule[T Model]() fx.Option {
-	entity := *new(T)
-
-	moduleName := fmt.Sprintf(
-		"%TCRUDUnsafeServiceModule",
-		entity,
-	)
-
-	kind := getBaDORMModelKind(entity)
-	switch kind {
-	case KindUUIDModel:
-		return fx.Module(
-			moduleName,
-			// models
-			fx.Invoke(AddUnsafeModel[T]),
-			// repository
-			fx.Provide(NewCRUDUnsafeRepository[T, UUID]),
-			// service
-			fx.Provide(NewCRUDUnsafeService[T, UUID]),
-		)
-	case KindUIntModel:
-		return fx.Module(
-			moduleName,
-			// models
-			fx.Invoke(AddUnsafeModel[T]),
-			// repository
-			fx.Provide(NewCRUDUnsafeRepository[T, UIntID]),
-			// service
-			fx.Provide(NewCRUDUnsafeService[T, UIntID]),
-		)
-	case KindNotBaDORMModel:
-		log.Printf("type %T is not a BaDORM Module\n", entity)
-		return fx.Invoke(failNotBadORMModule())
-	}
-
-	return fx.Invoke(failNotBadORMModule())
-}
-
-type modelKind uint
+type ModelKind uint
 
 const (
-	KindUUIDModel modelKind = iota
+	KindUUIDModel ModelKind = iota
 	KindUIntModel
 	KindNotBaDORMModel
 )
 
-func getBaDORMModelKind(entity Model) modelKind {
-	entityType := getEntityType(entity)
+func GetBaDORMModelKind(entity Model) ModelKind {
+	entityType := GetEntityType(entity)
 
 	_, isUUIDModel := entityType.FieldByName("UUIDModel")
 	if isUUIDModel {
@@ -124,10 +86,14 @@ func getBaDORMModelKind(entity Model) modelKind {
 	return KindNotBaDORMModel
 }
 
-var modelsMapping = map[string]reflect.Type{}
-
-func AddUnsafeModel[T Model]() {
-	entity := *new(T)
+// Get the reflect.Type of any entity or pointer to entity
+func GetEntityType(entity any) reflect.Type {
 	entityType := reflect.TypeOf(entity)
-	modelsMapping[entityType.Name()] = entityType
+
+	// entityType will be a pointer if the relation can be nullable
+	if entityType.Kind() == reflect.Pointer {
+		entityType = entityType.Elem()
+	}
+
+	return entityType
 }

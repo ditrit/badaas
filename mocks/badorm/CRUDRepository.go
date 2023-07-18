@@ -75,32 +75,6 @@ func (_m *CRUDRepository[T, ID]) Get(tx *gorm.DB, conditions ...badorm.Condition
 	return r0, r1
 }
 
-// GetAll provides a mock function with given fields: tx
-func (_m *CRUDRepository[T, ID]) GetAll(tx *gorm.DB) ([]*T, error) {
-	ret := _m.Called(tx)
-
-	var r0 []*T
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB) ([]*T, error)); ok {
-		return rf(tx)
-	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB) []*T); ok {
-		r0 = rf(tx)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]*T)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(*gorm.DB) error); ok {
-		r1 = rf(tx)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetByID provides a mock function with given fields: tx, id
 func (_m *CRUDRepository[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, error) {
 	ret := _m.Called(tx, id)
@@ -127,8 +101,8 @@ func (_m *CRUDRepository[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, error) {
 	return r0, r1
 }
 
-// GetMultiple provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) GetMultiple(tx *gorm.DB, conditions ...badorm.Condition[T]) ([]*T, error) {
+// Query provides a mock function with given fields: tx, conditions
+func (_m *CRUDRepository[T, ID]) Query(tx *gorm.DB, conditions ...badorm.Condition[T]) ([]*T, error) {
 	_va := make([]interface{}, len(conditions))
 	for _i := range conditions {
 		_va[_i] = conditions[_i]

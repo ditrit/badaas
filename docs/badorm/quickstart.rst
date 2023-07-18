@@ -27,11 +27,15 @@ Generate conditions
 After choosing the example you want to run (`cd standalone` or `cd fx`) 
 you will need to :ref:`generate the conditions <badorm/concepts:conditions generation>` for the models using `BaDctl`.
 
-Install `badctl`::
+Install `badctl`:
+
+.. code-block:: bash
 
   go install github.com/ditrit/badaas/tools/badctl
 
-Generate conditions::
+Generate conditions:
+
+.. code-block:: bash
 
   go generate ./...
 
@@ -41,15 +45,21 @@ that allow you query the models in `example.go` and in `models/badorm.go` the :r
 Run it
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-First, we need a database to store the data, in this case we will use CockroachDB::
+First, we need a database to store the data, in this case we will use CockroachDB:
+
+.. code-block:: bash
 
   docker compose up -d
 
-After that, we can run the application::
+After that, we can run the application:
+
+.. code-block:: bash
 
   go run .
 
-And you should see something like::
+And you should see something like:
+
+.. code-block:: bash
 
   2023/05/16 09:52:03 Setting up CRUD example
   2023/05/16 09:52:03 Finished creating CRUD example
@@ -63,7 +73,9 @@ In this section we will see the steps carried out to develop this example.
 
 **Standalone**
 
-Once you have started your project with `go init`, you must add the dependency to BaDaaS and others::
+Once you have started your project with `go init`, you must add the dependency to BaDaaS and others:
+
+.. code-block:: bash
 
     go get -u github.com/ditrit/badaas github.com/uber-go/zap gorm.io/gorm
 
@@ -74,7 +86,9 @@ in conditions/badorm.go the file required to
 :ref:`generate the conditions <badorm/concepts:conditions generation>` is created.
 
 In main.go a main function is created with the configuration required to use the BaDORM. 
-First, we need to create a :ref:`gormDB <badorm/concepts:gormDB>` that allows connection with the database::
+First, we need to create a :ref:`gormDB <badorm/concepts:gormDB>` that allows connection with the database:
+
+.. code-block:: go
 
     gormDB, err := NewGormDBConnection()
 
@@ -89,17 +103,21 @@ method of the gormDB with the models you want to be persisted::
     )
 
 From here, we can start to use BaDORM, getting the :ref:`CRUDService <badorm/concepts:CRUDService>` 
-and :ref:`CRUDRepository <badorm/concepts:CRUDRepository>` of a model with the GetCRUD function::
+and :ref:`CRUDRepository <badorm/concepts:CRUDRepository>` of a model with the GetCRUD function:
+
+.. code-block:: go
 
     crudProductService, crudProductRepository := badorm.GetCRUD[models.Product, badorm.UUID](gormDB)
 
 As you can see, we need to specify the type of the model and the kind 
 of :ref:`id <badorm/concepts:model ID>` this model uses.
 
-Finally, you can use this service and repository to perform CRUD operations on your model::
+Finally, you can use this service and repository to perform CRUD operations on your model:
 
-    CreateCRUDObjects(gormDB, crudProductRepository)
-    QueryCRUDObjects(crudProductService)
+.. code-block:: go
+
+  CreateCRUDObjects(gormDB, crudProductRepository)
+  QueryCRUDObjects(crudProductService)
 
 This two functions are defined in `example.go`. 
 In `QueryCRUDObjects` you can find a basic usage of the 
@@ -107,9 +125,11 @@ In `QueryCRUDObjects` you can find a basic usage of the
 
 **Fx**
 
-Once you have started your project with `go init`, you must add the dependency to BaDaaS and others::
+Once you have started your project with `go init`, you must add the dependency to BaDaaS and others:
 
-    go get -u github.com/ditrit/badaas github.com/uber-go/fx github.com/uber-go/zap gorm.io/gorm
+.. code-block:: bash
+
+  go get -u github.com/ditrit/badaas github.com/uber-go/fx github.com/uber-go/zap gorm.io/gorm
 
 .. TODO quisiera sacar esta dependencia de zap
 
@@ -118,7 +138,9 @@ in conditions/badorm.go the file required to
 :ref:`generate the conditions <badorm/concepts:conditions generation>` is created.
 
 In main.go a main function is created with the configuration required to use the BaDORM with fx. 
-First, we will need to start your application with `fx`::
+First, we will need to start your application with `fx`:
+
+.. code-block:: go
 
     func main() {
       fx.New(

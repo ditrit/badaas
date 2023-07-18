@@ -4,34 +4,35 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/models"
 )
 
 type CRUDUnsafeServiceIntTestSuite struct {
 	CRUDServiceCommonIntTestSuite
-	crudProductService  badorm.CRUDUnsafeService[models.Product, badorm.UUID]
-	crudSaleService     badorm.CRUDUnsafeService[models.Sale, badorm.UUID]
-	crudSellerService   badorm.CRUDUnsafeService[models.Seller, badorm.UUID]
-	crudCountryService  badorm.CRUDUnsafeService[models.Country, badorm.UUID]
-	crudCityService     badorm.CRUDUnsafeService[models.City, badorm.UUID]
-	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID]
-	crudBicycleService  badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID]
-	crudBrandService    badorm.CRUDUnsafeService[models.Brand, badorm.UIntID]
-	crudPhoneService    badorm.CRUDUnsafeService[models.Phone, badorm.UIntID]
+	crudProductService  unsafe.CRUDService[models.Product, badorm.UUID]
+	crudSaleService     unsafe.CRUDService[models.Sale, badorm.UUID]
+	crudSellerService   unsafe.CRUDService[models.Seller, badorm.UUID]
+	crudCountryService  unsafe.CRUDService[models.Country, badorm.UUID]
+	crudCityService     unsafe.CRUDService[models.City, badorm.UUID]
+	crudEmployeeService unsafe.CRUDService[models.Employee, badorm.UUID]
+	crudBicycleService  unsafe.CRUDService[models.Bicycle, badorm.UUID]
+	crudBrandService    unsafe.CRUDService[models.Brand, badorm.UIntID]
+	crudPhoneService    unsafe.CRUDService[models.Phone, badorm.UIntID]
 }
 
 func NewCRUDUnsafeServiceIntTestSuite(
 	db *gorm.DB,
-	crudProductService badorm.CRUDUnsafeService[models.Product, badorm.UUID],
-	crudSaleService badorm.CRUDUnsafeService[models.Sale, badorm.UUID],
-	crudSellerService badorm.CRUDUnsafeService[models.Seller, badorm.UUID],
-	crudCountryService badorm.CRUDUnsafeService[models.Country, badorm.UUID],
-	crudCityService badorm.CRUDUnsafeService[models.City, badorm.UUID],
-	crudEmployeeService badorm.CRUDUnsafeService[models.Employee, badorm.UUID],
-	crudBicycleService badorm.CRUDUnsafeService[models.Bicycle, badorm.UUID],
-	crudBrandService badorm.CRUDUnsafeService[models.Brand, badorm.UIntID],
-	crudPhoneService badorm.CRUDUnsafeService[models.Phone, badorm.UIntID],
+	crudProductService unsafe.CRUDService[models.Product, badorm.UUID],
+	crudSaleService unsafe.CRUDService[models.Sale, badorm.UUID],
+	crudSellerService unsafe.CRUDService[models.Seller, badorm.UUID],
+	crudCountryService unsafe.CRUDService[models.Country, badorm.UUID],
+	crudCityService unsafe.CRUDService[models.City, badorm.UUID],
+	crudEmployeeService unsafe.CRUDService[models.Employee, badorm.UUID],
+	crudBicycleService unsafe.CRUDService[models.Bicycle, badorm.UUID],
+	crudBrandService unsafe.CRUDService[models.Brand, badorm.UIntID],
+	crudPhoneService unsafe.CRUDService[models.Phone, badorm.UIntID],
 ) *CRUDUnsafeServiceIntTestSuite {
 	return &CRUDUnsafeServiceIntTestSuite{
 		CRUDServiceCommonIntTestSuite: CRUDServiceCommonIntTestSuite{

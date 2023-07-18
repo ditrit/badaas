@@ -4,8 +4,6 @@ package mocks
 
 import (
 	badorm "github.com/ditrit/badaas/badorm"
-	gorm "gorm.io/gorm"
-
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -15,33 +13,21 @@ type Condition[T badorm.Model] struct {
 }
 
 // ApplyTo provides a mock function with given fields: query, table
-func (_m *Condition[T]) ApplyTo(query *gorm.DB, table badorm.Table) (*gorm.DB, error) {
+func (_m *Condition[T]) ApplyTo(query *badorm.Query, table badorm.Table) error {
 	ret := _m.Called(query, table)
 
-	var r0 *gorm.DB
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB, badorm.Table) (*gorm.DB, error)); ok {
-		return rf(query, table)
-	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB, badorm.Table) *gorm.DB); ok {
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*badorm.Query, badorm.Table) error); ok {
 		r0 = rf(query, table)
 	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*gorm.DB)
-		}
+		r0 = ret.Error(0)
 	}
 
-	if rf, ok := ret.Get(1).(func(*gorm.DB, badorm.Table) error); ok {
-		r1 = rf(query, table)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
-// interfaceVerificationMethod provides a mock function with given fields: _a0
-func (_m *Condition[T]) interfaceVerificationMethod(_a0 T) {
+// InterfaceVerificationMethod provides a mock function with given fields: _a0
+func (_m *Condition[T]) InterfaceVerificationMethod(_a0 T) {
 	_m.Called(_a0)
 }
 

@@ -41,7 +41,7 @@ func NewOperatorIntTestSuite(
 }
 
 func (ts *OperatorIntTestSuite) TestEqNullableNullReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			badorm.Eq(sql.NullFloat64{Valid: false}),
 		),
@@ -58,7 +58,7 @@ func (ts *OperatorIntTestSuite) TestEqPointers() {
 	ts.createProduct("match", 3, 0, false, &intNotMatch)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(
 			badorm.Eq(1),
 		),
@@ -72,7 +72,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullTNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("match", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.EqOrIsNull[int](1),
 		),
@@ -89,7 +89,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullTNil() {
 	err := ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductByteArray(
 			badorm.EqOrIsNull[[]byte](nil),
 		),
@@ -108,7 +108,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullTNilOfType() {
 
 	var nilOfType []byte
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductByteArray(
 			badorm.EqOrIsNull[[]byte](nilOfType),
 		),
@@ -126,7 +126,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNilPointer() {
 
 	var intPointer *int
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(
 			badorm.EqOrIsNull[int](intPointer),
 		),
@@ -142,7 +142,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNotNilPointer() {
 
 	ts.createProduct("match", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.EqOrIsNull[int](&matchInt),
 		),
@@ -160,7 +160,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNil() {
 	err := ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			badorm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: false}),
 		),
@@ -178,7 +178,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNotNil() {
 
 	ts.createProduct("match", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			badorm.EqOrIsNull[sql.NullFloat64](sql.NullFloat64{Valid: true, Float64: 6}),
 		),
@@ -189,7 +189,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNotNil() {
 }
 
 func (ts *OperatorIntTestSuite) TestEqOrIsNullNotRelated() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductFloat(
 			badorm.EqOrIsNull[float64]("not_related"),
 		),
@@ -202,7 +202,7 @@ func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	ts.createProduct("match", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.NotEqOrIsNotNull[int](3),
 		),
@@ -220,7 +220,7 @@ func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNil() {
 
 	ts.createProduct("match", 3, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductByteArray(
 			badorm.NotEqOrIsNotNull[[]byte](nil),
 		),
@@ -235,7 +235,7 @@ func (ts *OperatorIntTestSuite) TestNotEq() {
 	match2 := ts.createProduct("match", 3, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.NotEq(2),
 		),
@@ -251,7 +251,7 @@ func (ts *OperatorIntTestSuite) TestLt() {
 	ts.createProduct("not_match", 3, 0, false, nil)
 	ts.createProduct("not_match", 4, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.Lt(3),
 		),
@@ -262,7 +262,7 @@ func (ts *OperatorIntTestSuite) TestLt() {
 }
 
 func (ts *OperatorIntTestSuite) TestLtNullableNullReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			badorm.Lt(sql.NullFloat64{Valid: false}),
 		),
@@ -277,7 +277,7 @@ func (ts *OperatorIntTestSuite) TestLtOrEq() {
 	ts.createProduct("not_match", 3, 0, false, nil)
 	ts.createProduct("not_match", 4, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.LtOrEq(2),
 		),
@@ -295,7 +295,7 @@ func (ts *OperatorIntTestSuite) TestNotLt() {
 		ts.createProduct("not_match", 1, 0, false, nil)
 		ts.createProduct("not_match", 2, 0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductInt(
 				sqlserver.NotLt(3),
 			),
@@ -314,7 +314,7 @@ func (ts *OperatorIntTestSuite) TestGt() {
 	ts.createProduct("not_match", 1, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.Gt(2),
 		),
@@ -330,7 +330,7 @@ func (ts *OperatorIntTestSuite) TestGtOrEq() {
 	ts.createProduct("not_match", 1, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.GtOrEq(3),
 		),
@@ -348,7 +348,7 @@ func (ts *OperatorIntTestSuite) TestNotGt() {
 		ts.createProduct("not_match", 3, 0, false, nil)
 		ts.createProduct("not_match", 4, 0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductInt(
 				sqlserver.NotGt(2),
 			),
@@ -367,7 +367,7 @@ func (ts *OperatorIntTestSuite) TestBetween() {
 	ts.createProduct("not_match", 6, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.Between(3, 5),
 		),
@@ -383,7 +383,7 @@ func (ts *OperatorIntTestSuite) TestNotBetween() {
 	ts.createProduct("not_match", 1, 0, false, nil)
 	ts.createProduct("not_match", 2, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			badorm.NotBetween(0, 2),
 		),
@@ -400,7 +400,7 @@ func (ts *OperatorIntTestSuite) TestIsDistinct() {
 
 	switch getDBDialector() {
 	case configuration.PostgreSQL, configuration.SQLServer, configuration.SQLite:
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductInt(
 				badorm.IsDistinct(2),
 			),
@@ -409,7 +409,7 @@ func (ts *OperatorIntTestSuite) TestIsDistinct() {
 
 		EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 	case configuration.MySQL:
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			badorm.Not[models.Product](
 				conditions.ProductInt(mysql.IsEqual(2)),
 			),
@@ -434,7 +434,7 @@ func (ts *OperatorIntTestSuite) TestIsNotDistinct() {
 		isNotEqualOperator = badorm.IsNotDistinct(3)
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			isNotEqualOperator,
 		),
@@ -461,7 +461,7 @@ func (ts *OperatorIntTestSuite) TestIsNotDistinctNullValue() {
 		isEqualOperator = badorm.IsNotDistinct(sql.NullFloat64{Valid: false})
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			isEqualOperator,
 		),
@@ -479,7 +479,7 @@ func (ts *OperatorIntTestSuite) TestIsNull() {
 	ts.createProduct("not_match", 0, 0, false, &int1)
 	ts.createProduct("not_match", 0, 0, false, &int2)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(
 			badorm.IsNull[int](),
 		),
@@ -497,7 +497,7 @@ func (ts *OperatorIntTestSuite) TestIsNullNotPointers() {
 	err := ts.db.Save(notMatch).Error
 	ts.Nil(err)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			badorm.IsNull[sql.NullFloat64](),
 		),
@@ -513,7 +513,7 @@ func (ts *OperatorIntTestSuite) TestIsNotNull() {
 	ts.createProduct("not_match", 0, 0, false, nil)
 	ts.createProduct("not_match", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductIntPointer(
 			badorm.IsNotNull[int](),
 		),
@@ -531,7 +531,7 @@ func (ts *OperatorIntTestSuite) TestIsNotNullNotPointers() {
 
 	ts.createProduct("not_match", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			badorm.IsNotNull[sql.NullFloat64](),
 		),
@@ -556,7 +556,7 @@ func (ts *OperatorIntTestSuite) TestIsTrue() {
 		isTrueOperator = badorm.Eq[bool](true)
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductBool(
 			isTrueOperator,
 		),
@@ -581,7 +581,7 @@ func (ts *OperatorIntTestSuite) TestIsFalse() {
 		isFalseOperator = badorm.Eq[bool](false)
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductBool(
 			isFalseOperator,
 		),
@@ -614,7 +614,7 @@ func (ts *OperatorIntTestSuite) TestIsNotTrue() {
 		isNotTrueOperator = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: true})
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
 			isNotTrueOperator,
 		),
@@ -647,7 +647,7 @@ func (ts *OperatorIntTestSuite) TestIsNotFalse() {
 		isNotFalseOperator = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: true, Bool: false})
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
 			isNotFalseOperator,
 		),
@@ -680,7 +680,7 @@ func (ts *OperatorIntTestSuite) TestIsUnknown() {
 		isUnknownOperator = badorm.IsNotDistinct[sql.NullBool](sql.NullBool{Valid: false})
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
 			isUnknownOperator,
 		),
@@ -713,7 +713,7 @@ func (ts *OperatorIntTestSuite) TestIsNotUnknown() {
 		isNotUnknownOperator = badorm.IsDistinct[sql.NullBool](sql.NullBool{Valid: false})
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullBool(
 			isNotUnknownOperator,
 		),
@@ -730,7 +730,7 @@ func (ts *OperatorIntTestSuite) TestArrayIn() {
 	ts.createProduct("ns1", 0, 0, false, nil)
 	ts.createProduct("ns2", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			badorm.ArrayIn("s1", "s2", "s3"),
 		),
@@ -747,7 +747,7 @@ func (ts *OperatorIntTestSuite) TestArrayNotIn() {
 	ts.createProduct("ns1", 0, 0, false, nil)
 	ts.createProduct("ns2", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			badorm.ArrayNotIn("ns1", "ns2"),
 		),
@@ -773,7 +773,7 @@ func (ts *OperatorIntTestSuite) TestLike() {
 		likeOperator = badorm.Like[string]("[bc]a[^a]%")
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			likeOperator,
 		),
@@ -799,7 +799,7 @@ func (ts *OperatorIntTestSuite) TestLikeEscape() {
 		likeOperator = badorm.Like[string]("[bc]a!_[^a]%").Escape('!')
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			likeOperator,
 		),
@@ -820,7 +820,7 @@ func (ts *OperatorIntTestSuite) TestLikeOnNumeric() {
 		ts.createProduct("", 20, 0, false, nil)
 		ts.createProduct("", 3, 0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductInt(
 				mysql.Like[int]("1%"),
 			),
@@ -843,7 +843,7 @@ func (ts *OperatorIntTestSuite) TestILike() {
 		ts.createProduct("bbsd", 0, 0, false, nil)
 		ts.createProduct("bbasd", 0, 0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductString(
 				psql.ILike[string]("_a%"),
 			),
@@ -865,7 +865,7 @@ func (ts *OperatorIntTestSuite) TestSimilarTo() {
 		ts.createProduct("aec", 0, 0, false, nil)
 		ts.createProduct("aaaaa", 0, 0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductString(
 				psql.SimilarTo[string]("%(b|d)%"),
 			),
@@ -896,7 +896,7 @@ func (ts *OperatorIntTestSuite) TestPosixRegexCaseSensitive() {
 	}
 
 	if posixRegexOperator != nil {
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductString(
 				posixRegexOperator,
 			),
@@ -927,7 +927,7 @@ func (ts *OperatorIntTestSuite) TestPosixRegexCaseInsensitive() {
 	}
 
 	if posixRegexOperator != nil {
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductString(
 				posixRegexOperator,
 			),
@@ -953,7 +953,7 @@ func (ts *OperatorIntTestSuite) TestPosixRegexNotPosix() {
 	}
 
 	if posixRegexOperator != nil {
-		_, err := ts.crudProductService.GetEntities(
+		_, err := ts.crudProductService.Query(
 			conditions.ProductString(
 				posixRegexOperator,
 			),
@@ -968,7 +968,7 @@ func (ts *OperatorIntTestSuite) TestDynamicOperatorForBasicType() {
 	ts.createProduct("", 2, 0.0, false, &int1)
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			dynamic.Eq(conditions.ProductIntPointerField),
 		),
@@ -987,7 +987,7 @@ func (ts *OperatorIntTestSuite) TestDynamicOperatorForCustomType() {
 	ts.createProduct("salut,hola", 1, 0.0, false, nil)
 	ts.createProduct("hola", 1, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductMultiString(
 			dynamic.Eq(conditions.ProductMultiStringField),
 		),
@@ -1009,7 +1009,7 @@ func (ts *OperatorIntTestSuite) TestDynamicOperatorForBadORMModelAttribute() {
 		isNotDistinctOperator = dynamic.IsNotDistinct(conditions.ProductDeletedAtField)
 	}
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductDeletedAt(isNotDistinctOperator),
 	)
 	ts.Nil(err)
@@ -1018,7 +1018,7 @@ func (ts *OperatorIntTestSuite) TestDynamicOperatorForBadORMModelAttribute() {
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeOperatorWithFieldOfAnotherTypeReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			multitype.Eq[int](conditions.ProductStringField),
 		),
@@ -1035,7 +1035,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNullableTypeCanBeCompare
 
 	ts.createProduct("", 1, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductNullFloat(
 			multitype.Eq[sql.NullFloat64](conditions.ProductFloatField),
 		),
@@ -1053,7 +1053,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNotNullTypeCanBeCompared
 
 	ts.createProduct("", 1, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductFloat(
 			multitype.Eq[float64](conditions.ProductNullFloatField),
 		),
@@ -1081,14 +1081,14 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorForBadORMModelAttribute() {
 		)
 	}
 
-	entities, err := ts.crudProductService.GetEntities(isDistinctCondition)
+	entities, err := ts.crudProductService.Query(isDistinctCondition)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithValueOfAnotherTypeReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			multitype.Between[int, int]("hola", 1),
 		),
@@ -1098,7 +1098,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithValueOfAnothe
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfAnotherTypeReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			multitype.Between[int, int](1, conditions.ProductCreatedAtField),
 		),
@@ -1108,7 +1108,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfAnothe
 }
 
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithFieldOfNotRelatedTypeReturnsError() {
-	_, err := ts.crudProductService.GetEntities(
+	_, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			multitype.Between[int, time.Time](1, conditions.ProductCreatedAtField),
 		),
@@ -1121,7 +1121,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldAndAVal
 	match := ts.createProduct("", 1, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductInt(
 			multitype.Between[int, int](1, conditions.ProductIntField),
 		),
@@ -1149,7 +1149,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelated
 
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductFloat(
 			multitype.Between[float64, sql.NullFloat64](1.0, conditions.ProductNullFloatField),
 		),
@@ -1166,7 +1166,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchConvertible
 	ts.createProduct("", 0, 2, false, nil)
 	ts.createProduct("", 0, 2.3, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductFloat(
 			unsafe.Eq[float64]("2.1"),
 		),
@@ -1184,7 +1184,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConverti
 		ts.createProduct("", 0, 2, false, nil)
 		ts.createProduct("", 0, 2.3, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64]("not_convertible_to_float"),
 			),
@@ -1198,7 +1198,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConverti
 		ts.createProduct("", 0, 2, false, nil)
 		ts.createProduct("", 0, 2.3, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64]("not_convertible_to_float"),
 			),
@@ -1208,7 +1208,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConverti
 		EqualList(&ts.Suite, []*models.Product{match}, entities)
 	case configuration.SQLServer:
 		// returns an error
-		_, err := ts.crudProductService.GetEntities(
+		_, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64]("not_convertible_to_float"),
 			),
@@ -1216,7 +1216,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseTypesNotMatchNotConverti
 		ts.ErrorContains(err, "mssql: Error converting data type nvarchar to float.")
 	case configuration.PostgreSQL:
 		// returns an error
-		_, err := ts.crudProductService.GetEntities(
+		_, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64]("not_convertible_to_float"),
 			),
@@ -1234,7 +1234,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 		ts.createProduct("0", 0, 1, false, nil)
 		ts.createProduct("not_convertible", 0, 0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
@@ -1249,7 +1249,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 		match3 := ts.createProduct("not_convertible", 2, 0, false, nil)
 		ts.createProduct("0.0", 2, 1.0, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
@@ -1262,7 +1262,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 		match1 := ts.createProduct("0", 1, 0, false, nil)
 		match2 := ts.createProduct("1", 2, 1, false, nil)
 
-		entities, err := ts.crudProductService.GetEntities(
+		entities, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
@@ -1274,7 +1274,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 		ts.createProduct("not_convertible", 3, 0, false, nil)
 		ts.createProduct("0.0", 4, 1.0, false, nil)
 
-		_, err = ts.crudProductService.GetEntities(
+		_, err = ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
@@ -1282,7 +1282,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 		ts.ErrorContains(err, "mssql: Error converting data type nvarchar to float.")
 	case configuration.PostgreSQL:
 		// returns an error
-		_, err := ts.crudProductService.GetEntities(
+		_, err := ts.crudProductService.Query(
 			conditions.ProductFloat(
 				unsafe.Eq[float64](conditions.ProductStringField),
 			),
@@ -1313,7 +1313,7 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorCanCompareFieldsThatMapToTheSa
 
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(
+	entities, err := ts.crudProductService.Query(
 		conditions.ProductString(
 			unsafe.Eq[string](conditions.ProductMultiStringField),
 		),
