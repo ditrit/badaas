@@ -8,6 +8,8 @@
 
 ## Contributing
 
+See [this section](../../docs/contributing/contributing.md) to view the badaas contribution guidelines.
+
 You can make modifications to the badctl source code and compile it locally with:
 
 ```bash

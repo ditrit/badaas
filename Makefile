@@ -2,8 +2,9 @@ PATHS = $(shell go list ./... | tail -n +2 | grep -v testintegration)
 
 install_dependencies:
 	go install gotest.tools/gotestsum@latest
-	go install github.com/vektra/mockery/v2@v2.20.0
+	go install github.com/vektra/mockery/v2@latest
 	go install github.com/ditrit/badaas/tools/badctl@latest
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 
 lint:
 	golangci-lint run
@@ -20,10 +21,6 @@ test_unit: test_unit_badaas test_unit_badctl
 
 rmdb:
 	docker stop badaas-test-db && docker rm badaas-test-db
-
-test_db:
-	docker compose -f "docker/test_db/docker-compose.yml" up -d
-	./docker/wait_for_api.sh 8080/health
 
 postgresql:
 	docker compose -f "docker/postgresql/docker-compose.yml" up -d

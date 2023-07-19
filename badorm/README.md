@@ -16,7 +16,7 @@ BaDORM is built on top of `gorm <https://gorm.io/>`_, a library that actually pr
 
 ## Contributing
 
-See [this section](../CONTRIBUTING.md).
+See [this section](../docs/contributing/contributing.md) to view the badaas contribution guidelines.
 
 ## License
 

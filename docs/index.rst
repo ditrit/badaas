@@ -59,3 +59,11 @@ Learn how to use BaDaaS following the :doc:`badaas/quickstart`.
    badorm/query
    badorm/advanced_query
    badorm/preloading
+
+.. toctree::
+   :caption: Contributing
+
+   contributing/contributing
+   contributing/developing
+   contributing/maintaining
+   Github <https://www.github.com/ditrit/badaas>

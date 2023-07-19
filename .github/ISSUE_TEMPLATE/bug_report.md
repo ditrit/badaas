@@ -31,6 +31,8 @@ If applicable, add screenshots to help explain your problem.
 Please complete the following information:
 
 - badaas version [X.X.X] or commit hash
+- go version
+- database vendor and version (in case of bugs related with BaDORM)
 
 ## Additional context
 
