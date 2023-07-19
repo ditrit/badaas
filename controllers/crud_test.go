@@ -71,7 +71,7 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 	uuid := badorm.NewUUID()
 
 	crudService.
-		On("GetEntity", uuid).
+		On("GetByID", uuid).
 		Return(nil, gorm.ErrRecordNotFound)
 
 	route := controllers.NewCRUDController[Model](
@@ -99,7 +99,7 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 	uuid := badorm.NewUUID()
 
 	crudService.
-		On("GetEntity", uuid).
+		On("GetByID", uuid).
 		Return(nil, errors.New("db error"))
 
 	route := controllers.NewCRUDController[Model](
@@ -128,7 +128,7 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 	entity := Model{}
 
 	crudService.
-		On("GetEntity", uuid).
+		On("GetByID", uuid).
 		Return(&entity, nil)
 
 	route := controllers.NewCRUDController[Model](

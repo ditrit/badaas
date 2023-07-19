@@ -285,7 +285,7 @@ func Test_pullFromDB(t *testing.T) {
 		UserID:    badorm.NilUUID,
 		ExpiresAt: time.Now().Add(time.Hour),
 	}
-	sessionRepositoryMock.On("GetAll", gormDB).Return([]*models.Session{session}, nil)
+	sessionRepositoryMock.On("Query", gormDB).Return([]*models.Session{session}, nil)
 
 	service.pullFromDB()
 	assert.Len(t, service.cache, 1)
@@ -299,7 +299,7 @@ func Test_pullFromDB(t *testing.T) {
 
 func Test_pullFromDB_repoError(t *testing.T) {
 	sessionRepositoryMock, service, _, _ := setupTest(t)
-	sessionRepositoryMock.On("GetAll", gormDB).Return(nil, ExampleErr)
+	sessionRepositoryMock.On("Query", gormDB).Return(nil, ExampleErr)
 	assert.PanicsWithError(t, ExampleErr.Error(), func() { service.pullFromDB() })
 }
 
