@@ -2,8 +2,10 @@
 Quickstart
 ==============================
 
-To quickly get badaas up and running, you can head to the `example <https://github.com/ditrit/badaas-example>`_. 
-This example will help you to see how to use badaas and as a template to start your own project.
+To quickly get badaas up and running, you can head to the 
+`example <https://github.com/ditrit/badaas-example>`_. 
+By following its README.md, you will see how to use badaas and it will be util 
+as a template to start your own project.
 
 Step-by-step instructions
 -----------------------------------
@@ -86,7 +88,7 @@ Then generate files to make this project work with `cockroach` as database
 
 .. code-block:: bash
 
-    badctl gen --db_provider cockroachdb
+    badctl gen docker --db_provider cockroachdb
 
 For more information about `badctl` refer to :doc:`../badctl/index`.
 
