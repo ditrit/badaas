@@ -15,10 +15,7 @@ import (
 	gormLogger "gorm.io/gorm/logger"
 )
 
-// TODO ver si esto no deberia pasar a estar adentro de badorm
-// en tal caso, recordar actualizar el file structure
-
-// TODO algo para saber cuantas queries hiciste por transaccion y cuanto tiempo tardó
+// TODO algo para saber cuantas queries hiciste por transaction y cuanto tiempo tardó
 // en prod cuantas queries no me interesa porque es la misma que en dev
 // lo que si me va a interesar son warnings de transacciones lentas,
 // que no es lo mismo que solo una query lenta (aunque posiblemente tengan relacion)

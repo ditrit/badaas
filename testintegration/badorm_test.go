@@ -13,9 +13,9 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/gormzap"
 	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
 	"github.com/ditrit/badaas/testintegration/models"
 )
 

@@ -1,4 +1,4 @@
-package gormdatabase
+package database
 
 import (
 	"fmt"
@@ -7,8 +7,8 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/gormzap"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
 )
 
 func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfiguration) (gorm.Dialector, error) {
@@ -46,8 +46,6 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 		return nil, fmt.Errorf("unknown dialector: %s", databaseConfiguration.GetDialector())
 	}
 }
-
-// TODO cambiar el nombre de este paquete y actualizar el file struct
 
 // Creates the database object with using the database configuration and exec the setup
 func SetupDatabaseConnection(

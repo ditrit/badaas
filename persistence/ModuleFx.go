@@ -4,7 +4,7 @@ import (
 	"go.uber.org/fx"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/persistence/gormdatabase"
+	"github.com/ditrit/badaas/persistence/database"
 )
 
 // PersistanceModule for fx
@@ -16,7 +16,7 @@ import (
 var PersistanceModule = fx.Module(
 	"persistence",
 	// Database connection
-	fx.Provide(gormdatabase.SetupDatabaseConnection),
+	fx.Provide(database.SetupDatabaseConnection),
 	// activate BaDORM
 	badorm.BaDORMModule,
 )

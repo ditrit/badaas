@@ -21,7 +21,7 @@ This is the directory structure we use for the project:
 - `logger/`: Contains the logger creation logic. Please don't call it from your own services and code, use the dependency injection system.
 - `mocks/`: Contains the mocks generated with `mockery`.
 - `persistance/`:
-  - `gormdatabase/`: Contains the logic to create a <https://gorm.io> database. Also contains a go package named `gormzap`: it is a compatibility layer between *gorm.io/gorm* and *github.com/uber-go/zap*.
+  - `database/`: Contains the logic to create a <https://gorm.io> database.
   - `models/`: Contains the models.
     - `dto/`: Contains the Data Transfer Objects. They are used mainly to decode json payloads.
   - `repository/`: Contains the repository interfaces and implementations to manage queries to the database.
