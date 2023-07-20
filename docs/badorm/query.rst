@@ -8,10 +8,8 @@ Query methods
 In CRUDRepository you will find different methods that will 
 allow you to perform queries on the model to which that repository belongs:
 
-.. TODO ver si se mantienen estos nombres
-
 - GetByID: will allow you to obtain a model by its id.
-- Get: will allow you to obtain the model that meets the conditions received by parameter.
+- QueryOne: will allow you to obtain the model that meets the conditions received by parameter.
 - Query: will allow you to obtain the models that meet the conditions received by parameter.
 
 Compilable query system
