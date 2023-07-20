@@ -15,8 +15,11 @@ import (
 )
 
 type CRUDController interface {
-	GetObject(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
-	GetObjects(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+	// The handler responsible of the retrieval of one model
+	GetModel(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
+
+	// The handler responsible of the retrieval of multiple models
+	GetModels(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError)
 }
 
 // check interface compliance
@@ -53,8 +56,8 @@ type crudControllerImpl[T badorm.Model] struct {
 	unsafeCRUDService unsafe.CRUDService[T, badorm.UUID]
 }
 
-// The handler responsible of the retrieval of one object
-func (controller *crudControllerImpl[T]) GetObject(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+// The handler responsible of the retrieval of one model
+func (controller *crudControllerImpl[T]) GetModel(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	entityID, herr := getEntityIDFromRequest(r)
 	if herr != nil {
 		return nil, herr
@@ -65,14 +68,14 @@ func (controller *crudControllerImpl[T]) GetObject(_ http.ResponseWriter, r *htt
 	return entity, mapServiceError(err)
 }
 
-// The handler responsible of the retrieval of multiple objects
-func (controller *crudControllerImpl[T]) GetObjects(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+// The handler responsible of the retrieval of multiple models
+func (controller *crudControllerImpl[T]) GetModels(_ http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	params, herr := decodeJSONOptional(r)
 	if herr != nil {
 		return nil, herr
 	}
 
-	entities, err := controller.unsafeCRUDService.GetEntities(params)
+	entities, err := controller.unsafeCRUDService.Query(params)
 
 	return entities, mapServiceError(err)
 }

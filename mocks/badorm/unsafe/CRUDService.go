@@ -12,8 +12,8 @@ type CRUDService[T badorm.Model, ID badorm.ModelID] struct {
 	mock.Mock
 }
 
-// GetEntities provides a mock function with given fields: conditions
-func (_m *CRUDService[T, ID]) GetEntities(conditions map[string]interface{}) ([]*T, error) {
+// Query provides a mock function with given fields: conditions
+func (_m *CRUDService[T, ID]) Query(conditions map[string]interface{}) ([]*T, error) {
 	ret := _m.Called(conditions)
 
 	var r0 []*T

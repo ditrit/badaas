@@ -12,7 +12,7 @@ import (
 // Generic CRUD Repository
 // T can be any model whose identifier attribute is of type ID
 type CRUDRepository[T badorm.Model, ID badorm.ModelID] interface {
-	GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error)
+	Query(tx *gorm.DB, conditions map[string]any) ([]*T, error)
 }
 
 var (
@@ -41,7 +41,7 @@ func NewCRUDRepository[T badorm.Model, ID badorm.ModelID]() CRUDRepository[T, ID
 // "conditions" is in {"attributeName": expectedValue} format
 // in case of join "conditions" can have the format:
 // {"relationAttributeName": {"attributeName": expectedValue}}
-func (repository *CRUDRepositoryImpl[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
+func (repository *CRUDRepositoryImpl[T, ID]) Query(tx *gorm.DB, conditions map[string]any) ([]*T, error) {
 	thisEntityConditions, joinConditions, err := divideConditionsByEntity(conditions)
 	if err != nil {
 		return nil, err

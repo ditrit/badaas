@@ -42,39 +42,6 @@ func (_m *CRUDRepository[T, ID]) Delete(tx *gorm.DB, entity *T) error {
 	return r0
 }
 
-// Get provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) Get(tx *gorm.DB, conditions ...badorm.Condition[T]) (*T, error) {
-	_va := make([]interface{}, len(conditions))
-	for _i := range conditions {
-		_va[_i] = conditions[_i]
-	}
-	var _ca []interface{}
-	_ca = append(_ca, tx)
-	_ca = append(_ca, _va...)
-	ret := _m.Called(_ca...)
-
-	var r0 *T
-	var r1 error
-	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) (*T, error)); ok {
-		return rf(tx, conditions...)
-	}
-	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) *T); ok {
-		r0 = rf(tx, conditions...)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*T)
-		}
-	}
-
-	if rf, ok := ret.Get(1).(func(*gorm.DB, ...badorm.Condition[T]) error); ok {
-		r1 = rf(tx, conditions...)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetByID provides a mock function with given fields: tx, id
 func (_m *CRUDRepository[T, ID]) GetByID(tx *gorm.DB, id ID) (*T, error) {
 	ret := _m.Called(tx, id)
@@ -122,6 +89,39 @@ func (_m *CRUDRepository[T, ID]) Query(tx *gorm.DB, conditions ...badorm.Conditi
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).([]*T)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(*gorm.DB, ...badorm.Condition[T]) error); ok {
+		r1 = rf(tx, conditions...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// QueryOne provides a mock function with given fields: tx, conditions
+func (_m *CRUDRepository[T, ID]) QueryOne(tx *gorm.DB, conditions ...badorm.Condition[T]) (*T, error) {
+	_va := make([]interface{}, len(conditions))
+	for _i := range conditions {
+		_va[_i] = conditions[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, tx)
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *T
+	var r1 error
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) (*T, error)); ok {
+		return rf(tx, conditions...)
+	}
+	if rf, ok := ret.Get(0).(func(*gorm.DB, ...badorm.Condition[T]) *T); ok {
+		r0 = rf(tx, conditions...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*T)
 		}
 	}
 

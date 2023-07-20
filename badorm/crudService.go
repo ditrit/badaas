@@ -6,7 +6,14 @@ import (
 
 // T can be any model whose identifier attribute is of type ID
 type CRUDService[T Model, ID ModelID] interface {
+	// Get the model of type T that has the "id"
 	GetByID(id ID) (*T, error)
+
+	// Get only one model that match "conditions"
+	// or returns error if 0 or more than 1 are found.
+	QueryOne(conditions ...Condition[T]) (*T, error)
+
+	// Get the list of models that match "conditions"
 	Query(conditions ...Condition[T]) ([]*T, error)
 }
 
@@ -30,12 +37,18 @@ func NewCRUDService[T Model, ID ModelID](
 	}
 }
 
-// Get the object of type T that has the "id"
+// Get the model of type T that has the "id"
 func (service *crudServiceImpl[T, ID]) GetByID(id ID) (*T, error) {
 	return service.repository.GetByID(service.db, id)
 }
 
-// Get entities of type T that match all "conditions"
+// Get only one model that match "conditions"
+// or returns error if 0 or more than 1 are found.
+func (service *crudServiceImpl[T, ID]) QueryOne(conditions ...Condition[T]) (*T, error) {
+	return service.repository.QueryOne(service.db, conditions...)
+}
+
+// Get the list of models that match "conditions"
 func (service *crudServiceImpl[T, ID]) Query(conditions ...Condition[T]) ([]*T, error) {
 	return service.repository.Query(service.db, conditions...)
 }

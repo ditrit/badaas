@@ -51,11 +51,11 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 	assert.DeepEqual(ts.T(), product, productReturned)
 }
 
-// ------------------------- Get --------------------------------
+// ------------------------- QueryOne --------------------------------
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch() {
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.Get(
+	_, err := ts.crudProductRepository.QueryOne(
 		ts.db,
 		conditions.ProductInt(badorm.Eq(1)),
 	)
@@ -64,7 +64,7 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch()
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 	product := ts.createProduct(1)
-	productReturned, err := ts.crudProductRepository.Get(
+	productReturned, err := ts.crudProductRepository.QueryOne(
 		ts.db,
 		conditions.ProductInt(badorm.Eq(1)),
 	)

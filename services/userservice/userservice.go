@@ -74,7 +74,7 @@ func (userService *userServiceImpl) NewUser(username, email, password string) (*
 
 // Get user if the email and password provided are correct, return an error if not.
 func (userService *userServiceImpl) GetUser(userLoginDTO dto.UserLoginDTO) (*models.User, error) {
-	user, err := userService.userRepository.Get(
+	user, err := userService.userRepository.QueryOne(
 		userService.db,
 		models.UserEmailCondition(badorm.Eq(userLoginDTO.Email)),
 	)

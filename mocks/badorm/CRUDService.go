@@ -70,6 +70,38 @@ func (_m *CRUDService[T, ID]) Query(conditions ...badorm.Condition[T]) ([]*T, er
 	return r0, r1
 }
 
+// QueryOne provides a mock function with given fields: conditions
+func (_m *CRUDService[T, ID]) QueryOne(conditions ...badorm.Condition[T]) (*T, error) {
+	_va := make([]interface{}, len(conditions))
+	for _i := range conditions {
+		_va[_i] = conditions[_i]
+	}
+	var _ca []interface{}
+	_ca = append(_ca, _va...)
+	ret := _m.Called(_ca...)
+
+	var r0 *T
+	var r1 error
+	if rf, ok := ret.Get(0).(func(...badorm.Condition[T]) (*T, error)); ok {
+		return rf(conditions...)
+	}
+	if rf, ok := ret.Get(0).(func(...badorm.Condition[T]) *T); ok {
+		r0 = rf(conditions...)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*T)
+		}
+	}
+
+	if rf, ok := ret.Get(1).(func(...badorm.Condition[T]) error); ok {
+		r1 = rf(conditions...)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 type mockConstructorTestingTNewCRUDService interface {
 	mock.TestingT
 	Cleanup(func())

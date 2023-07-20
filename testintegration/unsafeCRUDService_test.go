@@ -50,10 +50,10 @@ func NewCRUDUnsafeServiceIntTestSuite(
 	}
 }
 
-// ------------------------- GetEntities --------------------------------
+// ------------------------- Query --------------------------------
 
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithoutConditionsReturnsEmptyIfNotEntitiesCreated() {
-	entities, err := ts.crudProductService.GetEntities(map[string]any{})
+	entities, err := ts.crudProductService.Query(map[string]any{})
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{}, entities)
@@ -62,7 +62,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithoutConditionsR
 func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithoutConditionsReturnsTheOnlyOneIfOneEntityCreated() {
 	match := ts.createProduct("", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(map[string]any{})
+	entities, err := ts.crudProductService.Query(map[string]any{})
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -73,7 +73,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithoutConditionsR
 	match2 := ts.createProduct("", 0, 0, false, nil)
 	match3 := ts.createProduct("", 0, 0, false, nil)
 
-	entities, err := ts.crudProductService.GetEntities(map[string]any{})
+	entities, err := ts.crudProductService.Query(map[string]any{})
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2, match3}, entities)
@@ -83,7 +83,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	params := map[string]any{
 		"string_something_else": "not_created",
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{}, entities)
@@ -95,7 +95,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	params := map[string]any{
 		"string_something_else": "not_match",
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{}, entities)
@@ -108,7 +108,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	params := map[string]any{
 		"string_something_else": "match",
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -122,7 +122,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsRetu
 	params := map[string]any{
 		"string_something_else": "match",
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
@@ -134,7 +134,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatD
 	params := map[string]any{
 		"not_exists": "not_exists",
 	}
-	_, err := ts.crudProductService.GetEntities(params)
+	_, err := ts.crudProductService.Query(params)
 	ts.NotNil(err)
 }
 
@@ -145,7 +145,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInt
 	params := map[string]any{
 		"int": 1,
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -157,7 +157,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfInc
 	params := map[string]any{
 		"int": "not_an_int",
 	}
-	result, err := ts.crudProductService.GetEntities(params)
+	result, err := ts.crudProductService.Query(params)
 
 	switch getDBDialector() {
 	case configuration.MySQL, configuration.SQLite:
@@ -177,7 +177,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfFlo
 	params := map[string]any{
 		"float": 1.1,
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -190,7 +190,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfBoo
 	params := map[string]any{
 		"bool": true,
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
@@ -209,7 +209,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionOfRel
 	params := map[string]any{
 		"product_id": product1.ID.String(),
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
@@ -227,7 +227,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithMultipleCondit
 		"int":                   1,
 		"bool":                  true,
 	}
-	entities, err := ts.crudProductService.GetEntities(params)
+	entities, err := ts.crudProductService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
@@ -240,7 +240,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionsOnUI
 	params := map[string]any{
 		"name": "match",
 	}
-	entities, err := ts.crudBrandService.GetEntities(params)
+	entities, err := ts.crudBrandService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Brand{match}, entities)
@@ -258,7 +258,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "google",
 		},
 	}
-	entities, err := ts.crudPhoneService.GetEntities(params)
+	entities, err := ts.crudPhoneService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Phone{match}, entities)
@@ -276,7 +276,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"int": 1,
 		},
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
@@ -297,7 +297,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "franco",
 		},
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
@@ -319,7 +319,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "Xavier",
 		},
 	}
-	entities, err := ts.crudEmployeeService.GetEntities(params)
+	entities, err := ts.crudEmployeeService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Employee{match}, entities)
@@ -341,7 +341,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "Argentina",
 		},
 	}
-	entities, err := ts.crudCityService.GetEntities(params)
+	entities, err := ts.crudCityService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.City{&capital1}, entities)
@@ -363,7 +363,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "Buenos Aires",
 		},
 	}
-	entities, err := ts.crudCountryService.GetEntities(params)
+	entities, err := ts.crudCountryService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Country{country1}, entities)
@@ -375,7 +375,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"int": 1,
 		},
 	}
-	_, err := ts.crudSaleService.GetEntities(params)
+	_, err := ts.crudSaleService.Query(params)
 	ts.ErrorContains(err, "Sale has not attribute named NotExists or NotExistsID")
 }
 
@@ -391,7 +391,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "ditrit",
 		},
 	}
-	entities, err := ts.crudSellerService.GetEntities(params)
+	entities, err := ts.crudSellerService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Seller{match}, entities)
@@ -413,7 +413,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"string_something_else": "match",
 		},
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
@@ -436,7 +436,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 		},
 		"code": 1,
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
@@ -462,7 +462,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			"name": "franco",
 		},
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
@@ -489,7 +489,7 @@ func (ts *CRUDUnsafeServiceIntTestSuite) TestGetEntitiesUnsafeWithConditionThatJ
 			},
 		},
 	}
-	entities, err := ts.crudSaleService.GetEntities(params)
+	entities, err := ts.crudSaleService.Query(params)
 	ts.Nil(err)
 
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)

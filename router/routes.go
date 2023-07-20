@@ -100,11 +100,11 @@ func AddCRUDRoutes(
 		// read
 		router.HandleFunc(
 			objectsWithID,
-			jsonController.Wrap(crudRoute.Controller.GetObject),
+			jsonController.Wrap(crudRoute.Controller.GetModel),
 		).Methods(http.MethodGet)
 		router.HandleFunc(
 			objectsBase,
-			jsonController.Wrap(crudRoute.Controller.GetObjects),
+			jsonController.Wrap(crudRoute.Controller.GetModels),
 		).Methods(http.MethodGet)
 	}
 }

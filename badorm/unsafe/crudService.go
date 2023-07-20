@@ -8,7 +8,7 @@ import (
 
 // T can be any model whose identifier attribute is of type ID
 type CRUDService[T badorm.Model, ID badorm.ModelID] interface {
-	GetEntities(conditions map[string]any) ([]*T, error)
+	Query(conditions map[string]any) ([]*T, error)
 }
 
 // check interface compliance
@@ -30,10 +30,10 @@ func NewCRUDUnsafeService[T badorm.Model, ID badorm.ModelID](
 	}
 }
 
-// Get entities of type T that match all "conditions"
+// Query models of type T that match all "conditions"
 // "params" is in {"attributeName": expectedValue} format
 // in case of join "params" can have the format:
 // {"relationAttributeName": {"attributeName": expectedValue}}
-func (service *crudServiceImpl[T, ID]) GetEntities(conditions map[string]any) ([]*T, error) {
-	return service.repository.GetMultiple(service.db, conditions)
+func (service *crudServiceImpl[T, ID]) Query(conditions map[string]any) ([]*T, error) {
+	return service.repository.Query(service.db, conditions)
 }

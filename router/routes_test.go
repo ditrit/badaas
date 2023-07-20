@@ -185,8 +185,8 @@ func TestAddCRUDRoutes(t *testing.T) {
 
 	crudController := mockControllers.NewCRUDController(t)
 	crudController.
-		On("GetObjects", mock.Anything, mock.Anything).
-		Return(map[string]string{"GetObjects": "called"}, nil)
+		On("GetModels", mock.Anything, mock.Anything).
+		Return(map[string]string{"GetModels": "called"}, nil)
 
 	router := NewRouter()
 	AddCRUDRoutes(
@@ -209,5 +209,5 @@ func TestAddCRUDRoutes(t *testing.T) {
 
 	router.ServeHTTP(response, request)
 	assert.Equal(t, http.StatusOK, response.Code)
-	assert.Equal(t, "{\"GetObjects\":\"called\"}", response.Body.String())
+	assert.Equal(t, "{\"GetModels\":\"called\"}", response.Body.String())
 }

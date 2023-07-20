@@ -14,8 +14,8 @@ type CRUDController struct {
 	mock.Mock
 }
 
-// GetObject provides a mock function with given fields: w, r
-func (_m *CRUDController) GetObject(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
+// GetModel provides a mock function with given fields: w, r
+func (_m *CRUDController) GetModel(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
 	ret := _m.Called(w, r)
 
 	var r0 interface{}
@@ -42,8 +42,8 @@ func (_m *CRUDController) GetObject(w http.ResponseWriter, r *http.Request) (int
 	return r0, r1
 }
 
-// GetObjects provides a mock function with given fields: w, r
-func (_m *CRUDController) GetObjects(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
+// GetModels provides a mock function with given fields: w, r
+func (_m *CRUDController) GetModels(w http.ResponseWriter, r *http.Request) (interface{}, httperrors.HTTPError) {
 	ret := _m.Called(w, r)
 
 	var r0 interface{}

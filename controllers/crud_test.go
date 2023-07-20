@@ -17,7 +17,7 @@ import (
 	mockUnsafe "github.com/ditrit/badaas/mocks/badorm/unsafe"
 )
 
-// ----------------------- GetObject -----------------------
+// ----------------------- GetModel -----------------------
 
 type Model struct {
 	badorm.UUIDModel
@@ -39,7 +39,7 @@ func TestCRUDGetWithoutEntityIDReturnsError(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	_, err := route.Controller.GetObject(response, request)
+	_, err := route.Controller.GetModel(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
 }
 
@@ -60,7 +60,7 @@ func TestCRUDGetWithEntityIDNotUUIDReturnsError(t *testing.T) {
 	)
 	request = mux.SetURLVars(request, map[string]string{"id": "not-uuid"})
 
-	_, err := route.Controller.GetObject(response, request)
+	_, err := route.Controller.GetModel(response, request)
 	assert.ErrorIs(t, err, controllers.ErrIDNotAnUUID)
 }
 
@@ -88,7 +88,7 @@ func TestCRUDGetWithEntityIDThatDoesNotExistReturnsError(t *testing.T) {
 
 	request = mux.SetURLVars(request, map[string]string{"id": uuid.String()})
 
-	_, err := route.Controller.GetObject(response, request)
+	_, err := route.Controller.GetModel(response, request)
 	assert.ErrorIs(t, err, controllers.ErrEntityNotFound)
 }
 
@@ -116,7 +116,7 @@ func TestCRUDGetWithErrorInDBReturnsError(t *testing.T) {
 
 	request = mux.SetURLVars(request, map[string]string{"id": uuid.String()})
 
-	_, err := route.Controller.GetObject(response, request)
+	_, err := route.Controller.GetModel(response, request)
 	assert.ErrorContains(t, err, "db error")
 }
 
@@ -144,19 +144,19 @@ func TestCRUDGetWithCorrectIDReturnsObject(t *testing.T) {
 	)
 
 	request = mux.SetURLVars(request, map[string]string{"id": uuid.String()})
-	entityReturned, err := route.Controller.GetObject(response, request)
+	entityReturned, err := route.Controller.GetModel(response, request)
 	assert.Nil(t, err)
 	assert.Equal(t, &entity, entityReturned)
 }
 
-// ----------------------- GetEntities -----------------------
+// ----------------------- GetModels -----------------------
 
-func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
+func TestGetModelsWithErrorInDBReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockUnsafe.NewCRUDService[Model, badorm.UUID](t)
 
 	crudUnsafeService.
-		On("GetEntities", map[string]any{}).
+		On("Query", map[string]any{}).
 		Return(nil, errors.New("db error"))
 
 	route := controllers.NewCRUDController[Model](
@@ -171,11 +171,11 @@ func TestGetEntitiesWithErrorInDBReturnsError(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	_, err := route.Controller.GetObjects(response, request)
+	_, err := route.Controller.GetModels(response, request)
 	assert.ErrorContains(t, err, "db error")
 }
 
-func TestGetEntitiesWithoutParams(t *testing.T) {
+func TestGetModelsWithoutParams(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockUnsafe.NewCRUDService[Model, badorm.UUID](t)
 
@@ -183,7 +183,7 @@ func TestGetEntitiesWithoutParams(t *testing.T) {
 	entity2 := &Model{}
 
 	crudUnsafeService.
-		On("GetEntities", map[string]any{}).
+		On("Query", map[string]any{}).
 		Return([]*Model{entity1, entity2}, nil)
 
 	route := controllers.NewCRUDController[Model](
@@ -198,21 +198,21 @@ func TestGetEntitiesWithoutParams(t *testing.T) {
 		strings.NewReader(""),
 	)
 
-	entitiesReturned, err := route.Controller.GetObjects(response, request)
+	entitiesReturned, err := route.Controller.GetModels(response, request)
 	assert.Nil(t, err)
 	assert.Len(t, entitiesReturned, 2)
 	assert.Contains(t, entitiesReturned, entity1)
 	assert.Contains(t, entitiesReturned, entity2)
 }
 
-func TestGetEntitiesWithParams(t *testing.T) {
+func TestGetModelsWithParams(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockUnsafe.NewCRUDService[Model, badorm.UUID](t)
 
 	entity1 := &Model{}
 
 	crudUnsafeService.
-		On("GetEntities", map[string]any{"param1": "something"}).
+		On("Query", map[string]any{"param1": "something"}).
 		Return([]*Model{entity1}, nil)
 
 	route := controllers.NewCRUDController[Model](
@@ -227,13 +227,13 @@ func TestGetEntitiesWithParams(t *testing.T) {
 		strings.NewReader("{\"param1\": \"something\"}"),
 	)
 
-	entitiesReturned, err := route.Controller.GetObjects(response, request)
+	entitiesReturned, err := route.Controller.GetModels(response, request)
 	assert.Nil(t, err)
 	assert.Len(t, entitiesReturned, 1)
 	assert.Contains(t, entitiesReturned, entity1)
 }
 
-func TestGetEntitiesWithParamsNotJsonReturnsError(t *testing.T) {
+func TestGetModelsWithParamsNotJsonReturnsError(t *testing.T) {
 	crudService := mockBadorm.NewCRUDService[Model, badorm.UUID](t)
 	crudUnsafeService := mockUnsafe.NewCRUDService[Model, badorm.UUID](t)
 
@@ -249,6 +249,6 @@ func TestGetEntitiesWithParamsNotJsonReturnsError(t *testing.T) {
 		strings.NewReader("bad json"),
 	)
 
-	_, err := route.Controller.GetObjects(response, request)
+	_, err := route.Controller.GetModels(response, request)
 	assert.ErrorIs(t, err, controllers.HTTPErrRequestMalformed)
 }

@@ -14,8 +14,8 @@ type CRUDRepository[T badorm.Model, ID badorm.ModelID] struct {
 	mock.Mock
 }
 
-// GetMultiple provides a mock function with given fields: tx, conditions
-func (_m *CRUDRepository[T, ID]) GetMultiple(tx *gorm.DB, conditions map[string]interface{}) ([]*T, error) {
+// Query provides a mock function with given fields: tx, conditions
+func (_m *CRUDRepository[T, ID]) Query(tx *gorm.DB, conditions map[string]interface{}) ([]*T, error) {
 	ret := _m.Called(tx, conditions)
 
 	var r0 []*T

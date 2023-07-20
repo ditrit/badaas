@@ -3,8 +3,10 @@ package badorm
 import (
 	"fmt"
 	"reflect"
+	"sync"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 type Table struct {
@@ -164,4 +166,16 @@ func NewQuery[T Model](db *gorm.DB, conditions []Condition[T]) (*Query, error) {
 	}
 
 	return query, nil
+}
+
+// Get the name of the table in "db" in which the data for "model" is saved
+// returns error is table name can not be found by gorm,
+// probably because the type of "model" is not registered using AddModel
+func GetTableName(db *gorm.DB, model any) (string, error) {
+	schemaName, err := schema.Parse(model, &sync.Map{}, db.NamingStrategy)
+	if err != nil {
+		return "", err
+	}
+
+	return schemaName.Table, nil
 }
