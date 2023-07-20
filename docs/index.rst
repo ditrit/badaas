@@ -41,13 +41,6 @@ Learn how to use BaDaaS following the :doc:`badaas/quickstart`.
    badaas/configuration
 
 .. toctree::
-   :caption: BaDctl
-
-   badctl/index
-   badctl/installation
-   badctl/commands
-
-.. toctree::
    :caption: BaDORM
 
    badorm/index
@@ -59,6 +52,13 @@ Learn how to use BaDaaS following the :doc:`badaas/quickstart`.
    badorm/query
    badorm/advanced_query
    badorm/preloading
+
+.. toctree::
+   :caption: BaDctl
+
+   badctl/index
+   badctl/installation
+   badctl/commands
 
 .. toctree::
    :caption: Contributing

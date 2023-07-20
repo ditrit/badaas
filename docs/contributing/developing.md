@@ -55,9 +55,9 @@ We use `golangci-lint` for linting our code. You can test it with `make lint`. T
 
 ### Unit tests
 
-We use the standard test suite in combination with [github.com/stretchr/testify](https://github.com/stretchr/testify) to do our unit testing. Mocks are generated using [mockery](https://github.com/vektra/mockery) a mock generator using the command `make test_generate_mocks`.
+We use the standard test suite in combination with [github.com/stretchr/testify](https://github.com/stretchr/testify) to do our unit testing. Mocks are generated using [mockery](https://github.com/vektra/mockery) using the command `make test_generate_mocks`.
 
-To run them, please run:
+To run them, use:
 
 ```sh
 make -k test_unit
@@ -65,7 +65,7 @@ make -k test_unit
 
 ### Integration tests
 
-Integration tests have a database and the dependency injection system. BaDaaS and BaDORM are tested on multiple databases (those supported by gorm, which is the base of BaDORM). By default, the database used will be postgresql:
+Integration tests have a database and the dependency injection system. BaDaaS and BaDORM are tested on multiple databases. By default, the database used will be postgresql:
 
 ```sh
 make test_integration
@@ -75,7 +75,7 @@ To run the tests on another database you can use: `make test_integration_postgre
 
 ### Feature tests (end to end tests)
 
-We use docker to run a Badaas instance in combination with one node of CockroachDB.
+These are black box tests that test BaDaaS using its http api. We use docker to run a Badaas instance in combination with one node of CockroachDB.
 
 Run:
 
@@ -84,6 +84,14 @@ make test_e2e
 ```
 
 The feature files can be found in the `test_e2e/features` folder.
+
+## Requirements
+
+To be acceptable, contributions must:
+
+- Have a good quality of code, based on <https://go.dev/doc/effective_go>.
+- Have at least 80 percent new code coverage (although a higher percentage may be required depending on the importance of the feature). The tests that contribute to coverage are unit tests and integration tests.
+- The features defined in the PR base issue must be explicitly tested by an e2e test or by integration tests in case it is not possible (for BaDORM features for example).
 
 ## Use of Third-party code
 

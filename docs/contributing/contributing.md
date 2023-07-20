@@ -24,20 +24,22 @@ Before you submit an issue, make sure you’ve checked the following:
 2. For bugs
    - It’s not an environment issue.
    - You have as much data as possible. This usually comes in the form of logs and/or stacktrace.
+3. You are assigned to the issue, a branch is created from the issue and the `wip` tag is added if you are also planning to develop the solution.
 
 ## Pull Requests
 
 All contributions come through pull requests. To submit a proposed change, follow this workflow:
 
 1. Make sure there's an issue (bug report or feature request) opened, which sets the expectations for the contribution you are about to make
-2. Fork the [repo](https://github.com/ditrit/badaas) and create a new [branch](#branch-naming-policy)
-3. Install the necessary [development environment](developing.md#environment)
-4. Create your change and the corresponding [tests](developing.md#tests)
-5. Update relevant documentation for the change in `docs/`
-6. If changes are necessary in [BaDaaS example](https://github.com/ditrit/badaas-example) and [BaDORM example](https://github.com/ditrit/badorm-example), follow the same workflow there
-7. Open a PR (and add links to the example repos' PR if they exist)
-8. Wait for the CI process to finish and make sure all checks are green
-9. A maintainer of the project will be assigned
+2. Assign yourself to the issue and add the `wip` tag
+3. Fork the [repo](https://github.com/ditrit/badaas) and create a new [branch](#branch-naming-policy) from the issue
+4. Install the necessary [development environment](developing.md#environment)
+5. Create your change and the corresponding [tests](developing.md#tests)
+6. Update relevant documentation for the change in `docs/`
+7. If changes are necessary in [BaDaaS example](https://github.com/ditrit/badaas-example) and [BaDORM example](https://github.com/ditrit/badorm-example), follow the same workflow there
+8. Open a PR (and add links to the example repos' PR if they exist)
+9. Wait for the CI process to finish and make sure all checks are green
+10. A maintainer of the project will be assigned
 
 ### Use work-in-progress PRs for early feedback
 
