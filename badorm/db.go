@@ -1,19 +1,18 @@
 package badorm
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"strconv"
 	"time"
 
-	"go.uber.org/zap"
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
-
-	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
+	"gorm.io/gorm/logger"
 )
 
 func CreatePostgreSQLDialector(host, username, password, sslmode, dbname string, port int) gorm.Dialector {
@@ -65,28 +64,37 @@ func CreateSQLServerDSN(host, username, password, dbname string, port int) strin
 }
 
 func ConnectToDialector(
-	logger *zap.Logger,
+	logger logger.Interface,
 	dialector gorm.Dialector,
 	retryAmount uint,
 	retryTime time.Duration,
 ) (database *gorm.DB, err error) {
-	for numberRetry := uint(0); numberRetry < retryAmount; numberRetry++ {
+	for retryNumber := uint(0); retryNumber < retryAmount; retryNumber++ {
 		database, err = gorm.Open(dialector, &gorm.Config{
-			Logger: gormzap.New(logger),
+			Logger: logger,
 		})
 
 		if err == nil {
-			logger.Sugar().Debugf("Database connection is active")
+			logger.Info(context.Background(), "Database connection is active")
 			return database, nil
 		}
 
-		logger.Sugar().Debugf("Database connection failed with error %q", err.Error())
-		logger.Sugar().Debugf(
-			"Retrying database connection %d/%d in %s",
-			numberRetry+1, retryAmount, retryTime.String(),
-		)
-		time.Sleep(retryTime)
+		if retryNumber < retryAmount-1 {
+			logger.Info(
+				context.Background(),
+				"Database connection failed with error %q, retrying %d/%d in %s",
+				err.Error(),
+				retryNumber+1, retryAmount, retryTime,
+			)
+			time.Sleep(retryTime)
+		}
 	}
+
+	logger.Error(
+		context.Background(),
+		"Database connection failed with error %q",
+		err.Error(),
+	)
 
 	return nil, err
 }

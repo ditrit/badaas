@@ -8,6 +8,7 @@ import (
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
 )
 
 func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfiguration) (gorm.Dialector, error) {
@@ -46,6 +47,8 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 	}
 }
 
+// TODO cambiar el nombre de este paquete y actualizar el file struct
+
 // Creates the database object with using the database configuration and exec the setup
 func SetupDatabaseConnection(
 	logger *zap.Logger,
@@ -57,7 +60,8 @@ func SetupDatabaseConnection(
 	}
 
 	return badorm.ConnectToDialector(
-		logger,
+		// TODO aca me gustaria que se pueda configurar todo el gormzap tambien
+		gormzap.NewDefault(logger),
 		dialector,
 		databaseConfiguration.GetRetry(),
 		databaseConfiguration.GetRetryTime(),

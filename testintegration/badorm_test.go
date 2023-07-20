@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/spf13/viper"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
@@ -16,7 +15,7 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/logger"
+	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
 	"github.com/ditrit/badaas/testintegration/models"
 )
 
@@ -35,8 +34,7 @@ func TestBaDORM(t *testing.T) {
 	tGlobal = t
 
 	fx.New(
-		fx.Provide(NewLoggerConfiguration),
-		logger.LoggerModule,
+		fx.Provide(NewLogger),
 		fx.Provide(NewGormDBConnection),
 		fx.Provide(GetModels),
 		badorm.BaDORMModule,
@@ -100,34 +98,33 @@ func runBaDORMTestSuites(
 	shutdowner.Shutdown()
 }
 
-func NewLoggerConfiguration() configuration.LoggerConfiguration {
-	viper.Set(configuration.LoggerModeKey, "dev")
-	return configuration.NewLoggerConfiguration()
+func NewLogger() (*zap.Logger, error) {
+	return zap.NewDevelopment()
 }
 
 func NewGormDBConnection(zapLogger *zap.Logger) (*gorm.DB, error) {
 	switch getDBDialector() {
 	case configuration.PostgreSQL:
 		return badorm.ConnectToDialector(
-			zapLogger,
+			gormzap.NewDefault(zapLogger),
 			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.MySQL:
 		return badorm.ConnectToDialector(
-			zapLogger,
+			gormzap.NewDefault(zapLogger),
 			badorm.CreateMySQLDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLite:
 		return badorm.ConnectToDialector(
-			zapLogger,
+			gormzap.NewDefault(zapLogger),
 			badorm.CreateSQLiteDialector(host),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLServer:
 		return badorm.ConnectToDialector(
-			zapLogger,
+			gormzap.NewDefault(zapLogger),
 			badorm.CreateSQLServerDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
