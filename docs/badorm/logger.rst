@@ -25,7 +25,22 @@ Zap logger
 BaDORM provides the possibility to use `zap <https://github.com/uber-go/zap>`_ as logger. 
 For this, there is a package called `gormzap` which is the compatibility layer between both loggers. 
 The information displayed by the zap logger will be the same as if we were using the gorm logger 
-but in a structured form.
+but in a structured form, with the following information:
+
+* level:
+
+  * ERROR for errors during the execution of a query
+  * WARN for slow queries: the query took longer than the SlowThreshold configured (200ms by default)
+  * DEBUG for query execution
+* message:
+
+  * query_error for errors during the execution of a query
+  * query_slow for slow queries: the query took longer than the SlowThreshold configured (200ms by default)
+  * query_exec for query execution
+* error: <error_message> (for errors only)
+* elapsed_time: query execution time
+* rows_affected: number of rows affected by the query
+* sql: query executed
 
 You can create one with the default configuration using:
 
@@ -44,7 +59,7 @@ where `zapLogger` is a zap logger, or use `gormzap.New` to customize it:
     ParameterizedQueries:      false,
   })
 
-The LogLevel is also configurable via the `LogMode`` method. 
+The LogLevel is also configurable via the `LogMode` method. 
 Any configuration of the zap logger is done directly during its creation following the 
 `zap documentation <https://pkg.go.dev/go.uber.org/zap#hdr-Configuring_Zap>`_.
 
