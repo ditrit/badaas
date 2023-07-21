@@ -69,13 +69,10 @@ func (w WriterWrapper) Printf(msg string, args ...interface{}) {
 	w.Writer.Printf(msg, args...)
 }
 
-var (
-	gormPackage   = filepath.Join("gorm.io", "gorm")
-	badormPackage = filepath.Join("badaas", "badorm")
-)
-
 // search in the stacktrace the last file outside gormzap, badorm and gorm
 func FindLastCaller(skip int) (string, int, int) {
+	badormFound := false
+
 	// +1 because at least one will be inside gorm
 	// +1 because of this function
 	for i := skip + 1 + 1; ; i++ {
@@ -84,9 +81,27 @@ func FindLastCaller(skip int) (string, int, int) {
 		if !ok {
 			// we checked in all the stacktrace and none meet the conditions,
 			return "", 0, 0
-		} else if (!strings.Contains(file, gormPackage) && !strings.Contains(file, badormPackage)) || strings.HasSuffix(file, "_test.go") {
-			// file outside badorm and gorm or a test file (util for badorm developers)
+		} else if strings.Contains(file, badormSourceDir) {
+			// first iterate until we find badorm, to go through gorm
+			badormFound = true
+		} else if badormFound {
+			// file outside badorm and gorm
 			return file, line, i
 		}
 	}
+}
+
+var badormSourceDir string
+
+func init() {
+	_, file, _, _ := runtime.Caller(0)
+	// compatible solution to get badorm source directory with various operating systems
+	badormSourceDir = sourceDir(file)
+}
+
+func sourceDir(file string) string {
+	loggerDir := filepath.Dir(file)
+	badormDir := filepath.Dir(loggerDir)
+
+	return filepath.ToSlash(badormDir) + "/"
 }
