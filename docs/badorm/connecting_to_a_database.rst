@@ -10,14 +10,11 @@ Some databases may be compatible with the mysql or postgres dialect,
 in which case you could just use the dialect for those databases (from which CockroachDB is tested).
 
 To communicate with the database BaDORM need a :ref:`GormDB <badorm/concepts:GormDB>` object, 
-that can be created by following `gorm documentation <https://gorm.io/docs/connecting_to_the_database.html>`_. 
+that can be created by following `gorm documentation <https://gorm.io/docs/connecting_to_the_database.html>`_.
 
 BaDORM also offers the `badorm.ConnectToDialector` method that will allow you to connect to a database 
 using the specified dialector with retrying. 
-It also configures the `gorm's logger <https://gorm.io/docs/logger.html>`_ to work with 
-`zap logger <https://github.com/uber-go/zap>`_.
-
-.. TODO verificar esto del logger si no es mejorable, y tambien en el ejemplo no haga falta el logger este.
+It also lets you configure the gorm's logger, for details visit :doc:`/badorm/logger`.
 
 When using BaDORM with `fx` as :ref:`dependency injector <badorm/concepts:Dependency injection>` you 
 will need to provide (`fx.Provide`) a function that returns a `*gorm.DB`.

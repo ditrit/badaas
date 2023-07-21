@@ -52,8 +52,7 @@ Learn how to use BaDaaS following the :doc:`badaas/quickstart`.
    badorm/query
    badorm/advanced_query
    badorm/preloading
-  ..  TODO agregar logging
-  .. Also contains a go package named `gormzap`: it is a compatibility layer between *gorm.io/gorm* and *github.com/uber-go/zap*.
+   badorm/logger
 
 .. toctree::
    :caption: BaDctl

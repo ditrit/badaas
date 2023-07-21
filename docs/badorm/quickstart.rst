@@ -61,10 +61,54 @@ And you should see something like:
 
 .. code-block:: bash
 
-  2023/05/16 09:52:03 Setting up CRUD example
-  2023/05/16 09:52:03 Finished creating CRUD example
-  2023/05/16 09:52:03 Products with int = 1 are:
-  &{UUIDModel:{ID:1483487f-c585-4455-8d5b-2a58be27acbc CreatedAt:2023-05-16 09:50:12.025843 +0200 CEST UpdatedAt:2023-05-16 09:50:12.025843 +0200 CEST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} String: Int:1 Float:0 Bool:false}
+  ...
+  2023/07/20 16:36:22 Migration finished, setting up CRUD example
+
+  2023/07/20 16:36:22 /home/user/go/pkg/mod/github.com/ditrit/badaas@v0.0.0-20230720140340-b3328f8087ae/badorm/query.go:113
+  [2.915ms] [rows:0] SELECT products.* FROM "products" WHERE "products"."deleted_at" IS NULL
+  2023/07/20 16:36:22 Creating models
+
+  2023/07/20 16:36:22 /home/user/go/pkg/mod/github.com/ditrit/badaas@v0.0.0-20230720140340-b3328f8087ae/badorm/crudRepository.go:51
+  [13.587ms] [rows:1] INSERT INTO "products" ("id","created_at","updated_at","deleted_at","string","int","float","bool") VALUES ('c1be925a-1704-4e74-92b0-92103c54dda4','2023-07-20 16:36:22.778','2023-07-20 16:36:22.778',NULL,'',1,0.000000,false)
+
+  2023/07/20 16:36:22 /home/user/go/pkg/mod/github.com/ditrit/badaas@v0.0.0-20230720140340-b3328f8087ae/badorm/crudRepository.go:51
+  [10.760ms] [rows:1] INSERT INTO "products" ("id","created_at","updated_at","deleted_at","string","int","float","bool") VALUES ('bb0de001-d5e5-41fd-9805-b7c66e0f3f7f','2023-07-20 16:36:22.792','2023-07-20 16:36:22.792',NULL,'',2,0.000000,false)
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:46
+  [12.193ms] [rows:1] INSERT INTO "companies" ("id","created_at","updated_at","deleted_at","name") VALUES ('40baea65-8502-4760-bff4-a738403a32ec','2023-07-20 16:36:22.803','2023-07-20 16:36:22.803',NULL,'ditrit')
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:53
+  [10.426ms] [rows:1] INSERT INTO "companies" ("id","created_at","updated_at","deleted_at","name") VALUES ('1b5117fe-c03f-4332-ac7a-6b1748e8b382','2023-07-20 16:36:22.815','2023-07-20 16:36:22.815',NULL,'orness')
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:62
+  [12.573ms] [rows:1] INSERT INTO "sellers" ("id","created_at","updated_at","deleted_at","name","company_id") VALUES ('e022a564-4c33-40ab-8dfd-34093e6a7c34','2023-07-20 16:36:22.825','2023-07-20 16:36:22.825',NULL,'franco','40baea65-8502-4760-bff4-a738403a32ec')
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:70
+  [8.286ms] [rows:1] INSERT INTO "sellers" ("id","created_at","updated_at","deleted_at","name","company_id") VALUES ('7446b46a-dfcf-4d4c-bd46-37701e5f1492','2023-07-20 16:36:22.838','2023-07-20 16:36:22.838',NULL,'agustin','1b5117fe-c03f-4332-ac7a-6b1748e8b382')
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:79
+  [2.412ms] [rows:0] INSERT INTO "products" ("id","created_at","updated_at","deleted_at","string","int","float","bool") VALUES ('c1be925a-1704-4e74-92b0-92103c54dda4','2023-07-20 16:36:22.778','2023-07-20 16:36:22.778',NULL,'',1,0.000000,false) ON CONFLICT DO NOTHING
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:79
+  [3.227ms] [rows:0] INSERT INTO "sellers" ("id","created_at","updated_at","deleted_at","name","company_id") VALUES ('e022a564-4c33-40ab-8dfd-34093e6a7c34','2023-07-20 16:36:22.825','2023-07-20 16:36:22.825',NULL,'franco','40baea65-8502-4760-bff4-a738403a32ec') ON CONFLICT DO NOTHING
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:79
+  [16.087ms] [rows:1] INSERT INTO "sales" ("id","created_at","updated_at","deleted_at","product_id","seller_id") VALUES ('9c667744-039f-43d0-b61a-abf0799a8b76','2023-07-20 16:36:22.853','2023-07-20 16:36:22.853',NULL,'c1be925a-1704-4e74-92b0-92103c54dda4','e022a564-4c33-40ab-8dfd-34093e6a7c34')
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:87
+  [1.251ms] [rows:0] INSERT INTO "products" ("id","created_at","updated_at","deleted_at","string","int","float","bool") VALUES ('bb0de001-d5e5-41fd-9805-b7c66e0f3f7f','2023-07-20 16:36:22.792','2023-07-20 16:36:22.792',NULL,'',2,0.000000,false) ON CONFLICT DO NOTHING
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:87
+  [1.451ms] [rows:0] INSERT INTO "sellers" ("id","created_at","updated_at","deleted_at","name","company_id") VALUES ('7446b46a-dfcf-4d4c-bd46-37701e5f1492','2023-07-20 16:36:22.838','2023-07-20 16:36:22.838',NULL,'agustin','1b5117fe-c03f-4332-ac7a-6b1748e8b382') ON CONFLICT DO NOTHING
+
+  2023/07/20 16:36:22 /home/user/ditrit/badaas/badorm-example/standalone/example.go:87
+  [14.831ms] [rows:1] INSERT INTO "sales" ("id","created_at","updated_at","deleted_at","product_id","seller_id") VALUES ('7ea7cfcd-b182-4d0b-945b-596dc4c1706f','2023-07-20 16:36:22.866','2023-07-20 16:36:22.866',NULL,'bb0de001-d5e5-41fd-9805-b7c66e0f3f7f','7446b46a-dfcf-4d4c-bd46-37701e5f1492')
+  2023/07/20 16:36:22 Finished creating models
+
+  2023/07/20 16:36:22 /home/user/go/pkg/mod/github.com/ditrit/badaas@v0.0.0-20230720140340-b3328f8087ae/badorm/query.go:113
+  [2.641ms] [rows:1] SELECT products.* FROM "products" WHERE products.int = 1 AND "products"."deleted_at" IS NULL
+  2023/07/20 16:36:22 Products with int = 1 are:
+  &{UUIDModel:{ID:c1be925a-1704-4e74-92b0-92103c54dda4 CreatedAt:2023-07-20 16:36:22.778458 +0200 CEST UpdatedAt:2023-07-20 16:36:22.778458 +0200 CEST DeletedAt:{Time:0001-01-01 00:00:00 +0000 UTC Valid:false}} String: Int:1 Float:0 Bool:false}
 
 Understand it (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -77,9 +121,7 @@ Once you have started your project with `go init`, you must add the dependency t
 
 .. code-block:: bash
 
-    go get -u github.com/ditrit/badaas github.com/uber-go/zap gorm.io/gorm
-
-.. TODO quisiera sacar esta dependencia de zap
+    go get -u github.com/ditrit/badaas gorm.io/gorm
 
 In models.go the :ref:`models <badorm/concepts:model>` are defined and 
 in conditions/badorm.go the file required to 
@@ -131,8 +173,6 @@ Once you have started your project with `go init`, you must add the dependency t
 
   go get -u github.com/ditrit/badaas github.com/uber-go/fx github.com/uber-go/zap gorm.io/gorm
 
-.. TODO quisiera sacar esta dependencia de zap
-
 In models.go the :ref:`models <badorm/concepts:model>` are defined and 
 in conditions/badorm.go the file required to 
 :ref:`generate the conditions <badorm/concepts:conditions generation>` is created.
@@ -145,9 +185,15 @@ First, we will need to start your application with `fx`:
     func main() {
       fx.New(
         // activate BaDORM
+        fx.Provide(NewLogger),
         fx.Provide(NewGormDBConnection),
         fx.Provide(GetModels),
         badorm.BaDORMModule,
+
+        // logger for fx
+        fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
+          return &fxevent.ZapLogger{Logger: logger}
+        }),
 
         // start example data
         badorm.GetCRUDServiceModule[models.Company](),
@@ -162,6 +208,9 @@ First, we will need to start your application with `fx`:
 
 There are some things you need to provide to the BaDORM module:
 
+- `NewLogger` (optional) in this case we will use the zap logger instead of the gorm logger, 
+  so we have to provide it and then use it as a logger for fx. 
+  For more information visit :doc:`logger`.
 - `NewGORMDBConnection` is the function that we need to create 
   a :ref:`gormDB <badorm/concepts:gormDB>` that allows connection with the database.
 - `GetModels` is a function that returns in a `badorm.GetModelsResult` the list of models 
