@@ -71,27 +71,27 @@ func (w WriterWrapper) Printf(msg string, args ...interface{}) {
 
 // search in the stacktrace the last file outside gormzap, badorm and gorm
 func FindLastCaller(skip int) (string, int, int) {
-	badormFound := false
-
 	// +1 because at least one will be inside gorm
 	// +1 because of this function
-	for i := skip + 1 + 1; ; i++ {
+	for i := skip + 1 + 1; i < 18; i++ {
 		_, file, line, ok := runtime.Caller(i)
 
 		if !ok {
 			// we checked in all the stacktrace and none meet the conditions,
 			return "", 0, 0
-		} else if strings.Contains(file, badormSourceDir) {
-			// first iterate until we find badorm, to go through gorm
-			badormFound = true
-		} else if badormFound {
+		} else if !strings.Contains(file, gormSourceDir) && !strings.Contains(file, badormSourceDir) {
 			// file outside badorm and gorm
 			return file, line, i
 		}
 	}
+
+	return "", 0, 0
 }
 
-var badormSourceDir string
+var (
+	badormSourceDir string
+	gormSourceDir   = filepath.Join("gorm.io", "gorm")
+)
 
 func init() {
 	_, file, _, _ := runtime.Caller(0)
