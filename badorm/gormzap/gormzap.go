@@ -31,7 +31,7 @@ type Config struct {
 	// GORM Error logs with generate a log with ErrorLevel
 	LogLevel                  gormLogger.LogLevel
 	IgnoreRecordNotFoundError bool // if true, ignore gorm.ErrRecordNotFound error for logger
-	ParameterizedQueries      bool // if true, don't include params in the SQL log
+	ParameterizedQueries      bool // if true, don't include params in the query execution logs
 }
 
 const IgnoreSlowQueries = 0
@@ -40,7 +40,7 @@ var DefaultConfig = Config{
 	LogLevel:                  gormLogger.Warn,
 	SlowThreshold:             200 * time.Millisecond, //nolint:gomnd // default definition
 	IgnoreRecordNotFoundError: false,
-	ParameterizedQueries:      false, // TODO usar para algo
+	ParameterizedQueries:      false,
 }
 
 // This type implement the [gorm.io/gorm/logger.Interface] interface.
@@ -146,6 +146,15 @@ func getZapFields(elapsedTime time.Duration, rowsAffected int64, sql string) []z
 		zap.String("rows_affected", rowsAffectedString),
 		zap.String("sql", sql),
 	}
+}
+
+// Filter parameters from queries depending of the value of ParameterizedQueries
+func (l Logger) ParamsFilter(ctx context.Context, sql string, params ...interface{}) (string, []interface{}) {
+	if l.ParameterizedQueries {
+		return sql, nil
+	}
+
+	return sql, params
 }
 
 var (
