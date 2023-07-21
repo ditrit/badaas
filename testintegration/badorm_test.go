@@ -8,12 +8,12 @@ import (
 
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
-	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/gormzap"
+	"github.com/ditrit/badaas/badorm/logger"
+	"github.com/ditrit/badaas/badorm/logger/gormzap"
 	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -34,15 +34,9 @@ func TestBaDORM(t *testing.T) {
 	tGlobal = t
 
 	fx.New(
-		fx.Provide(NewLogger),
 		fx.Provide(NewGormDBConnection),
 		fx.Provide(GetModels),
 		badorm.BaDORMModule,
-
-		// logger for fx
-		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
-			return &fxevent.ZapLogger{Logger: logger}
-		}),
 
 		badorm.GetCRUDServiceModule[models.Seller](),
 		badorm.GetCRUDServiceModule[models.Company](),
@@ -98,33 +92,34 @@ func runBaDORMTestSuites(
 	shutdowner.Shutdown()
 }
 
-func NewLogger() (*zap.Logger, error) {
-	return zap.NewDevelopment()
-}
-
-func NewGormDBConnection(zapLogger *zap.Logger) (*gorm.DB, error) {
+func NewGormDBConnection() (*gorm.DB, error) {
 	switch getDBDialector() {
 	case configuration.PostgreSQL:
 		return badorm.ConnectToDialector(
-			gormzap.NewDefault(zapLogger),
+			logger.Default.LogMode(logger.Info),
 			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.MySQL:
+		zapLogger, err := zap.NewDevelopment()
+		if err != nil {
+			return nil, err
+		}
+
 		return badorm.ConnectToDialector(
-			gormzap.NewDefault(zapLogger),
+			gormzap.NewDefault(zapLogger).LogMode(logger.Info),
 			badorm.CreateMySQLDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLite:
 		return badorm.ConnectToDialector(
-			gormzap.NewDefault(zapLogger),
+			logger.Default.LogMode(logger.Info),
 			badorm.CreateSQLiteDialector(host),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLServer:
 		return badorm.ConnectToDialector(
-			gormzap.NewDefault(zapLogger),
+			logger.Default.LogMode(logger.Info),
 			badorm.CreateSQLServerDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)

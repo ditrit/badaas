@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
-	"github.com/ditrit/badaas/badorm/gormzap"
+	"github.com/ditrit/badaas/badorm/logger/gormzap"
 	"github.com/ditrit/badaas/configuration"
 )
 

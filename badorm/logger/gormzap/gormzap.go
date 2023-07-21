@@ -3,16 +3,15 @@ package gormzap
 import (
 	"context"
 	"errors"
-	"path/filepath"
-	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gorm.io/gorm"
 	gormLogger "gorm.io/gorm/logger"
+
+	"github.com/ditrit/badaas/badorm/logger"
 )
 
 // TODO algo para saber cuantas queries hiciste por transaction y cuanto tiempo tardó
@@ -52,10 +51,7 @@ type Logger struct {
 
 // The constructor of the gormzap logger with default config
 func NewDefault(zapLogger *zap.Logger) gormLogger.Interface {
-	return &Logger{
-		ZapLogger: zapLogger,
-		Config:    DefaultConfig,
-	}
+	return New(zapLogger, DefaultConfig)
 }
 
 // The constructor of the gormzap logger
@@ -157,21 +153,17 @@ func (l Logger) ParamsFilter(ctx context.Context, sql string, params ...interfac
 	return sql, params
 }
 
-var (
-	gormPackage    = filepath.Join("gorm.io", "gorm")
-	zapgormPackage = filepath.Join("github.com", "ditrit", "badaas", "badorm", "gormzap")
-)
+// Info, Warn, Error or Trace + logger
+const gormzapStacktraceLen = 2
 
-// TODO ver esto que mierda es
 // return a logger that log the right caller
 func (l Logger) logger() *zap.Logger {
-	for i := 2; i < 15; i++ {
-		_, file, _, ok := runtime.Caller(i)
-
-		if ok && !strings.HasSuffix(file, "_test.go") && !strings.Contains(file, gormPackage) && !strings.Contains(file, zapgormPackage) {
-			return l.ZapLogger.WithOptions(zap.AddCallerSkip(i))
-		}
+	_, _, caller := logger.FindLastCaller(gormzapStacktraceLen)
+	if caller == 0 {
+		// in case we checked in all the stacktrace and none meet the conditions,
+		// return the zap logger with the caller of gormzap, no matter where
+		return l.ZapLogger.WithOptions(zap.AddCallerSkip(gormzapStacktraceLen))
+	} else {
+		return l.ZapLogger.WithOptions(zap.AddCallerSkip(caller - 1)) // -1 because here is how many we want to skip
 	}
-
-	return l.ZapLogger
 }
