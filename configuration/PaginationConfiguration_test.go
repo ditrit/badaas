@@ -3,12 +3,13 @@ package configuration_test
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+
+	"github.com/ditrit/badaas/configuration"
 )
 
 var PaginationConfigurationString = `server.pagination.page.max: 12`
@@ -19,8 +20,9 @@ func TestPaginationConfigurationNewPaginationConfiguration(t *testing.T) {
 
 func TestPaginationConfigurationGetMaxElemPerPage(t *testing.T) {
 	setupViperEnvironment(PaginationConfigurationString)
-	PaginationConfiguration := configuration.NewPaginationConfiguration()
-	assert.Equal(t, uint(12), PaginationConfiguration.GetMaxElemPerPage())
+
+	paginationConfiguration := configuration.NewPaginationConfiguration()
+	assert.Equal(t, uint(12), paginationConfiguration.GetMaxElemPerPage())
 }
 
 func TestPaginationConfigurationLog(t *testing.T) {
@@ -29,8 +31,8 @@ func TestPaginationConfigurationLog(t *testing.T) {
 	observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	PaginationConfiguration := configuration.NewPaginationConfiguration()
-	PaginationConfiguration.Log(observedLogger)
+	paginationConfiguration := configuration.NewPaginationConfiguration()
+	paginationConfiguration.Log(observedLogger)
 
 	require.Equal(t, 1, observedLogs.Len())
 	log := observedLogs.All()[0]

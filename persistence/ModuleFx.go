@@ -1,11 +1,10 @@
 package persistence
 
 import (
-	"github.com/ditrit/badaas/persistence/gormdatabase"
-	"github.com/ditrit/badaas/persistence/models"
-	"github.com/ditrit/badaas/persistence/repository"
-	"github.com/google/uuid"
 	"go.uber.org/fx"
+
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/persistence/gormdatabase"
 )
 
 // PersistanceModule for fx
@@ -13,14 +12,11 @@ import (
 // Provides:
 //
 // - The database connection
-//
-// - The repositories
+// - BaDORM
 var PersistanceModule = fx.Module(
 	"persistence",
 	// Database connection
-	fx.Provide(gormdatabase.CreateDatabaseConnectionFromConfiguration),
-
-	//repositories
-	fx.Provide(repository.NewCRUDRepository[models.Session, uuid.UUID]),
-	fx.Provide(repository.NewCRUDRepository[models.User, uuid.UUID]),
+	fx.Provide(gormdatabase.SetupDatabaseConnection),
+	// activate BaDORM
+	badorm.BaDORMModule,
 )

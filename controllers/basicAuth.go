@@ -1,49 +1,47 @@
 package controllers
 
 import (
-	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
+	"time"
 
+	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/httperrors"
 	"github.com/ditrit/badaas/persistence/models/dto"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
-	"go.uber.org/zap"
 )
 
-var (
-	// Sent when the request is malformed
-	HTTPErrRequestMalformed httperrors.HTTPError = httperrors.NewHTTPError(
-		http.StatusBadRequest,
-		"Request malformed",
-		"The schema of the received data is not correct",
-		nil,
-		false)
-)
+var HERRAccessToken = func(err error) httperrors.HTTPError {
+	return httperrors.NewInternalServerError("access token error", "unable to create access token", err)
+}
 
-// Basic Authentification Controller
-type BasicAuthentificationController interface {
+const SessionCookieDuration = 48 * time.Hour
+
+type BasicAuthenticationController interface {
 	BasicLoginHandler(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
 	Logout(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
 }
 
 // Check interface compliance
-var _ BasicAuthentificationController = (*basicAuthentificationController)(nil)
+var _ BasicAuthenticationController = (*basicAuthenticationController)(nil)
 
-// BasicAuthentificationController implementation
-type basicAuthentificationController struct {
+type basicAuthenticationController struct {
 	logger         *zap.Logger
 	userService    userservice.UserService
 	sessionService sessionservice.SessionService
 }
 
-// BasicAuthentificationController contructor
-func NewBasicAuthentificationController(
+// BasicAuthenticationController constructor
+func NewBasicAuthenticationController(
 	logger *zap.Logger,
 	userService userservice.UserService,
 	sessionService sessionservice.SessionService,
-) BasicAuthentificationController {
-	return &basicAuthentificationController{
+) BasicAuthenticationController {
+	return &basicAuthenticationController{
 		logger:         logger,
 		userService:    userService,
 		sessionService: sessionService,
@@ -51,25 +49,42 @@ func NewBasicAuthentificationController(
 }
 
 // Log In with username and password
-func (basicAuthController *basicAuthentificationController) BasicLoginHandler(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+func (basicAuthController *basicAuthenticationController) BasicLoginHandler(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
 	var loginJSONStruct dto.UserLoginDTO
-	err := json.NewDecoder(r.Body).Decode(&loginJSONStruct)
-	if err != nil {
-		return nil, HTTPErrRequestMalformed
-	}
-	user, herr := basicAuthController.userService.GetUser(loginJSONStruct)
+
+	herr := decodeJSON(r, &loginJSONStruct)
 	if herr != nil {
 		return nil, herr
+	}
+
+	user, err := basicAuthController.userService.GetUser(loginJSONStruct)
+	if err != nil {
+		if errors.Is(err, badorm.ErrObjectNotFound) {
+			return nil, httperrors.NewErrorNotFound(
+				"user",
+				fmt.Sprintf("no user found with email %q", loginJSONStruct.Email),
+			)
+		} else if errors.Is(err, userservice.ErrWrongPassword) {
+			return nil, httperrors.NewUnauthorizedError(
+				"wrong password", "the provided password is incorrect",
+			)
+		}
+
+		return nil, httperrors.NewDBError(err)
 	}
 
 	// On valid password, generate a session and return it's uuid to the client
-	herr = basicAuthController.sessionService.LogUserIn(user, w)
-	if herr != nil {
-		return nil, herr
-
+	session, err := basicAuthController.sessionService.LogUserIn(user)
+	if err != nil {
+		return nil, httperrors.NewDBError(err)
 	}
 
-	return dto.DTOLoginSuccess{
+	err = createAndSetAccessTokenCookie(w, session.ID.String())
+	if err != nil {
+		return nil, HERRAccessToken(err)
+	}
+
+	return dto.LoginSuccess{
 		Email:    user.Email,
 		ID:       user.ID.String(),
 		Username: user.Username,
@@ -77,7 +92,36 @@ func (basicAuthController *basicAuthentificationController) BasicLoginHandler(w 
 }
 
 // Log Out the user
-func (basicAuthController *basicAuthentificationController) Logout(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
-	basicAuthController.sessionService.LogUserOut(sessionservice.GetSessionClaimsFromContext(r.Context()), w)
+func (basicAuthController *basicAuthenticationController) Logout(w http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+	herr := basicAuthController.sessionService.LogUserOut(sessionservice.GetSessionClaimsFromContext(r.Context()))
+	if herr != nil {
+		return nil, herr
+	}
+
+	err := createAndSetAccessTokenCookie(w, "")
+	if err != nil {
+		return nil, HERRAccessToken(err)
+	}
+
 	return nil, nil
+}
+
+// Create an access token and send it in a cookie
+func createAndSetAccessTokenCookie(w http.ResponseWriter, sessionUUID string) error {
+	accessToken := &http.Cookie{
+		Name:     "access_token",
+		Path:     "/",
+		Value:    sessionUUID,
+		HttpOnly: true,
+		SameSite: http.SameSiteNoneMode, // TODO change to http.SameSiteStrictMode in prod
+		Secure:   false,                 // TODO change to true in prod
+		Expires:  time.Now().Add(SessionCookieDuration),
+	}
+	if err := accessToken.Valid(); err != nil {
+		return err
+	}
+
+	http.SetCookie(w, accessToken)
+
+	return nil
 }

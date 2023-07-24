@@ -1,11 +1,20 @@
-// Package main :
-package main
+package badaas
+
+//go:generate mockery --all --keeptree
 
 import (
-	"github.com/ditrit/badaas/commands"
+	"go.uber.org/fx"
+
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/logger"
+	"github.com/ditrit/badaas/persistence"
+	"github.com/ditrit/badaas/router"
 )
 
-// Badaas application, run a http-server on 8000.
-func main() {
-	commands.Execute()
-}
+var BadaasModule = fx.Module(
+	"badaas",
+	configuration.ConfigurationModule,
+	router.RouterModule,
+	logger.LoggerModule,
+	persistence.PersistanceModule,
+)

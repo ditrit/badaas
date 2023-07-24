@@ -5,21 +5,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ditrit/badaas/persistence/models/dto"
 	"go.uber.org/zap"
-)
 
-var (
-	// AnError is an HTTPError instance useful for testing.  If the code does not care
-	// about HTTPError specifics, and only needs to return the HTTPError for example, this
-	// HTTPError should be used to make the test code more readable.
-	AnError HTTPError = &HTTPErrorImpl{
-		Status:      -1,
-		Err:         "TESTING ERROR",
-		Message:     "USE ONLY FOR TESTING",
-		GolangError: nil,
-		toLog:       true,
-	}
+	"github.com/ditrit/badaas/persistence/models/dto"
 )
 
 type HTTPError interface {
@@ -46,12 +34,13 @@ type HTTPErrorImpl struct {
 
 // Convert an HTTPError to a json string
 func (httpError *HTTPErrorImpl) ToJSON() string {
-	dto := &dto.DTOHTTPError{
+	dtoHTTPError := &dto.HTTPError{
 		Error:   httpError.Err,
 		Message: httpError.Message,
 		Status:  http.StatusText(httpError.Status),
 	}
-	payload, _ := json.Marshal(dto)
+	payload, _ := json.Marshal(dtoHTTPError)
+
 	return string(payload)
 }
 
@@ -70,6 +59,7 @@ func (httpError *HTTPErrorImpl) Write(httpResponse http.ResponseWriter, logger *
 	if httpError.toLog && logger != nil {
 		logHTTPError(httpError, logger)
 	}
+
 	http.Error(httpResponse, httpError.ToJSON(), httpError.Status)
 }
 
@@ -83,7 +73,7 @@ func logHTTPError(httpError *HTTPErrorImpl, logger *zap.Logger) {
 }
 
 // HTTPError constructor
-func NewHTTPError(status int, err string, message string, golangError error, toLog bool) HTTPError {
+func NewHTTPError(status int, err, message string, golangError error, toLog bool) HTTPError {
 	return &HTTPErrorImpl{
 		Status:      status,
 		Err:         err,
@@ -93,19 +83,19 @@ func NewHTTPError(status int, err string, message string, golangError error, toL
 	}
 }
 
-// A contructor for an HttpError "Not Found"
-func NewErrorNotFound(ressourceName string, msg string) HTTPError {
+// A constructor for an HttpError "Not Found"
+func NewErrorNotFound(resourceName, msg string) HTTPError {
 	return NewHTTPError(
 		http.StatusNotFound,
-		fmt.Sprintf("%s not found", ressourceName),
+		fmt.Sprintf("%s not found", resourceName),
 		msg,
 		nil,
 		false,
 	)
 }
 
-// A contructor for an HttpError "Internal Server Error"
-func NewInternalServerError(errorName string, msg string, err error) HTTPError {
+// A constructor for an HttpError "Internal Server Error"
+func NewInternalServerError(errorName, msg string, err error) HTTPError {
 	return NewHTTPError(
 		http.StatusInternalServerError,
 		errorName,
@@ -115,8 +105,13 @@ func NewInternalServerError(errorName string, msg string, err error) HTTPError {
 	)
 }
 
-// A contructor for an HttpError "Unauthorized Error"
-func NewUnauthorizedError(errorName string, msg string) HTTPError {
+// Constructor for an HttpError "DB Error", a internal server error produced by a query
+func NewDBError(err error) HTTPError {
+	return NewInternalServerError("db error", "database query failed", err)
+}
+
+// A constructor for an HttpError "Unauthorized Error"
+func NewUnauthorizedError(errorName, msg string) HTTPError {
 	return NewHTTPError(
 		http.StatusUnauthorized,
 		errorName,
@@ -124,4 +119,9 @@ func NewUnauthorizedError(errorName string, msg string) HTTPError {
 		nil,
 		true,
 	)
+}
+
+// A constructor for an HTTPError "Bad Request"
+func NewBadRequestError(err, msg string) HTTPError {
+	return NewHTTPError(http.StatusBadRequest, err, msg, nil, false)
 }

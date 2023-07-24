@@ -3,12 +3,13 @@ package configuration_test
 import (
 	"testing"
 
-	"github.com/ditrit/badaas/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+
+	"github.com/ditrit/badaas/configuration"
 )
 
 var initializationConfigurationString = `default:
@@ -21,6 +22,7 @@ func TestInitializationConfigurationInitializationConfiguration(t *testing.T) {
 
 func TestInitializationConfigurationGetInit(t *testing.T) {
 	setupViperEnvironment(initializationConfigurationString)
+
 	initializationConfiguration := configuration.NewInitializationConfiguration()
 	assert.Equal(t, "admin", initializationConfiguration.GetAdminPassword())
 }

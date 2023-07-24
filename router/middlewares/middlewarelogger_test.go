@@ -6,11 +6,12 @@ import (
 	"net/url"
 	"testing"
 
-	configurationmocks "github.com/ditrit/badaas/mocks/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zaptest/observer"
+
+	configurationmocks "github.com/ditrit/badaas/mocks/configuration"
 )
 
 func TestMiddlewareLogger(t *testing.T) {
@@ -18,7 +19,7 @@ func TestMiddlewareLogger(t *testing.T) {
 	observedLogger := zap.New(observedZapCore)
 
 	req := &http.Request{
-		Method: "GET",
+		Method: http.MethodGet,
 		URL: &url.URL{
 			Scheme: "http",
 			Host:   "localhost",
@@ -26,10 +27,10 @@ func TestMiddlewareLogger(t *testing.T) {
 		},
 	}
 	res := httptest.NewRecorder()
-	var actuallyRunned bool = false
+	actuallyRun := false
 	// create a handler to use as "next" which will verify the request
-	nextHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		actuallyRunned = true
+	nextHandler := http.HandlerFunc(func(_ http.ResponseWriter, _ *http.Request) {
+		actuallyRun = true
 	})
 	loggerConfiguration := configurationmocks.NewLoggerConfiguration(t)
 	loggerConfiguration.On("GetRequestTemplate").Return("Receive {{method}} request on {{url}}")
@@ -37,7 +38,7 @@ func TestMiddlewareLogger(t *testing.T) {
 	assert.NoError(t, err)
 
 	loggerMiddleware.Handle(nextHandler).ServeHTTP(res, req)
-	assert.True(t, actuallyRunned)
+	assert.True(t, actuallyRun)
 	require.Equal(t, 1, observedLogs.Len())
 	assert.Equal(t, "Receive GET request on /whatever", observedLogs.All()[0].Message)
 }

@@ -13,21 +13,33 @@
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+*-tests-*.xml
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Go workspace file
-go.work
+# go.work
 
 # cockroach files
 node*
 
-#Vscode conf
+# sqlite files
+testintegration/sqlite:*
+
+# vscode conf
 .vscode
 
 # binary output
 badaas
+!docs/badaas/
+badctl
+!tools/badctl/
+!docs/badctl/
 
-# temporary directories
-_temp
+# test results
+tools/badctl/cmd/gen/conditions/*_conditions.go
+tools/badctl/cmd/gen/conditions/tests/**/badorm.go
+
+# Sphinx documentation
+docs/_build/
