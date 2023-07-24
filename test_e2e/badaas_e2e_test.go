@@ -116,6 +116,10 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJSON)
+	ctx.Step(`^a "(.+)" object exists with property "(.+)" related to last object and properties$`, t.objectExistsWithRelation)
+	ctx.Step(`^a sale object exists for product "(\d+)", code "(\d+)" and description "(.+)"$`, t.saleExists)
+	ctx.Step(`^I query all sale objects with conditions$`, t.querySalesWithConditions)
+	ctx.Step(`^there is a sale object with attributes$`, t.thereIsSaleWithAttributes)
 }
 
 func CleanDB(db *gorm.DB) {

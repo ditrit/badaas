@@ -40,3 +40,21 @@ which allow us to add authentication to our application in a simple way:
         badaasControllers.AuthControllerModule,
       ).Run()
     }
+
+CRUDControllerModule
+-------------------------------
+
+`CRUDControllerModule` adds `/objects/{type}` and `/objects/{type}/{id}`, 
+where `{type}` is any defined type and `{id}` is any uuid. 
+These routes allow us to read objects. For more information on how to use them, 
+see the `example <https://github.com/ditrit/badaas-example>`_.
+
+.. code-block:: go
+
+    func runCommandFunc(cmd *cobra.Command, args []string) {
+      fx.New(
+        badaas.BadaasModule,
+
+        router.GetCRUDRoutesModule[models.Company](),
+      ).Run()
+    }

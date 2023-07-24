@@ -152,3 +152,35 @@ func TestAddLoginRoutes(t *testing.T) {
 	assert.Equal(t, response.Code, http.StatusOK)
 	assert.Equal(t, response.Body.String(), "{\"login\":\"called\"}")
 }
+
+func TestAddCRUDRoutes(t *testing.T) {
+	jsonController := middlewares.NewJSONController(logger)
+
+	crudController := mockControllers.NewCRUDController(t)
+	crudController.
+		On("GetModels", mock.Anything, mock.Anything).
+		Return(map[string]string{"GetModels": "called"}, nil)
+
+	router := NewRouter()
+	AddCRUDRoutes(
+		[]controllers.CRUDRoute{
+			{
+				TypeName:   "model",
+				Controller: crudController,
+			},
+		},
+		router,
+		jsonController,
+	)
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/objects/model",
+		nil,
+	)
+
+	router.ServeHTTP(response, request)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, "{\"GetModels\":\"called\"}", response.Body.String())
+}

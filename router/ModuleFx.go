@@ -1,8 +1,12 @@
 package router
 
 import (
+	"fmt"
+
 	"go.uber.org/fx"
 
+	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services"
@@ -12,6 +16,12 @@ import (
 var RouterModule = fx.Module(
 	"router",
 	fx.Provide(NewRouter),
+	fx.Invoke(
+		fx.Annotate(
+			AddCRUDRoutes,
+			fx.ParamTags(`group:"crudControllers"`),
+		),
+	),
 	// middlewares
 	fx.Provide(middlewares.NewJSONController),
 	fx.Provide(middlewares.NewMiddlewareLogger),
@@ -38,3 +48,22 @@ var AuthRoutesModule = fx.Module(
 	fx.Provide(middlewares.NewAuthenticationMiddleware),
 	fx.Invoke(AddAuthRoutes),
 )
+
+func GetCRUDRoutesModule[T badorm.Model]() fx.Option {
+	typeName := fmt.Sprintf("%T", *new(T))
+
+	return fx.Module(
+		typeName+"CRUDRoutesModule",
+		// service
+		badorm.GetCRUDServiceModule[T](),
+		unsafe.GetCRUDServiceModule[T](),
+
+		// controller
+		fx.Provide(
+			fx.Annotate(
+				controllers.NewCRUDController[T],
+				fx.ResultTags(`group:"crudControllers"`),
+			),
+		),
+	)
+}
