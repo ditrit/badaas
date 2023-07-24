@@ -79,8 +79,6 @@ Once you have started your project with `go init`, you must add the dependency t
 
     go get -u github.com/ditrit/badaas github.com/uber-go/zap gorm.io/gorm
 
-.. TODO quisiera sacar esta dependencia de zap
-
 In models.go the :ref:`models <badorm/concepts:model>` are defined and 
 in conditions/badorm.go the file required to 
 :ref:`generate the conditions <badorm/concepts:conditions generation>` is created.
@@ -130,8 +128,6 @@ Once you have started your project with `go init`, you must add the dependency t
 .. code-block:: bash
 
   go get -u github.com/ditrit/badaas github.com/uber-go/fx github.com/uber-go/zap gorm.io/gorm
-
-.. TODO quisiera sacar esta dependencia de zap
 
 In models.go the :ref:`models <badorm/concepts:model>` are defined and 
 in conditions/badorm.go the file required to 

@@ -10,7 +10,6 @@ func GetCRUD[T Model, ID ModelID](db *gorm.DB) (CRUDService[T, ID], CRUDReposito
 	return NewCRUDService(db, repository), repository
 }
 
-// TODO auto migracion no obligatoria
 func autoMigrate(modelsLists [][]any, db *gorm.DB) error {
 	allModels := pie.Flat(modelsLists)
 	return db.AutoMigrate(allModels...)

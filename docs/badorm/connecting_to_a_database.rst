@@ -17,8 +17,6 @@ using the specified dialector with retrying.
 It also configures the `gorm's logger <https://gorm.io/docs/logger.html>`_ to work with 
 `zap logger <https://github.com/uber-go/zap>`_.
 
-.. TODO verificar esto del logger si no es mejorable, y tambien en el ejemplo no haga falta el logger este.
-
 When using BaDORM with `fx` as :ref:`dependency injector <badorm/concepts:Dependency injection>` you 
 will need to provide (`fx.Provide`) a function that returns a `*gorm.DB`.
 
