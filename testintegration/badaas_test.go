@@ -58,15 +58,20 @@ func injectDependencies(_ *cobra.Command, _ []string) {
 		services.AuthServiceModule,
 		fx.Provide(NewAuthServiceIntTestSuite),
 
+		services.EAVServiceModule,
+		fx.Provide(NewEAVServiceIntTestSuite),
+
 		fx.Invoke(runBaDaaSTestSuites),
 	).Run()
 }
 
 func runBaDaaSTestSuites(
 	tsAuthService *AuthServiceIntTestSuite,
+	tsEAVService *EAVServiceIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
 	suite.Run(tGlobal, tsAuthService)
+	suite.Run(tGlobal, tsEAVService)
 
 	shutdowner.Shutdown()
 }

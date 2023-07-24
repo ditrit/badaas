@@ -38,3 +38,25 @@ var AuthRoutesModule = fx.Module(
 	fx.Provide(middlewares.NewAuthenticationMiddleware),
 	fx.Invoke(AddAuthRoutes),
 )
+
+var EAVRoutesModule = fx.Module(
+	"eavRoutes",
+	// service
+	services.EAVServiceModule,
+
+	// controller
+	fx.Provide(
+		fx.Annotate(
+			controllers.NewEAVController,
+			fx.ResultTags(`name:"eavController"`),
+		),
+	),
+
+	// routes
+	fx.Invoke(
+		fx.Annotate(
+			AddEAVCRUDRoutes,
+			fx.ParamTags(`name:"eavController"`),
+		),
+	),
+)

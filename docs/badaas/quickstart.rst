@@ -67,6 +67,7 @@ To add them, you must initialise the corresponding module:
         // add routes provided by badaas
         router.InfoRouteModule,
         router.AuthRoutesModule,
+        router.EAVRoutesModule,
 
         // Here you can start the rest of the modules that your project uses.
       ).Run()

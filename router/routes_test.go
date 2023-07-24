@@ -152,3 +152,30 @@ func TestAddLoginRoutes(t *testing.T) {
 	assert.Equal(t, response.Code, http.StatusOK)
 	assert.Equal(t, response.Body.String(), "{\"login\":\"called\"}")
 }
+
+func TestAddEAVRoutes(t *testing.T) {
+	jsonController := middlewares.NewJSONController(logger)
+
+	eavController := mockControllers.NewEAVController(t)
+	eavController.
+		On("GetObjects", mock.Anything, mock.Anything).
+		Return(map[string]string{"GetObjects": "called"}, nil)
+
+	router := NewRouter()
+	AddEAVCRUDRoutes(
+		eavController,
+		router,
+		jsonController,
+	)
+
+	response := httptest.NewRecorder()
+	request := httptest.NewRequest(
+		http.MethodGet,
+		"/eav/objects/posts",
+		nil,
+	)
+
+	router.ServeHTTP(response, request)
+	assert.Equal(t, http.StatusOK, response.Code)
+	assert.Equal(t, "{\"GetObjects\":\"called\"}", response.Body.String())
+}

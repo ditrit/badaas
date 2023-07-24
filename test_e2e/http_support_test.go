@@ -255,3 +255,206 @@ func checkMethod(method string) (string, error) {
 
 	return sanitizedMethod, nil
 }
+
+func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) error {
+	err := t.request(
+		"/eav/objects/"+entityType,
+		http.MethodPost,
+		jsonTable,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusCreated)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) objectExistsWithRelation(entityType string, relationAttribute string, jsonTable *godog.Table) error {
+	jsonTable.Rows = append(jsonTable.Rows, &messages.PickleTableRow{
+		Cells: []*messages.PickleTableCell{
+			{
+				Value: relationAttribute,
+			},
+			{
+				Value: t.getIDFromJSON(),
+			},
+			{
+				Value: stringValueType,
+			},
+		},
+	})
+
+	return t.objectExists(entityType, jsonTable)
+}
+
+func (t *TestContext) queryWithObjectID(entityType string) error {
+	err := t.requestGet(
+		"/eav/objects/" + entityType + "/" + t.getIDFromJSON(),
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) queryObjectsWithConditions(entityType string, jsonTable *godog.Table) error {
+	err := t.requestWithJSON(
+		"/eav/objects/"+entityType,
+		http.MethodGet,
+		jsonTable,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) queryAllObjects(entityType string) error {
+	err := t.requestGet(
+		"/eav/objects/" + entityType,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) thereAreObjects(expectedAmount int, entityType string) error {
+	amount := len(t.getListFromJSON())
+	if amount != expectedAmount {
+		return fmt.Errorf("expect amount %d, but there are %d objects of type %s", expectedAmount, amount, entityType)
+	}
+
+	return nil
+}
+
+func (t *TestContext) thereIsObjectWithAttributes(expectedEntityType string, jsonTable *godog.Table) error {
+	expectedValues, err := buildMapFromTable(jsonTable)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	objectMapList := t.getObjectMapListFromJSON()
+	for _, objectMap := range objectMapList {
+		objectAttrs, ok := objectMap["attrs"].(map[string]any)
+		if !ok {
+			log.Fatalln("attrs in object is not a map")
+		}
+
+		if objectMap["type"] == expectedEntityType {
+			if t.areAllAttributesEqual(objectAttrs, expectedValues) {
+				return nil
+			}
+		}
+	}
+
+	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectMapList)
+}
+
+func (t *TestContext) deleteWithObjectID(entityType string) error {
+	err := t.request(
+		"/eav/objects/"+entityType+"/"+t.getIDFromJSON(),
+		http.MethodDelete,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.Table) error {
+	err := t.request(
+		"/eav/objects/"+entityType+"/"+t.getIDFromJSON(),
+		http.MethodPut,
+		jsonTable,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = t.assertStatusCode(http.StatusOK)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (t *TestContext) getIDFromJSON() string {
+	id, present := t.json.(map[string]any)["id"]
+	if !present {
+		log.Fatalln("object id not available")
+	}
+
+	idString, ok := id.(string)
+	if !ok {
+		log.Fatalln("id in json is not a string")
+	}
+
+	return idString
+}
+
+func (t *TestContext) getListFromJSON() []any {
+	objectList, ok := t.json.([]any)
+	if !ok {
+		log.Fatalln("json is not a list")
+	}
+
+	return objectList
+}
+
+func (t *TestContext) getObjectMapListFromJSON() []map[string]any {
+	objectList := t.getListFromJSON()
+
+	return pie.Map(objectList, func(object any) map[string]any {
+		objectMap, ok := object.(map[string]any)
+		if !ok {
+			log.Fatalln("object in json list is not a map")
+		}
+
+		return objectMap
+	})
+}
+
+func (t *TestContext) areAllAttributesEqual(objectMap, expectedValues map[string]any) bool {
+	allEqual := true
+
+	for attributeName, expectedValue := range expectedValues {
+		actualValue, isPresent := objectMap[attributeName]
+		if !isPresent || actualValue != expectedValue {
+			allEqual = false
+		}
+	}
+
+	return allEqual
+}
