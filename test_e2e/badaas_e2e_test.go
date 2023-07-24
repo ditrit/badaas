@@ -109,51 +109,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 			log.Fatalln(err)
 		}
 
-		userType := &models.EntityType{
-			Name: "user",
-		}
-		nameAttr := &models.Attribute{
-			EntityTypeID: userType.ID,
-			Name:         "name",
-			ValueType:    models.StringValueType,
-			Required:     false,
-		}
-		userType.Attributes = append(userType.Attributes,
-			nameAttr,
-		)
-
-		err = db.Create(&userType).Error
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		profileType := &models.EntityType{
-			Name: "profile",
-		}
-		displayNameAttr := &models.Attribute{
-			EntityTypeID: profileType.ID,
-			Name:         "displayName",
-			ValueType:    models.StringValueType,
-			Required:     false,
-		}
-		yearOfBirthAttr := &models.Attribute{
-			EntityTypeID: profileType.ID,
-			Name:         "yearOfBirth",
-			ValueType:    models.IntValueType,
-			Required:     false,
-		}
-		userAttr := models.NewRelationAttribute(profileType, "userID", false, false, userType)
-		profileType.Attributes = append(profileType.Attributes,
-			displayNameAttr,
-			yearOfBirthAttr,
-			userAttr,
-		)
-
-		err = db.Create(&profileType).Error
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 		return ctx, nil
 	})
 
@@ -161,15 +116,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJSON)
-	ctx.Step(`^a "(.+)" object exists with attributes$`, t.objectExists)
-	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
-	ctx.Step(`^I query all "(.+)" objects$`, t.queryAllObjects)
-	ctx.Step(`^there are "(\d+)" "(.+)" objects$`, t.thereAreObjects)
-	ctx.Step(`^there is a "(.+)" object with attributes$`, t.thereIsObjectWithAttributes)
-	ctx.Step(`^I query all "(.+)" objects with conditions$`, t.queryObjectsWithConditions)
-	ctx.Step(`^I delete a "(.+)" with the object id$`, t.deleteWithObjectID)
-	ctx.Step(`^I modify a "(.+)" with attributes$`, t.modifyWithAttributes)
-	ctx.Step(`^a "(.+)" object exists with property "(.+)" related to last object and properties$`, t.objectExistsWithRelation)
 }
 
 func CleanDB(db *gorm.DB) {
@@ -178,10 +124,6 @@ func CleanDB(db *gorm.DB) {
 		[]any{
 			models.Session{},
 			models.User{},
-			models.Value{},
-			models.Attribute{},
-			models.Entity{},
-			models.EntityType{},
 		}...,
 	))
 }

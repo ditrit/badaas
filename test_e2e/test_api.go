@@ -52,7 +52,6 @@ func runHTTPServer(_ *cobra.Command, _ []string) {
 		// add routes provided by badaas
 		router.InfoRouteModule,
 		router.AuthRoutesModule,
-		router.EAVRoutesModule,
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),

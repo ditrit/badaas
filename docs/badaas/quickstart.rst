@@ -64,7 +64,6 @@ To add them, you must initialise the corresponding module:
         // add routes provided by badaas
         badaasControllers.InfoControllerModule,
         badaasControllers.AuthControllerModule,
-        badaasControllers.EAVControllerModule,
         // Here you can start the rest of the modules that your project uses.
       ).Run()
     }

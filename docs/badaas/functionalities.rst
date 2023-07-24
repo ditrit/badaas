@@ -40,21 +40,3 @@ which allow us to add authentication to our application in a simple way:
         badaasControllers.AuthControllerModule,
       ).Run()
     }
-
-EAVControllerModule
--------------------------------
-
-`EAVControllerModule` adds `/eav/objects/{type}` and `/eav/objects/{type}/{id}`, 
-where `{type}` is any defined type and `{id}` is any uuid. These routes allow us to create, 
-read, update and remove objects using an EAV model. For more information on how to use them, 
-see the `example <https://github.com/ditrit/badaas-example>`_.
-
-.. code-block:: go
-
-    func runCommandFunc(cmd *cobra.Command, args []string) {
-      fx.New(
-        badaas.BadaasModule,
-
-        badaasControllers.EAVControllerModule,
-      ).Run()
-    }
