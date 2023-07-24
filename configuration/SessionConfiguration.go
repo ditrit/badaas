@@ -5,6 +5,8 @@ import (
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/utils"
 )
 
 // The config keys regarding the session handling settings
@@ -16,7 +18,7 @@ const (
 
 // Hold the configuration values to handle the sessions
 type SessionConfiguration interface {
-	ConfigurationHolder
+	Holder
 	GetSessionDuration() time.Duration
 	GetPullInterval() time.Duration
 	GetRollDuration() time.Duration
@@ -33,6 +35,7 @@ type sessionConfigurationImpl struct {
 func NewSessionConfiguration() SessionConfiguration {
 	sessionConfiguration := new(sessionConfigurationImpl)
 	sessionConfiguration.Reload()
+
 	return sessionConfiguration
 }
 
@@ -53,9 +56,9 @@ func (sessionConfiguration *sessionConfigurationImpl) GetRollDuration() time.Dur
 
 // Reload session configuration
 func (sessionConfiguration *sessionConfigurationImpl) Reload() {
-	sessionConfiguration.sessionDuration = intToSecond(int(viper.GetUint(SessionDurationKey)))
-	sessionConfiguration.pullInterval = intToSecond(int(viper.GetUint(SessionPullIntervalKey)))
-	sessionConfiguration.rollDuration = intToSecond(int(viper.GetUint(SessionRollIntervalKey)))
+	sessionConfiguration.sessionDuration = utils.IntToSecond(int(viper.GetUint(SessionDurationKey)))
+	sessionConfiguration.pullInterval = utils.IntToSecond(int(viper.GetUint(SessionPullIntervalKey)))
+	sessionConfiguration.rollDuration = utils.IntToSecond(int(viper.GetUint(SessionRollIntervalKey)))
 }
 
 // Log the values provided by the configuration holder

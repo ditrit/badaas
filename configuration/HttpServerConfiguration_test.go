@@ -4,12 +4,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ditrit/badaas/configuration"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zaptest/observer"
+
+	"github.com/ditrit/badaas/configuration"
 )
 
 var HTTPServerConfigurationString = `server:
@@ -24,19 +25,30 @@ func TestHTTPServerConfigurationNewHttpServerConfiguration(t *testing.T) {
 
 func TestHTTPServerConfigurationGetPort(t *testing.T) {
 	setupViperEnvironment(HTTPServerConfigurationString)
-	HTTPServerConfiguration := configuration.NewHTTPServerConfiguration()
-	assert.Equal(t, 8000, HTTPServerConfiguration.GetPort())
+
+	httpServerConfiguration := configuration.NewHTTPServerConfiguration()
+	assert.Equal(t, 8000, httpServerConfiguration.GetPort())
 }
+
 func TestHTTPServerConfigurationGetHost(t *testing.T) {
 	setupViperEnvironment(HTTPServerConfigurationString)
-	HTTPServerConfiguration := configuration.NewHTTPServerConfiguration()
-	assert.Equal(t, "0.0.0.0", HTTPServerConfiguration.GetHost())
+
+	httpServerConfiguration := configuration.NewHTTPServerConfiguration()
+	assert.Equal(t, "0.0.0.0", httpServerConfiguration.GetHost())
+}
+
+func TestHTTPServerConfigurationGetAddr(t *testing.T) {
+	setupViperEnvironment(HTTPServerConfigurationString)
+
+	httpServerConfiguration := configuration.NewHTTPServerConfiguration()
+	assert.Equal(t, "0.0.0.0:8000", httpServerConfiguration.GetAddr())
 }
 
 func TestHTTPServerConfigurationGetMaxTimeout(t *testing.T) {
 	setupViperEnvironment(HTTPServerConfigurationString)
-	HTTPServerConfiguration := configuration.NewHTTPServerConfiguration()
-	assert.Equal(t, time.Duration(15*time.Second), HTTPServerConfiguration.GetMaxTimeout())
+
+	httpServerConfiguration := configuration.NewHTTPServerConfiguration()
+	assert.Equal(t, 15*time.Second, httpServerConfiguration.GetMaxTimeout())
 }
 
 func TestHTTPServerConfigurationLog(t *testing.T) {
@@ -45,8 +57,8 @@ func TestHTTPServerConfigurationLog(t *testing.T) {
 	observedZapCore, observedLogs := observer.New(zap.DebugLevel)
 	observedLogger := zap.New(observedZapCore)
 
-	HTTPServerConfiguration := configuration.NewHTTPServerConfiguration()
-	HTTPServerConfiguration.Log(observedLogger)
+	httpServerConfiguration := configuration.NewHTTPServerConfiguration()
+	httpServerConfiguration.Log(observedLogger)
 
 	require.Equal(t, 1, observedLogs.Len())
 	log := observedLogs.All()[0]
@@ -55,6 +67,6 @@ func TestHTTPServerConfigurationLog(t *testing.T) {
 	assert.ElementsMatch(t, []zap.Field{
 		{Key: "port", Type: zapcore.Int64Type, Integer: 8000},
 		{Key: "host", Type: zapcore.StringType, String: "0.0.0.0"},
-		{Key: "timeout", Type: zapcore.DurationType, Integer: int64(time.Duration(time.Second * 15))},
+		{Key: "timeout", Type: zapcore.DurationType, Integer: int64(time.Second * 15)},
 	}, log.Context)
 }

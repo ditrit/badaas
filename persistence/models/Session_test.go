@@ -4,8 +4,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ditrit/badaas/persistence/models"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 func TestExpired(t *testing.T) {
@@ -25,8 +26,4 @@ func TestCanBeRolled(t *testing.T) {
 	assert.False(t, sessionInstance.CanBeRolled(sessionDuration/4))
 	time.Sleep(400 * time.Millisecond)
 	assert.True(t, sessionInstance.CanBeRolled(sessionDuration))
-}
-
-func TestTableName(t *testing.T) {
-	assert.Equal(t, "sessions", models.Session{}.TableName())
 }

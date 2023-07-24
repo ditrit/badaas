@@ -9,27 +9,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Setup project (ci and sonar)
+- Setup project (ci and sonar).
 - Setup e2e test solution (cucumber + docker).
 - Setup Docker based build system.
-- Add default api endpoint `info`
-- Setup command based pattern using verdeter
-- Add an http error handling mecanism
-- Add a json controller
-- Add a dto package
+- Add default api endpoint `info`.
+- Setup command based pattern using verdeter.
+- Add an http error handling mechanism.
+- Add a json controller.
+- Add a dto package.
 - The tasks in the CI are ran in parallel.
-- Add a Generic CRUD Repository
+- Add a Generic CRUD Repository.
 - Add a configuration structure containing all the configuration holder.
 - Refactor codebase to use the DI framework uber-go/fx. Now all services and controllers relies on interfaces.
-- Add an generic ID to the repository interface
-- Add a retry mecanism for the database connection
+- Add an generic ID to the repository interface.
+- Add a retry mechanism for the database connection.
 - Add `init` flag to migrate database and create admin user.
 - Add a CONTRIBUTING.md and a documentation file for configuration (configuration.md)
 - Add a session services.
-- Add a basic authentification controller.
+- Add a basic authentication controller.
 - Now config keys are only declared once with constants in the `configuration/` package.
 - Add a dto that is returned on a successful login.
-- Update verdeter to version v0.4.0
-
+- Update verdeter to version v0.4.0.
+- Add integration tests.
+- Add a eav controller to store objects in EAV format.
+- Add some examples of data models.
+- Add transaction executor to run services that lead to multiples queries.
+- Add repositories to manage querying to the database.
+- Transform BadAas into a library.
+- Add BadCtl tool.
+- Add BaDORM to facilitate queries on sql databases.
+- Add gen conditions to BaDctl to generate a compilable query system.
 
 [unreleased]: https://github.com/ditrit/badaas/blob/main/changelog.md#unreleased

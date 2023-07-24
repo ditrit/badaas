@@ -1,18 +1,18 @@
 # The settings for the database.
 database:
-  # The host of the database server. 
+  # The host of the database server (or path for sqlite).
   # (mandatory)
   host: e2e-db-1
 
-  # The port of the database server. 
+  # The port of the database server.
   # (mandatory)
   port: 26257
 
-  # The sslmode of the connection to the database server. 
+  # The sslmode of the connection to the database server.
   # (mandatory)
   sslmode: disable
 
-  # The username of the account on the database server. 
+  # The username of the account on the database server.
   # (mandatory)
   username: root
 
@@ -20,7 +20,7 @@ database:
   # (mandatory)
   password: postgres
 
-  # The settings for the initialization of the database server. 
+  # The settings for the initialization of the database server.
   init:
     # Number of time badaas will try to establish a connection to the database server.
     # default (10)
@@ -30,11 +30,15 @@ database:
     # default (5)
     retryTime: 5
 
+  # dialector to use in communication with database (postgresql | mysql | sqlite | sqlserver)
+  # (mandatory)
+  dialector: postgresql
+
 # The settings for the http server.
 server:
   # The address to bind badaas to.
   # default ("0.0.0.0")
-  host: "" 
+  host: ""
 
   # The port badaas should use.
   # default (8000)
@@ -42,12 +46,12 @@ server:
 
   # The maximum timeout for the http server in seconds.
   # default (15)
-  timeout: 15 
+  timeout: 15
 
   # The settings for the pagination.
   pagination:
     page:
-      # The maximum number of record per page 
+      # The maximum number of record per page.
       # default (100)
       max: 100
 
@@ -61,7 +65,7 @@ logger:
     template: "Receive {{method}} request on {{url}}"
 
 # The settings for session service
-# This section contains some good defaults, don't change thoses value unless you need to.
+# This section contains some good defaults, don't change those value unless you need to.
 session:
   # The duration of a user session, in seconds
   # Default (14400) equal to 4 hours
@@ -79,4 +83,3 @@ default:
   admin:
     # The admin password for the first run. Won't change is the admin user already exists.
     password: admin
-    
