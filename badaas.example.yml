@@ -30,7 +30,7 @@ database:
     # default (5)
     retryTime: 5
 
-  # dialector to use in communication with database (postgresql | mysql)
+  # dialector to use in communication with database (postgresql | mysql | sqlite | sqlserver)
   # (mandatory)
   dialector: postgresql
 
