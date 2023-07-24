@@ -86,25 +86,3 @@ func AddEAVCRUDRoutes(
 	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.UpdateObject)).Methods(http.MethodPut)
 	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.DeleteObject)).Methods(http.MethodDelete)
 }
-
-func AddCRUDRoutes(
-	crudRoutes []controllers.CRUDRoute,
-	router *mux.Router,
-	jsonController middlewares.JSONController,
-) {
-	for _, crudRoute := range crudRoutes {
-		// Objects CRUD
-		objectsBase := "/objects/" + crudRoute.TypeName
-		objectsWithID := objectsBase + "/{id}"
-		// TODO create, update, delete
-		// read
-		router.HandleFunc(
-			objectsWithID,
-			jsonController.Wrap(crudRoute.Controller.GetModel),
-		).Methods(http.MethodGet)
-		router.HandleFunc(
-			objectsBase,
-			jsonController.Wrap(crudRoute.Controller.GetModels),
-		).Methods(http.MethodGet)
-	}
-}

@@ -170,9 +170,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I delete a "(.+)" with the object id$`, t.deleteWithObjectID)
 	ctx.Step(`^I modify a "(.+)" with attributes$`, t.modifyWithAttributes)
 	ctx.Step(`^a "(.+)" object exists with property "(.+)" related to last object and properties$`, t.objectExistsWithRelation)
-	ctx.Step(`^a sale object exists for product "(\d+)", code "(\d+)" and description "(.+)"$`, t.saleExists)
-	ctx.Step(`^I query all sale objects with conditions$`, t.querySalesWithConditions)
-	ctx.Step(`^there is a sale object with attributes$`, t.thereIsSaleWithAttributes)
 }
 
 func CleanDB(db *gorm.DB) {

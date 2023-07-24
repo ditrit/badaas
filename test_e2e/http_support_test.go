@@ -12,8 +12,6 @@ import (
 	"github.com/cucumber/godog"
 	"github.com/cucumber/messages-go/v16"
 	"github.com/elliotchance/pie/v2"
-
-	"github.com/ditrit/badaas/testintegration/models"
 )
 
 const BaseURL = "http://localhost:8000"
@@ -424,56 +422,6 @@ func (t *TestContext) getIDFromJSON() string {
 	}
 
 	return idString
-}
-
-func (t *TestContext) saleExists(productInt int, code int, description string) {
-	product := &models.Product{
-		Int: productInt,
-	}
-
-	sale := &models.Sale{
-		Code:        code,
-		Description: description,
-		Product:     *product,
-	}
-
-	if err := t.db.Create(sale).Error; err != nil {
-		log.Fatalln(err)
-	}
-}
-
-func (t *TestContext) querySalesWithConditions(jsonTable *godog.Table) error {
-	err := t.requestWithJSON(
-		"/objects/sale",
-		http.MethodGet,
-		jsonTable,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusOK)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *TestContext) thereIsSaleWithAttributes(jsonTable *godog.Table) error {
-	expectedValues, err := buildMapFromTable(jsonTable)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	objectMapList := t.getObjectMapListFromJSON()
-	for _, objectMap := range objectMapList {
-		if t.areAllAttributesEqual(objectMap, expectedValues) {
-			return nil
-		}
-	}
-
-	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectMapList)
 }
 
 func (t *TestContext) getListFromJSON() []any {
