@@ -81,7 +81,7 @@ func FindLastCaller(skip int) (string, int, int) {
 			return "", 0, 0
 		} else if !strings.Contains(file, gormSourceDir) && !strings.Contains(file, badormSourceDir) {
 			// file outside badorm and gorm
-			return file, line, i
+			return file, line, i - 1 // -1 to remove this function from the stacktrace
 		}
 	}
 
