@@ -51,6 +51,7 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 func SetupDatabaseConnection(
 	logger *zap.Logger,
 	databaseConfiguration configuration.DatabaseConfiguration,
+	loggerConfiguration configuration.LoggerConfiguration,
 ) (*gorm.DB, error) {
 	dialector, err := createDialectorFromConf(databaseConfiguration)
 	if err != nil {
@@ -58,8 +59,12 @@ func SetupDatabaseConnection(
 	}
 
 	return badorm.ConnectToDialector(
-		// TODO aca me gustaria que se pueda configurar todo el gormzap tambien
-		gormzap.NewDefault(logger),
+		gormzap.New(logger, gormzap.Config{
+			LogLevel:                  loggerConfiguration.GetLogLevel(),
+			SlowThreshold:             loggerConfiguration.GetSlowThreshold(),
+			IgnoreRecordNotFoundError: loggerConfiguration.GetIgnoreRecordNotFoundError(),
+			ParameterizedQueries:      loggerConfiguration.GetParameterizedQueries(),
+		}),
 		dialector,
 		databaseConfiguration.GetRetry(),
 		databaseConfiguration.GetRetryTime(),

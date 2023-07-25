@@ -21,7 +21,7 @@ As an example we will define the `database.port` configuration key using the 3 m
 - Using an environment variable: :code:`export BADAAS_DATABASE_PORT=1222` (*dots are replaced by underscores*)
 - Using a config file (in YAML here)
 
-::
+.. code-block:: yaml
 
     # /etc/badaas/badaas.yml
     database:
@@ -46,43 +46,43 @@ To see a complete example of a working config file: head to
 
 Database
 ^^^^^^^^^^^^^^^^^^^^^^^^
-::
+.. code-block:: yaml
 
-    # The settings for the database.
-    database:
-      # The host of the database server. 
-      # (mandatory)
-      host: e2e-db-1
+  # The settings for the database.
+  database:
+    # The host of the database server. 
+    # (mandatory)
+    host: e2e-db-1
 
-      # The port of the database server. 
-      # (mandatory)
-      port: 26257
+    # The port of the database server. 
+    # (mandatory)
+    port: 26257
 
-      # The sslmode of the connection to the database server. 
-      # (mandatory)
-      sslmode: disable
+    # The sslmode of the connection to the database server. 
+    # (mandatory)
+    sslmode: disable
 
-      # The username of the account on the database server. 
-      # (mandatory)
-      username: root
+    # The username of the account on the database server. 
+    # (mandatory)
+    username: root
 
-      # The password of the account on the database server.
-      # (mandatory)
-      password: postgres
+    # The password of the account on the database server.
+    # (mandatory)
+    password: postgres
 
-      # The settings for the initialization of the database server. 
-      init:
-        # Number of time badaas will try to establish a connection to the database server.
-        # default (10)
-        retry: 10
+    # The settings for the initialization of the database server. 
+    init:
+      # Number of time badaas will try to establish a connection to the database server.
+      # default (10)
+      retry: 10
 
-        # Waiting time between connection, in seconds.
-        # default (5)
-        retryTime: 5
+      # Waiting time between connection, in seconds.
+      # default (5)
+      retryTime: 5
 
-      # dialector to use in communication with database (postgresql | mysql | sqlite | sqlserver)
-      # (mandatory)
-      dialector: postgresql
+    # dialector to use in communication with database (postgresql | mysql | sqlite | sqlserver)
+    # (mandatory)
+    dialector: postgresql
 
 Please note that the init section `init:` is not mandatory. 
 Badaas is suited with a simple but effective retry mechanism that will retry 
@@ -98,16 +98,34 @@ production and user adapted logs for debug using the `logger.mode` key.
 Badaas offers the possibility to change the log message of the 
 Middleware Logger but provides a sane default. It is formatted using the Jinja syntax. 
 The values available are `method`, `url` and `protocol`.
-::
 
-    # The settings for the logger.
-    logger:
-      # Either `dev` or `prod`
-      # default (`prod`)
-      mode: prod
-      request:
-        # Change the log emitted when badaas receives a request on a valid endpoint.
-        template: "Receive {{method}} request on {{url}}"
+.. code-block:: yaml
+
+  # The settings for the logger.
+  logger:
+    # Either `dev` or `prod`
+    # default (`prod`)
+    mode: prod
+
+    # Disable error stacktrace from logs
+    # default (true)
+    disableStacktrace: true
+
+    # Threshold for the slow query warning in milliseconds
+    # default (200)
+    slowThreshold: 200
+
+    # If true, ignore gorm.ErrRecordNotFound error for logger
+    # default (false)
+    ignoreRecordNotFoundError: false
+
+    # If true, don't include params in the query execution logs
+    # default (false)
+    parameterizedQueries: false
+
+    request:
+      # Change the log emitted when badaas receives a request on a valid endpoint.
+      template: "Receive {{method}} request on {{url}}"
 
 HTTP Server
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -115,42 +133,44 @@ HTTP Server
 You can change the host Badaas will bind to, the port and the timeout in seconds.
 
 Additionally you can change the number of elements returned by default for a paginated response.
-::
 
-    # The settings for the http server.
-    server:
-      # The address to bind badaas to.
-      # default ("0.0.0.0")
-      host: "" 
+.. code-block:: yaml
 
-      # The port badaas should use.
-      # default (8000)
-      port: 8000
+  # The settings for the http server.
+  server:
+    # The address to bind badaas to.
+    # default ("0.0.0.0")
+    host: "" 
 
-      # The maximum timeout for the http server in seconds.
-      # default (15)
-      timeout: 15 
+    # The port badaas should use.
+    # default (8000)
+    port: 8000
 
-      # The settings for the pagination.
-      pagination:
-        page:
-          # The maximum number of record per page 
-          # default (100)
-          max: 100
+    # The maximum timeout for the http server in seconds.
+    # default (15)
+    timeout: 15 
+
+    # The settings for the pagination.
+    pagination:
+      page:
+        # The maximum number of record per page 
+        # default (100)
+        max: 100
 
 
 Default values
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The section allow to change some settings for the first run.
-::
 
-    # The settings for the first run.
-    default:
-      # The admin settings for the first run
-      admin:
-        # The admin password for the first run. Won't change is the admin user already exists.
-        password: admin
+.. code-block:: yaml
+
+  # The settings for the first run.
+  default:
+    # The admin settings for the first run
+    admin:
+      # The admin password for the first run. Won't change is the admin user already exists.
+      password: admin
 
 Session management
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -170,17 +190,17 @@ Please see the diagram below to see what is the roll duration relative to the se
                                   |<--------------->|
                                      roll duration
 
-::
+.. code-block:: yaml
 
-    # The settings for session service
-    # This section contains some good defaults, don't change those value unless you need to.
-    session:
-      # The duration of a user session, in seconds
-      # Default (14400) equal to 4 hours
-      duration: 14400
-      # The refresh interval in seconds. Badaas refresh it's internal session cache periodically.
-      # Default (30)
-      pullInterval: 30
-      # The duration in which the user can renew it's session by making a request.
-      # Default (3600) equal to 1 hour
-      rollDuration: 3600
+  # The settings for session service
+  # This section contains some good defaults, don't change those value unless you need to.
+  session:
+    # The duration of a user session, in seconds
+    # Default (14400) equal to 4 hours
+    duration: 14400
+    # The refresh interval in seconds. Badaas refresh it's internal session cache periodically.
+    # Default (30)
+    pullInterval: 30
+    # The duration in which the user can renew it's session by making a request.
+    # Default (3600) equal to 1 hour
+    rollDuration: 3600
