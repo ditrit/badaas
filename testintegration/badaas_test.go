@@ -55,18 +55,18 @@ func injectDependencies(_ *cobra.Command, _ []string) {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
 
-		services.EAVServiceModule,
-		fx.Provide(NewEAVServiceIntTestSuite),
+		services.AuthServiceModule,
+		fx.Provide(NewAuthServiceIntTestSuite),
 
 		fx.Invoke(runBaDaaSTestSuites),
 	).Run()
 }
 
 func runBaDaaSTestSuites(
-	tsEAVService *EAVServiceIntTestSuite,
+	tsAuthService *AuthServiceIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, tsEAVService)
+	suite.Run(tGlobal, tsAuthService)
 
 	shutdowner.Shutdown()
 }

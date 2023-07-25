@@ -80,6 +80,10 @@ Database
         # default (5)
         retryTime: 5
 
+      # dialector to use in communication with database (postgresql | mysql | sqlite | sqlserver)
+      # (mandatory)
+      dialector: postgresql
+
 Please note that the init section `init:` is not mandatory. 
 Badaas is suited with a simple but effective retry mechanism that will retry 
 `database.init.retry` time to establish a connection with the database. 

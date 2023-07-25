@@ -194,13 +194,5 @@ After that, we need to start the `badorm.BaDORMModule` and we are ready create
 Finally, we call the functions `CreateCRUDObjects` 
 and `QueryCRUDObjects` where the CRUDServices are injected to create, 
 read, update and delete the models easily. This two functions are defined in `example.go`. 
-In `QueryCRUDObjects` yoIn `QueryCRUDObjects` you can find a basic usage of the compiled query system.u can find a basic usage of the 
+In `QueryCRUDObjects` you can find a basic usage of the compiled query system.u can find a basic usage of the 
 :ref:`compilable query system <badorm/concepts:compilable query system>`.
-
-BaDaaS example
----------------------------
-
-If you are interested in using BaDORM within a BaDaaS application you can 
-consult the `badaas example <https://github.com/ditrit/badaas-example>`_. 
-in which besides using the services and repositories provided by BaDorm, 
-BaDaaS adds a controller that allows the query of objects via an http api.

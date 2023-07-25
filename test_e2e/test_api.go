@@ -18,7 +18,6 @@ import (
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/testintegration"
-	"github.com/ditrit/badaas/testintegration/models"
 	"github.com/ditrit/verdeter"
 )
 
@@ -53,9 +52,6 @@ func runHTTPServer(_ *cobra.Command, _ []string) {
 		// add routes provided by badaas
 		router.InfoRouteModule,
 		router.AuthRoutesModule,
-		router.EAVRoutesModule,
-
-		router.GetCRUDRoutesModule[models.Sale](),
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),

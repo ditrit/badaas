@@ -55,16 +55,3 @@ For example:
     func QueryCRUDObjects(crudYourModelService badorm.CRUDService[YourModel, badorm.UUID]) {
         // use crudYourModelService
     }
-
-unsafe.CRUDService and unsafe.CRUDRepository
-----------------------------------------------------
-
-There is another version of the CRUDService and CRUDRepository found in 
-unsafe.CRUDService and unsafe.CRUDRepository respectively. 
-This version is not part of the compilable query system but allows to perform 
-queries through maps built on runtime (hence the name unsafe).
-
-**Its direct use is not recommended**, since using the compilable query system we can make 
-sure that the query is correct at compile time, while here errors will happen at runtime in 
-case your condition map is not well structured. 
-This functionality is used internally by BaDaaS to provide an HTTP api for queries.

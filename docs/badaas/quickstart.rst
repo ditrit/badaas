@@ -23,19 +23,20 @@ the configuration of this command:
 
 .. code-block:: go
 
-    var command = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-      Use:   "badaas",
-      Short: "Backend and Distribution as a Service",
-      Run:   runCommandFunc,
+    var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
+      Use:   "badaas-example",
+      Short: "Example of BadAss",
+      Long:  "A HTTP server build over BadAas that uses its Login features",
+      Run:   runHTTPServer,
     })
 
     func main() {
-      err := configuration.NewCommandInitializer().Init(command)
+      err := configuration.NewCommandInitializer().Init(rootCfg)
       if err != nil {
         panic(err)
       }
 
-      command.Execute()
+      rootCfg.Execute()
     }
 
 Then, in the Run function of your command, you must use `fx` and start the badaas functions:
@@ -44,6 +45,7 @@ Then, in the Run function of your command, you must use `fx` and start the badaa
 
     func runCommandFunc(cmd *cobra.Command, args []string) {
       fx.New(
+        fx.Provide(GetModels),
         badaas.BadaasModule,
 
         // Here you can add the functionalities provided by badaas
@@ -58,13 +60,14 @@ To add them, you must initialise the corresponding module:
 
     func runCommandFunc(cmd *cobra.Command, args []string) {
       fx.New(
+        fx.Provide(GetModels),
         badaas.BadaasModule,
 
         fx.Provide(NewAPIVersion),
         // add routes provided by badaas
-        badaasControllers.InfoControllerModule,
-        badaasControllers.AuthControllerModule,
-        badaasControllers.EAVControllerModule,
+        router.InfoRouteModule,
+        router.AuthRoutesModule,
+
         // Here you can start the rest of the modules that your project uses.
       ).Run()
     }
@@ -76,26 +79,5 @@ To add them, you must initialise the corresponding module:
 For details visit :doc:`functionalities`.
 
 Once you have defined the functionalities of your project (an http api for example),
-you can generate everything you need to run your application using `badctl`.
-
-For installing it, use:
-
-.. code-block:: bash
-
-    go install github.com/ditrit/badaas/tools/badctl
-
-Then generate files to make this project work with `cockroach` as database
-
-.. code-block:: bash
-
-    badctl gen docker --db_provider cockroachdb
-
-For more information about `badctl` refer to :doc:`../badctl/index`.
-
-Finally, you can run the api with
-
-.. code-block:: bash
-
-    make badaas_run
-
-The api will be available at <http://localhost:8000>.
+you can generate everything you need to run your application using `badctl`, 
+as described in the `README.md <https://github.com/ditrit/badaas-example/blob/main/README.md>`_ of the example.

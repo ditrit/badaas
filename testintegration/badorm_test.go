@@ -14,7 +14,6 @@ import (
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/logger"
 	"github.com/ditrit/badaas/badorm/logger/gormzap"
-	"github.com/ditrit/badaas/badorm/unsafe"
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/testintegration/models"
 )
@@ -50,19 +49,6 @@ func TestBaDORM(t *testing.T) {
 		badorm.GetCRUDServiceModule[models.Brand](),
 		badorm.GetCRUDServiceModule[models.Child](),
 
-		unsafe.GetCRUDServiceModule[models.Company](),
-		unsafe.GetCRUDServiceModule[models.Seller](),
-		unsafe.GetCRUDServiceModule[models.Product](),
-		unsafe.GetCRUDServiceModule[models.Sale](),
-		unsafe.GetCRUDServiceModule[models.City](),
-		unsafe.GetCRUDServiceModule[models.Country](),
-		unsafe.GetCRUDServiceModule[models.Employee](),
-		unsafe.GetCRUDServiceModule[models.Person](),
-		unsafe.GetCRUDServiceModule[models.Bicycle](),
-		unsafe.GetCRUDServiceModule[models.Phone](),
-		unsafe.GetCRUDServiceModule[models.Brand](),
-
-		fx.Provide(NewCRUDUnsafeServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
 		fx.Provide(NewWhereConditionsIntTestSuite),
 		fx.Provide(NewJoinConditionsIntTestSuite),
@@ -75,7 +61,6 @@ func TestBaDORM(t *testing.T) {
 
 func runBaDORMTestSuites(
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
-	tsCRUDUnsafeService *CRUDUnsafeServiceIntTestSuite,
 	tsWhereConditions *WhereConditionsIntTestSuite,
 	tsJoinConditions *JoinConditionsIntTestSuite,
 	tsPreloadConditions *PreloadConditionsIntTestSuite,
@@ -83,7 +68,6 @@ func runBaDORMTestSuites(
 	shutdowner fx.Shutdowner,
 ) {
 	suite.Run(tGlobal, tsCRUDRepository)
-	suite.Run(tGlobal, tsCRUDUnsafeService)
 	suite.Run(tGlobal, tsWhereConditions)
 	suite.Run(tGlobal, tsJoinConditions)
 	suite.Run(tGlobal, tsPreloadConditions)
