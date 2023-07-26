@@ -1,40 +1,59 @@
 package logger
 
 import (
+	"context"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
 	"strconv"
-	"strings"
 	"time"
 
 	gormLogger "gorm.io/gorm/logger"
 )
 
-const (
-	// Silent silent log level
-	Silent gormLogger.LogLevel = gormLogger.Silent
-	// Error error log level
-	Error gormLogger.LogLevel = gormLogger.Error
-	// Warn warn log level
-	Warn gormLogger.LogLevel = gormLogger.Warn
-	// Info info log level
-	Info gormLogger.LogLevel = gormLogger.Info
-)
-
 var (
-	Default = New(gormLogger.Config{
-		SlowThreshold:             200 * time.Millisecond, //nolint:gomnd // default definition
-		LogLevel:                  gormLogger.Warn,
-		IgnoreRecordNotFoundError: false,
-		Colorful:                  true,
-	})
+	Default       = New(DefaultConfig)
 	DefaultWriter = WriterWrapper{Writer: log.New(os.Stdout, "\r\n", log.LstdFlags)}
 )
 
-func New(config gormLogger.Config) gormLogger.Interface {
-	return gormLogger.New(DefaultWriter, config)
+type defaultLogger struct {
+	gormLogger.Interface
+	Config
+}
+
+func New(config Config) Interface {
+	return &defaultLogger{
+		Config:    config,
+		Interface: gormLogger.New(DefaultWriter, config.toGormConfig()),
+	}
+}
+
+func (l *defaultLogger) LogMode(level gormLogger.LogLevel) gormLogger.Interface {
+	return l.ToLogMode(level)
+}
+
+func (l *defaultLogger) ToLogMode(level gormLogger.LogLevel) Interface {
+	newLogger := *l
+	newLogger.LogLevel = level
+	newLogger.Interface = newLogger.Interface.LogMode(level)
+
+	return &newLogger
+}
+
+const nanoToMicro = 1e6
+
+func (l defaultLogger) TraceTransaction(ctx context.Context, begin time.Time) {
+	if l.LogLevel <= gormLogger.Silent {
+		return
+	}
+
+	elapsed := time.Since(begin)
+
+	switch {
+	case l.SlowTransactionThreshold != DisableThreshold && elapsed > l.SlowTransactionThreshold && l.LogLevel >= gormLogger.Warn:
+		l.Interface.Warn(ctx, "transaction_slow (>= %vms) [%.3fms]", l.SlowTransactionThreshold, float64(elapsed.Nanoseconds())/nanoToMicro)
+	case l.LogLevel >= gormLogger.Info:
+		l.Interface.Info(ctx, "transaction_exec [%.3fms]", float64(elapsed.Nanoseconds())/nanoToMicro)
+	}
 }
 
 type WriterWrapper struct {
@@ -67,41 +86,4 @@ func (w WriterWrapper) Printf(msg string, args ...interface{}) {
 	}
 
 	w.Writer.Printf(msg, args...)
-}
-
-// search in the stacktrace the last file outside gormzap, badorm and gorm
-func FindLastCaller(skip int) (string, int, int) {
-	// +1 because at least one will be inside gorm
-	// +1 because of this function
-	for i := skip + 1 + 1; i < 18; i++ {
-		_, file, line, ok := runtime.Caller(i)
-
-		if !ok {
-			// we checked in all the stacktrace and none meet the conditions,
-			return "", 0, 0
-		} else if !strings.Contains(file, gormSourceDir) && !strings.Contains(file, badormSourceDir) {
-			// file outside badorm and gorm
-			return file, line, i - 1 // -1 to remove this function from the stacktrace
-		}
-	}
-
-	return "", 0, 0
-}
-
-var (
-	badormSourceDir string
-	gormSourceDir   = filepath.Join("gorm.io", "gorm")
-)
-
-func init() {
-	_, file, _, _ := runtime.Caller(0)
-	// compatible solution to get badorm source directory with various operating systems
-	badormSourceDir = sourceDir(file)
-}
-
-func sourceDir(file string) string {
-	loggerDir := filepath.Dir(file)
-	badormDir := filepath.Dir(loggerDir)
-
-	return filepath.ToSlash(badormDir) + "/"
 }

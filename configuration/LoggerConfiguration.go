@@ -17,7 +17,8 @@ const (
 const (
 	LoggerModeKey                      string = "logger.mode"
 	LoggerDisableStacktraceKey         string = "logger.disableStacktrace"
-	LoggerSlowThresholdKey             string = "logger.slowThreshold"
+	LoggerSlowQueryThresholdKey        string = "logger.slowQueryThreshold"
+	LoggerSlowTransactionThresholdKey  string = "logger.slowTransactionThreshold"
 	LoggerIgnoreRecordNotFoundErrorKey string = "logger.ignoreRecordNotFoundError"
 	LoggerParameterizedQueriesKey      string = "logger.parameterizedQueries"
 	LoggerRequestTemplateKey           string = "logger.request.template"
@@ -29,7 +30,8 @@ type LoggerConfiguration interface {
 	GetMode() string
 	GetLogLevel() logger.LogLevel
 	GetDisableStacktrace() bool
-	GetSlowThreshold() time.Duration
+	GetSlowQueryThreshold() time.Duration
+	GetSlowTransactionThreshold() time.Duration
 	GetIgnoreRecordNotFoundError() bool
 	GetParameterizedQueries() bool
 	GetRequestTemplate() string
@@ -39,7 +41,8 @@ type LoggerConfiguration interface {
 type loggerConfigurationImpl struct {
 	mode                      string
 	disableStacktrace         bool
-	slowThreshold             time.Duration
+	slowQueryThreshold        time.Duration
+	slowTransactionThreshold  time.Duration
 	ignoreRecordNotFoundError bool
 	parameterizedQueries      bool
 	requestTemplate           string
@@ -56,7 +59,8 @@ func NewLoggerConfiguration() LoggerConfiguration {
 func (loggerConfiguration *loggerConfigurationImpl) Reload() {
 	loggerConfiguration.mode = viper.GetString(LoggerModeKey)
 	loggerConfiguration.disableStacktrace = viper.GetBool(LoggerDisableStacktraceKey)
-	loggerConfiguration.slowThreshold = time.Duration(viper.GetInt(LoggerSlowThresholdKey)) * time.Millisecond
+	loggerConfiguration.slowQueryThreshold = time.Duration(viper.GetInt(LoggerSlowQueryThresholdKey)) * time.Millisecond
+	loggerConfiguration.slowTransactionThreshold = time.Duration(viper.GetInt(LoggerSlowTransactionThresholdKey)) * time.Millisecond
 	loggerConfiguration.ignoreRecordNotFoundError = viper.GetBool(LoggerIgnoreRecordNotFoundErrorKey)
 	loggerConfiguration.parameterizedQueries = viper.GetBool(LoggerParameterizedQueriesKey)
 	loggerConfiguration.requestTemplate = viper.GetString(LoggerRequestTemplateKey)
@@ -82,8 +86,12 @@ func (loggerConfiguration *loggerConfigurationImpl) GetDisableStacktrace() bool 
 	return loggerConfiguration.disableStacktrace
 }
 
-func (loggerConfiguration *loggerConfigurationImpl) GetSlowThreshold() time.Duration {
-	return loggerConfiguration.slowThreshold
+func (loggerConfiguration *loggerConfigurationImpl) GetSlowQueryThreshold() time.Duration {
+	return loggerConfiguration.slowQueryThreshold
+}
+
+func (loggerConfiguration *loggerConfigurationImpl) GetSlowTransactionThreshold() time.Duration {
+	return loggerConfiguration.slowTransactionThreshold
 }
 
 func (loggerConfiguration *loggerConfigurationImpl) GetIgnoreRecordNotFoundError() bool {

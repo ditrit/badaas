@@ -100,8 +100,22 @@ func (_m *LoggerConfiguration) GetRequestTemplate() string {
 	return r0
 }
 
-// GetSlowThreshold provides a mock function with given fields:
-func (_m *LoggerConfiguration) GetSlowThreshold() time.Duration {
+// GetSlowQueryThreshold provides a mock function with given fields:
+func (_m *LoggerConfiguration) GetSlowQueryThreshold() time.Duration {
+	ret := _m.Called()
+
+	var r0 time.Duration
+	if rf, ok := ret.Get(0).(func() time.Duration); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(time.Duration)
+	}
+
+	return r0
+}
+
+// GetSlowTransactionThreshold provides a mock function with given fields:
+func (_m *LoggerConfiguration) GetSlowTransactionThreshold() time.Duration {
 	ret := _m.Called()
 
 	var r0 time.Duration

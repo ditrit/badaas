@@ -67,7 +67,13 @@ logger:
 
   # Threshold for the slow query warning in milliseconds
   # default (200)
-  slowThreshold: 200
+  # use 0 to disable slow query warnings
+  slowQueryThreshold: 200
+
+  # Threshold for the slow transaction warning in milliseconds
+  # default (200)
+  # use 0 to disable slow transaction warnings
+  slowTransactionThreshold: 200
 
   # If true, ignore gorm.ErrRecordNotFound error for logger
   # default (false)

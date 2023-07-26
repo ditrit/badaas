@@ -12,7 +12,8 @@ import (
 	"gorm.io/driver/sqlite"
 	"gorm.io/driver/sqlserver"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+
+	"github.com/ditrit/badaas/badorm/logger"
 )
 
 func CreatePostgreSQLDialector(host, username, password, sslmode, dbname string, port int) gorm.Dialector {

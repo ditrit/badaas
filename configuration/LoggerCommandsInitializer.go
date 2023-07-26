@@ -32,10 +32,16 @@ func NewLoggerCommandsInitializer() CommandsInitializer {
 				DefaultV: true,
 			},
 			{
-				Name:     LoggerSlowThresholdKey,
+				Name:     LoggerSlowQueryThresholdKey,
 				ValType:  verdeter.IsInt,
 				Usage:    "Threshold for the slow query warning in milliseconds (default to 200)",
-				DefaultV: defaults.LoggerSlowThreshold,
+				DefaultV: defaults.LoggerSlowQueryThreshold,
+			},
+			{
+				Name:     LoggerSlowTransactionThresholdKey,
+				ValType:  verdeter.IsInt,
+				Usage:    "Threshold for the slow transaction warning in milliseconds (default to 200)",
+				DefaultV: defaults.LoggerSlowTransactionThreshold,
 			},
 			{
 				Name:     LoggerIgnoreRecordNotFoundErrorKey,

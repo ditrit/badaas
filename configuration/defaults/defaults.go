@@ -11,5 +11,6 @@ const (
 	SessionDuration                = uint(3600 * 4) // 4 hours
 	SessionPullInterval            = uint(30)       // 30 seconds
 	SessionRollInterval            = uint(3600)     // 1 hour
-	LoggerSlowThreshold            = 200
+	LoggerSlowQueryThreshold       = 200
+	LoggerSlowTransactionThreshold = 200
 )

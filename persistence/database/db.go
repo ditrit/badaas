@@ -7,6 +7,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
+	"github.com/ditrit/badaas/badorm/logger"
 	"github.com/ditrit/badaas/badorm/logger/gormzap"
 	"github.com/ditrit/badaas/configuration"
 )
@@ -49,7 +50,7 @@ func createDialectorFromConf(databaseConfiguration configuration.DatabaseConfigu
 
 // Creates the database object with using the database configuration and exec the setup
 func SetupDatabaseConnection(
-	logger *zap.Logger,
+	zapLogger *zap.Logger,
 	databaseConfiguration configuration.DatabaseConfiguration,
 	loggerConfiguration configuration.LoggerConfiguration,
 ) (*gorm.DB, error) {
@@ -59,9 +60,10 @@ func SetupDatabaseConnection(
 	}
 
 	return badorm.ConnectToDialector(
-		gormzap.New(logger, gormzap.Config{
+		gormzap.New(zapLogger, logger.Config{
 			LogLevel:                  loggerConfiguration.GetLogLevel(),
-			SlowThreshold:             loggerConfiguration.GetSlowThreshold(),
+			SlowQueryThreshold:        loggerConfiguration.GetSlowQueryThreshold(),
+			SlowTransactionThreshold:  loggerConfiguration.GetSlowTransactionThreshold(),
 			IgnoreRecordNotFoundError: loggerConfiguration.GetIgnoreRecordNotFoundError(),
 			ParameterizedQueries:      loggerConfiguration.GetParameterizedQueries(),
 		}),

@@ -33,6 +33,7 @@ func TestBaDORM(t *testing.T) {
 	tGlobal = t
 
 	fx.New(
+		fx.Provide(NewLogger),
 		fx.Provide(NewGormDBConnection),
 		fx.Provide(GetModels),
 		badorm.BaDORMModule,
@@ -76,34 +77,46 @@ func runBaDORMTestSuites(
 	shutdowner.Shutdown()
 }
 
-func NewGormDBConnection() (*gorm.DB, error) {
+func NewLogger() (logger.Interface, error) {
 	switch getDBDialector() {
-	case configuration.PostgreSQL:
-		return badorm.ConnectToDialector(
-			logger.Default.LogMode(logger.Info),
-			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
-			10, time.Duration(5)*time.Second,
-		)
+	case configuration.PostgreSQL, configuration.SQLite, configuration.SQLServer:
+		return logger.Default.ToLogMode(logger.Info), nil
 	case configuration.MySQL:
 		zapLogger, err := zap.NewDevelopment()
 		if err != nil {
 			return nil, err
 		}
 
+		return gormzap.NewDefault(zapLogger).ToLogMode(logger.Info), nil
+	default:
+		return nil, fmt.Errorf("unknown db %s", getDBDialector())
+	}
+}
+
+// TODO quizas tener nuestro badormDB que tenga el logger adentro directamente
+func NewGormDBConnection(logger logger.Interface) (*gorm.DB, error) {
+	switch getDBDialector() {
+	case configuration.PostgreSQL:
 		return badorm.ConnectToDialector(
-			gormzap.NewDefault(zapLogger).LogMode(logger.Info),
+			logger,
+			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
+			10, time.Duration(5)*time.Second,
+		)
+	case configuration.MySQL:
+		return badorm.ConnectToDialector(
+			logger,
 			badorm.CreateMySQLDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLite:
 		return badorm.ConnectToDialector(
-			logger.Default.LogMode(logger.Info),
+			logger,
 			badorm.CreateSQLiteDialector(host),
 			10, time.Duration(5)*time.Second,
 		)
 	case configuration.SQLServer:
 		return badorm.ConnectToDialector(
-			logger.Default.LogMode(logger.Info),
+			logger,
 			badorm.CreateSQLServerDialector(host, username, password, dbName, port),
 			10, time.Duration(5)*time.Second,
 		)
