@@ -101,7 +101,7 @@ go install github.com/ditrit/badaas/tools/badctl@cbd4c9e035709de25df59ec17e4b302
 Then generate files to make this project work with `cockroach` as database:
 
 ```bash
-badctl gen --db_provider cockroachdb
+badctl gen
 ```
 
 For more information about `badctl` refer to [badctl docs](https://github.com/ditrit/badaas/tools/badctl/README.md).
@@ -109,7 +109,7 @@ For more information about `badctl` refer to [badctl docs](https://github.com/di
 Finally, you can run the api with:
 
 ```bash
-badctl run
+make badaas_run
 ```
 
 The api will be available at <http://localhost:8000>.

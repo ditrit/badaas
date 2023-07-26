@@ -4,6 +4,7 @@ database:
   password: postgres
   sslmode: disable
   username: root
+  port: 26257
   init:
     retry: 10
     retryTime: 5
