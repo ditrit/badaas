@@ -114,11 +114,6 @@ jobs:
         with:
           name: coverage_badctl
           path: coverage_badctl.out
-      - name: Download int tests line coverage report
-        uses: actions/download-artifact@v3
-        with:
-          name: coverage_int
-          path: coverage_int.out
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
