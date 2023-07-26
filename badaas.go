@@ -23,25 +23,31 @@ type BaDaaSInitializer struct {
 	modules []fx.Option
 }
 
+// Allows to select which modules provided by badaas must be added to the application
 func (badaas *BaDaaSInitializer) AddModules(modules ...fx.Option) *BaDaaSInitializer {
 	badaas.modules = append(badaas.modules, modules...)
 
 	return badaas
 }
 
+// Allows to provide constructors to the application
+// so that the constructed objects will be available via dependency injection
 func (badaas *BaDaaSInitializer) Provide(constructors ...any) *BaDaaSInitializer {
 	badaas.modules = append(badaas.modules, fx.Provide(constructors...))
 
 	return badaas
 }
 
+// Allows to invoke functions when the application starts.
+// They can take advantage of dependency injection
 func (badaas *BaDaaSInitializer) Invoke(funcs ...any) *BaDaaSInitializer {
 	badaas.modules = append(badaas.modules, fx.Invoke(funcs...))
 
 	return badaas
 }
 
-func (badaas BaDaaSInitializer) Init() {
+// Start the application
+func (badaas BaDaaSInitializer) Start() {
 	rootCfg := verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 		Use:   "badaas",
 		Short: "BaDaaS",

@@ -13,7 +13,7 @@ func main() {
 		controllers.AuthControllerModule,
 	).Provide(
 		NewAPIVersion,
-	).Init()
+	).Start()
 }
 
 func NewAPIVersion() *semver.Version {
