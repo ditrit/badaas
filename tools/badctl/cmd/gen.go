@@ -31,8 +31,13 @@ func generateDockerFiles(cmd *cobra.Command, args []string) {
 	sourceDockerDir := "docker"
 
 	copyDir(
-		sourceDockerDir,
-		filepath.Join(destBadaasDir, "docker"),
+		filepath.Join(sourceDockerDir, "db"),
+		filepath.Join(destBadaasDir, "docker", "db"),
+	)
+
+	copyDir(
+		filepath.Join(sourceDockerDir, "api"),
+		filepath.Join(destBadaasDir, "docker", "api"),
 	)
 
 	copyFile(
@@ -63,12 +68,7 @@ func copyFile(sourcePath, destPath string) {
 }
 
 func copyDir(sourceDir, destDir string) {
-	files, err := genEmbedFS.ReadDir(sourceDir)
-	if err != nil {
-		panic(err)
-	}
-
-	_, err = os.Stat(destDir)
+	_, err := os.Stat(destDir)
 	if err != nil {
 		if !os.IsNotExist(err) {
 			panic(err)
@@ -78,6 +78,11 @@ func copyDir(sourceDir, destDir string) {
 		if err != nil {
 			panic(err)
 		}
+	}
+
+	files, err := genEmbedFS.ReadDir(sourceDir)
+	if err != nil {
+		panic(err)
 	}
 
 	for _, file := range files {

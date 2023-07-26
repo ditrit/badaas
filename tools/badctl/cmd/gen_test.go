@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestGenCockroach(t *testing.T) {
+func TestGen(t *testing.T) {
 	generateDockerFiles(nil, nil)
 	checkFilesExist(t)
 	teardown()
