@@ -35,6 +35,12 @@ func (badaas *BaDaaSInitializer) Provide(constructors ...any) *BaDaaSInitializer
 	return badaas
 }
 
+func (badaas *BaDaaSInitializer) Invoke(funcs ...any) *BaDaaSInitializer {
+	badaas.modules = append(badaas.modules, fx.Invoke(funcs...))
+
+	return badaas
+}
+
 func (badaas BaDaaSInitializer) Init() {
 	rootCfg := verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 		Use:   "badaas",
