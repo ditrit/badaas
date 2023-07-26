@@ -27,60 +27,38 @@ To quickly get badaas up and running, you can head to the [example](https://gith
 
 ### Step-by-step instructions
 
-Once you have started your project with `go init`, you must add the dependency to badaas. To use badaas, your project must also use [`fx`](https://github.com/uber-go/fx) and [`verdeter`](https://github.com/ditrit/verdeter):
+Once you have started your project with `go init`, you must add the dependency to badaas:
 
-<!-- TODO remove commit when badaas has a first tagged version -->
 ```bash
-go get -u github.com/ditrit/badaas@cbd4c9e035709de25df59ec17e4b302b3a7b9931
-go get -u github.com/uber-go/fx
-go get -u github.com/ditrit/verdeter
+go get -u github.com/ditrit/badaas@249d3c0
 ```
 
-Then, your application must be defined as a `verdeter command` and you have to call the configuration of this command:
+Then, you can use the following structure to configure and start your application
 
 ```go
-var command = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
-  Use:   "badaas",
-  Short: "Backend and Distribution as a Service",
-  Run:   runCommandFunc,
-})
-
 func main() {
-  err := configuration.NewCommandInitializer().Init(command)
-  if err != nil {
-    panic(err)
-  }
-
-  command.Execute()
+  badaas.BaDaaS.AddModules(
+    // add badaas modules
+  ).Provide(
+    // provide constructors
+  ).Invoke(
+    // invoke functions
+  ).Start()
 }
 ```
 
-Then, in the Run function of your command, you must use `fx` and start the badaas functions:
+#### Config badaas functionalities
+
+You are free to choose which badaas functionalities you wish to use. To add them, you must add the corresponding module, for example:
 
 ```go
-func runCommandFunc(cmd *cobra.Command, args []string) {
-  fx.New(
-    badaas.BadaasModule,
-
-    // Here you can add the functionalities provided by badaas
-    // Here you can start the rest of the modules that your project uses.
-  ).Run()
-}
-```
-
-You are free to choose which badaas functionalities you wish to use. To add them, you must initialise the corresponding module:
-
-```go
-func runCommandFunc(cmd *cobra.Command, args []string) {
-  fx.New(
-    badaas.BadaasModule,
-
-    fx.Provide(NewAPIVersion),
-    // add routes provided by badaas
-    badaasControllers.InfoControllerModule,
-    badaasControllers.AuthControllerModule,
-    // Here you can start the rest of the modules that your project uses.
-  ).Run()
+func main() {
+  badaas.BaDaaS.AddModules(
+    controllers.InfoControllerModule,
+    controllers.AuthControllerModule,
+  ).Provide(
+    NewAPIVersion,
+  ).Start()
 }
 
 func NewAPIVersion() *semver.Version {
@@ -88,47 +66,62 @@ func NewAPIVersion() *semver.Version {
 }
 ```
 
-Once you have defined the functionalities of your project (an http api for example), you can generate everything you need to run your application using `badctl`.
+#### Add your own functionalities
 
-For installing it, use:
+With the "Provide" and "Invoke" functions you will be able to add your own functionalities to the application. For example, to add a route you must first provide the constructor of the controller and then invoke the function that adds this route:
 
-<!-- TODO remove commit when badctl has a first tagged version -->
-```bash
-go install github.com/ditrit/badaas/tools/badctl@cbd4c9e035709de25df59ec17e4b302b3a7b9931
+```go
+func main() {
+  badaas.BaDaaS.Provide(
+    NewHelloController,
+  ).Invoke(
+    AddExampleRoutes,
+  ).Start()
+}
+
+type HelloController interface {
+  SayHello(http.ResponseWriter, *http.Request) (any, httperrors.HTTPError)
+}
+
+type helloControllerImpl struct{}
+
+func NewHelloController() HelloController {
+  return &helloControllerImpl{}
+}
+
+func (*helloControllerImpl) SayHello(response http.ResponseWriter, r *http.Request) (any, httperrors.HTTPError) {
+  return "hello world", nil
+}
+
+func AddExampleRoutes(
+  router *mux.Router,
+  jsonController middlewares.JSONController,
+  helloController HelloController,
+) {
+  router.HandleFunc(
+    "/hello",
+    jsonController.Wrap(helloController.SayHello),
+  ).Methods("GET")
+}
 ```
 
-Then generate files to make this project work with `cockroach` as database:
+#### Run it
 
-```bash
-badctl gen
-```
-
-For more information about `badctl` refer to [badctl docs](https://github.com/ditrit/badaas/tools/badctl/README.md).
-
-Finally, you can run the api with:
-
-```bash
-make badaas_run
-```
-
-The api will be available at <http://localhost:8000>.
+Once you have defined the functionalities of your project (the `/hello` route in this case), you can run the application using the steps described in the example README.md
 
 ### Provided functionalities
 
 #### InfoControllerModule
 
-`InfoControllerModule` adds the path `/info`, where the api version will be answered. To set the version we want to be responded to we must provide the version using fx:
+`InfoControllerModule` adds the path `/info`, where the api version will be answered. To set the version you want to be responded you must provide a function that returns it:
 
 ```go
-func runCommandFunc(cmd *cobra.Command, args []string) {
-  fx.New(
-    badaas.BadaasModule,
-
-    // provide api version
-    fx.Provide(NewAPIVersion),
-    // add /info route provided by badaas
-    badaasControllers.InfoControllerModule,
-  ).Run()
+func main() {
+  badaas.BaDaaS.AddModules(
+    controllers.InfoControllerModule,
+  ).Provide(
+    NewAPIVersion,
+  ).Start()
 }
 
 func NewAPIVersion() *semver.Version {
@@ -141,13 +134,10 @@ func NewAPIVersion() *semver.Version {
 `AuthControllerModule` adds `/login` and `/logout`, which allow us to add authentication to our application in a simple way:
 
 ```go
-func runCommandFunc(cmd *cobra.Command, args []string) {
-  fx.New(
-    badaas.BadaasModule,
-
-    // add /login and /logout routes provided by badaas
-    badaasControllers.AuthControllerModule,
-  ).Run()
+func main() {
+  badaas.BaDaaS.AddModules(
+    controllers.AuthControllerModule,
+  ).Start()
 }
 ```
 
