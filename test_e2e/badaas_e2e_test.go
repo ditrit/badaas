@@ -20,7 +20,6 @@ import (
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
-	integrationtests "github.com/ditrit/badaas/test_integration"
 )
 
 type TestContext struct {
@@ -84,7 +83,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 	ctx.Before(func(ctx context.Context, sc *godog.Scenario) (context.Context, error) {
 		// clean db before each scenario
-		integrationtests.CleanDB(db)
+		CleanDB(db)
 
 		adminUser := &models.User{
 			Username: "admin",

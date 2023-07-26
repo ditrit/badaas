@@ -30,7 +30,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Now config keys are only declared once with constants in the `configuration/` package.
 - Add a dto that is returned on a successful login.
 - Update verdeter to version v0.4.0.
-- Add integration tests.
 - Add a eav controller to store objects in EAV format.
 - Add some examples of data models.
 - Add transaction executor to run services that lead to multiples queries.

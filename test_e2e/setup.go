@@ -1,4 +1,4 @@
-package integrationtests
+package main
 
 import (
 	"log"

@@ -3,7 +3,6 @@
 - [Contribute to the development of badaas](#contribute-to-the-development-of-badaas)
   - [Tests](#tests)
     - [Unit tests](#unit-tests)
-    - [Integration tests](#integration-tests)
     - [Feature tests (of end to end tests)](#feature-tests-of-end-to-end-tests)
   - [Logger](#logger)
   - [Directory structure](#directory-structure)
@@ -22,16 +21,6 @@ To run them, please run:
 
 ```sh
 make -k test_unit
-```
-
-### Integration tests
-
-Integration tests have available a CockroachDB node and the dependency injection system.
-
-Run:
-
-```sh
-make test_integration
 ```
 
 ### Feature tests (of end to end tests)
@@ -59,7 +48,6 @@ This is the directory structure we use for the project:
 - `controllers/` *(Go code)*: Contains all the http controllers, they handle http requests and consume services.
 - `docs/`: Contains the documentation.
 - `test_e2e/`: Contains all the feature and steps for e2e tests.
-- `test_integration/`: Contains all the integration tests.
 - `logger/` *(Go code)*: Contains the logger creation logic. Please don't call it from your own services and code, use the dependency injection system.
 - `persistance/` *(Go code)*:
   - `gormdatabase/` *(Go code)*: Contains the logic to create a <https://gorm.io> database. Also contains a go package named `gormzap`: it is a compatibility layer between *gorm.io/gorm* and *github.com/uber-go/zap*.

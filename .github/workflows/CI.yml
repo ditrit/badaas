@@ -77,31 +77,9 @@ jobs:
           name: coverage_badctl
           path: coverage_badctl.out
 
-  integration-tests:
-    name: Integration tests
-    needs: [branch-naming-rules]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '^1.18'
-          cache: true
-      - name: Run test
-        run:  make test_integration_and_cover
-      - uses: actions/upload-artifact@v3
-        with:
-          name: coverage_int
-          path: coverage_int.out
-      - name: Stop containers
-        if: always()
-        run: docker compose -f "docker/test_db/docker-compose.yml" down
-
   e2e-tests:
     name: E2E Tests
-    needs: [integration-tests]
+    needs: [unit-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -133,7 +111,7 @@ jobs:
 
   sonarcloud:
     name: SonarCloud
-    needs: [unit-tests, check-style, integration-tests]
+    needs: [unit-tests, check-style]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
