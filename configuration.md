@@ -20,6 +20,8 @@ The config file can be formatted in any syntax that [`viper`](https://github.com
 
 ## Database
 
+We use CockroachDB as a database. It is Postgres compatible, so the information we need to provide will not be a surprise to Postgres users.
+
 ```yml
 # The settings for the database.
 database:

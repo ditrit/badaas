@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
-	"github.com/ditrit/badaas/persistence/models"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/persistence/gormdatabase/gormzap"
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 // Create the dsn string from the configuration
@@ -50,7 +51,7 @@ func SetupDatabaseConnection(logger *zap.Logger, databaseConfiguration configura
 }
 
 // Creates the database object with using the database configuration
-// Should not be using directly
+// Should not be used directly
 func CreateDatabaseConnectionFromConfiguration(logger *zap.Logger, databaseConfiguration configuration.DatabaseConfiguration) (*gorm.DB, error) {
 	dsn := createDsnFromConf(databaseConfiguration)
 	var err error
@@ -75,7 +76,6 @@ func initializeDBFromDsn(dsn string, logger *zap.Logger) (*gorm.DB, error) {
 	database, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
 		Logger: gormzap.New(logger),
 	})
-
 	if err != nil {
 		return nil, err
 	}

@@ -34,12 +34,6 @@ func NewServerCommandsInitializer() CommandsInitializer {
 				Usage:    "The max number of records returned per page",
 				DefaultV: uint(100),
 			},
-			{
-				Name:     ServerExampleKey,
-				ValType:  verdeter.IsStr,
-				Usage:    "Example server to exec (birds | posts)",
-				DefaultV: "",
-			},
 		},
 	}
 }

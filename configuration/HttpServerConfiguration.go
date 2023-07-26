@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ditrit/badaas/utils"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/utils"
 )
 
 // The config keys regarding the http server settings
@@ -15,7 +16,6 @@ const (
 	ServerHostKey                  string = "server.host"
 	ServerPortKey                  string = "server.port"
 	ServerPaginationMaxElemPerPage string = "server.pagination.page.max"
-	ServerExampleKey               string = "server.example"
 )
 
 // Hold the configuration values for the http server

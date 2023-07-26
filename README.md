@@ -12,25 +12,24 @@ Badaas provides several key features:
 - **Posix compliant**: Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
 - **Advanced logs management**: Badaas provides an interface to interact with the logs produced by the clusters. Logs are formatted in json by default.
 
-- [BADAAS: Backend And Distribution As A Service](#badaas-backend-and-distribution-as-a-service)
-  - [Quickstart](#quickstart)
-    - [Example](#example)
-    - [Step-by-step instructions](#step-by-step-instructions)
-  - [Configuration](#configuration)
-  - [Contributing](#contributing)
-  - [License](#license)
+- [Quickstart](#quickstart)
+  - [Example](#example)
+  - [Step-by-step instructions](#step-by-step-instructions)
+- [Configuration](#configuration)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Quickstart
 
 ### Example
 
-To quickly get badaas up and running, you can head to the [miniblog example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project
+To quickly get badaas up and running, you can head to the [example](https://github.com/ditrit/badaas-example). This example will help you to see how to use badaas and as a template to start your own project
 
 ### Step-by-step instructions
 
 Once you have started your project with `go init`, you must add the dependency to badaas. To use badaas, your project must also use [`fx`](https://github.com/uber-go/fx) and [`verdeter`](https://github.com/ditrit/verdeter):
 
-<!-- TODO remove commit when badaas as a library has a first tagged version -->
+<!-- TODO remove commit when badaas has a first tagged version -->
 ```bash
 go get -u github.com/ditrit/badaas@cbd4c9e035709de25df59ec17e4b302b3a7b9931
 go get -u github.com/uber-go/fx
