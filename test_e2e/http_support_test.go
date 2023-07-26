@@ -4,13 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/cucumber/godog"
-	"github.com/cucumber/messages-go/v16"
 	"github.com/elliotchance/pie/v2"
 )
 
@@ -198,7 +196,8 @@ const (
 
 // check if the method is allowed and sanitize the string
 func checkMethod(method string) (string, error) {
-	allowedMethods := []string{http.MethodGet,
+	allowedMethods := []string{
+		http.MethodGet,
 		http.MethodHead,
 		http.MethodPost,
 		http.MethodPut,
@@ -206,7 +205,8 @@ func checkMethod(method string) (string, error) {
 		http.MethodDelete,
 		http.MethodConnect,
 		http.MethodOptions,
-		http.MethodTrace}
+		http.MethodTrace,
+	}
 	sanitizedMethod := strings.TrimSpace(strings.ToUpper(method))
 	if !pie.Contains(
 		allowedMethods,
@@ -216,186 +216,4 @@ func checkMethod(method string) (string, error) {
 	}
 
 	return sanitizedMethod, nil
-}
-
-func (t *TestContext) objectExists(entityType string, jsonTable *godog.Table) error {
-	err := t.request(
-		"/objects/"+entityType,
-		http.MethodPost,
-		nil,
-		jsonTable,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusCreated)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *TestContext) objectExistsWithRelation(entityType string, relationAttribute string, jsonTable *godog.Table) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
-	jsonTable.Rows = append(jsonTable.Rows, &messages.PickleTableRow{
-		Cells: []*messages.PickleTableCell{
-			{
-				Value: relationAttribute,
-			},
-			{
-				Value: id.(string),
-			},
-			{
-				Value: stringValueType,
-			},
-		},
-	})
-	return t.objectExists(entityType, jsonTable)
-}
-
-func (t *TestContext) queryWithObjectID(entityType string) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
-	err := t.requestGet(
-		"/objects/" + entityType + "/" + id.(string),
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusOK)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *TestContext) queryObjectsWithConditions(entityType string, jsonTable *godog.Table) error {
-	err := t.requestWithJson(
-		"/objects/"+entityType,
-		http.MethodGet,
-		jsonTable,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusOK)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *TestContext) queryAllObjects(entityType string) error {
-	err := t.requestGet(
-		"/objects/" + entityType,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusOK)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *TestContext) thereAreObjects(expectedAmount int, entityType string) error {
-	amount := len(t.json.([]any))
-	if amount != expectedAmount {
-		return fmt.Errorf("expect amount %d, but there are %d objects of type %s", expectedAmount, amount, entityType)
-	}
-
-	return nil
-}
-
-func (t *TestContext) thereIsObjectWithAttributes(expectedEntityType string, jsonTable *godog.Table) error {
-	objectList := t.json.([]any)
-	expectedValues, err := buildMapFromTable(jsonTable)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	for _, object := range objectList {
-		objectMap := object.(map[string]any)
-		objectAttrs := objectMap["attrs"].(map[string]any)
-
-		if objectMap["type"] == expectedEntityType {
-			allEqual := true
-			for attributeName, expectedValue := range expectedValues {
-				actualValue, isPresent := objectAttrs[attributeName]
-				if !isPresent || actualValue != expectedValue {
-					allEqual = false
-				}
-			}
-
-			if allEqual {
-				return nil
-			}
-		}
-	}
-
-	return fmt.Errorf("object with attributes %v not found in %v", expectedValues, objectList)
-}
-
-func (t *TestContext) deleteWithObjectID(entityType string) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
-	err := t.request(
-		"/objects/"+entityType+"/"+id.(string),
-		http.MethodDelete,
-		nil,
-		nil,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusOK)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (t *TestContext) modifyWithAttributes(entityType string, jsonTable *godog.Table) error {
-	id, present := t.json.(map[string]any)["id"]
-	if !present {
-		panic("object id not available")
-	}
-
-	err := t.request(
-		"/objects/"+entityType+"/"+id.(string),
-		http.MethodPut,
-		nil,
-		jsonTable,
-	)
-	if err != nil {
-		return err
-	}
-
-	err = t.assertStatusCode(http.StatusOK)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

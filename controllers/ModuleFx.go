@@ -13,9 +13,3 @@ var AuthControllerModule = fx.Module(
 	fx.Provide(NewBasicAuthenticationController),
 	fx.Invoke(AddAuthRoutes),
 )
-
-var EAVControllerModule = fx.Module(
-	"eavController",
-	fx.Provide(NewEAVController),
-	fx.Invoke(AddEAVCRUDRoutes),
-)

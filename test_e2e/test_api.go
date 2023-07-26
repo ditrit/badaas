@@ -6,16 +6,17 @@ import (
 	"net/http"
 
 	"github.com/Masterminds/semver/v3"
-	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/badaas/controllers"
-	"github.com/ditrit/verdeter"
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/spf13/cobra"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/badaas/controllers"
+	"github.com/ditrit/verdeter"
 )
 
 var rootCfg = verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
@@ -49,7 +50,6 @@ func runHTTPServer(cmd *cobra.Command, args []string) {
 		// add routes provided by badaas
 		controllers.InfoControllerModule,
 		controllers.AuthControllerModule,
-		controllers.EAVControllerModule,
 
 		// create httpServer
 		fx.Provide(NewHTTPServer),

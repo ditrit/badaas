@@ -3,10 +3,11 @@ package persistence
 import (
 	"github.com/google/uuid"
 
+	"go.uber.org/fx"
+
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/repository"
-	"go.uber.org/fx"
 )
 
 // PersistanceModule for fx
@@ -24,8 +25,4 @@ var PersistanceModule = fx.Module(
 	// repositories
 	fx.Provide(repository.NewCRUDRepository[models.Session, uuid.UUID]),
 	fx.Provide(repository.NewCRUDRepository[models.User, uuid.UUID]),
-
-	fx.Provide(repository.NewValueRepository),
-	fx.Provide(repository.NewEntityRepository),
-	fx.Provide(repository.NewEntityTypeRepository),
 )

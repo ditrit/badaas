@@ -6,15 +6,15 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/ditrit/badaas"
-	"github.com/ditrit/badaas/configuration"
-	"github.com/ditrit/verdeter"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/fx/fxevent"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas"
+	"github.com/ditrit/badaas/configuration"
+	"github.com/ditrit/verdeter"
 )
 
 var tGlobal *testing.T
@@ -49,16 +49,12 @@ func injectDependencies(cmd *cobra.Command, args []string) {
 			return &fxevent.ZapLogger{Logger: logger}
 		}),
 
-		fx.Provide(NewEAVServiceIntTestSuite),
-
 		fx.Invoke(runTestSuites),
 	).Run()
 }
 
 func runTestSuites(
-	ts1 *EAVServiceIntTestSuite,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, ts1)
 	shutdowner.Shutdown()
 }

@@ -3,11 +3,12 @@ package controllers
 import (
 	"strings"
 
+	"github.com/gorilla/mux"
+	"go.uber.org/zap"
+
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/router/middlewares"
 	"github.com/ditrit/badaas/services/userservice"
-	"github.com/gorilla/mux"
-	"go.uber.org/zap"
 )
 
 func AddInfoRoutes(
@@ -66,19 +67,4 @@ func createSuperUser(
 	}
 
 	return nil
-}
-
-func AddEAVCRUDRoutes(
-	router *mux.Router,
-	eavController EAVController,
-	jsonController middlewares.JSONController,
-) {
-	// Objects CRUD
-	objectsBase := "/objects/{type}"
-	objectsWithID := objectsBase + "/{id}"
-	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.GetObject)).Methods("GET")
-	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.GetObjects)).Methods("GET")
-	router.HandleFunc(objectsBase, jsonController.Wrap(eavController.CreateObject)).Methods("POST")
-	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.UpdateObject)).Methods("PUT")
-	router.HandleFunc(objectsWithID, jsonController.Wrap(eavController.DeleteObject)).Methods("DELETE")
 }

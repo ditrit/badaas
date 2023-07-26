@@ -3,17 +3,14 @@ package integrationtests
 import (
 	"log"
 
-	"github.com/ditrit/badaas/persistence/models"
 	"gorm.io/gorm"
+
+	"github.com/ditrit/badaas/persistence/models"
 )
 
 var ListOfTables = []any{
 	models.Session{},
 	models.User{},
-	models.Value{},
-	models.Entity{},
-	models.Attribute{},
-	models.EntityType{},
 }
 
 func CleanDB(db *gorm.DB) {

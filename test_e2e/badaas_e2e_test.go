@@ -11,15 +11,16 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
+	"github.com/spf13/pflag"
+	"github.com/spf13/viper"
+	"go.uber.org/zap"
+	"gorm.io/gorm"
+
 	"github.com/ditrit/badaas/configuration"
 	"github.com/ditrit/badaas/persistence/gormdatabase"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/services/auth/protocols/basicauth"
 	integrationtests "github.com/ditrit/badaas/test_integration"
-	"github.com/spf13/pflag"
-	"github.com/spf13/viper"
-	"go.uber.org/zap"
-	"gorm.io/gorm"
 )
 
 type TestContext struct {
@@ -28,8 +29,10 @@ type TestContext struct {
 	httpClient *http.Client
 }
 
-var opts = godog.Options{Output: colors.Colored(os.Stdout)}
-var db *gorm.DB
+var (
+	opts = godog.Options{Output: colors.Colored(os.Stdout)}
+	db   *gorm.DB
+)
 
 func init() {
 	godog.BindCommandLineFlags("godog.", &opts)
@@ -93,51 +96,6 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 			log.Fatalln(err)
 		}
 
-		userType := &models.EntityType{
-			Name: "user",
-		}
-		nameAttr := &models.Attribute{
-			EntityTypeID: userType.ID,
-			Name:         "name",
-			ValueType:    models.StringValueType,
-			Required:     false,
-		}
-		userType.Attributes = append(userType.Attributes,
-			nameAttr,
-		)
-
-		err = db.Create(&userType).Error
-		if err != nil {
-			log.Fatalln(err)
-		}
-
-		profileType := &models.EntityType{
-			Name: "profile",
-		}
-		displayNameAttr := &models.Attribute{
-			EntityTypeID: profileType.ID,
-			Name:         "displayName",
-			ValueType:    models.StringValueType,
-			Required:     false,
-		}
-		yearOfBirthAttr := &models.Attribute{
-			EntityTypeID: profileType.ID,
-			Name:         "yearOfBirth",
-			ValueType:    models.IntValueType,
-			Required:     false,
-		}
-		userAttr := models.NewRelationAttribute(profileType, "userID", false, false, userType)
-		profileType.Attributes = append(profileType.Attributes,
-			displayNameAttr,
-			yearOfBirthAttr,
-			userAttr,
-		)
-
-		err = db.Create(&profileType).Error
-		if err != nil {
-			log.Fatalln(err)
-		}
-
 		return ctx, nil
 	})
 
@@ -145,13 +103,4 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	ctx.Step(`^status code is "(\d+)"$`, t.assertStatusCode)
 	ctx.Step(`^response field "(.+)" is "(.+)"$`, t.assertResponseFieldIsEquals)
 	ctx.Step(`^I request "(.+)" with method "(.+)" with json$`, t.requestWithJson)
-	ctx.Step(`^a "(.+)" object exists with attributes$`, t.objectExists)
-	ctx.Step(`^I query a "(.+)" with the object id$`, t.queryWithObjectID)
-	ctx.Step(`^I query all "(.+)" objects$`, t.queryAllObjects)
-	ctx.Step(`^there are "(\d+)" "(.+)" objects$`, t.thereAreObjects)
-	ctx.Step(`^there is a "(.+)" object with attributes$`, t.thereIsObjectWithAttributes)
-	ctx.Step(`^I query all "(.+)" objects with conditions$`, t.queryObjectsWithConditions)
-	ctx.Step(`^I delete a "(.+)" with the object id$`, t.deleteWithObjectID)
-	ctx.Step(`^I modify a "(.+)" with attributes$`, t.modifyWithAttributes)
-	ctx.Step(`^a "(.+)" object exists with property "(.+)" related to last object and properties$`, t.objectExistsWithRelation)
 }

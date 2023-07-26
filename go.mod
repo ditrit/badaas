@@ -3,7 +3,6 @@ module github.com/ditrit/badaas
 go 1.18
 
 require (
-	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/Masterminds/semver/v3 v3.2.1
 	github.com/Masterminds/squirrel v1.5.4
 	github.com/ditrit/verdeter v0.4.0

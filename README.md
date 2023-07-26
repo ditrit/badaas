@@ -80,7 +80,6 @@ func runCommandFunc(cmd *cobra.Command, args []string) {
     // add routes provided by badaas
     badaasControllers.InfoControllerModule,
     badaasControllers.AuthControllerModule,
-    badaasControllers.EAVControllerModule,
     // Here you can start the rest of the modules that your project uses.
   ).Run()
 }
@@ -149,21 +148,6 @@ func runCommandFunc(cmd *cobra.Command, args []string) {
 
     // add /login and /logout routes provided by badaas
     badaasControllers.AuthControllerModule,
-  ).Run()
-}
-```
-
-#### EAVControllerModule
-
-`EAVControllerModule` adds `/objects/{type}` and `/objects/{type}/{id}`, where `{type}` is any defined type and `{id}` is any uuid. These routes allow us to create, read, update and remove objects. For more information on how to use them, see the [miniblog example](https://github.com/ditrit/badaas-example).
-
-```go
-func runCommandFunc(cmd *cobra.Command, args []string) {
-  fx.New(
-    badaas.BadaasModule,
-
-    // add /login and /logout routes provided by badaas
-    badaasControllers.EAVControllerModule,
   ).Run()
 }
 ```

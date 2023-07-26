@@ -7,17 +7,18 @@ import (
 	"testing"
 
 	"github.com/Masterminds/semver/v3"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
+	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
+
 	mocks "github.com/ditrit/badaas/mocks/configuration"
 	mockControllers "github.com/ditrit/badaas/mocks/controllers"
 	mockMiddlewares "github.com/ditrit/badaas/mocks/router/middlewares"
 	mockUserServices "github.com/ditrit/badaas/mocks/services/userservice"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/router/middlewares"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
-	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest/observer"
 )
 
 func TestCreateSuperUser(t *testing.T) {
@@ -140,31 +141,4 @@ func TestAddLoginRoutes(t *testing.T) {
 	router.ServeHTTP(response, request)
 	assert.Equal(t, response.Code, http.StatusOK)
 	assert.Equal(t, response.Body.String(), "{\"login\":\"called\"}")
-}
-
-func TestAddCRUDRoutes(t *testing.T) {
-	jsonController := middlewares.NewJSONController(logger)
-
-	eavController := mockControllers.NewEAVController(t)
-	eavController.
-		On("GetObjects", mock.Anything, mock.Anything).
-		Return(map[string]string{"GetObjects": "called"}, nil)
-
-	router := router.NewRouter()
-	AddEAVCRUDRoutes(
-		router,
-		eavController,
-		jsonController,
-	)
-
-	response := httptest.NewRecorder()
-	request := httptest.NewRequest(
-		"GET",
-		"/objects/posts",
-		nil,
-	)
-
-	router.ServeHTTP(response, request)
-	assert.Equal(t, response.Code, http.StatusOK)
-	assert.Equal(t, response.Body.String(), "{\"GetObjects\":\"called\"}")
 }
