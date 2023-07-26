@@ -2,20 +2,20 @@ package testintegration
 
 import (
 	"github.com/stretchr/testify/suite"
-	"gorm.io/gorm"
 
+	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models/dto"
 	"github.com/ditrit/badaas/services/userservice"
 )
 
 type AuthServiceIntTestSuite struct {
 	suite.Suite
-	db          *gorm.DB
+	db          *badorm.DB
 	userService userservice.UserService
 }
 
 func NewAuthServiceIntTestSuite(
-	db *gorm.DB,
+	db *badorm.DB,
 	userService userservice.UserService,
 ) *AuthServiceIntTestSuite {
 	return &AuthServiceIntTestSuite{

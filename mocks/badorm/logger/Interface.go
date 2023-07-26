@@ -7,6 +7,8 @@ import (
 
 	gormlogger "gorm.io/gorm/logger"
 
+	logger "github.com/ditrit/badaas/badorm/logger"
+
 	mock "github.com/stretchr/testify/mock"
 
 	time "time"
@@ -43,6 +45,22 @@ func (_m *Interface) LogMode(_a0 gormlogger.LogLevel) gormlogger.Interface {
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(gormlogger.Interface)
+		}
+	}
+
+	return r0
+}
+
+// ToLogMode provides a mock function with given fields: _a0
+func (_m *Interface) ToLogMode(_a0 gormlogger.LogLevel) logger.Interface {
+	ret := _m.Called(_a0)
+
+	var r0 logger.Interface
+	if rf, ok := ret.Get(0).(func(gormlogger.LogLevel) logger.Interface); ok {
+		r0 = rf(_a0)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(logger.Interface)
 		}
 	}
 

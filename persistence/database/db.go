@@ -53,22 +53,24 @@ func SetupDatabaseConnection(
 	zapLogger *zap.Logger,
 	databaseConfiguration configuration.DatabaseConfiguration,
 	loggerConfiguration configuration.LoggerConfiguration,
-) (*gorm.DB, error) {
+) (*badorm.DB, error) {
 	dialector, err := createDialectorFromConf(databaseConfiguration)
 	if err != nil {
 		return nil, err
 	}
 
-	return badorm.ConnectToDialector(
-		gormzap.New(zapLogger, logger.Config{
-			LogLevel:                  loggerConfiguration.GetLogLevel(),
-			SlowQueryThreshold:        loggerConfiguration.GetSlowQueryThreshold(),
-			SlowTransactionThreshold:  loggerConfiguration.GetSlowTransactionThreshold(),
-			IgnoreRecordNotFoundError: loggerConfiguration.GetIgnoreRecordNotFoundError(),
-			ParameterizedQueries:      loggerConfiguration.GetParameterizedQueries(),
-		}),
+	return badorm.Open(
 		dialector,
-		databaseConfiguration.GetRetry(),
-		databaseConfiguration.GetRetryTime(),
+		badorm.Config{
+			Logger: gormzap.New(zapLogger, logger.Config{
+				LogLevel:                  loggerConfiguration.GetLogLevel(),
+				SlowQueryThreshold:        loggerConfiguration.GetSlowQueryThreshold(),
+				SlowTransactionThreshold:  loggerConfiguration.GetSlowTransactionThreshold(),
+				IgnoreRecordNotFoundError: loggerConfiguration.GetIgnoreRecordNotFoundError(),
+				ParameterizedQueries:      loggerConfiguration.GetParameterizedQueries(),
+			}),
+			RetryAmount: databaseConfiguration.GetRetry(),
+			RetryTime:   databaseConfiguration.GetRetryTime(),
+		},
 	)
 }

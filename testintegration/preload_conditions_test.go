@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"github.com/elliotchance/pie/v2"
-	"gorm.io/gorm"
 	"gotest.tools/assert"
 
 	"github.com/ditrit/badaas/badorm"
@@ -26,7 +25,7 @@ type PreloadConditionsIntTestSuite struct {
 }
 
 func NewPreloadConditionsIntTestSuite(
-	db *gorm.DB,
+	db *badorm.DB,
 	crudSaleService badorm.CRUDService[models.Sale, badorm.UUID],
 	crudCompanyService badorm.CRUDService[models.Company, badorm.UUID],
 	crudSellerService badorm.CRUDService[models.Seller, badorm.UUID],
@@ -359,7 +358,7 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadWithWhereConditionFilters() 
 	product1 := ts.createProduct("a_string", 1, 0.0, false, nil)
 	product1.EmbeddedInt = 1
 	product1.GormEmbedded.Int = 2
-	err := ts.db.Save(product1).Error
+	err := ts.db.GormDB.Save(product1).Error
 	ts.Nil(err)
 
 	product2 := ts.createProduct("", 2, 0.0, false, nil)
@@ -520,19 +519,19 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadDifferentEntitiesWithConditi
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadDifferentEntitiesWithoutConditions() {
 	parentParent := &models.ParentParent{}
-	err := ts.db.Create(parentParent).Error
+	err := ts.db.GormDB.Create(parentParent).Error
 	ts.Nil(err)
 
 	parent1 := &models.Parent1{ParentParent: *parentParent}
-	err = ts.db.Create(parent1).Error
+	err = ts.db.GormDB.Create(parent1).Error
 	ts.Nil(err)
 
 	parent2 := &models.Parent2{ParentParent: *parentParent}
-	err = ts.db.Create(parent2).Error
+	err = ts.db.GormDB.Create(parent2).Error
 	ts.Nil(err)
 
 	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
-	err = ts.db.Create(child).Error
+	err = ts.db.GormDB.Create(child).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(
@@ -553,19 +552,19 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadDifferentEntitiesWithoutCond
 
 func (ts *PreloadConditionsIntTestSuite) TestPreloadRelations() {
 	parentParent := &models.ParentParent{}
-	err := ts.db.Create(parentParent).Error
+	err := ts.db.GormDB.Create(parentParent).Error
 	ts.Nil(err)
 
 	parent1 := &models.Parent1{ParentParent: *parentParent}
-	err = ts.db.Create(parent1).Error
+	err = ts.db.GormDB.Create(parent1).Error
 	ts.Nil(err)
 
 	parent2 := &models.Parent2{ParentParent: *parentParent}
-	err = ts.db.Create(parent2).Error
+	err = ts.db.GormDB.Create(parent2).Error
 	ts.Nil(err)
 
 	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
-	err = ts.db.Create(child).Error
+	err = ts.db.GormDB.Create(child).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(
@@ -585,19 +584,19 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadRelations() {
 
 func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithoutCondition() {
 	parentParent := &models.ParentParent{}
-	err := ts.db.Create(parentParent).Error
+	err := ts.db.GormDB.Create(parentParent).Error
 	ts.Nil(err)
 
 	parent1 := &models.Parent1{ParentParent: *parentParent}
-	err = ts.db.Create(parent1).Error
+	err = ts.db.GormDB.Create(parent1).Error
 	ts.Nil(err)
 
 	parent2 := &models.Parent2{ParentParent: *parentParent}
-	err = ts.db.Create(parent2).Error
+	err = ts.db.GormDB.Create(parent2).Error
 	ts.Nil(err)
 
 	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
-	err = ts.db.Create(child).Error
+	err = ts.db.GormDB.Create(child).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(
@@ -622,35 +621,35 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithCond
 	parentParent1 := &models.ParentParent{
 		Name: "parentParent1",
 	}
-	err := ts.db.Create(parentParent1).Error
+	err := ts.db.GormDB.Create(parentParent1).Error
 	ts.Nil(err)
 
 	parent11 := &models.Parent1{ParentParent: *parentParent1}
-	err = ts.db.Create(parent11).Error
+	err = ts.db.GormDB.Create(parent11).Error
 	ts.Nil(err)
 
 	parent21 := &models.Parent2{ParentParent: *parentParent1}
-	err = ts.db.Create(parent21).Error
+	err = ts.db.GormDB.Create(parent21).Error
 	ts.Nil(err)
 
 	child1 := &models.Child{Parent1: *parent11, Parent2: *parent21}
-	err = ts.db.Create(child1).Error
+	err = ts.db.GormDB.Create(child1).Error
 	ts.Nil(err)
 
 	parentParent2 := &models.ParentParent{}
-	err = ts.db.Create(parentParent2).Error
+	err = ts.db.GormDB.Create(parentParent2).Error
 	ts.Nil(err)
 
 	parent12 := &models.Parent1{ParentParent: *parentParent2}
-	err = ts.db.Create(parent12).Error
+	err = ts.db.GormDB.Create(parent12).Error
 	ts.Nil(err)
 
 	parent22 := &models.Parent2{ParentParent: *parentParent2}
-	err = ts.db.Create(parent22).Error
+	err = ts.db.GormDB.Create(parent22).Error
 	ts.Nil(err)
 
 	child2 := &models.Child{Parent1: *parent12, Parent2: *parent22}
-	err = ts.db.Create(child2).Error
+	err = ts.db.GormDB.Create(child2).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(
@@ -676,19 +675,19 @@ func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadWithCond
 
 func (ts *PreloadConditionsIntTestSuite) TestJoinMultipleTimesAndPreloadDiamond() {
 	parentParent := &models.ParentParent{}
-	err := ts.db.Create(parentParent).Error
+	err := ts.db.GormDB.Create(parentParent).Error
 	ts.Nil(err)
 
 	parent1 := &models.Parent1{ParentParent: *parentParent}
-	err = ts.db.Create(parent1).Error
+	err = ts.db.GormDB.Create(parent1).Error
 	ts.Nil(err)
 
 	parent2 := &models.Parent2{ParentParent: *parentParent}
-	err = ts.db.Create(parent2).Error
+	err = ts.db.GormDB.Create(parent2).Error
 	ts.Nil(err)
 
 	child := &models.Child{Parent1: *parent1, Parent2: *parent2}
-	err = ts.db.Create(child).Error
+	err = ts.db.GormDB.Create(child).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(
@@ -766,13 +765,13 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadListAndNestedAttributes() {
 	university1 := ts.createUniversity("uni1")
 	seller1 := ts.createSeller("1", company)
 	seller1.University = university1
-	err := ts.db.Save(seller1).Error
+	err := ts.db.GormDB.Save(seller1).Error
 	ts.Nil(err)
 
 	university2 := ts.createUniversity("uni1")
 	seller2 := ts.createSeller("2", company)
 	seller2.University = university2
-	err = ts.db.Save(seller2).Error
+	err = ts.db.GormDB.Save(seller2).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudCompanyService.Query(
@@ -804,23 +803,23 @@ func (ts *PreloadConditionsIntTestSuite) TestPreloadMultipleListsAndNestedAttrib
 	university1 := ts.createUniversity("uni1")
 	seller1 := ts.createSeller("1", company1)
 	seller1.University = university1
-	err := ts.db.Save(seller1).Error
+	err := ts.db.GormDB.Save(seller1).Error
 	ts.Nil(err)
 
 	university2 := ts.createUniversity("uni1")
 	seller2 := ts.createSeller("2", company1)
 	seller2.University = university2
-	err = ts.db.Save(seller2).Error
+	err = ts.db.GormDB.Save(seller2).Error
 	ts.Nil(err)
 
 	seller3 := ts.createSeller("3", company2)
 	seller3.University = university1
-	err = ts.db.Save(seller3).Error
+	err = ts.db.GormDB.Save(seller3).Error
 	ts.Nil(err)
 
 	seller4 := ts.createSeller("4", company2)
 	seller4.University = university2
-	err = ts.db.Save(seller4).Error
+	err = ts.db.GormDB.Save(seller4).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudCompanyService.Query(

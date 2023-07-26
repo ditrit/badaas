@@ -20,7 +20,12 @@ import (
 	"github.com/ditrit/badaas/persistence/models"
 )
 
-var gormDB *gorm.DB
+var (
+	gormDB   *gorm.DB
+	badormDB = &badorm.DB{
+		GormDB: gormDB,
+	}
+)
 
 // ExampleErr is an HTTPError instance useful for testing.  If the code does not care
 // about HTTPError specifics, and only needs to return the HTTPError for example, this
@@ -50,7 +55,7 @@ func setupTest(
 		logger:               logger,
 		cache:                make(map[badorm.UUID]*models.Session),
 		sessionConfiguration: sessionConfiguration,
-		db:                   gormDB,
+		db:                   badormDB,
 	}
 
 	return sessionRepositoryMock, service, logs, sessionConfiguration

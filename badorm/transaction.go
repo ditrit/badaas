@@ -6,8 +6,6 @@ import (
 	"time"
 
 	"gorm.io/gorm"
-
-	"github.com/ditrit/badaas/badorm/logger"
 )
 
 // type TransactionExecutor interface {
@@ -23,15 +21,14 @@ import (
 // The transaction is automatically rolled back in case "toExec" returns an error
 // opts can be used to pass arguments to the transaction
 func Transaction[RT any](
-	logger logger.Interface,
-	db *gorm.DB,
+	db *DB,
 	toExec func(*gorm.DB) (RT, error),
 	opts ...*sql.TxOptions,
 ) (RT, error) {
 	begin := time.Now()
 
 	nilValue := *new(RT)
-	tx := db.Begin(opts...)
+	tx := db.GormDB.Begin(opts...)
 
 	defer func() {
 		if r := recover(); r != nil {
@@ -54,7 +51,7 @@ func Transaction[RT any](
 		return nilValue, err
 	}
 
-	logger.TraceTransaction(context.Background(), begin)
+	db.Logger.TraceTransaction(context.Background(), begin)
 
 	return returnValue, nil
 }

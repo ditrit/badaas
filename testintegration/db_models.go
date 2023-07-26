@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/elliotchance/pie/v2"
-	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
 	badaasModels "github.com/ditrit/badaas/persistence/models"
@@ -37,14 +36,14 @@ func GetModels() badorm.GetModelsResult {
 	}
 }
 
-func CleanDB(db *gorm.DB) {
+func CleanDB(db *badorm.DB) {
 	CleanDBTables(db, pie.Reverse(ListOfTables))
 }
 
-func CleanDBTables(db *gorm.DB, listOfTables []any) {
+func CleanDBTables(db *badorm.DB, listOfTables []any) {
 	// clean database to ensure independency between tests
 	for _, table := range listOfTables {
-		err := db.Unscoped().Where("1 = 1").Delete(table).Error
+		err := db.GormDB.Unscoped().Where("1 = 1").Delete(table).Error
 		if err != nil {
 			log.Fatalln("could not clean database: ", err)
 		}

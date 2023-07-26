@@ -12,12 +12,12 @@ import (
 
 type CRUDRepositoryIntTestSuite struct {
 	suite.Suite
-	db                    *gorm.DB
+	db                    *badorm.DB
 	crudProductRepository badorm.CRUDRepository[models.Product, badorm.UUID]
 }
 
 func NewCRUDRepositoryIntTestSuite(
-	db *gorm.DB,
+	db *badorm.DB,
 	crudProductRepository badorm.CRUDRepository[models.Product, badorm.UUID],
 ) *CRUDRepositoryIntTestSuite {
 	return &CRUDRepositoryIntTestSuite{
@@ -38,14 +38,14 @@ func (ts *CRUDRepositoryIntTestSuite) TearDownSuite() {
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsErrorIfIDDontMatch() {
 	ts.createProduct(0)
-	_, err := ts.crudProductRepository.GetByID(ts.db, badorm.NilUUID)
+	_, err := ts.crudProductRepository.GetByID(ts.db.GormDB, badorm.NilUUID)
 	ts.Error(err, gorm.ErrRecordNotFound)
 }
 
 func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 	product := ts.createProduct(0)
 	ts.createProduct(0)
-	productReturned, err := ts.crudProductRepository.GetByID(ts.db, product.ID)
+	productReturned, err := ts.crudProductRepository.GetByID(ts.db.GormDB, product.ID)
 	ts.Nil(err)
 
 	assert.DeepEqual(ts.T(), product, productReturned)
@@ -56,7 +56,7 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetByIDReturnsEntityIfIDMatch() {
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch() {
 	ts.createProduct(0)
 	_, err := ts.crudProductRepository.QueryOne(
-		ts.db,
+		ts.db.GormDB,
 		conditions.ProductInt(badorm.Eq(1)),
 	)
 	ts.Error(err, gorm.ErrRecordNotFound)
@@ -65,7 +65,7 @@ func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsErrorIfConditionsDontMatch()
 func (ts *CRUDRepositoryIntTestSuite) TestGetReturnsEntityIfConditionsMatch() {
 	product := ts.createProduct(1)
 	productReturned, err := ts.crudProductRepository.QueryOne(
-		ts.db,
+		ts.db.GormDB,
 		conditions.ProductInt(badorm.Eq(1)),
 	)
 	ts.Nil(err)
@@ -79,7 +79,7 @@ func (ts *CRUDRepositoryIntTestSuite) createProduct(intV int) *models.Product {
 	entity := &models.Product{
 		Int: intV,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity

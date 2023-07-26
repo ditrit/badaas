@@ -9,7 +9,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/fx"
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/logger"
@@ -34,7 +33,7 @@ func TestBaDORM(t *testing.T) {
 
 	fx.New(
 		fx.Provide(NewLogger),
-		fx.Provide(NewGormDBConnection),
+		fx.Provide(NewDBConnection),
 		fx.Provide(GetModels),
 		badorm.BaDORMModule,
 
@@ -93,32 +92,33 @@ func NewLogger() (logger.Interface, error) {
 	}
 }
 
-// TODO quizas tener nuestro badormDB que tenga el logger adentro directamente
-func NewGormDBConnection(logger logger.Interface) (*gorm.DB, error) {
+func NewDBConnection(logger logger.Interface) (*badorm.DB, error) {
+	config := badorm.Config{
+		Logger:      logger,
+		RetryAmount: 10,
+		RetryTime:   time.Duration(5) * time.Second,
+	}
+
 	switch getDBDialector() {
 	case configuration.PostgreSQL:
-		return badorm.ConnectToDialector(
-			logger,
+		return badorm.Open(
 			badorm.CreatePostgreSQLDialector(host, username, password, sslMode, dbName, port),
-			10, time.Duration(5)*time.Second,
+			config,
 		)
 	case configuration.MySQL:
-		return badorm.ConnectToDialector(
-			logger,
+		return badorm.Open(
 			badorm.CreateMySQLDialector(host, username, password, dbName, port),
-			10, time.Duration(5)*time.Second,
+			config,
 		)
 	case configuration.SQLite:
-		return badorm.ConnectToDialector(
-			logger,
+		return badorm.Open(
 			badorm.CreateSQLiteDialector(host),
-			10, time.Duration(5)*time.Second,
+			config,
 		)
 	case configuration.SQLServer:
-		return badorm.ConnectToDialector(
-			logger,
+		return badorm.Open(
 			badorm.CreateSQLServerDialector(host, username, password, dbName, port),
-			10, time.Duration(5)*time.Second,
+			config,
 		)
 	default:
 		return nil, fmt.Errorf("unknown db %s", getDBDialector())

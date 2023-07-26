@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/persistence/models"
@@ -29,14 +28,14 @@ var _ UserService = (*userServiceImpl)(nil)
 type userServiceImpl struct {
 	userRepository badorm.CRUDRepository[models.User, badorm.UUID]
 	logger         *zap.Logger
-	db             *gorm.DB
+	db             *badorm.DB
 }
 
 // UserService constructor
 func NewUserService(
 	logger *zap.Logger,
 	userRepository badorm.CRUDRepository[models.User, badorm.UUID],
-	db *gorm.DB,
+	db *badorm.DB,
 ) UserService {
 	return &userServiceImpl{
 		logger:         logger,
@@ -46,7 +45,7 @@ func NewUserService(
 }
 
 // Create a new user
-func (userService *userServiceImpl) NewUser(username, email, password string) (*models.User, error) {
+func (service *userServiceImpl) NewUser(username, email, password string) (*models.User, error) {
 	sanitizedEmail, err := validators.ValidEmail(email)
 	if err != nil {
 		return nil, fmt.Errorf("the provided email is not valid")
@@ -58,12 +57,12 @@ func (userService *userServiceImpl) NewUser(username, email, password string) (*
 		Password: basicauth.SaltAndHashPassword(password),
 	}
 
-	err = userService.userRepository.Create(userService.db, u)
+	err = service.userRepository.Create(service.db.GormDB, u)
 	if err != nil {
 		return nil, err
 	}
 
-	userService.logger.Info(
+	service.logger.Info(
 		"Successfully created a new user",
 		zap.String("email", sanitizedEmail),
 		zap.String("username", username),
@@ -73,9 +72,9 @@ func (userService *userServiceImpl) NewUser(username, email, password string) (*
 }
 
 // Get user if the email and password provided are correct, return an error if not.
-func (userService *userServiceImpl) GetUser(userLoginDTO dto.UserLoginDTO) (*models.User, error) {
-	user, err := userService.userRepository.QueryOne(
-		userService.db,
+func (service *userServiceImpl) GetUser(userLoginDTO dto.UserLoginDTO) (*models.User, error) {
+	user, err := service.userRepository.QueryOne(
+		service.db.GormDB,
 		models.UserEmailCondition(badorm.Eq(userLoginDTO.Email)),
 	)
 	if err != nil {

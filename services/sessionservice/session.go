@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/configuration"
@@ -41,7 +40,7 @@ type sessionServiceImpl struct {
 	mutex                sync.Mutex
 	logger               *zap.Logger
 	sessionConfiguration configuration.SessionConfiguration
-	db                   *gorm.DB
+	db                   *badorm.DB
 }
 
 // The SessionService constructor
@@ -49,7 +48,7 @@ func NewSessionService(
 	logger *zap.Logger,
 	sessionRepository badorm.CRUDRepository[models.Session, badorm.UUID],
 	sessionConfiguration configuration.SessionConfiguration,
-	db *gorm.DB,
+	db *badorm.DB,
 ) SessionService {
 	sessionService := &sessionServiceImpl{
 		cache:                make(map[badorm.UUID]*models.Session),
@@ -86,7 +85,7 @@ func (sessionService *sessionServiceImpl) get(sessionUUID badorm.UUID) *models.S
 	}
 
 	session, err := sessionService.sessionRepository.GetByID(
-		sessionService.db,
+		sessionService.db.GormDB,
 		sessionUUID,
 	)
 	if err != nil {
@@ -101,7 +100,7 @@ func (sessionService *sessionServiceImpl) add(session *models.Session) error {
 	sessionService.mutex.Lock()
 	defer sessionService.mutex.Unlock()
 
-	err := sessionService.sessionRepository.Create(sessionService.db, session)
+	err := sessionService.sessionRepository.Create(sessionService.db.GormDB, session)
 	if err != nil {
 		return err
 	}
@@ -132,7 +131,7 @@ func (sessionService *sessionServiceImpl) pullFromDB() {
 	sessionService.mutex.Lock()
 	defer sessionService.mutex.Unlock()
 
-	sessionsFromDatabase, err := sessionService.sessionRepository.Query(sessionService.db)
+	sessionsFromDatabase, err := sessionService.sessionRepository.Query(sessionService.db.GormDB)
 	if err != nil {
 		panic(err)
 	}
@@ -159,7 +158,7 @@ func (sessionService *sessionServiceImpl) removeExpired() {
 	for sessionUUID, session := range sessionService.cache {
 		if session.IsExpired() {
 			// Delete the session in the database
-			err := sessionService.sessionRepository.Delete(sessionService.db, session)
+			err := sessionService.sessionRepository.Delete(sessionService.db.GormDB, session)
 			if err != nil {
 				panic(err)
 			}
@@ -184,7 +183,7 @@ func (sessionService *sessionServiceImpl) delete(session *models.Session) httper
 
 	sessionUUID := session.ID
 
-	err := sessionService.sessionRepository.Delete(sessionService.db, session)
+	err := sessionService.sessionRepository.Delete(sessionService.db.GormDB, session)
 	if err != nil {
 		return httperrors.NewInternalServerError(
 			"session error",
@@ -219,7 +218,7 @@ func (sessionService *sessionServiceImpl) RollSession(sessionUUID badorm.UUID) h
 
 		session.ExpiresAt = session.ExpiresAt.Add(sessionDuration)
 
-		err := sessionService.sessionRepository.Save(sessionService.db, session)
+		err := sessionService.sessionRepository.Save(sessionService.db.GormDB, session)
 		if err != nil {
 			return httperrors.NewDBError(err)
 		}

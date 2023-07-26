@@ -29,7 +29,7 @@ type OperatorIntTestSuite struct {
 }
 
 func NewOperatorIntTestSuite(
-	db *gorm.DB,
+	db *badorm.DB,
 	crudProductService badorm.CRUDService[models.Product, badorm.UUID],
 ) *OperatorIntTestSuite {
 	return &OperatorIntTestSuite{
@@ -86,7 +86,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullTNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch := ts.createProduct("match", 3, 0, false, nil)
 	notMatch.ByteArray = []byte{2, 3}
-	err := ts.db.Save(notMatch).Error
+	err := ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -103,7 +103,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullTNilOfType() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch := ts.createProduct("match", 3, 0, false, nil)
 	notMatch.ByteArray = []byte{2, 3}
-	err := ts.db.Save(notMatch).Error
+	err := ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	var nilOfType []byte
@@ -157,7 +157,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNil() {
 
 	notMatch := ts.createProduct("match", 3, 0, false, nil)
 	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
-	err := ts.db.Save(notMatch).Error
+	err := ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -173,7 +173,7 @@ func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNil() {
 func (ts *OperatorIntTestSuite) TestEqOrIsNullNullableNotNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	ts.createProduct("match", 3, 0, false, nil)
@@ -215,7 +215,7 @@ func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNotNil() {
 func (ts *OperatorIntTestSuite) TestNotEqOrIsNotNullTNil() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	match.ByteArray = []byte{2, 3}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	ts.createProduct("match", 3, 0, false, nil)
@@ -449,7 +449,7 @@ func (ts *OperatorIntTestSuite) TestIsNotDistinctNullValue() {
 
 	notMatch := ts.createProduct("not_match", 4, 0, false, nil)
 	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
-	err := ts.db.Save(notMatch).Error
+	err := ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	var isEqualOperator badorm.Operator[sql.NullFloat64]
@@ -494,7 +494,7 @@ func (ts *OperatorIntTestSuite) TestIsNullNotPointers() {
 
 	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
 	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
-	err := ts.db.Save(notMatch).Error
+	err := ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -526,7 +526,7 @@ func (ts *OperatorIntTestSuite) TestIsNotNull() {
 func (ts *OperatorIntTestSuite) TestIsNotNullNotPointers() {
 	match := ts.createProduct("match", 0, 0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	ts.createProduct("not_match", 0, 0, false, nil)
@@ -596,12 +596,12 @@ func (ts *OperatorIntTestSuite) TestIsNotTrue() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
 	match2 := ts.createProduct("match", 0, 0, false, nil)
 	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
-	err := ts.db.Save(match2).Error
+	err := ts.db.GormDB.Save(match2).Error
 	ts.Nil(err)
 
 	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
 	notMatch.NullBool = sql.NullBool{Valid: true, Bool: true}
-	err = ts.db.Save(notMatch).Error
+	err = ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	var isNotTrueOperator badorm.Operator[sql.NullBool]
@@ -629,12 +629,12 @@ func (ts *OperatorIntTestSuite) TestIsNotFalse() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
 	match2 := ts.createProduct("match", 0, 0, false, nil)
 	match2.NullBool = sql.NullBool{Valid: true, Bool: true}
-	err := ts.db.Save(match2).Error
+	err := ts.db.GormDB.Save(match2).Error
 	ts.Nil(err)
 
 	notMatch := ts.createProduct("not_match", 0, 0, false, nil)
 	notMatch.NullBool = sql.NullBool{Valid: true, Bool: false}
-	err = ts.db.Save(notMatch).Error
+	err = ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	var isNotFalseOperator badorm.Operator[sql.NullBool]
@@ -662,12 +662,12 @@ func (ts *OperatorIntTestSuite) TestIsUnknown() {
 
 	notMatch1 := ts.createProduct("match", 0, 0, false, nil)
 	notMatch1.NullBool = sql.NullBool{Valid: true, Bool: true}
-	err := ts.db.Save(notMatch1).Error
+	err := ts.db.GormDB.Save(notMatch1).Error
 	ts.Nil(err)
 
 	notMatch2 := ts.createProduct("not_match", 0, 0, false, nil)
 	notMatch2.NullBool = sql.NullBool{Valid: true, Bool: false}
-	err = ts.db.Save(notMatch2).Error
+	err = ts.db.GormDB.Save(notMatch2).Error
 	ts.Nil(err)
 
 	var isUnknownOperator badorm.Operator[sql.NullBool]
@@ -693,12 +693,12 @@ func (ts *OperatorIntTestSuite) TestIsUnknown() {
 func (ts *OperatorIntTestSuite) TestIsNotUnknown() {
 	match1 := ts.createProduct("", 0, 0, false, nil)
 	match1.NullBool = sql.NullBool{Valid: true, Bool: true}
-	err := ts.db.Save(match1).Error
+	err := ts.db.GormDB.Save(match1).Error
 	ts.Nil(err)
 
 	match2 := ts.createProduct("", 0, 0, false, nil)
 	match2.NullBool = sql.NullBool{Valid: true, Bool: false}
-	err = ts.db.Save(match2).Error
+	err = ts.db.GormDB.Save(match2).Error
 	ts.Nil(err)
 
 	ts.createProduct("", 0, 0, false, nil)
@@ -981,7 +981,7 @@ func (ts *OperatorIntTestSuite) TestDynamicOperatorForBasicType() {
 func (ts *OperatorIntTestSuite) TestDynamicOperatorForCustomType() {
 	match := ts.createProduct("salut,hola", 1, 0.0, false, nil)
 	match.MultiString = models.MultiString{"salut", "hola"}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	ts.createProduct("salut,hola", 1, 0.0, false, nil)
@@ -1030,7 +1030,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorWithFieldOfAnotherTypeRetur
 func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNullableTypeCanBeComparedWithNotNullType() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	ts.createProduct("", 1, 0.0, false, nil)
@@ -1048,7 +1048,7 @@ func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNullableTypeCanBeCompare
 func (ts *OperatorIntTestSuite) TestMultitypeOperatorForNotNullTypeCanBeComparedWithNullableType() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 1.0}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	ts.createProduct("", 1, 0.0, false, nil)
@@ -1134,17 +1134,17 @@ func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldAndAVal
 func (ts *OperatorIntTestSuite) TestMultitypeMultivalueOperatorWithAFieldRelatedAndAValue() {
 	match := ts.createProduct("", 1, 1.0, false, nil)
 	match.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	notMatch1 := ts.createProduct("", 0, 0.0, false, nil)
 	notMatch1.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
-	err = ts.db.Save(notMatch1).Error
+	err = ts.db.GormDB.Save(notMatch1).Error
 	ts.Nil(err)
 
 	notMatch2 := ts.createProduct("", 0, 5.0, false, nil)
 	notMatch2.NullFloat = sql.NullFloat64{Valid: true, Float64: 2.0}
-	err = ts.db.Save(notMatch2).Error
+	err = ts.db.GormDB.Save(notMatch2).Error
 	ts.Nil(err)
 
 	ts.createProduct("", 0, 0.0, false, nil)
@@ -1303,12 +1303,12 @@ func (ts *OperatorIntTestSuite) TestUnsafeOperatorInCaseFieldWithTypesNotMatch()
 func (ts *OperatorIntTestSuite) TestUnsafeOperatorCanCompareFieldsThatMapToTheSameType() {
 	match := ts.createProduct("hola,chau", 1, 1.0, false, nil)
 	match.MultiString = models.MultiString{"hola", "chau"}
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	notMatch := ts.createProduct("chau", 0, 0.0, false, nil)
 	notMatch.MultiString = models.MultiString{"hola", "chau"}
-	err = ts.db.Save(notMatch).Error
+	err = ts.db.GormDB.Save(notMatch).Error
 	ts.Nil(err)
 
 	ts.createProduct("", 0, 0.0, false, nil)

@@ -18,7 +18,12 @@ import (
 	"github.com/ditrit/badaas/services/userservice"
 )
 
-var gormDB *gorm.DB
+var (
+	gormDB   *gorm.DB
+	badormDB = &badorm.DB{
+		GormDB: gormDB,
+	}
+)
 
 func TestNewUserService(t *testing.T) {
 	// creating logger
@@ -28,7 +33,7 @@ func TestNewUserService(t *testing.T) {
 	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, badorm.UUID](t)
 	userRepositoryMock.On("Create", gormDB, mock.Anything).Return(nil)
 
-	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
+	userService := userservice.NewUserService(observedLogger, userRepositoryMock, badormDB)
 	user, err := userService.NewUser("bob", "bob@email.com", "1234")
 	assert.NoError(t, err)
 	assert.NotNil(t, user)
@@ -59,7 +64,7 @@ func TestNewUserServiceDatabaseError(t *testing.T) {
 		gorm.ErrInvalidTransaction,
 	)
 
-	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
+	userService := userservice.NewUserService(observedLogger, userRepositoryMock, badormDB)
 	user, err := userService.NewUser("bob", "bob@email.com", "1234")
 	assert.Error(t, err)
 	assert.Nil(t, user)
@@ -75,7 +80,7 @@ func TestNewUserServiceEmailNotValid(t *testing.T) {
 
 	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, badorm.UUID](t)
 
-	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
+	userService := userservice.NewUserService(observedLogger, userRepositoryMock, badormDB)
 	user, err := userService.NewUser("bob", "bob@", "1234")
 	assert.Error(t, err)
 	assert.Nil(t, user)
@@ -90,7 +95,7 @@ func TestGetUser(t *testing.T) {
 	observedLogger := zap.New(observedZapCore)
 
 	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, badorm.UUID](t)
-	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
+	userService := userservice.NewUserService(observedLogger, userRepositoryMock, badormDB)
 	userRepositoryMock.On(
 		"Create", gormDB, mock.Anything,
 	).Return(nil)
@@ -125,7 +130,7 @@ func TestGetUserNoUserFound(t *testing.T) {
 	observedLogger := zap.New(observedZapCore)
 
 	userRepositoryMock := badormMocks.NewCRUDRepository[models.User, badorm.UUID](t)
-	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
+	userService := userservice.NewUserService(observedLogger, userRepositoryMock, badormDB)
 	userRepositoryMock.On(
 		"QueryOne", gormDB, models.UserEmailCondition(badorm.Eq("bobnotfound@email.com")),
 	).Return(
@@ -149,7 +154,7 @@ func TestGetUserWrongPassword(t *testing.T) {
 		"Create", gormDB, mock.Anything,
 	).Return(nil)
 
-	userService := userservice.NewUserService(observedLogger, userRepositoryMock, gormDB)
+	userService := userservice.NewUserService(observedLogger, userRepositoryMock, badormDB)
 	user, err := userService.NewUser("bob", "bob@email.com", "1234")
 
 	require.NoError(t, err)

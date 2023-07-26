@@ -1,8 +1,6 @@
 package testintegration
 
 import (
-	"gorm.io/gorm"
-
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/badorm/dynamic"
 	"github.com/ditrit/badaas/badorm/multitype"
@@ -24,7 +22,7 @@ type JoinConditionsIntTestSuite struct {
 }
 
 func NewJoinConditionsIntTestSuite(
-	db *gorm.DB,
+	db *badorm.DB,
 	crudSaleService badorm.CRUDService[models.Sale, badorm.UUID],
 	crudSellerService badorm.CRUDService[models.Seller, badorm.UUID],
 	crudCountryService badorm.CRUDService[models.Country, badorm.UUID],
@@ -254,7 +252,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsAddsDeletedAtAutomat
 	seller1 := ts.createSeller("franco", nil)
 	seller2 := ts.createSeller("agustin", nil)
 
-	ts.Nil(ts.db.Delete(product2).Error)
+	ts.Nil(ts.db.GormDB.Delete(product2).Error)
 
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
@@ -276,7 +274,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOnDeletedAt() {
 	seller1 := ts.createSeller("franco", nil)
 	seller2 := ts.createSeller("agustin", nil)
 
-	ts.Nil(ts.db.Delete(product1).Error)
+	ts.Nil(ts.db.GormDB.Delete(product1).Error)
 
 	match := ts.createSale(0, product1, seller1)
 	ts.createSale(0, product2, seller2)
@@ -433,7 +431,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSel
 	parent1 := &models.Parent1{ParentParent: *parentParent}
 	parent2 := &models.Parent2{ParentParent: *parentParent}
 	child := &models.Child{Parent1: *parent1, Parent2: *parent2, Name: "franco"}
-	err := ts.db.Create(child).Error
+	err := ts.db.GormDB.Create(child).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(
@@ -473,7 +471,7 @@ func (ts *JoinConditionsIntTestSuite) TestDynamicOperatorJoinMoreThanOnceWithSel
 	parent1 := &models.Parent1{ParentParent: *parentParent}
 	parent2 := &models.Parent2{ParentParent: *parentParent}
 	child := &models.Child{Parent1: *parent1, Parent2: *parent2, Name: "franco", Number: 2}
-	err := ts.db.Create(child).Error
+	err := ts.db.GormDB.Create(child).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudChildService.Query(

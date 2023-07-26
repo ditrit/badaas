@@ -22,7 +22,7 @@ type WhereConditionsIntTestSuite struct {
 }
 
 func NewWhereConditionsIntTestSuite(
-	db *gorm.DB,
+	db *badorm.DB,
 	crudProductService badorm.CRUDService[models.Product, badorm.UUID],
 	crudSaleService badorm.CRUDService[models.Sale, badorm.UUID],
 	crudBrandService badorm.CRUDService[models.Brand, badorm.UIntID],
@@ -231,7 +231,7 @@ func (ts *WhereConditionsIntTestSuite) TestDeletedAtConditionIsAddedAutomaticall
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	deleted := ts.createProduct("", 0, 0.0, false, nil)
 
-	ts.Nil(ts.db.Delete(deleted).Error)
+	ts.Nil(ts.db.GormDB.Delete(deleted).Error)
 
 	entities, err := ts.crudProductService.Query()
 	ts.Nil(err)
@@ -245,7 +245,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfDeletedAtNotNil() {
 	match := ts.createProduct("", 0, 0.0, false, nil)
 	ts.createProduct("", 0, 0.0, false, nil)
 
-	ts.Nil(ts.db.Delete(match).Error)
+	ts.Nil(ts.db.GormDB.Delete(match).Error)
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductDeletedAt(badorm.Eq(match.DeletedAt)),
@@ -261,7 +261,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfEmbedded() {
 
 	match.EmbeddedInt = 1
 
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -278,7 +278,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfGormEmbedded() {
 
 	match.GormEmbedded.Int = 1
 
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -312,10 +312,10 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfByteArrayWithContent() {
 	match.ByteArray = []byte{1, 2}
 	notMatch1.ByteArray = []byte{2, 3}
 
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
-	err = ts.db.Save(notMatch1).Error
+	err = ts.db.GormDB.Save(notMatch1).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -334,10 +334,10 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfByteArrayEmpty() {
 	match.ByteArray = []byte{}
 	notMatch1.ByteArray = []byte{2, 3}
 
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
-	err = ts.db.Save(notMatch1).Error
+	err = ts.db.GormDB.Save(notMatch1).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(
@@ -356,10 +356,10 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfCustomType() {
 	match.MultiString = models.MultiString{"salut", "hola"}
 	notMatch1.MultiString = models.MultiString{"salut", "hola", "hello"}
 
-	err := ts.db.Save(match).Error
+	err := ts.db.GormDB.Save(match).Error
 	ts.Nil(err)
 
-	err = ts.db.Save(notMatch1).Error
+	err = ts.db.GormDB.Save(notMatch1).Error
 	ts.Nil(err)
 
 	entities, err := ts.crudProductService.Query(

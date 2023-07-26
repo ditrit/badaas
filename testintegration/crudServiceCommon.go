@@ -2,7 +2,6 @@ package testintegration
 
 import (
 	"github.com/stretchr/testify/suite"
-	"gorm.io/gorm"
 
 	"github.com/ditrit/badaas/badorm"
 	"github.com/ditrit/badaas/testintegration/models"
@@ -10,7 +9,7 @@ import (
 
 type CRUDServiceCommonIntTestSuite struct {
 	suite.Suite
-	db *gorm.DB
+	db *badorm.DB
 }
 
 func (ts *CRUDServiceCommonIntTestSuite) SetupTest() {
@@ -29,7 +28,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createProduct(stringV string, intV int,
 		Bool:       boolV,
 		IntPointer: intP,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -41,7 +40,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createSale(code int, product *models.Pr
 		Product: *product,
 		Seller:  seller,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -57,7 +56,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createSeller(name string, company *mode
 		Name:      name,
 		CompanyID: companyID,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -67,7 +66,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createCompany(name string) *models.Comp
 	entity := &models.Company{
 		Name: name,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -78,7 +77,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createCountry(name string, capital mode
 		Name:    name,
 		Capital: capital,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -89,7 +88,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createEmployee(name string, boss *model
 		Name: name,
 		Boss: boss,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -100,7 +99,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createBicycle(name string, owner models
 		Name:  name,
 		Owner: owner,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -110,7 +109,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createBrand(name string) *models.Brand 
 	entity := &models.Brand{
 		Name: name,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -121,7 +120,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createPhone(name string, brand models.B
 		Name:  name,
 		Brand: brand,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
@@ -131,7 +130,7 @@ func (ts *CRUDServiceCommonIntTestSuite) createUniversity(name string) *models.U
 	entity := &models.University{
 		Name: name,
 	}
-	err := ts.db.Create(entity).Error
+	err := ts.db.GormDB.Create(entity).Error
 	ts.Nil(err)
 
 	return entity
