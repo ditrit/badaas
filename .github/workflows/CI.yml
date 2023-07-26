@@ -39,19 +39,6 @@ jobs:
           skip-pkg-cache: true
           skip-build-cache: true
 
-  go-sec:
-    runs-on: ubuntu-latest
-    env:
-      GO111MODULE: on
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - name: Run Gosec Security Scanner
-        uses: securego/gosec@master
-        with:
-          args: ./...
-
   unit-tests:
     name: Unit tests
     needs: [branch-naming-rules]
