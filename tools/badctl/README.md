@@ -13,9 +13,8 @@
 
 For simply installing it, use:
 
-<!-- TODO remove commit when badctl has a first tagged version -->
 ```bash
-go install github.com/ditrit/badaas/tools/badctl@bef1116
+go install github.com/ditrit/badaas/tools/badctl@249d3c0
 ```
 
 Or you can build it from sources.
