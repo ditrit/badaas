@@ -14,9 +14,6 @@ test_unit_badctl:
 
 test_unit: test_unit_badaas test_unit_badctl
 
-test_db:
-	docker compose -f "docker/test_db/docker-compose.yml" up -d
-
 test_e2e:
 	docker compose -f "docker/test_db/docker-compose.yml" -f "docker/test_api/docker-compose.yml" up -d
 	./docker/wait_for_api.sh 8000/info

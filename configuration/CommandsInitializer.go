@@ -5,31 +5,33 @@ import (
 )
 
 type CommandsInitializer interface {
-	Init(config *verdeter.VerdeterCommand) error
+	// Inits VerdeterCommand "cmd" with the all the keys that are configurable in badaas
+	Init(cmd *verdeter.VerdeterCommand) error
 }
 
-type CommandsInitializerImpl struct {
-	KeySetter    KeySetter
-	Initializers []CommandsInitializer
+type commandsInitializerImpl struct {
+	KeySetter    keySetter
+	Initializers []commandInitializer
 }
 
 func NewCommandInitializer() CommandsInitializer {
-	return CommandsInitializerImpl{
-		KeySetter: NewKeySetter(),
-		Initializers: []CommandsInitializer{
-			NewConfigCommandsInitializer(),
-			NewServerCommandsInitializer(),
-			NewLoggerCommandsInitializer(),
-			NewDatabaseCommandsInitializer(),
-			NewInitializationCommandsInitializer(),
-			NewSessionCommandsInitializer(),
+	return commandsInitializerImpl{
+		KeySetter: newKeySetter(),
+		Initializers: []commandInitializer{
+			newConfigCommandInitializer(),
+			newServerCommandInitializer(),
+			newLoggerCommandInitializer(),
+			newDatabaseCommandInitializer(),
+			newInitializationCommandInitializer(),
+			newSessionCommandInitializer(),
 		},
 	}
 }
 
-func (ci CommandsInitializerImpl) Init(config *verdeter.VerdeterCommand) error {
+// Inits VerdeterCommand "cmd" with the all the keys that are configurable in badaas
+func (ci commandsInitializerImpl) Init(cmd *verdeter.VerdeterCommand) error {
 	for _, initializer := range ci.Initializers {
-		if err := initializer.Init(config); err != nil {
+		if err := initializer.Init(cmd); err != nil {
 			return err
 		}
 	}
@@ -37,14 +39,15 @@ func (ci CommandsInitializerImpl) Init(config *verdeter.VerdeterCommand) error {
 	return nil
 }
 
-type CommandsKeyInitializer struct {
-	KeySetter KeySetter
-	Keys      []Key
+type commandInitializer struct {
+	KeySetter keySetter
+	Keys      []keyDefinition
 }
 
-func (ci CommandsKeyInitializer) Init(config *verdeter.VerdeterCommand) error {
+// Inits VerdeterCommand "cmd" with the all the keys in the Keys of the initializer
+func (ci commandInitializer) Init(cmd *verdeter.VerdeterCommand) error {
 	for _, key := range ci.Keys {
-		err := ci.KeySetter.Set(config, key)
+		err := ci.KeySetter.Set(cmd, key)
 		if err != nil {
 			return err
 		}

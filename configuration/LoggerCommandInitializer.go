@@ -5,11 +5,12 @@ import (
 	"github.com/ditrit/verdeter/validators"
 )
 
-func NewLoggerCommandsInitializer() CommandsInitializer {
+// Definition of logger configuration keys
+func newLoggerCommandInitializer() commandInitializer {
 	modeValidator := validators.AuthorizedValues("prod", "dev")
-	return CommandsKeyInitializer{
-		KeySetter: NewKeySetter(),
-		Keys: []Key{
+	return commandInitializer{
+		KeySetter: newKeySetter(),
+		Keys: []keyDefinition{
 			{
 				Name:     LoggerRequestTemplateKey,
 				ValType:  verdeter.IsStr,

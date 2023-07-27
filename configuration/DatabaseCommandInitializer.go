@@ -4,10 +4,11 @@ import (
 	"github.com/ditrit/verdeter"
 )
 
-func NewDatabaseCommandsInitializer() CommandsInitializer {
-	return CommandsKeyInitializer{
-		KeySetter: NewKeySetter(),
-		Keys: []Key{
+// Definition of database configuration keys
+func newDatabaseCommandInitializer() commandInitializer {
+	return commandInitializer{
+		KeySetter: newKeySetter(),
+		Keys: []keyDefinition{
 			{
 				Name:    DatabasePortKey,
 				ValType: verdeter.IsInt,

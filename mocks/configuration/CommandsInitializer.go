@@ -12,13 +12,13 @@ type CommandsInitializer struct {
 	mock.Mock
 }
 
-// Init provides a mock function with given fields: config
-func (_m *CommandsInitializer) Init(config *verdeter.VerdeterCommand) error {
-	ret := _m.Called(config)
+// Init provides a mock function with given fields: cmd
+func (_m *CommandsInitializer) Init(cmd *verdeter.VerdeterCommand) error {
+	ret := _m.Called(cmd)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(*verdeter.VerdeterCommand) error); ok {
-		r0 = rf(config)
+		r0 = rf(cmd)
 	} else {
 		r0 = ret.Error(0)
 	}

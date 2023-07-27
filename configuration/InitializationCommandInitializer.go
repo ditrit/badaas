@@ -4,10 +4,11 @@ import (
 	"github.com/ditrit/verdeter"
 )
 
-func NewInitializationCommandsInitializer() CommandsInitializer {
-	return CommandsKeyInitializer{
-		KeySetter: NewKeySetter(),
-		Keys: []Key{
+// Definition of initialization configuration keys
+func newInitializationCommandInitializer() commandInitializer {
+	return commandInitializer{
+		KeySetter: newKeySetter(),
+		Keys: []keyDefinition{
 			{
 				Name:     InitializationDefaultAdminPasswordKey,
 				ValType:  verdeter.IsStr,

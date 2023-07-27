@@ -5,37 +5,39 @@ import (
 	"github.com/ditrit/verdeter/models"
 )
 
-type KeySetter interface {
-	Set(config *verdeter.VerdeterCommand, key Key) error
+type keySetter interface {
+	// Configures the VerdeterCommand "cmd" with the information contained in "key"
+	Set(cmd *verdeter.VerdeterCommand, key keyDefinition) error
 }
 
-type KeySetterImpl struct{}
+type keySetterImpl struct{}
 
-func NewKeySetter() KeySetter {
-	return KeySetterImpl{}
+func newKeySetter() keySetter {
+	return keySetterImpl{}
 }
 
-func (ks KeySetterImpl) Set(config *verdeter.VerdeterCommand, key Key) error {
-	if err := config.GKey(key.Name, key.ValType, "", key.Usage); err != nil {
+// Configures the VerdeterCommand "cmd" with the information contained in "key"
+func (ks keySetterImpl) Set(cmd *verdeter.VerdeterCommand, key keyDefinition) error {
+	if err := cmd.GKey(key.Name, key.ValType, "", key.Usage); err != nil {
 		return err
 	}
 
 	if key.Required {
-		config.SetRequired(key.Name)
+		cmd.SetRequired(key.Name)
 	}
 
 	if key.DefaultV != nil {
-		config.SetDefault(key.Name, key.DefaultV)
+		cmd.SetDefault(key.Name, key.DefaultV)
 	}
 
 	if key.Validator != nil {
-		config.AddValidator(key.Name, *key.Validator)
+		cmd.AddValidator(key.Name, *key.Validator)
 	}
 
 	return nil
 }
 
-type Key struct {
+type keyDefinition struct {
 	Name      string
 	ValType   models.ConfigType
 	Usage     string

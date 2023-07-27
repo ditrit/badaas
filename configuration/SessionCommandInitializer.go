@@ -4,10 +4,11 @@ import (
 	"github.com/ditrit/verdeter"
 )
 
-func NewSessionCommandsInitializer() CommandsInitializer {
-	return CommandsKeyInitializer{
-		KeySetter: NewKeySetter(),
-		Keys: []Key{
+// Definition of session configuration keys
+func newSessionCommandInitializer() commandInitializer {
+	return commandInitializer{
+		KeySetter: newKeySetter(),
+		Keys: []keyDefinition{
 			{
 				Name:     SessionDurationKey,
 				ValType:  verdeter.IsUint,

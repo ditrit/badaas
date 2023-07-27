@@ -5,10 +5,11 @@ import (
 	"github.com/ditrit/verdeter/validators"
 )
 
-func NewServerCommandsInitializer() CommandsInitializer {
-	return CommandsKeyInitializer{
-		KeySetter: NewKeySetter(),
-		Keys: []Key{
+// Definition of server configuration keys
+func newServerCommandInitializer() commandInitializer {
+	return commandInitializer{
+		KeySetter: newKeySetter(),
+		Keys: []keyDefinition{
 			{
 				Name:     ServerTimeoutKey,
 				ValType:  verdeter.IsInt,
