@@ -5,19 +5,14 @@ import (
 	"github.com/ditrit/verdeter/models"
 )
 
-type keySetter interface {
-	// Configures the VerdeterCommand "cmd" with the information contained in "key"
-	Set(cmd *verdeter.VerdeterCommand, key keyDefinition) error
-}
-
-type keySetterImpl struct{}
+type keySetter struct{}
 
 func newKeySetter() keySetter {
-	return keySetterImpl{}
+	return keySetter{}
 }
 
 // Configures the VerdeterCommand "cmd" with the information contained in "key"
-func (ks keySetterImpl) Set(cmd *verdeter.VerdeterCommand, key keyDefinition) error {
+func (ks keySetter) Set(cmd *verdeter.VerdeterCommand, key keyDefinition) error {
 	if err := cmd.GKey(key.Name, key.ValType, "", key.Usage); err != nil {
 		return err
 	}

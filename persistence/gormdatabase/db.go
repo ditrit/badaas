@@ -33,7 +33,8 @@ func createDsn(host, username, password, sslmode, dbname string, port int) strin
 	)
 }
 
-// Creates the database object with using the database configuration and exec the setup
+// Creates the database object with using the database configuration
+// and then executes the auto-migration
 func SetupDatabaseConnection(logger *zap.Logger, databaseConfiguration configuration.DatabaseConfiguration) (*gorm.DB, error) {
 	db, err := CreateDatabaseConnectionFromConfiguration(logger, databaseConfiguration)
 	if err != nil {
@@ -51,7 +52,6 @@ func SetupDatabaseConnection(logger *zap.Logger, databaseConfiguration configura
 }
 
 // Creates the database object with using the database configuration
-// Should not be used directly
 func CreateDatabaseConnectionFromConfiguration(logger *zap.Logger, databaseConfiguration configuration.DatabaseConfiguration) (*gorm.DB, error) {
 	dsn := createDsnFromConf(databaseConfiguration)
 	var err error
@@ -92,18 +92,9 @@ func initializeDBFromDsn(dsn string, logger *zap.Logger) (*gorm.DB, error) {
 	return database, nil
 }
 
-// Migrate the database using gorm [https://gorm.io/docs/migration.html#Auto-Migration]
-func autoMigrate(database *gorm.DB, listOfDatabaseTables []any) error {
-	err := database.AutoMigrate(listOfDatabaseTables...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// Run the automigration
+// Run the auto-migration
 func AutoMigrate(logger *zap.Logger, database *gorm.DB) error {
-	err := autoMigrate(database, models.ListOfTables)
+	err := database.AutoMigrate(models.ListOfTables...)
 	if err != nil {
 		return err
 	}

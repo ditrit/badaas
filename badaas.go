@@ -51,7 +51,7 @@ func (badaas BaDaaSInitializer) Start() {
 	rootCfg := verdeter.BuildVerdeterCommand(verdeter.VerdeterConfig{
 		Use:   "badaas",
 		Short: "BaDaaS",
-		Run:   BaDaaS.runHTTPServer,
+		Run:   badaas.runHTTPServer,
 	})
 
 	err := configuration.NewCommandInitializer().Init(rootCfg)
