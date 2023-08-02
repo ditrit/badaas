@@ -53,3 +53,18 @@ func (ts *OperatorsIntTestSuite) TestEqPointers() {
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
+
+func (ts *OperatorsIntTestSuite) TestNotEq() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.NotEq(2),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
