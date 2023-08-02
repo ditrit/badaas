@@ -380,3 +380,36 @@ func (ts *OperatorsIntTestSuite) TestIsDistinct() {
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
+
+func (ts *OperatorsIntTestSuite) TestIsNotDistinct() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+	ts.createProduct("not_match", 2, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.IsNotDistinct(3),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
+func (ts *OperatorsIntTestSuite) TestIsNotDistinctNullValue() {
+	match := ts.createProduct("match", 3, 0, false, nil)
+
+	notMatch := ts.createProduct("not_match", 4, 0, false, nil)
+	notMatch.NullFloat = sql.NullFloat64{Valid: true, Float64: 6}
+	err := ts.db.Save(notMatch).Error
+	ts.Nil(err)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductNullFloat(
+			orm.IsNotDistinct(sql.NullFloat64{Valid: false}),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}

@@ -8,6 +8,7 @@ import (
 // ref: https://www.postgresql.org/docs/current/functions-comparison.html
 
 // EqualTo
+// IsNotDistinct must be used in cases where value can be NULL
 func Eq[T any](value T) Operator[T] {
 	return NewCantBeNullValueOperator[T](value, "=")
 }
@@ -87,4 +88,8 @@ func IsNotUnknown[T bool | sql.NullBool]() PredicateOperator[T] {
 
 func IsDistinct[T any](value T) ValueOperator[T] {
 	return NewValueOperator[T](value, "IS DISTINCT FROM")
+}
+
+func IsNotDistinct[T any](value T) ValueOperator[T] {
+	return NewValueOperator[T](value, "IS NOT DISTINCT FROM")
 }
