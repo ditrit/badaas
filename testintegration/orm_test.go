@@ -60,8 +60,9 @@ func TestBaDaaSORM(t *testing.T) {
 		orm.GetCRUDServiceModule[models.Brand](),
 
 		// create test suites
-		fx.Provide(NewCRUDServiceIntTestSuite),
 		fx.Provide(NewCRUDRepositoryIntTestSuite),
+		fx.Provide(NewWhereConditionsIntTestSuite),
+		fx.Provide(NewJoinConditionsIntTestSuite),
 
 		// run tests
 		fx.Invoke(runORMTestSuites),
@@ -69,13 +70,15 @@ func TestBaDaaSORM(t *testing.T) {
 }
 
 func runORMTestSuites(
-	tsCRUDService *CRUDServiceIntTestSuite,
 	tsCRUDRepository *CRUDRepositoryIntTestSuite,
+	tsWhereConditions *WhereConditionsIntTestSuite,
+	tsJoinConditions *JoinConditionsIntTestSuite,
 	db *gorm.DB,
 	shutdowner fx.Shutdowner,
 ) {
-	suite.Run(tGlobal, tsCRUDService)
 	suite.Run(tGlobal, tsCRUDRepository)
+	suite.Run(tGlobal, tsWhereConditions)
+	suite.Run(tGlobal, tsJoinConditions)
 
 	shutdowner.Shutdown()
 }
