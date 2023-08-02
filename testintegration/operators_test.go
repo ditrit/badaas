@@ -68,3 +68,28 @@ func (ts *OperatorsIntTestSuite) TestNotEq() {
 
 	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
 }
+
+func (ts *OperatorsIntTestSuite) TestLt() {
+	match1 := ts.createProduct("match", 1, 0, false, nil)
+	match2 := ts.createProduct("match", 2, 0, false, nil)
+	ts.createProduct("not_match", 3, 0, false, nil)
+	ts.createProduct("not_match", 4, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductInt(
+			orm.Lt(3),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match1, match2}, entities)
+}
+
+func (ts *OperatorsIntTestSuite) TestLtNullableNullReturnsError() {
+	_, err := ts.crudProductService.Query(
+		conditions.ProductNullFloat(
+			orm.Lt(sql.NullFloat64{Valid: false}),
+		),
+	)
+	ts.ErrorIs(err, orm.ErrValueCantBeNull)
+}
