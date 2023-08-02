@@ -13,6 +13,7 @@ func Eq[T any](value T) Operator[T] {
 }
 
 // NotEqualTo
+// IsDistinct must be used in cases where value can be NULL
 func NotEq[T any](value T) Operator[T] {
 	return NewCantBeNullValueOperator[T](value, "<>")
 }
@@ -82,4 +83,8 @@ func IsUnknown[T bool | sql.NullBool]() PredicateOperator[T] {
 
 func IsNotUnknown[T bool | sql.NullBool]() PredicateOperator[T] {
 	return NewPredicateOperator[T]("IS NOT UNKNOWN")
+}
+
+func IsDistinct[T any](value T) ValueOperator[T] {
+	return NewValueOperator[T](value, "IS DISTINCT FROM")
 }
