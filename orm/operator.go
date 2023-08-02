@@ -4,6 +4,9 @@ import (
 	"database/sql/driver"
 	"errors"
 	"fmt"
+	"strings"
+
+	"github.com/elliotchance/pie/v2"
 )
 
 var ErrValueCantBeNull = errors.New("value to compare can't be null")
@@ -86,6 +89,49 @@ func (expr *ValueOperator[T]) AddOperation(value any, sqlOperator string) ValueO
 	)
 
 	return *expr
+}
+
+// Operator that compares the value of the column against multiple values
+// Example: value BETWEEN v1 AND v2
+type MultivalueOperator[T any] struct {
+	Values       []T
+	SQLOperator  string
+	SQLConnector string
+	SQLPrefix    string
+	SQLSuffix    string
+}
+
+func (expr MultivalueOperator[T]) InterfaceVerificationMethod(_ T) {
+	// This method is necessary to get the compiler to verify
+	// that an object is of type Operator[T]
+}
+
+func (expr MultivalueOperator[T]) ToSQL(columnName string) (string, []any, error) {
+	placeholders := strings.Join(pie.Map(expr.Values, func(value T) string {
+		return "?"
+	}), " "+expr.SQLConnector+" ")
+
+	values := pie.Map(expr.Values, func(value T) any {
+		return value
+	})
+
+	return fmt.Sprintf(
+		"%s %s %s"+placeholders+"%s",
+		columnName,
+		expr.SQLOperator,
+		expr.SQLPrefix,
+		expr.SQLSuffix,
+	), values, nil
+}
+
+func NewMultivalueOperator[T any](sqlOperator, sqlConnector, sqlPrefix, sqlSuffix string, values ...T) MultivalueOperator[T] {
+	return MultivalueOperator[T]{
+		Values:       values,
+		SQLOperator:  sqlOperator,
+		SQLConnector: sqlConnector,
+		SQLPrefix:    sqlPrefix,
+		SQLSuffix:    sqlSuffix,
+	}
 }
 
 // Operator that verifies a predicate
