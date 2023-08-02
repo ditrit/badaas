@@ -243,3 +243,18 @@ func (ts *OperatorsIntTestSuite) TestIsNotNullNotPointers() {
 
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
+
+func (ts *OperatorsIntTestSuite) TestIsTrue() {
+	match := ts.createProduct("match", 0, 0, true, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, false, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductBool(
+			orm.IsTrue[bool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}

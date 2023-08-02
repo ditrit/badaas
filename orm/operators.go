@@ -1,5 +1,9 @@
 package orm
 
+import (
+	"database/sql"
+)
+
 // Comparison Operators
 // ref: https://www.postgresql.org/docs/current/functions-comparison.html
 
@@ -52,4 +56,10 @@ func IsNull[T any]() PredicateOperator[T] {
 
 func IsNotNull[T any]() PredicateOperator[T] {
 	return NewPredicateOperator[T]("IS NOT NULL")
+}
+
+// Boolean Comparison Predicates
+
+func IsTrue[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS TRUE")
 }
