@@ -103,3 +103,28 @@ func ArrayIn[T any](values ...T) ValueOperator[T] {
 func ArrayNotIn[T any](values ...T) ValueOperator[T] {
 	return NewValueOperator[T](values, "NOT IN")
 }
+
+// Pattern Matching
+
+type LikeOperator[T string | sql.NullString] struct {
+	ValueOperator[T]
+}
+
+func NewLikeOperator[T string | sql.NullString](pattern, sqlOperator string) LikeOperator[T] {
+	return LikeOperator[T]{
+		ValueOperator: NewValueOperator[T](pattern, sqlOperator),
+	}
+}
+
+func (expr LikeOperator[T]) Escape(escape rune) ValueOperator[T] {
+	return expr.AddOperation(string(escape), "ESCAPE")
+}
+
+// Patterns:
+//   - An underscore (_) in pattern stands for (matches) any single character.
+//   - A percent sign (%) matches any sequence of zero or more characters.
+//
+// ref: https://www.postgresql.org/docs/current/functions-matching.html#FUNCTIONS-LIKE
+func Like[T string | sql.NullString](pattern string) LikeOperator[T] {
+	return NewLikeOperator[T](pattern, "LIKE")
+}
