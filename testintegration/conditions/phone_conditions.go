@@ -8,34 +8,34 @@ import (
 	"time"
 )
 
-func PhoneId(v uint) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "ID",
-		Value: v,
+func PhoneId(operator orm.Operator[uint]) orm.WhereCondition[models.Phone] {
+	return orm.FieldCondition[models.Phone, uint]{
+		Field:    "ID",
+		Operator: operator,
 	}
 }
-func PhoneCreatedAt(v time.Time) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "CreatedAt",
-		Value: v,
+func PhoneCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Phone] {
+	return orm.FieldCondition[models.Phone, time.Time]{
+		Field:    "CreatedAt",
+		Operator: operator,
 	}
 }
-func PhoneUpdatedAt(v time.Time) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "UpdatedAt",
-		Value: v,
+func PhoneUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Phone] {
+	return orm.FieldCondition[models.Phone, time.Time]{
+		Field:    "UpdatedAt",
+		Operator: operator,
 	}
 }
-func PhoneDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "DeletedAt",
-		Value: v,
+func PhoneDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Phone] {
+	return orm.FieldCondition[models.Phone, gorm.DeletedAt]{
+		Field:    "DeletedAt",
+		Operator: operator,
 	}
 }
-func PhoneName(v string) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "Name",
-		Value: v,
+func PhoneName(operator orm.Operator[string]) orm.WhereCondition[models.Phone] {
+	return orm.FieldCondition[models.Phone, string]{
+		Field:    "Name",
+		Operator: operator,
 	}
 }
 func PhoneBrand(conditions ...orm.Condition[models.Brand]) orm.Condition[models.Phone] {
@@ -45,9 +45,9 @@ func PhoneBrand(conditions ...orm.Condition[models.Brand]) orm.Condition[models.
 		T2Field:    "ID",
 	}
 }
-func PhoneBrandId(v uint) orm.WhereCondition[models.Phone] {
-	return orm.WhereCondition[models.Phone]{
-		Field: "BrandID",
-		Value: v,
+func PhoneBrandId(operator orm.Operator[uint]) orm.WhereCondition[models.Phone] {
+	return orm.FieldCondition[models.Phone, uint]{
+		Field:    "BrandID",
+		Operator: operator,
 	}
 }

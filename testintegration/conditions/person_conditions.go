@@ -8,33 +8,33 @@ import (
 	"time"
 )
 
-func PersonId(v orm.UUID) orm.WhereCondition[models.Person] {
-	return orm.WhereCondition[models.Person]{
-		Field: "ID",
-		Value: v,
+func PersonId(operator orm.Operator[orm.UUID]) orm.WhereCondition[models.Person] {
+	return orm.FieldCondition[models.Person, orm.UUID]{
+		Field:    "ID",
+		Operator: operator,
 	}
 }
-func PersonCreatedAt(v time.Time) orm.WhereCondition[models.Person] {
-	return orm.WhereCondition[models.Person]{
-		Field: "CreatedAt",
-		Value: v,
+func PersonCreatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Person] {
+	return orm.FieldCondition[models.Person, time.Time]{
+		Field:    "CreatedAt",
+		Operator: operator,
 	}
 }
-func PersonUpdatedAt(v time.Time) orm.WhereCondition[models.Person] {
-	return orm.WhereCondition[models.Person]{
-		Field: "UpdatedAt",
-		Value: v,
+func PersonUpdatedAt(operator orm.Operator[time.Time]) orm.WhereCondition[models.Person] {
+	return orm.FieldCondition[models.Person, time.Time]{
+		Field:    "UpdatedAt",
+		Operator: operator,
 	}
 }
-func PersonDeletedAt(v gorm.DeletedAt) orm.WhereCondition[models.Person] {
-	return orm.WhereCondition[models.Person]{
-		Field: "DeletedAt",
-		Value: v,
+func PersonDeletedAt(operator orm.Operator[gorm.DeletedAt]) orm.WhereCondition[models.Person] {
+	return orm.FieldCondition[models.Person, gorm.DeletedAt]{
+		Field:    "DeletedAt",
+		Operator: operator,
 	}
 }
-func PersonName(v string) orm.WhereCondition[models.Person] {
-	return orm.WhereCondition[models.Person]{
-		Field: "Name",
-		Value: v,
+func PersonName(operator orm.Operator[string]) orm.WhereCondition[models.Person] {
+	return orm.FieldCondition[models.Person, string]{
+		Field:    "Name",
+		Operator: operator,
 	}
 }
