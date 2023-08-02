@@ -67,3 +67,7 @@ func IsTrue[T bool | sql.NullBool]() PredicateOperator[T] {
 func IsNotTrue[T bool | sql.NullBool]() PredicateOperator[T] {
 	return NewPredicateOperator[T]("IS NOT TRUE")
 }
+
+func IsFalse[T bool | sql.NullBool]() PredicateOperator[T] {
+	return NewPredicateOperator[T]("IS FALSE")
+}

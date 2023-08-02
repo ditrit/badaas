@@ -259,6 +259,21 @@ func (ts *OperatorsIntTestSuite) TestIsTrue() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
+func (ts *OperatorsIntTestSuite) TestIsFalse() {
+	match := ts.createProduct("match", 0, 0, false, nil)
+	ts.createProduct("not_match", 0, 0, true, nil)
+	ts.createProduct("not_match", 0, 0, true, nil)
+
+	entities, err := ts.crudProductService.Query(
+		conditions.ProductBool(
+			orm.IsFalse[bool](),
+		),
+	)
+	ts.Nil(err)
+
+	EqualList(&ts.Suite, []*models.Product{match}, entities)
+}
+
 //nolint:dupl // not really duplicated
 func (ts *OperatorsIntTestSuite) TestIsNotTrue() {
 	match1 := ts.createProduct("match", 0, 0, false, nil)
