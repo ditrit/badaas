@@ -285,7 +285,7 @@ func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsOnDeletedAt() {
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *JoinConditionsIntTestSuite) TestQueryWithConditionThatJoinsAndFiltersByNil() {
+func (ts *JoinConditionsIntTestSuite) TestConditionThatJoinsAndFiltersByNil() {
 	product1 := ts.createProduct("", 1, 0.0, false, nil)
 	intProduct2 := 2
 	product2 := ts.createProduct("", 2, 0.0, false, &intProduct2)
@@ -295,7 +295,7 @@ func (ts *JoinConditionsIntTestSuite) TestQueryWithConditionThatJoinsAndFiltersB
 
 	entities, err := ts.crudSaleService.Query(
 		conditions.SaleProduct(
-			conditions.ProductIntPointer(nil),
+			conditions.ProductIntPointer(orm.IsNull[int]()),
 		),
 	)
 	ts.Nil(err)

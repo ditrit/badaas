@@ -299,19 +299,6 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfPointerTypeWithValue() {
 	EqualList(&ts.Suite, []*models.Product{match}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestQueryWithConditionOfPointerTypeByNil() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	intNotMatch := 2
-	ts.createProduct("not_match", 2, 0, false, &intNotMatch)
-
-	entities, err := ts.crudProductService.Query(
-		conditions.ProductIntPointer(nil),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
 func (ts *WhereConditionsIntTestSuite) TestConditionOfByteArrayWithContent() {
 	match := ts.createProduct("match", 1, 0, false, nil)
 	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
@@ -350,22 +337,6 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfByteArrayEmpty() {
 
 	entities, err := ts.crudProductService.Query(
 		conditions.ProductByteArray(orm.Eq([]byte{})),
-	)
-	ts.Nil(err)
-
-	EqualList(&ts.Suite, []*models.Product{match}, entities)
-}
-
-func (ts *WhereConditionsIntTestSuite) TestQueryWithConditionOfByteArrayNil() {
-	match := ts.createProduct("match", 1, 0, false, nil)
-	notMatch1 := ts.createProduct("not_match", 2, 0, false, nil)
-	notMatch1.ByteArray = []byte{2, 3}
-
-	err := ts.db.Save(notMatch1).Error
-	ts.Nil(err)
-
-	entities, err := ts.crudProductService.Query(
-		conditions.ProductByteArray(nil),
 	)
 	ts.Nil(err)
 
@@ -430,7 +401,7 @@ func (ts *WhereConditionsIntTestSuite) TestConditionOfRelationTypeOptionalWithVa
 	EqualList(&ts.Suite, []*models.Sale{match}, entities)
 }
 
-func (ts *WhereConditionsIntTestSuite) TestQueryWithConditionOfRelationTypeOptionalByNil() {
+func (ts *WhereConditionsIntTestSuite) TestConditionOfRelationTypeOptionalByNil() {
 	product1 := ts.createProduct("", 0, 0.0, false, nil)
 	product2 := ts.createProduct("", 0, 0.0, false, nil)
 
@@ -440,7 +411,7 @@ func (ts *WhereConditionsIntTestSuite) TestQueryWithConditionOfRelationTypeOptio
 	ts.createSale(0, product2, seller2)
 
 	entities, err := ts.crudSaleService.Query(
-		conditions.SaleSellerId(nil),
+		conditions.SaleSellerId(orm.IsNull[orm.UUID]()),
 	)
 	ts.Nil(err)
 
