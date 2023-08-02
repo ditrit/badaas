@@ -41,6 +41,11 @@ func Between[T any](v1 T, v2 T) MultivalueOperator[T] {
 	return NewMultivalueOperator("BETWEEN", "AND", "", "", v1, v2)
 }
 
+// Equivalent to NOT (v1 < value < v2)
+func NotBetween[T any](v1 T, v2 T) MultivalueOperator[T] {
+	return NewMultivalueOperator("NOT BETWEEN", "AND", "", "", v1, v2)
+}
+
 func IsNull[T any]() PredicateOperator[T] {
 	return NewPredicateOperator[T]("IS NULL")
 }
