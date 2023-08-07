@@ -1,99 +1,23 @@
 # BaDaaS ORM: Backend and Distribution ORM (Object Relational Mapping) <!-- omit in toc -->
 
-BaDaaS ORM is the BaDaaS component that allows for easy persistence and querying of objects. It is built on top of gorm and adds for each entity a service and a repository that allows complex queries without any extra effort.
+Badaas-orm is the BaDaaS' component that allows for easy and safe persistence and querying of objects but it can be used both within a BaDaaS application and independently.
 
-BaDaaS ORM can be used both within a BaDaaS application and as a stand-alone application.
+It's built on top of `gorm <https://gorm.io/>`_, a library that actually provides the functionality of an ORM: mapping objects to tables in the SQL database. While gorm does this job well with its automatic migration then performing queries on these objects is somewhat limited, forcing us to write SQL queries directly when they are complex. Badaas-orm seeks to address these limitations with a query system that:
 
-- [Quickstart](#quickstart)
-  - [Stand-alone Example](#stand-alone-example)
-  - [BaDaaS Example](#badaas-example)
-  - [Step-by-step instructions](#step-by-step-instructions)
-- [Provided functionalities](#provided-functionalities)
-  - [Base models](#base-models)
-  - [CRUDServiceModule](#crudservicemodule)
+- Is compile-time safe: its query system is validated at compile time to avoid errors such as comparing attributes that are of different types, trying to use attributes or navigate relationships that do not exist, using information from tables that are not included in the query, etc.
+- Is easy to use: the use of this system does not require knowledge of databases, SQL languages or complex concepts. Writing queries only requires programming in go and the result is easy to read.
+- Is designed for real applications: the query system is designed to work well in real-world cases where queries are complex, require navigating multiple relationships, performing multiple comparisons, etc.
+- Is designed so that developers can focus on the business model: its queries allow easy retrieval of model relationships to apply business logic to the model and it provides mechanisms to avoid errors in the business logic due to mistakes in loading information from the database.
+- It is designed for high performance: the query system avoids as much as possible the use of reflection and aims that all the necessary model data can be retrieved in a single query to the database.
 
-## Quickstart
+## Documentation
 
-### Stand-alone Example
+<!-- TODO add link to docs -->
 
-To quickly understand the features provided by badaas-orm, you can head to the [example](https://github.com/ditrit/badaas-orm-example). This example will help you to see how to use badaas-orm and as a template to start your own project.
+## Contributing
 
-### BaDaaS Example
+See [this section](../docs/contributing/contributing.md) to view the badaas contribution guidelines.
 
-If you are interested in using badaas-orm within a BaDaaS application you can consult the [example](https://github.com/ditrit/badaas-example) in which besides using the services and repositories provided by badaas-orm, BaDaaS adds a controller that allows the query of objects via an http api.
+## License
 
-### Step-by-step instructions
-
-Once you have started your project with `go init`, you must add the dependency to BaDaaS:
-
-```bash
-go get -u github.com/ditrit/badaas
-```
-
-In order to use badaas-orm you will also need to use the following libraries:
-
-```bash
-go get -u github.com/uber-go/fx github.com/uber-go/zap gorm.io/gorm
-```
-
-First of all, you will need to start your application with `fx`:
-
-```go
-func main() {
-  fx.New(
-    // connect to db
-    fx.Provide(NewGormDBConnection),
-    // activate badaas-orm
-    fx.Provide(GetModels),
-    orm.AutoMigrate,
-
-    // create crud services for models
-    orm.GetCRUDServiceModule[models.Company](),
-    orm.GetCRUDServiceModule[models.Product](),
-    orm.GetCRUDServiceModule[models.Seller](),
-    orm.GetCRUDServiceModule[models.Sale](),
-
-    // start example data
-    fx.Provide(CreateCRUDObjects),
-    fx.Invoke(QueryCRUDObjects),
-  ).Run()
-}
-```
-
-There are some things you need to provide to the badaas-orm module:
-
-- `NewGORMDBConnection` is the function that establish the connection to the database where you data will be saved.
-- `GetModels` is the function that returns a `orm.GetModelsResult`, to tell badaas-orm which are the models you want to be auto-migrated.
-
-After that, you can execute the auto-migration with `orm.AutoMigrate` and create the CRUD services to your models using `orm.GetCRUDServiceModule`.
-
-Finally, you can call your application functions as `CreateCRUDObjects` and `QueryCRUDObjects` where created CRUDServices can be injected to create, read, update and delete your models easily.
-
-## Provided functionalities
-
-### Base models
-
-badaas-orm gives you two types of base models for your classes: `orm.UUIDModel` and `orm.UIntModel`.
-
-To use them, simply embed the desired model in any of your classes:
-
-```go
-type MyClass struct {
-  orm.UUIDModel
-
-  // your code here
-}
-```
-
-Once done your class will be considered a **BaDaaS Model**.
-
-The difference between them is the type they will use as primary key: a random uuid and an auto incremental uint respectively. Both provide date created, edited and deleted (<https://gorm.io/docs/delete.html#Soft-Delete>).
-
-### CRUDServiceModule
-
-`CRUDServiceModule` provides you a CRUDService and a CRUDRepository for your badaas Model. After calling it as, for example, `orm.GetCRUDServiceModule[models.Company](),` the following can be used by dependency injection:
-
-- `crudCompanyService orm.CRUDService[models.Company, orm.UUID]`
-- `crudCompanyRepository orm.CRUDRepository[models.Company, orm.UUID]`
-
-These classes will allow you to perform queries using the compilable query system generated with badaas-cli. For details on how to do this visit [badaas-cli docs](github.com/ditrit/badaas-cli/README.md).
+Badaas is Licensed under the [Mozilla Public License Version 2.0](../LICENSE).
