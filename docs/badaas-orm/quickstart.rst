@@ -24,7 +24,7 @@ Once you have started your project with `go init`, you must add the dependency t
 
 .. code-block:: bash
 
-    go get -u github.com/ditrit/badaas github.com/uber-go/zap gorm.io/gorm
+    go get -u github.com/ditrit/badaas gorm.io/gorm
 
 
 In models.go the :ref:`models <badaas-orm/concepts:model>` are defined and 
@@ -32,11 +32,11 @@ in conditions/orm.go the file required to
 :ref:`generate the conditions <badaas-orm/concepts:conditions generation>` is created.
 
 In main.go a main function is created with the configuration required to use the badaas-orm. 
-First, we need to create a :ref:`gormDB <badaas-orm/concepts:gormDB>` that allows connection with the database:
+First, we need to create a :ref:`gorm.DB <badaas-orm/concepts:GormDB>` that allows connection with the database:
 
 .. code-block:: go
 
-    gormDB, err := NewGormDBConnection()
+    gormDB, err := NewDBConnection()
 
 After that, we have to call the :ref:`AutoMigrate <badaas-orm/concepts:auto migration>` 
 method of the gormDB with the models you want to be persisted::
@@ -88,11 +88,16 @@ First, we will need to start your application with `fx`:
 
     func main() {
       fx.New(
+        fx.Provide(NewZapLogger),
         // connect to db
-        fx.Provide(NewGormDBConnection),
-        // activate badaas-orm
+        fx.Provide(NewDBConnection),
         fx.Provide(GetModels),
         orm.AutoMigrate,
+
+        // logger for fx
+        fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
+          return &fxevent.ZapLogger{Logger: logger}
+        }),
 
         // create crud services for models
         orm.GetCRUDServiceModule[models.Company](),
@@ -108,8 +113,11 @@ First, we will need to start your application with `fx`:
 
 There are some things you need to provide to the badaas-orm module:
 
-- `NewGORMDBConnection` is the function that we need to create 
-  a :ref:`gormDB <badaas-orm/concepts:gormDB>` that allows connection with the database.
+- `NewZapLogger` (optional) in this case we will use the zap logger instead of the gorm logger, 
+  so we have to provide it and then use it as a logger for fx. 
+  For more information visit :doc:`logger`.
+- `NewDBConnection` is the function that we need to create 
+  a :ref:`gorm.DB <badaas-orm/concepts:GormDB>` that allows connection with the database.
 - `GetModels` is a function that returns in a `orm.GetModelsResult` the list of models 
   you want to be persisted by the :ref:`auto migration <badaas-orm/concepts:auto migration>`.
 

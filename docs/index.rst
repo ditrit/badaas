@@ -52,6 +52,7 @@ Learn how to use BaDaaS following the :doc:`badaas/quickstart`.
    badaas-orm/query
    badaas-orm/advanced_query
    badaas-orm/preloading
+   badaas-orm/logger
 
 .. toctree::
    :caption: Contributing
