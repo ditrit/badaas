@@ -21,7 +21,7 @@ This structure allows us to check the "Owner" or "Creator" attributes of the sub
 
 Our model uses the following definitions:
 
-```plaintext
+```
 [request_definition]
 r = dom, sub, obj, act
 
