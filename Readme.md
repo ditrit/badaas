@@ -12,3 +12,16 @@ This is a simple web application that demonstrates user authentication and acces
 
 - model.conf: Defines the access control model and matchers for a hybrid ABAC/RBAC with domains.
 - policy.csv: Defines the access control policies.    
+
+## Testing
+
+To test, please enter a struct like object so it can be converted and avoid errors:
+
+```go
+{
+  "Name": "file_name",
+  "Owner": "owner_name",
+  "Domain": "domain_name",
+  "Creator": "creator_name"
+}
+```
