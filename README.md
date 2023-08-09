@@ -6,7 +6,7 @@ Welcome to the repository for our hybrid access control model, implemented using
 
 Data resources are defined as a struct with four string properties:
 
-```plaintext
+```go
 type Data struct {
 	Name    string
 	Owner   string
