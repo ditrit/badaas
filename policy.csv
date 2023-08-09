@@ -1,0 +1,46 @@
+# role assignment
+p, Orness,devops_evangelist, data1, exec
+p, Orness, automation_architect, data2, exec
+p, Orness, release_manager, data3, exec
+p, OGrEE-APP,devops_evangelist, data1, exec
+p, terrator-plugin, automation_architect, data2, exec
+p, Leto-Modelizer, release_manager, data3, exec
+p, Ditrit,devops_evangelist, data1, exec
+p, Ditrit, automation_architect, data2, exec
+p, Ditrit, release_manager, data3, exec
+p, Orness, software_developer, data4, write
+p, experience_assurance, Ditrit, Orness, read
+#p, security_engineer, data3, Badaas, write
+#p, utility_technology_player, data1, domain2.sub3, write
+p, Orness, super, Ditrit, exec
+p, domain1, test, Ditrit, play
+# group-role assignment for a specific domain
+g, devops_evangelists, devops_evangelist
+g, automation_architects, automation_architect
+g, release_managers, release_manager
+g, supers, super
+g, new_group, test
+
+# domain resource hierarchy (working well)
+g2, Ditrit, domain1
+g2, Ditrit, domain2
+g2, domain1, OGrEE-APP
+g2, domain1, terrator-plugin
+g2, domain2, Leto-Modelizer
+g2, domain2, Badaas
+g2, OGrEE-APP, data1/*
+g2, terrator-plugin, data2/*
+g2, Leto-Modelizer, data3/*
+g2, Badaas, data4/*
+g2, Orness, Ditrit
+
+#p, Xavier, Ditrit, view, Orness
+# user-group assignment
+g3, Xavier, devops_evangelists, OGrEE-APP
+g3, Xavier, release_managers, Leto-Modelizer
+g3, Vincent, automation_architects, terrator-plugin
+g3, devaut, devops_evangelists, OGrEE-APP
+g3, devaut, automation_architect, terrator-plugin
+g3, Vincent, new_group, domain1
+g3, automation_architects, new_group, domain1
+g3, devops_evangelists, new_group, domain1

@@ -1,0 +1,9 @@
+Object must look like this:
+
+{
+  "Name": "test",
+  "Owner": "Xavier",
+  "Domain": "Badaas",
+  "Creator": "john"
+}
+

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Retro-Futuristic Domain Selection</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            background-image: url('https://i.imgur.com/6kb2SkI.jpg');
+            background-size: cover;
+            background-position: center;
+            background-blend-mode: overlay;
+        }
+
+        h1 {
+            color: #00ffcc;
+            text-align: center;
+            margin-top: 40px;
+            text-shadow: 0 0 20px rgba(0, 255, 204, 0.8);
+        }
+
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(0, 255, 204, 0.8);
+        }
+
+        .form-group label {
+            color: #00ffcc;
+        }
+
+        .form-control {
+            background-color: rgba(0, 0, 0, 0.5);
+            border-color: #00ffcc;
+            color: #fff;
+            box-shadow: none;
+        }
+
+        .form-control:focus {
+            background-color: rgba(0, 0, 0, 0.7);
+            border-color: #00ffcc;
+            color: #fff;
+            box-shadow: 0 0 10px rgba(0, 255, 204, 0.6);
+        }
+
+        .btn-primary {
+            background-color: #00ffcc;
+            border-color: #00ffcc;
+        }
+
+        .btn-primary:hover {
+            background-color: #00b38f;
+            border-color: #00b38f;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Domain Selection</h1>
+        <form method="POST">
+            <div class="form-group">
+                <label for="domain">Select Domain:</label>
+                <select class="form-control" id="domain" name="domain">
+                    <option value="Leto-Modelizer">Leto-Modelizer</option>
+                    <option value="Badaas">Badaas</option>
+                    <option value="OGrEE-APP">OGrEE-APP</option>
+                    <option value="terrator-plugin">terrator-plugin</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="object">Object:</label>
+                <input type="text" class="form-control" id="object" name="object" required>
+            </div>
+
+            <div class="form-group">
+                <label for="action">Action:</label>
+                <input type="text" class="form-control" id="action" name="action" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">Execute</button>
+        </form>
+    </div>
+
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
