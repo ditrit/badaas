@@ -2,29 +2,27 @@
 Quickstart
 ==============================
 
-Example
----------------------------
+To integrate badaas-orm into your project, you can head to the 
+`quickstart <https://github.com/ditrit/badaas-orm-quickstart>`_, where you will find two different variations:
 
-To quickly understand the features provided by Badaas-orm, you can head to the 
-`example <https://github.com/ditrit/badaas-orm-example>`_, where you will find two different variations:
-
-- `standalone/` where badaas-orm is used in the simplest possible way.
-- `fx/` where badaas-orm is used within the :ref:`fx dependency injection system <badaas-orm/concepts:dependency injection>`
+1. Standalone (not using any other dependency) in `standalone/`
+2. Using uber fx for :ref:`dependency injection <badaas-orm/concepts:dependency injection>` in `fx/`
 
 Refer to its README.md for running it.
 
 Understand it
+---------------------------------
+
+In this section we will see the steps carried out to develop this quickstart.
+
+Standalone
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In this section we will see the steps carried out to develop this example.
-
-**Standalone**
-
-Once you have started your project with `go init`, you must add the dependency to BaDaaS and others:
+Once you have started your project with `go init`, you must add the dependency to BaDaaS:
 
 .. code-block:: bash
 
-    go get -u github.com/ditrit/badaas gorm.io/gorm
+    go get -u github.com/ditrit/badaas
 
 
 In models.go the :ref:`models <badaas-orm/concepts:model>` are defined and 
@@ -42,10 +40,7 @@ After that, we have to call the :ref:`AutoMigrate <badaas-orm/concepts:auto migr
 method of the gormDB with the models you want to be persisted::
 
     err = gormDB.AutoMigrate(
-      models.Product{},
-      models.Company{},
-      models.Seller{},
-      models.Sale{},
+      models.MyModel{},
     )
 
 From here, we can start to use badaas-orm, getting the :ref:`CRUDService <badaas-orm/concepts:CRUDService>` 
@@ -53,7 +48,7 @@ and :ref:`CRUDRepository <badaas-orm/concepts:CRUDRepository>` of a model with t
 
 .. code-block:: go
 
-    crudProductService, crudProductRepository := orm.GetCRUD[models.Product, model.UUID](gormDB)
+    crudMyModelService, crudMyModelRepository := orm.GetCRUD[models.MyModel, model.UUID](gormDB)
 
 As you can see, we need to specify the type of the model and the kind 
 of :ref:`id <badaas-orm/concepts:model ID>` this model uses.
@@ -62,14 +57,12 @@ Finally, you can use this service and repository to perform CRUD operations on y
 
 .. code-block:: go
 
-  CreateCRUDObjects(gormDB, crudProductRepository)
-  QueryCRUDObjects(crudProductService)
+  Run(crudMyModelService, crudMyModelRepository)
 
-This two functions are defined in `example.go`. 
-In `QueryCRUDObjects` you can find a basic usage of the 
-:ref:`compilable query system <badaas-orm/concepts:compilable query system>`.
+This function is defined in `example.go`. 
 
-**Fx**
+Fx
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 Once you have started your project with `go init`, you must add the dependency to BaDaaS and others:
 
@@ -100,14 +93,10 @@ First, we will need to start your application with `fx`:
         }),
 
         // create crud services for models
-        orm.GetCRUDServiceModule[models.Company](),
-        orm.GetCRUDServiceModule[models.Product](),
-        orm.GetCRUDServiceModule[models.Seller](),
-        orm.GetCRUDServiceModule[models.Sale](),
+        orm.GetCRUDServiceModule[models.MyModel](),
 
-        // start example data
-        fx.Provide(CreateCRUDObjects),
-        fx.Invoke(QueryCRUDObjects),
+        // run your code
+        fx.Invoke(Run),
       ).Run()
     }
 
@@ -125,7 +114,6 @@ After that, you can execute the auto-migration with `orm.AutoMigrate`
 and create :ref:`CRUDServices <badaas-orm/concepts:CRUDService>` 
 to your models using `orm.GetCRUDServiceModule`.
 
-Finally, we call the functions `CreateCRUDObjects` 
-and `QueryCRUDObjects` where the CRUDServices are injected to create, 
-read, update and delete the models easily. This two functions are defined in `example.go`. 
-In `QueryCRUDObjects` you can find a basic usage of the :ref:`compilable query system <badaas-orm/concepts:compilable query system>`.
+Finally, we call the function `Run` where the CRUDServices and CRUDRepositories are injected, 
+allowing to perform CRUD operations on your models. 
+This function is defined in `example.go`.
