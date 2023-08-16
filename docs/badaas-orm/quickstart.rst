@@ -3,10 +3,11 @@ Quickstart
 ==============================
 
 To integrate badaas-orm into your project, you can head to the 
-`quickstart <https://github.com/ditrit/badaas-orm-quickstart>`_, where you will find two different variations:
+`quickstart <https://github.com/ditrit/badaas-orm-quickstart>`_, where you will find three different variations:
 
 1. Standalone (not using any other dependency) in `standalone/`
 2. Using uber fx for :ref:`dependency injection <badaas-orm/concepts:dependency injection>` in `fx/`
+3. Inside a badaas application in `badaas/`
 
 Refer to its README.md for running it.
 
@@ -117,3 +118,47 @@ to your models using `orm.GetCRUDServiceModule`.
 Finally, we call the function `Run` where the CRUDServices and CRUDRepositories are injected, 
 allowing to perform CRUD operations on your models. 
 This function is defined in `example.go`.
+
+Badaas
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Once you have started your project with `go init`, you must add the dependency to BaDaaS and others:
+
+.. code-block:: bash
+
+  go get -u github.com/ditrit/badaas github.com/uber-go/fx github.com/uber-go/zap
+
+In models.go the :ref:`models <badaas-orm/concepts:model>` are defined and 
+in conditions/orm.go the file required to 
+:ref:`generate the conditions <badaas-orm/concepts:conditions generation>` is created.
+
+In main.go a main function is created with the configuration required to use the badaas-orm 
+services and repositories inside a badaas application: 
+
+.. code-block:: go
+
+  func main() {
+    badaas.BaDaaS.AddModules(
+      orm.AutoMigrate,
+      // create crud services for models
+      orm.GetCRUDServiceModule[models.MyModel](),
+    ).Provide(
+      GetModels,
+    ).Invoke(
+      // run your code
+      Run,
+    ).Start()
+  }
+
+You need to provide to the badaas application `orm.AutoMigrate` and 
+`GetModels` for running the :ref:`auto migration <badaas-orm/concepts:auto migration>`.
+
+After that, you can create :ref:`CRUDServices <badaas-orm/concepts:CRUDService>` 
+to your models using `orm.GetCRUDServiceModule`.
+
+Finally, we call the function `Run` where the CRUDServices and CRUDRepositories are injected, 
+allowing to perform CRUD operations on your models. 
+This function is defined in `example.go`.
+
+
+For more details about badaas visit :doc:`/index`.
