@@ -162,3 +162,9 @@ This function is defined in `example.go`.
 
 
 For more details about badaas visit :doc:`/index`.
+
+Use it
+----------------------
+
+Now that you know how to integrate badaas-orm into your project, 
+you can learn how to use it by following the :doc:`tutorial`.
