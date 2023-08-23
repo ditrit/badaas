@@ -1,8 +1,10 @@
 package models
 
+import "github.com/ditrit/badaas/orm"
+
 // Represents a user
 type User struct {
-	BaseModel
+	orm.UUIDModel
 	Username string `gorm:"not null"`
 	Email    string `gorm:"unique;not null"`
 
@@ -10,9 +12,9 @@ type User struct {
 	Password []byte `gorm:"not null"`
 }
 
-// Return the pluralized table name
-//
-// Satisfie the Tabler interface
-func (User) TableName() string {
-	return "users"
+func UserEmailCondition(operator orm.Operator[string]) orm.WhereCondition[User] {
+	return orm.FieldCondition[User, string]{
+		Operator: operator,
+		Field:    "Email",
+	}
 }

@@ -5,6 +5,7 @@ on:
       - main
   pull_request:
     types: [opened, synchronize, reopened]
+
 jobs:
   branch-naming-rules:
     name: Check branch name
@@ -18,25 +19,6 @@ jobs:
           min_length: 5
           max_length: 50
 
-  unit-tests:
-    name: Unit tests
-    needs: [branch-naming-rules]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-go@v3
-        with:
-          go-version: '^1.18'
-          cache: true
-      - name: Run test
-        run:  go test $(go list ./... | sed 1d) -coverprofile=coverage.out -v
-      - uses: actions/upload-artifact@v3
-        with:
-          name: coverage
-          path: coverage.out
-
   check-style:
     name: Code style
     needs: [branch-naming-rules]
@@ -49,14 +31,73 @@ jobs:
         with:
           go-version: '^1.18'
           cache: true
-      
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v3
         with:
-          version: latest
+          version: v1.52.2
           skip-cache: true
           skip-pkg-cache: true
           skip-build-cache: true
+
+  unit-tests:
+    name: Unit tests
+    needs: [branch-naming-rules]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.18'
+          cache: true
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+      - name: Run unit tests
+        run: gotestsum --junitfile unit-tests.xml $(go list ./... | grep -v testintegration) -coverpkg=./... -coverprofile=coverage_unit.out
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage_unit.out
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always() # run this step even if previous steps failed
+        with:
+          name: Unit Tests Report  # Name of the check run which will be created
+          path: unit-tests.xml     # Path to test results
+          reporter: java-junit     # Format of test results
+
+  integration-tests:
+    name: Integration tests
+    needs: [unit-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '^1.18'
+          cache: true
+      - name: Install gotestsum
+        run: go install gotest.tools/gotestsum@latest
+      - name: Start containers
+        run: docker compose -f "docker/test_db/docker-compose.yml" up -d
+      - name: Run test
+        run:  gotestsum --junitfile integration-tests.xml ./testintegration -coverpkg=./... -coverprofile=coverage_int.out
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: always() # run this step even if previous steps failed
+        with:
+          name: Integration Tests Report  # Name of the check run which will be created
+          path: integration-tests.xml     # Path to test results
+          reporter: java-junit            # Format of test results
+      - uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: coverage_int.out
+      - name: Stop containers
+        run: docker stop badaas-test-db
 
   e2e-tests:
     name: E2E Tests
@@ -71,41 +112,39 @@ jobs:
           go-version: '^1.18'
           cache: true
       - name: Start containers
-        run: docker compose -f "scripts/e2e/docker-compose.yml" up -d --build
+        run: docker compose -f "docker/test_db/docker-compose.yml" -f "docker/test_api/docker-compose.yml" up -d --build
       - name: Wait for API server to be up
         uses: mydea/action-wait-for-api@v1
         with:
           url: "http://localhost:8000/info"
-          timeout: 20
+          timeout: 60
       - name: Run test
-        run:  go test -v
+        run:  go test ./test_e2e -v
       - name: Get logs 
         if: always()
-        run: docker compose -f "scripts/e2e/docker-compose.yml" logs --no-color 2>&1 | tee app.log &
+        run: docker compose -f "docker/test_db/docker-compose.yml" -f "docker/test_api/docker-compose.yml" logs --no-color 2>&1 | tee app.log &
       - name: Stop containers
         if: always()
-        run: docker compose -f "scripts/e2e/docker-compose.yml" down
+        run: docker compose -f "docker/test_db/docker-compose.yml" -f "docker/test_api/docker-compose.yml" down
       - uses: actions/upload-artifact@v3
         with:
           name: docker-compose-e2e-logs
           path: app.log
-      
+
   sonarcloud:
     name: SonarCloud
-    needs: [unit-tests, check-style]
+    needs: [check-style, integration-tests]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - name: Download line coverage report
+      - name: Download line coverage reports
         uses: actions/download-artifact@v3
         with:
           name: coverage
-          path: coverage.out
       - name: SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
