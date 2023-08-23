@@ -5,6 +5,8 @@ import (
 
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/utils"
 )
 
 // The config keys regarding the database settings
@@ -21,7 +23,7 @@ const (
 
 // Hold the configuration values for the database connection
 type DatabaseConfiguration interface {
-	ConfigurationHolder
+	Holder
 	GetPort() int
 	GetHost() string
 	GetDBName() string
@@ -48,6 +50,7 @@ type databaseConfigurationImpl struct {
 func NewDatabaseConfiguration() DatabaseConfiguration {
 	databaseConfiguration := new(databaseConfigurationImpl)
 	databaseConfiguration.Reload()
+
 	return databaseConfiguration
 }
 
@@ -100,7 +103,7 @@ func (databaseConfiguration *databaseConfigurationImpl) GetRetry() uint {
 
 // Return the waiting time between the database connections in seconds
 func (databaseConfiguration *databaseConfigurationImpl) GetRetryTime() time.Duration {
-	return intToSecond(int(databaseConfiguration.retryTime))
+	return utils.IntToSecond(int(databaseConfiguration.retryTime))
 }
 
 // Log the values provided by the configuration holder
