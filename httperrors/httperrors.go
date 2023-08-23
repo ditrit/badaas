@@ -5,22 +5,21 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/ditrit/badaas/persistence/models/dto"
 	"go.uber.org/zap"
+
+	"github.com/ditrit/badaas/persistence/models/dto"
 )
 
-var (
-	// AnError is an HTTPError instance useful for testing.  If the code does not care
-	// about HTTPError specifics, and only needs to return the HTTPError for example, this
-	// HTTPError should be used to make the test code more readable.
-	AnError HTTPError = &HTTPErrorImpl{
-		Status:      -1,
-		Err:         "TESTING ERROR",
-		Message:     "USE ONLY FOR TESTING",
-		GolangError: nil,
-		toLog:       true,
-	}
-)
+// AnError is an HTTPError instance useful for testing.  If the code does not care
+// about HTTPError specifics, and only needs to return the HTTPError for example, this
+// HTTPError should be used to make the test code more readable.
+var AnError HTTPError = &HTTPErrorImpl{
+	Status:      -1,
+	Err:         "TESTING ERROR",
+	Message:     "USE ONLY FOR TESTING",
+	GolangError: nil,
+	toLog:       true,
+}
 
 type HTTPError interface {
 	error
@@ -93,18 +92,18 @@ func NewHTTPError(status int, err string, message string, golangError error, toL
 	}
 }
 
-// A contructor for an HttpError "Not Found"
-func NewErrorNotFound(ressourceName string, msg string) HTTPError {
+// A constructor for an HttpError "Not Found"
+func NewErrorNotFound(resourceName string, msg string) HTTPError {
 	return NewHTTPError(
 		http.StatusNotFound,
-		fmt.Sprintf("%s not found", ressourceName),
+		fmt.Sprintf("%s not found", resourceName),
 		msg,
 		nil,
 		false,
 	)
 }
 
-// A contructor for an HttpError "Internal Server Error"
+// A constructor for an HttpError "Internal Server Error"
 func NewInternalServerError(errorName string, msg string, err error) HTTPError {
 	return NewHTTPError(
 		http.StatusInternalServerError,
@@ -115,7 +114,12 @@ func NewInternalServerError(errorName string, msg string, err error) HTTPError {
 	)
 }
 
-// A contructor for an HttpError "Unauthorized Error"
+// Constructor for an HttpError "DB Error", a internal server error produced by a query
+func NewDBError(err error) HTTPError {
+	return NewInternalServerError("db error", "database query failed", err)
+}
+
+// A constructor for an HttpError "Unauthorized Error"
 func NewUnauthorizedError(errorName string, msg string) HTTPError {
 	return NewHTTPError(
 		http.StatusUnauthorized,

@@ -4,17 +4,19 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
+
+	"github.com/stretchr/testify/assert"
+	"go.uber.org/zap"
+	"go.uber.org/zap/zaptest/observer"
 
 	"github.com/ditrit/badaas/controllers"
 	"github.com/ditrit/badaas/httperrors"
 	mocksSessionService "github.com/ditrit/badaas/mocks/services/sessionservice"
 	mocksUserService "github.com/ditrit/badaas/mocks/services/userservice"
+	"github.com/ditrit/badaas/orm"
 	"github.com/ditrit/badaas/persistence/models"
 	"github.com/ditrit/badaas/persistence/models/dto"
-	"github.com/google/uuid"
-	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
-	"go.uber.org/zap/zaptest/observer"
 )
 
 func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
@@ -24,7 +26,7 @@ func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
 	userService := mocksUserService.NewUserService(t)
 	sessionService := mocksSessionService.NewSessionService(t)
 
-	controller := controllers.NewBasicAuthentificationController(
+	controller := controllers.NewBasicAuthenticationController(
 		logger,
 		userService,
 		sessionService,
@@ -32,14 +34,13 @@ func Test_BasicLoginHandler_MalformedRequest(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader("qsdqsdqsd"),
 	)
 
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.Equal(t, controllers.HTTPErrRequestMalformed, err)
 	assert.Nil(t, payload)
-
 }
 
 func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
@@ -55,7 +56,7 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 		Return(nil, httperrors.AnError)
 	sessionService := mocksSessionService.NewSessionService(t)
 
-	controller := controllers.NewBasicAuthentificationController(
+	controller := controllers.NewBasicAuthenticationController(
 		logger,
 		userService,
 		sessionService,
@@ -63,7 +64,7 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
 			"password":"1234"
@@ -73,7 +74,6 @@ func Test_BasicLoginHandler_UserNotFound(t *testing.T) {
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.Error(t, err)
 	assert.Nil(t, payload)
-
 }
 
 func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
@@ -86,7 +86,7 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
 			"password":"1234"
@@ -94,7 +94,7 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	)
 	userService := mocksUserService.NewUserService(t)
 	user := &models.User{
-		BaseModel: models.BaseModel{},
+		UUIDModel: orm.UUIDModel{},
 		Username:  "bob",
 		Email:     "bob@email.com",
 		Password:  []byte("hash of 1234"),
@@ -104,10 +104,10 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 		Return(user, nil)
 	sessionService := mocksSessionService.NewSessionService(t)
 	sessionService.
-		On("LogUserIn", user, response).
-		Return(httperrors.AnError)
+		On("LogUserIn", user).
+		Return(nil, httperrors.AnError)
 
-	controller := controllers.NewBasicAuthentificationController(
+	controller := controllers.NewBasicAuthenticationController(
 		logger,
 		userService,
 		sessionService,
@@ -116,7 +116,6 @@ func Test_BasicLoginHandler_LoginFailed(t *testing.T) {
 	payload, err := controller.BasicLoginHandler(response, request)
 	assert.Error(t, err)
 	assert.Nil(t, payload)
-
 }
 
 func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
@@ -129,7 +128,7 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	response := httptest.NewRecorder()
 	request := httptest.NewRequest(
 		"POST",
-		"/v1/auth/basic/login",
+		"/login",
 		strings.NewReader(`{
 			"email": "bob@email.com",
 			"password":"1234"
@@ -137,8 +136,8 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 	)
 	userService := mocksUserService.NewUserService(t)
 	user := &models.User{
-		BaseModel: models.BaseModel{
-			ID: uuid.Nil,
+		UUIDModel: orm.UUIDModel{
+			ID: orm.NilUUID,
 		},
 		Username: "bob",
 		Email:    "bob@email.com",
@@ -149,10 +148,10 @@ func Test_BasicLoginHandler_LoginSuccess(t *testing.T) {
 		Return(user, nil)
 	sessionService := mocksSessionService.NewSessionService(t)
 	sessionService.
-		On("LogUserIn", user, response).
-		Return(nil)
+		On("LogUserIn", user).
+		Return(models.NewSession(user.ID, time.Duration(5)), nil)
 
-	controller := controllers.NewBasicAuthentificationController(
+	controller := controllers.NewBasicAuthenticationController(
 		logger,
 		userService,
 		sessionService,
