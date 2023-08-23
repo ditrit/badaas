@@ -1,99 +1,44 @@
 # BADAAS: Backend And Distribution As A Service
 
-Badaas enables the effortless construction of ***distributed, resilient, highly available and secure applications by design***, while ensuring very simple deployment and management (NoOps). 
+[![Build Status](https://github.com/ditrit/badaas/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/ditrit/badaas/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ditrit/badaas)](https://goreportcard.com/report/github.com/ditrit/badaas)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=ditrit_badaas&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=ditrit_badaas)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=ditrit_badaas&metric=coverage)](https://sonarcloud.io/summary/new_code?id=ditrit_badaas)
+[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7624/badge)](https://bestpractices.coreinfrastructure.org/projects/7624)
 
-Badaas provides several key features:
+[![Go.Dev reference](https://img.shields.io/badge/go.dev-reference-blue?logo=go&logoColor=white)](https://pkg.go.dev/github.com/ditrit/badaas)
 
-- **Authentification**: Badaas can authentify users using its internal authentification scheme or externally by using protocols such as OIDC, SAML, Oauth2...
-- **Habilitation**: On a resource access, Badaas will check if the user is authorized using a RBAC model.
-- **Distribution**: Badaas is built to run in clusters by default. Communications between nodes are TLS encrypted using [shoset](https://github.com/ditrit/shoset).
-- **Persistence**: Applicative objects are persisted as well as user files. Those resources are shared accross the clusters to increase resiliency.
-- **Querying Resources**: Resources are accessible via a REST API.
-- **Posix complient**: Badaas strives towards being a good unix citizen and respecting commonly accepted norms. (see [Configuration](#configuration))
-- **Advanced logs management**: Badaas provides an interface to interact with the logs produced by the clusters. Logs are formated in json by default.
+[![Discord DitRit](https://dcbadge.vercel.app/api/server/zkKfj9gj2C?style=flat&theme=default-inverted)](https://discord.gg/zkKfj9gj2C)
 
-To quickly get badaas up and running, please head to the [miniblog tutorial](<!-- TODO: link the miniblog tutorial here -->)
+BaDaaS enables the effortless construction of ***distributed, resilient, highly available and secure applications by design***, while ensuring very simple deployment and management (NoOps).
 
-- [Quickstart](#quickstart)
-- [Docker install](#docker-install)
-- [Install from sources](#install-from-sources)
-  - [Prerequisites](#prerequisites)
-  - [Configuration](#configuration)
-- [Contributing](#contributing)
-- [Licence](#licence)
+> **Warning**
+> BaDaaS is still under development and each of its components can have a different state of evolution
 
-## Quickstart
+## Features and components
 
-You can either use the [Docker Install](#docker-install) or build it from source .
+Badaas provides several key features, each provided by a component that can be used independently and has a different state of evolution:
 
-## Docker install
+- **Authentication**(unstable): Badaas can authenticate users using its internal authentication scheme or externally by using protocols such as OIDC, SAML, Oauth2...
+- **Authorization**(wip_unstable): On resource access, Badaas will check if the user is authorized using a RBAC model.
+- **Distribution**(todo): Badaas is built to run in clusters by default. Communications between nodes are TLS encrypted using [shoset](https://github.com/ditrit/shoset).
+- **Persistence**(wip_unstable): Applicative objects are persisted as well as user files. Those resources are shared across the clusters to increase resiliency. To achieve this, BaDaaS uses the [badaas-orm](https://github.com/ditrit/badaas/orm) component.
+- **Querying Resources**(unstable): Resources are accessible via a REST API.
+- **Posix compliant**(stable): Badaas strives towards being a good unix citizen and respecting commonly accepted norms.
+- **Advanced logs management**(todo): Badaas provides an interface to interact with the logs produced by the clusters. Logs are formatted in json by default.
 
-You can build the image using `docker build -t badaas .` since we don't have an official docker image yet.
+## Documentation
 
-## Install from sources
-
-### Prerequisites
-
-Get the sources of the project, either by visiting the [releases](https://github.com/ditrit/badaas/releases) page and downloading an archive or clone the main branch (please be aware that is it not a stable version).
-
-To build the project:
-
-- [Install go](https://go.dev/dl/#go1.18.4) v1.18
-- Install project dependencies
-
-```bash
-go get
-```
-
-- Run build command
-
-```bash
-go build .
-```
-
-Well done, you have a binary `badaas` at the root of the project.
-
-Then you can launch Badaas directly with:
-
-```bash
-export BADAAS_DATABASE_PORT=<complete>
-export BADAAS_DATABASE_HOST=<complete>
-export BADAAS_DATABASE_DBNAME=<complete>
-export BADAAS_DATABASE_SSLMODE=<complete>
-export BADAAS_DATABASE_USERNAME=<complete>
-export BADAAS_DATABASE_PASSWORD=<complete>
-./badaas 
-```
-
-### Configuration
-
-Badaas use [verdeter](https://github.com/ditrit/verdeter) to manage it's configuration. So Badaas is POSIX complient by default.
-
-Badaas can be configured using environment variables, configuration files or CLI flags.
-CLI flags take priority on the environment variables and the environment variables take priority on the content of the configuration file.
-
-As an exemple we will define the `database.port` configuration key using the 3 methods:
-
-- Using a CLI flag: `--database.port=1222`
-- Using an environment variable: `export BADAAS_DATABASE_PORT=1222` (*dots are replaced by underscores*)
-- Using a config file (in YAML here):
-
-    ```yml
-    # /etc/badaas/badaas.yml
-    database:
-        port: 1222
-    ```
-
-The config file can be placed at `/etc/badaas/badaas.yml` or `$HOME/.config/badaas/badaas.yml` or in the same folder as the badaas binary `./badaas.yml`.
-
-If needed, the location can be overridden using the config key `config_path`.
-
-***For a full overview of the configuration keys: please head to the [configuration documentation](./configuration.md).***
+<!-- TODO add link to docs -->
 
 ## Contributing
 
-See [this section](./CONTRIBUTING.md).
+See [this section](./docs/contributing/contributing.md).
 
-## Licence
+## Code of Conduct
 
-Badaas is Licenced under the [Mozilla Public License Version 2.0](./LICENSE).
+This project has adopted the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.md)
+
+## License
+
+Badaas is Licensed under the [Mozilla Public License Version 2.0](./LICENSE).
