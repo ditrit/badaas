@@ -1,0 +1,76 @@
+
+Fonctionnalitées qui ont été testées: (idp utilisé SAMLtest.id)
+
+Authentification en utilisant le Binding HTTP-Redirect 
+Authentification en utilisant le Binding HTTP-Post
+Decodage de l'assertion de l'idp
+Recherche du status code de l'assertion 
+Recherche des adresses mails présentes dans l'assertion
+Extraction du NameID et du SessionIndex dans l'assertion
+
+
+Fonctionnalitées qui étaient en cours de test :
+
+Le service de logout (SP initiated), la redirection se faisait sans problème que ce soit avec le HTTP-Redirect et le HTTP-POST mais on obtient un message d'erreur(de type securité) sur Samltest.id
+
+Fonctionnalitées qui n'ont pas pu être testée :
+
+Toute l'implementation badaas ( le code pour tester la configuration SAML à été produit)
+La mecanisme de logout initiée par l'idp
+
+Il faudrait créer le code SAML_session dans la partie session de Badaas la session SAML doit être un héritage de la session de badaas par defaut mais qui doit inclure pour chaque utilisateur son NameID et son SessionIndex. Le code est actuellment dans la partie Service SAML
+
+Les métadatas générées par la librairie n'est pas reconnu par SAMLtest.id (probablement pour d'autre idp) pour contourner ce problème il faut arrondir au minimum la variable validUntil la librairie génére un float trop grand
+
+Le renouvellement des différentes clés privées n'a pas été prises en compte
+
+Pour que les métadonnées de l'idp puissent être lu par le SP de Badaas il faudra qu'il n'y ai aucun espace ou retour chariot dans ces métadatas entre la fin des clés privées et publiques et leur balise associée </ds:X509Certificate>
+
+Exemple : Cas bon :  
+                        <ds:X509Certificate>
+MIIDEjCCAfqgAwIBAgIVAPVbodo8Su7/BaHXUHykx0Pi5CFaMA0GCSqGSIb3DQEB
+CwUAMBYxFDASBgNVBAMMC3NhbWx0ZXN0LmlkMB4XDTE4MDgyNDIxMTQwOVoXDTM4
+MDgyNDIxMTQwOVowFjEUMBIGA1UEAwwLc2FtbHRlc3QuaWQwggEiMA0GCSqGSIb3
+DQEBAQUAA4IBDwAwggEKAoIBAQCQb+1a7uDdTTBBFfwOUun3IQ9nEuKM98SmJDWa
+MwM877elswKUTIBVh5gB2RIXAPZt7J/KGqypmgw9UNXFnoslpeZbA9fcAqqu28Z4
+sSb2YSajV1ZgEYPUKvXwQEmLWN6aDhkn8HnEZNrmeXihTFdyr7wjsLj0JpQ+VUlc
+4/J+hNuU7rGYZ1rKY8AA34qDVd4DiJ+DXW2PESfOu8lJSOteEaNtbmnvH8KlwkDs
+1NvPTsI0W/m4SK0UdXo6LLaV8saIpJfnkVC/FwpBolBrRC/Em64UlBsRZm2T89ca
+uzDee2yPUvbBd5kLErw+sC7i4xXa2rGmsQLYcBPhsRwnmBmlAgMBAAGjVzBVMB0G
+A1UdDgQWBBRZ3exEu6rCwRe5C7f5QrPcAKRPUjA0BgNVHREELTArggtzYW1sdGVz
+dC5pZIYcaHR0cHM6Ly9zYW1sdGVzdC5pZC9zYW1sL2lkcDANBgkqhkiG9w0BAQsF
+AAOCAQEABZDFRNtcbvIRmblnZItoWCFhVUlq81ceSQddLYs8DqK340//hWNAbYdj
+WcP85HhIZnrw6NGCO4bUipxZXhiqTA/A9d1BUll0vYB8qckYDEdPDduYCOYemKkD
+dmnHMQWs9Y6zWiYuNKEJ9mf3+1N8knN/PK0TYVjVjXAf2CnOETDbLtlj6Nqb8La3
+sQkYmU+aUdopbjd5JFFwbZRaj6KiHXHtnIRgu8sUXNPrgipUgZUOVhP0C0N5OfE4
+JW8ZBrKgQC/6vJ2rSa9TlzI6JAa5Ww7gMXMP9M+cJUNQklcq+SBnTK8G+uBHgPKR
+zBDsMIEzRtQZm4GIoHJae4zmnCekkQ==</ds:X509Certificate> 
+
+Cas qui cause un problème :
+
+                        <ds:X509Certificate>
+MIIDEjCCAfqgAwIBAgIVAPVbodo8Su7/BaHXUHykx0Pi5CFaMA0GCSqGSIb3DQEB
+CwUAMBYxFDASBgNVBAMMC3NhbWx0ZXN0LmlkMB4XDTE4MDgyNDIxMTQwOVoXDTM4
+MDgyNDIxMTQwOVowFjEUMBIGA1UEAwwLc2FtbHRlc3QuaWQwggEiMA0GCSqGSIb3
+DQEBAQUAA4IBDwAwggEKAoIBAQCQb+1a7uDdTTBBFfwOUun3IQ9nEuKM98SmJDWa
+MwM877elswKUTIBVh5gB2RIXAPZt7J/KGqypmgw9UNXFnoslpeZbA9fcAqqu28Z4
+sSb2YSajV1ZgEYPUKvXwQEmLWN6aDhkn8HnEZNrmeXihTFdyr7wjsLj0JpQ+VUlc
+4/J+hNuU7rGYZ1rKY8AA34qDVd4DiJ+DXW2PESfOu8lJSOteEaNtbmnvH8KlwkDs
+1NvPTsI0W/m4SK0UdXo6LLaV8saIpJfnkVC/FwpBolBrRC/Em64UlBsRZm2T89ca
+uzDee2yPUvbBd5kLErw+sC7i4xXa2rGmsQLYcBPhsRwnmBmlAgMBAAGjVzBVMB0G
+A1UdDgQWBBRZ3exEu6rCwRe5C7f5QrPcAKRPUjA0BgNVHREELTArggtzYW1sdGVz
+dC5pZIYcaHR0cHM6Ly9zYW1sdGVzdC5pZC9zYW1sL2lkcDANBgkqhkiG9w0BAQsF
+AAOCAQEABZDFRNtcbvIRmblnZItoWCFhVUlq81ceSQddLYs8DqK340//hWNAbYdj
+WcP85HhIZnrw6NGCO4bUipxZXhiqTA/A9d1BUll0vYB8qckYDEdPDduYCOYemKkD
+dmnHMQWs9Y6zWiYuNKEJ9mf3+1N8knN/PK0TYVjVjXAf2CnOETDbLtlj6Nqb8La3
+sQkYmU+aUdopbjd5JFFwbZRaj6KiHXHtnIRgu8sUXNPrgipUgZUOVhP0C0N5OfE4
+JW8ZBrKgQC/6vJ2rSa9TlzI6JAa5Ww7gMXMP9M+cJUNQklcq+SBnTK8G+uBHgPKR
+zBDsMIEzRtQZm4GIoHJae4zmnCekkQ==          
+
+
+
+
+</ds:X509Certificate>
+
+Des exemples de REsquest et de REsponse se trouve sur le site https://www.samltool.com
+

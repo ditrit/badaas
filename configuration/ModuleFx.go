@@ -12,5 +12,6 @@ var ConfigurationModule = fx.Module(
 	fx.Provide(NewInitializationConfiguration),
 	fx.Provide(NewSessionConfiguration),
 	fx.Provide(NewOIDCConfiguration),
+	fx.Provide(NewSAMLConfiguration),
 	fx.Provide(NewAuthenticationConfiguration),
 )

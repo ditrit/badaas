@@ -12,6 +12,8 @@ func initAuthenticationCommands(cfg *verdeter.VerdeterCommand) {
 	cfg.AddValidator(configuration.AuthTypeKey, validators.AuthorizedValues("authorized values",
 		string(configuration.AuthTypePlain),
 		string(configuration.AuthTypeOIDC),
+		string(configuration.AuthTypeSAML),
+		
 	),
 	)
 }

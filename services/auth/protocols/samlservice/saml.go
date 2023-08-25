@@ -67,11 +67,15 @@ var _ SAMLService = (*samlService)(nil)
 
 type samlService struct {
 	logger *zap.Logger
+	
 	//On set le service provider dit SP 
+	
 	samlServiceProvider  *saml2.SAMLServiceProvider 
 	samlConfiguration *configuration.SAMLConfiguration
 }
+
 // Fonctions for the logout 
+
 func (samlService *samlService) Decode_SLO_Request(encodedRequest string) (*types.LogoutRequest, error){
 	LogoutReq,err := samlService.samlServiceProvider.ValidateEncodedLogoutRequestPOST(encodedRequest)
 	if err != nil {
@@ -79,6 +83,7 @@ func (samlService *samlService) Decode_SLO_Request(encodedRequest string) (*type
 	}
 	return LogoutReq,err
 }
+
 func (samlService *samlService) Decode_SLO_Response(encodedRequest string)  (*types.LogoutResponse, error){
 	LogoutReq,err := samlService.samlServiceProvider.ValidateEncodedLogoutRequestPOST(encodedRequest)
 	if err != nil {
@@ -115,6 +120,7 @@ func (samlService *samlService) Generate_SLO_Response(statusCodeValue string, re
 	return SLO_Response,err
 }
 // End of logout function
+
 func (samlService *samlService) BuildRedirectURL() (string,error){
       authURL, err := samlService.samlServiceProvider.BuildAuthURL("")
       if err != nil{
@@ -123,18 +129,25 @@ func (samlService *samlService) BuildRedirectURL() (string,error){
       return authURL, err
 
 }
+
 //Cette fonction sert à générer le corps d'un requête post pour authentification
+
 func (samlService *samlService)	BuildBodyForPost() (string,error){
 
       Body, err := samlService.samlServiceProvider.BuildAuthBodyPost("")
       if err != nil{
+      
 		return "", ErrFailedBuildBodyForPost
+		
 		}
+      
       return string(Body), err
-
+      
 }
 func (samlService *samlService) BuildSPMetadata() (string,error) {
-	metadata,err := samlService.samlServiceProvider.Metadata()//Attention les metadatas générer peuvent être considérer comme invalide pour certains IdP à causse de la valeur du champ "validUntil" qui contient trop de chiffre après la virgule garder juste 3 ou effacer les tous. 
+
+	metadata,err := samlService.samlServiceProvider.Metadata()
+	//Attention les metadatas générer peuvent être considérer comme invalide pour certains IdP à causse de la valeur du champ "validUntil" qui contient trop de chiffre après la virgule garder juste 3 ou effacer les tous. 
 	if err != nil {
 		return "", ErrFailedToBuildMetadata
 		
@@ -204,20 +217,30 @@ func (samlService *samlService) FindEmailAddressesFromResponse(response_auth *ty
 
 func NewSAMLService(logger *zap.Logger, samlConfiguration configuration.SAMLConfiguration) (SAMLService, error) {
 	ctx := context.Background()
-//Bizarre le code ...
 	provider, err := saml.NewProvider(ctx, samlConfiguration.GetIssuer())
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize saml provider with issuer %q, error=%q",
 			samlConfiguration.GetIssuer(), err.Error())
 	}
+
 	
 //On charge les clés du SP 
+
 	key,err := tls.LoadX509KeyPair(samlConfiguration.spKeyPath, samlConfiguration.spCertPath)
 	 if err != nil {
 		return nil, ErrFailedLoadX509KeyPair
 	}
 	Key := dsig.TLSCertKeyStore(key)
+	
+//On charge les signing clés 
+	keysigning,err := tls.LoadX509KeyPair(samlConfiguration.spSigningKeyPath, samlConfiguration.spSigningCertPath)
+	 if err != nil {
+		return nil, ErrFailedLoadX509KeyPair
+	}
+	Keysigning := dsig.TLSCertKeyStore(keysigning)
+
 //On charge les métadatas de l'idp
+
 	rawMetadata, err := ioutil.ReadFile(samlConfiguration.idpMetadataFullPath) // lire le fichier qui nous permet de trust l'idp !! enlever les sauts à la ligne !
         if err != nil {
 		return nil, ErrFailedReadIdpMetadataFile
@@ -254,6 +277,7 @@ func NewSAMLService(logger *zap.Logger, samlConfiguration configuration.SAMLConf
 			certStore.Roots = append(certStore.Roots, idpCert)
 		}
 	}
+	
 	var IDPSSOURL string
 	for index,SSOURL := range metadata.IDPSSODescriptor.SingleSignOnService{
 		if strings.Contains(SSOURL.Binding,samlConfiguration.spSSOBinding){
@@ -262,10 +286,12 @@ func NewSAMLService(logger *zap.Logger, samlConfiguration configuration.SAMLConf
 		}
 		
 	}
+	
 	if IDPSSOURL == nil || IDPSSOURL = "" {
 		return nil, ErrWrongBinding//Wrong binding
 		
 	}
+	
 	var IDPSLOURL string	
 	for index,SLOURL := range metadata.IDPSSODescriptor.SingleLogoutService{
 		if strings.Contains(SLOURL.Binding,"HTTP-POST"){
@@ -274,10 +300,12 @@ func NewSAMLService(logger *zap.Logger, samlConfiguration configuration.SAMLConf
 		}
 		
 	}
+	
 	if IDPSLOURL == nil || IDPSLOURL = "" {
 		return nil,ErrIDPDontHandleSLOBinding//Wrong IDP doesn't have a URL which can handle HTTP-POST
 		
 	}
+	
 	&saml2.SAMLServiceProvider{
 	
 		IdentityProviderSSOURL:      IDPSSOURL,
@@ -301,11 +329,14 @@ func NewSAMLService(logger *zap.Logger, samlConfiguration configuration.SAMLConf
 		
 		
 		SPKeyStore:                  Key ,//Key public and private
-		//SPSigningKeyStore       samlConfiguration.GetSPSigningKey(), // Optional signing key
+		SPSigningKeyStore            Keysigning, // Optional signing key
 		IDPCertificateStore:         &certStore, //Public Key of Idp
 	}
+	
 	return &samlService{logger, config, provider, samlConfiguration}, nil
+
 }
+
 // Ajout lier à la création d'une session SAML 
 // Penser à gérer les erreurs
 

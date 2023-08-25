@@ -17,19 +17,12 @@ const(
 	SAMLIdpMetadataFullPathKey = string "auth.saml.IdpMetadataFullPath" 
 	SAMLSPKeyPathKey = string "auth.saml.SPkeyPath"
 	SAMLSPCertPathKey = string "auth.saml.SPCertifPath"
-	//SAMLSPSigningKeyPathKey = string "auth.saml.SPSigningPath"
-
+	SAMLSPSigningKeyPathKey = string "auth.saml.SPSigningPath"
+	SAMLSPSigningCertPathKey = string "auth.saml.SPSigningPath"
 	SAMLSPSSOBindingKey = string "auth.saml.SPSSOBinding" 
 	SAMLDomaineNameKey = string "auth.saml.DomaineName"
-	//SAMLSPSLOURLKey = string "auth.saml.SPSLOURL" 
-	//SAMLSPIssuerKey = string "auth.saml.SPIssuer" 
-	//SAMLAssertionConsumerServiceURLKey = string "auth.saml.AssertionConsumerServiceURL"
-
-
 	SAMLSignAuthnRequestsKey = string "auth.saml.SignAuthnRequests"
 	SAMLForceAuthnKey = string "auth.saml.ForceAuthn"
-
-	//SAMLAudienceURIKey = string "auth.saml.AudienceURI"
 
 
 
@@ -45,15 +38,10 @@ type SAMLConfiguration interface {
 	GetIdpMetadataFullPath() string
 	GetSPKeyPath() string
         GetSPCertPath() string
-        //GetSPSigningKeyPath() string
-        
+        GetSPSigningKeyPath() string
+        GetSPSigningCertPath() string       
         GetSPSSOBinding() string
         GetDomaineName() string 
-       // GetSPSLOURL() string 
-       //GetSPIssuer() string 
-        //GetAssertionConsumerServiceURL() string 
-        //GetAudienceURI() string
-                
         GetSignAuthnRequests() bool
         GetForceAuthn() bool
 
@@ -62,9 +50,8 @@ var _ SAMLConfiguration = (*samlConfigurationImpl)(nil)
 type samlConfigurationImpl struct {
 	timeValiditySPMetadata int,
 	idpMetadataFullPath,spKeyPath,spCertPath string,
-	//spSigningKeyPath string,
+	spSigningKeyPath,spSigningCertPath string,
 	spSSOBinding,domaineName string,
-	//spSLOURL,spIssuer,assertionConsumerServiceURL,audienceURI string,
 	signAuthnRequests,forceAuthn bool,
 	
 	
@@ -93,11 +80,15 @@ func (samlConfiguration *samlConfigurationImpl) GetSPKeyPath() string{
 func (samlConfiguration *samlConfigurationImpl) GetSPCertPath() string{
 	return samlConfiguration.spCertPath
 }
-/*
+
 func (samlConfiguration *samlConfigurationImpl) GetSPSigningKeyPath() string{
 	return samlConfiguration.spSigningKeyPath
 }
-*/
+
+func (samlConfiguration *samlConfigurationImpl) GetSPSigningCertPath() string{
+	return samlConfiguration.spSigningCertPath
+}
+
 func (samlConfiguration *samlConfigurationImpl) GetSPSSOBinding() string{
 	return samlConfiguration.spSSOBinding
 }
@@ -140,14 +131,9 @@ func (samlConfiguration *samlConfigurationImpl) Reload() {
 	samlConfiguration.idpMetadataFullPath = viper.GetString(SAMLIdpMetadataFullPathKey)
 	samlConfiguration.spKeyPath = viper.GetString(SAMLSPKeyPathKey)
 	samlConfiguration.spCertPath = viper.GetString(SAMLSPCertPathKey)
-	//samlConfiguration.spSigningKeyPath = viper.GetString(SAMLSPSigningKeyPathKey)
+	samlConfiguration.spSigningKeyPath = viper.GetString(SAMLSPSigningKeyPathKey)
+	samlConfiguration.spSigningCertPath = viper.GetString(SAMLSPSigningCertPathKey)
 	samlConfiguration.spSSOBinding = viper.GetString(SAMLSPSSOBindingKey)
-	/*
-	samlConfiguration.spSLOURL = viper.GetString(SAMLSPSLOURLKey)
-	samlConfiguration.spIssuer = viper.GetString(SAMLSPIssuerKey)
-	samlConfiguration.assertionConsumerServiceURL = viper.GetString(SAMLAssertionConsumerServiceURLKey)
-	samlConfiguration.audienceURI = viper.GetString(SAMLAudienceURIKey)
-	*/
 	samlConfiguration.domaineName = viper.GetBool(SAMLDomaineNameKey)
 	samlConfiguration.signAuthnRequests = viper.GetBool(SAMLSignAuthnRequestsKey)
 	samlConfiguration.forceAuthn = viper.GetBool(SAMLForceAuthnKey)
@@ -161,14 +147,9 @@ func (samlConfiguration *samlConfigurationImpl) Log(logger *zap.Logger) {
 		zap.String("idpMetadataFullPath", samlConfiguration.idpMetadataFullPath),
 		zap.String("spKeyPath", samlConfiguration.spKeyPath),
 		zap.String("spCertPath", samlConfiguration.spCertPath),
-		
-	//	zap.String("spSigningKeyPath", samlConfiguration.spSigningKeyPath),
+		zap.String("spSigningKeyPath", samlConfiguration.spSigningKeyPath),
+		zap.String("spSigningCertPath", samlConfiguration.spSigningCertPath),
 		zap.String("spSSOBinding", samlConfiguration.spSSOBinding),
-		/*zap.String("spSLOURL", samlConfiguration.spSLOURL),
-		zap.String("spIssuer", samlConfiguration.spIssuer),
-		zap.String("assertionConsumerServiceURL", samlConfiguration.assertionConsumerServiceURL),
-		zap.String("audienceURI", samlConfiguration.audienceURI),
-		*/
 		zap.String("domaineName", samlConfiguration.domaineName),
 		zap.String("signAuthnRequests", string(samlConfiguration.signAuthnRequests)),
 		zap.String("forceAuthn", string(samlConfiguration.forceAuthn)),		

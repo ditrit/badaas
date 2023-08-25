@@ -16,6 +16,7 @@ type AuthType string
 const (
 	AuthTypePlain AuthType = "plain"
 	AuthTypeOIDC  AuthType = "oidc"
+	AuthTypeSAML AuthType = "saml"
 )
 
 // Hold the configuration values for the authentication.

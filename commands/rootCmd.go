@@ -9,6 +9,7 @@ import (
 	"github.com/ditrit/badaas/persistence"
 	"github.com/ditrit/badaas/router"
 	"github.com/ditrit/badaas/services/auth/protocols/oidcservice"
+	"github.com/ditrit/badaas/services/auth/protocols/samlservice"
 	"github.com/ditrit/badaas/services/sessionservice"
 	"github.com/ditrit/badaas/services/userservice"
 	"github.com/ditrit/verdeter"
@@ -30,6 +31,7 @@ func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
 		fx.Provide(userservice.NewUserService),
 		fx.Provide(sessionservice.NewSessionService),
 		fx.Provide(oidcservice.NewOIDCService),
+		fx.Provide(samlservice.NewSAMLService),
 		// logger for fx
 		fx.WithLogger(func(logger *zap.Logger) fxevent.Logger {
 			return &fxevent.ZapLogger{Logger: logger}
@@ -41,6 +43,7 @@ func runHTTPServer(cfg *verdeter.VerdeterCommand, args []string) error {
 		fx.Invoke(func(*http.Server) { /* we need this function to be empty*/ }),
 		fx.Invoke(createSuperUser),
 		fx.Invoke(createOIDCUser),
+		fx.Invoke(createSAMLUser), // Not implement during my internship
 	).Run()
 	return nil
 }
@@ -70,4 +73,6 @@ func init() {
 	initSessionCommands(rootCfg)
 	initAuthenticationCommands(rootCfg)
 	initOIDCCommands(rootCfg)
+	initSAMLCommands(rootCfg)
+	
 }
