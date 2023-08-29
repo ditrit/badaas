@@ -92,18 +92,12 @@ func domainHandler(w http.ResponseWriter, r *http.Request) {
 		// Convert the obj value from string to Data struct
 		var obj Data
 		err := json.Unmarshal([]byte(objValue), &obj)
-		fmt.Printf("Parsed object: %+v\n", obj)
+
 		if err != nil {
 			http.Error(w, "Invalid object data", http.StatusInternalServerError)
 			return
 		}
-		fmt.Printf("Type of username: %T\n", username)
-		fmt.Printf("Type of domain: %T\n", dom)
-		fmt.Printf("Type of obj: %T\n", obj)
-		fmt.Printf("Type of act: %T\n", act)
-		fmt.Printf("username is %s, object is %s, domain is %s, action is %s, ", username, obj, dom, act)
-		// test test test test yes yes yes yes shkribibim pam pam pam pam
-		fmt.Println("Before enforcing policies")
+
 		// Initialize the Casbin enforcer
 		model, err := model.NewModelFromFile("model.conf")
 		if err != nil {
@@ -117,8 +111,6 @@ func domainHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// to test the object please use the test.txt file
-
 		// Enforce the Casbin policy
 		allowed, err := e.Enforce(dom, username, obj, act)
 		if err != nil {
@@ -126,11 +118,9 @@ func domainHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// test after work party I'm hungry and coding
-		fmt.Println("After enforcing policies")
-
 		// Store the enforcement result in the session
 		session.Values["enforcement_result"] = allowed
+		session.Values["selected_domain"] = dom
 		session.Save(r, w)
 
 		// Redirect to the result page
@@ -162,11 +152,37 @@ func resultHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Retrieve the selected domain from the session
+	selectedDomain, ok := session.Values["selected_domain"].(string)
+	if !ok {
+		// Redirect to domain selection if selected domain is not found in session
+		http.Redirect(w, r, "/domain.html", http.StatusFound)
+		return
+	}
+
+	// Define a map to store the GitHub links for each domain
+	githubLinks := map[string]string{
+		"Leto-Modelizer":  "https://github.com/ditrit/leto-modelizer",
+		"Badaas":          "https://github.com/ditrit/badaas",
+		"OGrEE-APP":       "https://github.com/ditrit/OGrEE-APP",
+		"terrator-plugin": "https://github.com/ditrit/terrator-plugin",
+	}
+
 	// Render the response template with the access status message
 	tmpl := template.Must(template.ParseFiles("response.html"))
 	if allowed {
 		statusMessage := fmt.Sprintf("Access granted for user %s", username)
 		tmpl.Execute(w, statusMessage)
+
+		// Check if the selected domain has a corresponding GitHub link
+		if githubLink, ok := githubLinks[selectedDomain]; ok {
+			// Add JavaScript to automatically redirect after 5 seconds if access is granted
+			fmt.Fprintf(w, `<script>
+				setTimeout(function() {
+					window.location.href = "%s";
+				}, 5000); // 5000 milliseconds = 5 seconds
+			</script>`, githubLink)
+		}
 	} else {
 		statusMessage := fmt.Sprintf("Access denied for user %s", username)
 		tmpl.Execute(w, statusMessage)
