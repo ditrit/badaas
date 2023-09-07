@@ -2,7 +2,7 @@
 name: Feature request
 about: Suggest an idea for this project
 title: ''
-labels: User Story, To be verify
+labels: enhancement
 ---
 
 ## Description
@@ -26,7 +26,7 @@ labels: User Story, To be verify
 
 `[Put all others constraints here, like list of acceptances values or other]`
 
-## Resources:
+## Resources
 
 `[Put all your resources here, like mockups, diagrams or other here]`
 
@@ -37,4 +37,3 @@ labels: User Story, To be verify
 ## Links
 
 `[Only use by the team, to link this feature with epic, technical tasks or bugs]`
-
